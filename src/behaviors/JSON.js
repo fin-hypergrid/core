@@ -33,7 +33,7 @@ var JSON = Behavior.extend('behaviors.JSON', {
         features.KeyPaging,
         features.ColumnPicker,
         features.ColumnResizing,
-        features.RowResizing,
+        // features.RowResizing,
         features.Filters,
         features.RowSelection,
         features.ColumnSelection,
@@ -198,17 +198,8 @@ var JSON = Behavior.extend('behaviors.JSON', {
 
         var self = this;
         this.createColumns();
-        if (self.grid.isColumnAutosizing()) {
-            setTimeout(function() {
-                self.autosizeAllColumns();
-            }, 100);
-            self.grid.allowEvents(self.dataModel.getRowCount() > 0);
-        } else {
-            setTimeout(function() {
-                self.getColumn(-1).checkColumnAutosizing(true);
-                self.grid.allowEvents(self.dataModel.getRowCount() > 0);
-            });
-        }
+        setTimeout(function() { self.autosizeAllColumns(); }, 100); // after app has had a chance to re/set individual column's `columnAutosizing`
+        self.grid.allowEvents(self.dataModel.getRowCount() > 0);
     },
     /**
      * @summary Rebinds the data without reshaping it.

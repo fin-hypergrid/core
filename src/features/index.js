@@ -5,7 +5,6 @@ module.exports = {
     CellClick: require('./CellClick'),
     CellEditing: require('./CellEditing'),
     CellSelection: require('./CellSelection'),
-    ColumnAutosizing: require('./ColumnAutosizing'),
     ColumnMoving: require('./ColumnMoving'),
     ColumnResizing: require('./ColumnResizing'),
     ColumnSelection: require('./ColumnSelection'),
@@ -14,7 +13,7 @@ module.exports = {
     KeyPaging: require('./KeyPaging'),
     OnHover: require('./OnHover'),
     ColumnPicker: require('./ColumnPicker'),
-    RowResizing: require('./RowResizing'),
+    // RowResizing: require('./RowResizing'),
     RowSelection: require('./RowSelection'),
     ThumbwheelScrolling: require('./ThumbwheelScrolling')
 };

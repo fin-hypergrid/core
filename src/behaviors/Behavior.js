@@ -209,8 +209,13 @@ var Behavior = Base.extend('Behavior', {
         return width;
     },
 
-    setColumnWidth: function(x, width) {
-        this.getActiveColumn(x).setWidth(width);
+    /**
+     * @param {Column|number} columnOrIndex - The column or active column index.
+     * @param width
+     */
+    setColumnWidth: function(columnOrIndex, width) {
+        var column = columnOrIndex >= -2 ? this.getActiveColumn(columnOrIndex) : columnOrIndex;
+        column.setWidth(width);
         this.stateChanged();
     },
 

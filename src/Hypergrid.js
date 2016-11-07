@@ -547,9 +547,7 @@ var Hypergrid = Base.extend('Hypergrid', {
         this.computeCellsBounds();
         this.checkScrollbarVisibility();
         this.behavior.defaultRowHeight = null;
-        if (this.isColumnAutosizing()) {
-            this.behavior.autosizeAllColumns();
-        }
+        this.behavior.autosizeAllColumns();
     },
 
     /**
@@ -668,7 +666,7 @@ var Hypergrid = Base.extend('Hypergrid', {
     checkColumnAutosizing: function() {
         var behavior = this.behavior;
         behavior.autoSizeRowNumberColumn();
-        if (this.isColumnAutosizing() && behavior.checkColumnAutosizing(false)) {
+        if (behavior.checkColumnAutosizing(false)) {
             setTimeout(function() {
                 behavior.grid.synchronizeScrollingBoundaries();
             });
@@ -975,24 +973,6 @@ var Hypergrid = Base.extend('Hypergrid', {
      */
     isScrollingNow: function() {
         return this.scrollingNow;
-    },
-
-    /**
-     * @memberOf Hypergrid#
-     * @returns {number} The index of the column divider under the mouse coordinates.
-     * @param {MouseEvent} mouseEvent - The event to interogate.
-     */
-    overColumnDivider: function(mouseEvent) {
-        return this.renderer.overColumnDivider(mouseEvent.primitiveEvent.detail.mouse.x);
-    },
-
-    /**
-     * @memberOf Hypergrid#
-     * @returns {number} The index of the row divider under the mouse coordinates.
-     * @param {MouseEvent} mouseEvent - The event to interogate.
-     */
-    overRowDivider: function(mouseEvent) {
-        return this.renderer.overRowDivider(mouseEvent.primitiveEvent.detail.mouse.y);
     },
 
     /**
@@ -1792,7 +1772,7 @@ var Hypergrid = Base.extend('Hypergrid', {
     /**
      * @memberOf Hypergrid#
      * @returns {number} The height of the given (recently rendered) row.
-     * @param {number} rowIndex - Tthe row index.
+     * @param {number} rowIndex - The row index.
      */
     getRenderedHeight: function(rowIndex) {
         return this.renderer.getRenderedHeight(rowIndex);
@@ -1924,12 +1904,12 @@ var Hypergrid = Base.extend('Hypergrid', {
     },
 
     /**
+     * @summary Autosize a column for best fit.
+     * @param {Column|number} columnOrIndex - The column or active column index.
      * @memberOf Hypergrid#
-     * @desc Autosize the column at colIndex for best fit.
-     * @param {number} colIndex - The column index to modify at
      */
-    autosizeColumn: function(activeColumnIndex) {
-        var column = this.behavior.getActiveColumn(activeColumnIndex);
+    autosizeColumn: function(columnOrIndex) {
+        var column = columnOrIndex >= -2 ? this.behavior.getActiveColumn(columnOrIndex) : columnOrIndex;
         column.checkColumnAutosizing(true);
         this.computeCellsBounds();
     },
@@ -2118,15 +2098,31 @@ var Hypergrid = Base.extend('Hypergrid', {
         return this.behavior.getRow(y);
     },
     isCellSelection: function() {
+        if (!warned.isCellSelection) {
+            warned.isCellSelection = true;
+            console.warn('Property `isCellSelection` has been deprecated as of v1.2.2 in favor of `this.properties.cellSelection === true` and will be removed in a future version.');
+        }
         return this.properties.cellSelection === true;
     },
     isRowSelection: function() {
+        if (!warned.isRowSelection) {
+            warned.isRowSelection = true;
+            console.warn('Property `isRowSelection` has been deprecated as of v1.2.2 in favor of `this.properties.rowSelection === true` and will be removed in a future version.');
+        }
         return this.properties.rowSelection === true;
     },
     isColumnSelection: function() {
+        if (!warned.isColumnSelection) {
+            warned.isColumnSelection = true;
+            console.warn('Property `isColumnSelection` has been deprecated as of v1.2.2 in favor of `this.properties.columnSelection === true` and will be removed in a future version.');
+        }
         return this.properties.columnSelection === true;
     },
     isColumnAutosizing: function() {
+        if (!warned.isColumnAutosizing) {
+            warned.isColumnAutosizing = true;
+            console.warn('Property `isColumnAutosizing` has been deprecated as of v1.2.2 in favor of `this.properties.columnAutosizing === true` and will be removed in a future version. Note however that as of v1.2.2 grid.properties.columnAutosizing no longer has the global meaning it had previously and should no longer be referred to directly. Refer to each column\'s `columnAutosizing` property instead.');
+        }
         return this.properties.columnAutosizing === true;
     },
 

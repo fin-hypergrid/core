@@ -64,7 +64,7 @@ var RowSelection = Feature.extend('RowSelection', {
      * @param {Object} event - the event details
      */
     handleMouseDown: function(grid, event) {
-        var rowSelectable = grid.isRowSelection() &&
+        var rowSelectable = grid.properties.rowSelection &&
             !event.primitiveEvent.detail.isRightClick &&
             grid.isShowRowNumbers() &&
             event.isHandleColumn;
@@ -89,7 +89,7 @@ var RowSelection = Feature.extend('RowSelection', {
     handleMouseDrag: function(grid, event) {
         if (
             this.dragArmed &&
-            grid.isRowSelection() &&
+            grid.properties.rowSelection &&
             !event.primitiveEvent.detail.isRightClick
         ) {
             //if we are in the fixed area do not apply the scroll values

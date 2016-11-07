@@ -79,7 +79,7 @@ var CellSelection = Feature.extend('CellSelection', {
      * @param {Object} event - the event details
      */
     handleMouseDrag: function(grid, event) {
-        if (this.dragging && grid.isCellSelection() && !event.primitiveEvent.detail.isRightClick) {
+        if (this.dragging && grid.properties.cellSelection && !event.primitiveEvent.detail.isRightClick) {
             this.currentDrag = event.primitiveEvent.detail.mouse;
             this.lastDragCell = grid.newPoint(event.gridCell.x, event.dataCell.y);
             this.checkDragScroll(grid, this.currentDrag);

@@ -13,14 +13,12 @@ module.exports = {
             self = this,
             c = event.detail.column,
             keys =  event.detail.keys;
+
         behavior.toggleSort(c, keys);
 
         setTimeout(function() {
             self.synchronizeScrollingBoundaries();
-            //self.behaviorChanged();
-            if (self.isColumnAutosizing()) {
-                behavior.autosizeAllColumns();
-            }
+            behavior.autosizeAllColumns();
             self.repaint();
         }, 10);
     }

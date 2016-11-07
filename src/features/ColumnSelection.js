@@ -86,7 +86,7 @@ var ColumnSelection = Feature.extend('ColumnSelection', {
 
         // todo: >= 5 depends on header being top-most row which is currently always true but we may allow header "section" to be arbitrary position within quadrant (see also handleMouseDown in ColumnMoving.js)
         if (
-            grid.isColumnSelection() &&
+            grid.properties.columnSelection &&
             event.mousePoint.y >= 5 &&
             !event.primitiveEvent.detail.isRightClick &&
             event.isHeaderCell
@@ -109,7 +109,7 @@ var ColumnSelection = Feature.extend('ColumnSelection', {
      */
     handleMouseDrag: function(grid, event) {
         if (
-            grid.isColumnSelection() &&
+            grid.properties.columnSelection &&
             !this.isColumnDragging(grid) &&
             !event.primitiveEvent.detail.isRightClick &&
             this.dragging
