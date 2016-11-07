@@ -5,7 +5,7 @@ var Base = require('../Base');
 /** @typedef paintFunction
  * @type {function}
  * @this {CellEditor}
- * @param {CanvasGraphicsContext} gc
+ * @param {CanvasRenderingContext2D} gc
  * @param {object} config
  * @param {Rectangle} config.bounds - The clipping rect of the cell to be rendered.
  * @param {number} config.x - the "translated" index into the `behavior.allColumns` array
@@ -30,7 +30,7 @@ var CellRenderer = Base.extend('CellRenderer', {
 
     /**
      * @desc A simple implementation of rounding a cell.
-     * @param {CanvasGraphicsContext} gc
+     * @param {CanvasRenderingContext2D} gc
      * @param {number} x - the x grid coordinate of my origin
      * @param {number} y - the y grid coordinate of my origin
      * @param {number} width - the width I'm allowed to draw within

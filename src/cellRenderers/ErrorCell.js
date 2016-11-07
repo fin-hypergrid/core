@@ -24,7 +24,7 @@ var ErrorCell = CellRenderer.extend('ErrorCell', {
      *
      * Before doing anything else, this function should clear the cell by setting `gc.fillStyle` and calling `gc.fill()`.
      *
-     * @param {CanvasGraphicsContext} gc
+     * @param {CanvasRenderingContext2D} gc
      * @param {object} config
      * @param {Rectangle} config.bounds - The clipping rect of the cell to be rendered.
      * @param {number} config.x - the "translated" index into the `behavior.allColumns` array
