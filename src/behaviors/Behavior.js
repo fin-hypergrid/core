@@ -333,8 +333,6 @@ var Behavior = Base.extend('Behavior', {
         this.setAllColumnProperties(colProperties);
         memento.columnProperties = colProperties;
 
-        //just to be close/ it's easier on the eyes
-        this.setColumnWidth(-1, 24.193359375);
         this.dataModel.reindex();
     },
 
