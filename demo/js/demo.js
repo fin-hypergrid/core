@@ -305,8 +305,7 @@ window.onload = function() {
     behavior.setFixedRowCount(2);
 
     var upDown = Hypergrid.images['down-rectangle'];
-    var upDownSpin = Hypergrid.images['up-down-spin'];
-    var downArrow = Hypergrid.images.calendar;
+    var calendar = Hypergrid.images.calendar;
 
     // CUSTOM CELL RENDERER
     var REGEXP_CSS_HEX6 = /^#(..)(..)(..)$/,
@@ -436,16 +435,6 @@ window.onload = function() {
                 config.backgroundColor = '#' + hex + hex + hex;
                 config.color = n ? 'black' : 'white';
             } else {
-                var upDownIMG = upDown;
-                var upDownSpinIMG = upDownSpin;
-                var downArrowIMG = downArrow;
-
-                if (!grid.isEditable()) {
-                    upDownIMG = null;
-                    upDownSpinIMG = null;
-                    downArrowIMG = null;
-                }
-
                 var travel;
 
                 if (styleRowsFromData) {
@@ -462,7 +451,9 @@ window.onload = function() {
                     case idx.BIRTH_STATE:
                     case idx.RESIDENCE_STATE:
                         //we are a dropdown, lets provide a visual queue
-                        config.value = [null, config.value, upDownIMG];
+                        if (config.editable) {
+                            config.value = [null, config.value, upDown];
+                        }
                 }
 
                 switch (x) {
@@ -471,7 +462,9 @@ window.onload = function() {
                         break;
 
                     case idx.BIRTH_DATE:
-                        config.value = [null, config.value, downArrowIMG];
+                        if (config.editable) {
+                            config.value = [null, config.value, calendar];
+                        }
                         break;
 
                     case idx.EMPLOYED:
@@ -479,22 +472,24 @@ window.onload = function() {
                         break;
 
                     case idx.INCOME:
-                        travel = 60 + Math.round(config.value * 150 / 100000);
-                        config.backgroundColor = '#00' + travel.toString(16) + '00';
-                        config.color = '#FFFFFF';
+                        travel = 60;
                         break;
 
                     case idx.TRAVEL:
-                        travel = 105 + Math.round(config.value * 150 / 1000);
-                        config.backgroundColor = '#' + travel.toString(16) + '0000';
-                        config.color = '#FFFFFF';
+                        travel = 105;
                         break;
+                }
+
+                if (travel) {
+                    travel += Math.round(config.value * 150 / 100000);
+                    config.backgroundColor = '#00' + travel.toString(16) + '00';
+                    config.color = '#FFFFFF';
                 }
 
                 //Testing
                 if (x === idx.TOTAL_NUMBER_OF_PETS_OWNED) {
                     /*
-                     * Be sure to adjust the dataset to the appropriate type and shape in widedata.js
+                     * Be sure to adjust the data set to the appropriate type and shape in widedata.js
                      */
 
                     //return simpleCell; //WORKS
@@ -964,7 +959,8 @@ window.onload = function() {
             ],
 
             backgroundColor: 'white',
-            gridRowProperties: [
+            font: 'normal small garamond',
+            rowProperties: [
                 undefined,
                 undefined,
                 undefined,

@@ -2,8 +2,6 @@
 
 'use strict';
 
-var _ = require('object-iterators');
-
 /**
  * Column.js mixes this module into its prototype.
  * @module
@@ -30,7 +28,7 @@ var cell = {
      * @memberOf Column#
      */
     setCellProperties: function(rowIndex, properties, dataModel) {
-        return _(newCellPropertiesObject.call(this, rowIndex, dataModel)).extendOwn(properties);
+        return Object.assign(newCellPropertiesObject.call(this, rowIndex, dataModel), properties);
     },
 
     /**
@@ -41,7 +39,7 @@ var cell = {
      * @memberOf Column#
      */
     addCellProperties: function(rowIndex, properties, dataModel) {
-        return _(getCellPropertiesObject.call(this, rowIndex, dataModel)).extendOwn(properties);
+        return Object.assign(getCellPropertiesObject.call(this, rowIndex, dataModel), properties);
     },
 
     /**

@@ -840,9 +840,10 @@ var defaults = {
     columnClip: true,
 
     /**
-     * @summary Property overrides for grid rows.
+     * @summary Repeating pattern of property overrides for grid rows.
      * @desc Notes:
-     * * Row index modulo is applied when dereferencing this array.
+     * * "Grid row" refers to data rows.
+     * * Row index modulo is applied when dereferencing this array. In other words, this array represents a _repeating pattern_ of properties to be applied to the data rows.
      * * For no row properties, specify a falsy value in place of the array.
      * * Do not specify an empty array (will throw an error).
      * * Each element of the array may be either:
@@ -854,7 +855,7 @@ var defaults = {
      * @default
      * @memberOf module:defaults
      */
-    gridRowProperties: undefined,
+    rowProperties: undefined,
 };
 
 /** @typedef {string} cssColor

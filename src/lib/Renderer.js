@@ -941,7 +941,7 @@ var Renderer = Base.extend('Renderer', {
 
             columnProperties = cellEvent.columnProperties,
             config,
-            alternates,
+            rowProperties,
             isSelected;
 
         if (isRowHandleOrHierarchyColumn) {
@@ -950,8 +950,8 @@ var Renderer = Base.extend('Renderer', {
             isSelected = isRowSelected || grid.isCellSelectedInRow(r);
         } else if (isGridRow) {
             config = Object.create(cellEvent.properties);
-            alternates = cellEvent.properties.gridRowProperties;
-            Object.assign(config, alternates && alternates[r % alternates.length]);
+            rowProperties = cellEvent.properties.rowProperties;
+            Object.assign(config, rowProperties && rowProperties[r % rowProperties.length]);
             isSelected = isCellSelected || isRowSelected || isColumnSelected;
         } else if (isFilterRow) {
             config = Object.create(columnProperties.filterProperties);

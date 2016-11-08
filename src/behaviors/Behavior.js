@@ -2,7 +2,6 @@
 
 'use strict';
 
-var _ = require('object-iterators');
 var Point = require('rectangular').Point;
 
 var Base = require('../Base');
@@ -1019,7 +1018,7 @@ var Behavior = Base.extend('Behavior', {
         if (!column) {
             throw 'Expected column.';
         }
-        var result = _(column.properties).extendOwn(properties);
+        var result = Object.assign(column.properties, properties);
         this.changed();
         return result;
     },
