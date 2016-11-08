@@ -950,8 +950,12 @@ var Renderer = Base.extend('Renderer', {
             isSelected = isRowSelected || grid.isCellSelectedInRow(r);
         } else if (isGridRow) {
             config = Object.create(cellEvent.properties);
+
+            // Iff we have a defined rowProperties array, apply it to config, treating it as a repeating pattern, keyed to row index.
+            // Note that Object.assign will ignore undefined, including rowProperties itself if undefined or any properties bag therein.
             rowProperties = cellEvent.properties.rowProperties;
             Object.assign(config, rowProperties && rowProperties[r % rowProperties.length]);
+
             isSelected = isCellSelected || isRowSelected || isColumnSelected;
         } else if (isFilterRow) {
             config = Object.create(columnProperties.filterProperties);
