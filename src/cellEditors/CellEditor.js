@@ -3,7 +3,6 @@
 'use strict';
 
 var mustache = require('mustache');
-var _ = require('object-iterators');
 
 var Base = require('../Base');
 var effects = require('../lib/DOM/effects');
@@ -279,7 +278,7 @@ var CellEditor = Base.extend('CellEditor', {
         }
 
         if (typeof effect === 'object') {
-            _(options).extendOwn(effect.options);
+            Object.assign(options, effect.options);
             effect = effect.effector;
         }
 

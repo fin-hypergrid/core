@@ -452,25 +452,6 @@ window.onload = function() {
                     n = behavior.getColumn(idx.TOTAL_NUMBER_OF_PETS_OWNED).getValue(y);
                     hex = (155 + 10 * (n % 11)).toString(16);
                     config.backgroundColor = '#' + hex + hex + hex;
-                } else {
-                    switch (config.y % 6) {
-                        case 3:
-                        case 4:
-                        case 5:
-                            config.backgroundColor = '#e8ffe8';
-                            config.font = 'italic x-small verdana';
-                            if (x !== idx.LAST_NAME) {
-                                config.color = '#070';
-                            }
-                            break;
-
-                        case 0:
-                        case 1:
-                        case 2:
-                            config.backgroundColor = 'white';
-                            config.font = 'normal small garamond';
-                            break;
-                    }
                 }
 
                 switch (x) {
@@ -980,6 +961,16 @@ window.onload = function() {
                 idx.INCOME,
                 idx.TRAVEL,
                 // idx.SQUARE_OF_INCOME
+            ],
+
+            backgroundColor: 'white',
+            gridRowProperties: [
+                undefined,
+                undefined,
+                undefined,
+                { color: '#116611', backgroundColor: '#e8ffe8', font: 'italic x-small verdana' },
+                { color: '#116611', backgroundColor: '#e8ffe8', font: 'italic x-small verdana' },
+                { color: '#116611', backgroundColor: '#e8ffe8', font: 'italic x-small verdana' }
             ],
 
             fixedColumnCount: 1,

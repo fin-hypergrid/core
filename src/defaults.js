@@ -838,6 +838,23 @@ var defaults = {
      * @memberOf module:defaults
      */
     columnClip: true,
+
+    /**
+     * @summary Property overrides for grid rows.
+     * @desc Notes:
+     * * Row index modulo is applied when dereferencing this array.
+     * * For no row properties, specify a falsy value in place of the array.
+     * * Do not specify an empty array (will throw an error).
+     * * Each element of the array may be either:
+     *   * An object containing property overrides to be applied to every cell of the row; or
+     *   * A falsy value signifying that there are no row properties for this specific row.
+     * * Caveat: Row properties use `Object.assign()` to copy properties and therefore are not as performant as column properties which use prototype chain.
+     * * `Object.assign()` is a polyfill in older versions of Chrome (<45) and in all Internet Explorer (through 11).
+     * @type {undefined|object[]}
+     * @default
+     * @memberOf module:defaults
+     */
+    gridRowProperties: undefined,
 };
 
 /** @typedef {string} cssColor
