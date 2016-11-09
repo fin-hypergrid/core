@@ -179,7 +179,7 @@ function renderMultiLineText(gc, config, val, leftPadding, rightPadding) {
     var halignOffset = leftPadding,
         valignOffset = config.voffset,
         halign = config.halign,
-        textHeight = config.getTextHeight(config.font).height;
+        textHeight = gc.getTextHeight(config.font).height;
 
     switch (halign) {
         case 'right':
@@ -231,12 +231,12 @@ function renderSingleLineText(gc, config, val, leftPadding, rightPadding) {
         halign = config.halign,
         isCellHovered = config.isCellHovered,
         isLink = config.link,
-        fontMetrics = config.getTextHeight(config.font),
+        fontMetrics = gc.getTextHeight(config.font),
         minWidth,
         metrics;
 
     if (config.columnAutosizing) {
-        metrics = config.getTextWidthTruncated(gc, val, width);
+        metrics = gc.getTextWidthTruncated(val, width);
         minWidth = metrics.width;
         val = metrics.string || val;
         switch (halign) {
@@ -248,7 +248,7 @@ function renderSingleLineText(gc, config, val, leftPadding, rightPadding) {
                 break;
         }
     } else {
-        metrics = config.getTextWidthTruncated(gc, val, width, true);
+        metrics = gc.getTextWidthTruncated(val, width, true);
         minWidth = 0;
         if (metrics.string) {
             val = metrics.string;
@@ -299,7 +299,7 @@ function findLines(gc, config, words, width) {
     var stillFits, line = [words.shift()];
     while (
         // so lone as line still fits within current column…
-    (stillFits = config.getTextWidth(gc, line.join(' ')) < width)
+    (stillFits = gc.getTextWidth(line.join(' ')) < width)
     // …AND there are more words available…
     && words.length
         ) {
@@ -324,8 +324,8 @@ function findLines(gc, config, words, width) {
 }
 
 function strikeThrough(config, gc, text, x, y, thickness) {
-    var fontMetrics = config.getTextHeight(config.font);
-    var width = config.getTextWidth(gc, text);
+    var fontMetrics = gc.getTextHeight(config.font);
+    var width = gc.getTextWidth(text);
     y -= fontMetrics.height * 0.4;
 
     switch (gc.cache.textAlign) {
@@ -344,7 +344,7 @@ function strikeThrough(config, gc, text, x, y, thickness) {
 }
 
 function underline(config, gc, text, x, y, thickness) {
-    var width = config.getTextWidth(gc, text);
+    var width = gc.getTextWidth(text);
 
     switch (gc.cache.textAlign) {
         case 'center':

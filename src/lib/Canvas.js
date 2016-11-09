@@ -783,44 +783,7 @@ function getCachedContext(canvasElement, type) {
         values = Object.getPrototypeOf(values);
     };
 
-    gc.alpha = alpha;
-    gc.fillCell = fillCell;
-
-    return gc;
-}
-
-function fillCell(x, y, width, height, color) {
-    var a = alpha(color);
-    if (a < 1) {
-        // If background is translucent, we must clear the rect before the fillRect
-        // below to prevent mixing with previous frame's render of this cell.
-        this.clearRect(x, y, width, height);
-    }
-    if (a > 0) {
-        this.cache.fillStyle = color;
-        this.fillRect(x, y, width, height);
-    }
-}
-
-var ALPHA_REGEX = /^(transparent|((RGB|HSL)A\(.*,\s*([\d\.]+)\)))$/i;
-// Tried using an `alphaCache` here but it didn't make a measurable difference.
-function alpha(cssColorSpec) {
-    var matches, result;
-
-    if (!cssColorSpec) {
-        // undefined so not visible; treat as transparent
-        result = 0;
-    } else if ((matches = cssColorSpec.match(ALPHA_REGEX)) === null) {
-        // an opaque color (a color spec with no alpha channel)
-        result = 1;
-    } else if (matches[4] === undefined) {
-        // cssColorSpec must have been 'transparent'
-        result = 0;
-    } else {
-        result = Number(matches[4]);
-    }
-
-    return result;
+    return Object.assign(gc, require('./graphics'));
 }
 
 module.exports = Canvas;

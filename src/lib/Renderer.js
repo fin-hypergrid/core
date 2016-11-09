@@ -1044,7 +1044,7 @@ function resetNumberColumnWidth(gc, behavior) {
         padding = 2 * columnProperties.cellPadding;
 
     gc.cache.font = cellProperties.font;
-    columnProperties.preferredWidth = icon.width + padding + cellProperties.getTextWidth(gc, rowCount);
+    columnProperties.preferredWidth = icon.width + padding + gc.getTextWidth(rowCount);
     if (columnProperties.width === undefined) {
         columnProperties.width = columnProperties.preferredWidth;
     }
