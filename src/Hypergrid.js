@@ -2274,7 +2274,7 @@ var Hypergrid = Base.extend('Hypergrid', {
         if (options) {
             this.dialogOptions[dialogName] = options;
             if (defaultOptions) {
-                options = _({}).extend(defaultOptions, options); // make a mix-in
+                options = Object.assign({}, defaultOptions, options); // make a mix-in
             }
         } else {
             options = defaultOptions || {};

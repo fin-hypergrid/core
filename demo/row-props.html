@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" >
+    <style>
+        .hypergrid-container { width:1580px; height:1050px; margin-top:.5em }
+        label {
+            background-color: beige;
+            padding: 0.35em;
+            border: 1px solid tan;
+            margin-right: 1em;
+            font-family: sans-serif;
+            font-size: 10pt;
+            line-height: 2.75em;
+            white-space: nowrap;
+            padding-right: .5em;
+        }
+        input[type=checkbox] { outline:0 }
+</style>
+</head>
+<body>
+    <label>
+        <input type="checkbox" onclick="grid.properties.enableContinuousRepaint=this.checked" checked>
+        Continuous repaint</label>
+    <label title="Adds a rowProperties array to grid.properties.">
+        <input type="checkbox" onclick="if(this.checked)grid.addProperties(alternatingThreeGreenRows);else deleteProps(grid.properties,alternatingThreeGreenRows);">
+        Grid row properties (alternate 3 white rows with 3 green rows)</label>
+    <label title="Column properties defines a light blue background color BUT inherit's grid's rowProperties array.">
+        <input type="checkbox" onclick="columnProps.call(this, [2,3], columnColorUnderAlternateColors)">
+        Columns 2-3 <em>under</em> alternating rows</label>
+    <label title="Column properties defines a light blue background color AND overrides rowProperties with an undefined.">
+        <input type="checkbox" onclick="columnProps.call(this, [6,7], columnColorOverAlternateColors)">
+        Columns 6-7 <em>over</em> alternating rows</label>
+    <label>
+        <input type="checkbox" onclick="columnProps.call(this, [10,11], columnOwnAlternateColors)">
+        Columns 10-11 override row props</label>
+
+    <script src="build/fin-hypergrid.js"></script>
+
+    <script>
+var data = [
+    { s: 'APPL', n: 'Apple', c: 93.13 },
+    { s: 'MSFT', n: 'Microsoft', c: 51.91 },
+    { s: 'TSLA', n: 'Tesla', c: 196.48 },
+    { s: 'IBM', n: 'IBM', c: 155.35 }
+];
+var grid = new fin.Hypergrid();
+data.forEach(function(dr) { for (var i=1; i<=9; ++i) { ['s','n','c'].find(function(key) { dr[key+i] = mangle(dr[key]) }); } });
+for(var i=0; i<256-4; ++i) {
+    var row = {};
+    for (var fld in data[0]) {
+        row[fld] = mangle(data[0][fld]);
+    }
+    data.push(row);
+}
+grid.setData(data);
+grid.addProperties({
+    backgroundColor: 'white',
+    foregroundSelectionFont: '13px Tahoma, Geneva, sans-serif',
+    columnClip: false,
+    editor: 'textfield',
+    enableContinuousRepaint: true
+});
+
+var alternatingThreeGreenRows = {
+        rowProperties: [
+            undefined,
+            undefined,
+            undefined,
+            { color: '#116611', backgroundColor: '#e8ffe8' },
+            { color: '#116611', backgroundColor: '#e8ffe8' },
+            { color: '#116611', backgroundColor: '#e8ffe8' }
+        ]
+    },
+    columnColorUnderAlternateColors = {
+        backgroundColor: 'lightblue'
+    },
+    columnColorOverAlternateColors = {
+        backgroundColor: 'lightblue',
+        rowProperties: undefined
+    },
+    columnOwnAlternateColors = {
+        rowProperties: [
+            { backgroundColor: 'beige' },
+            { backgroundColor: 'beige' },
+            { backgroundColor: 'tan' },
+            { backgroundColor: 'tan' }
+        ]
+    };
+
+function columnProps(columnIndexes, props) {
+    columnIndexes.forEach(function(columnIndex) {
+        if (this.checked) {
+            grid.setColumnProperties(columnIndex, props);
+        } else {
+            deleteProps(grid.getColumnProperties(columnIndex), columnColorOverAlternateColors);
+        }
+    }, this);
+}
+
+function deleteProps(object, props) {
+    for (var key in props) {
+        if (props.hasOwnProperty(key)) {
+            delete object[key];
+        }
+    }
+}
+
+function mangle(s) {
+    return s.toString().split('').map(function(c) {
+        if (/\d/.test(c)) {
+            return Math.random() * 9 + 1 | 0;
+        } else if (/[A-Z]/.test(c)) {
+            return String.fromCharCode(Math.random() * 26 + 65 | 0);
+        } else if (/[a-z]/.test(c)) {
+            return String.fromCharCode(Math.random() * 26 + 97 | 0);
+        } else {
+            return c;
+        }
+    }).join('');
+}
+    </script>
+</body>
+</html>

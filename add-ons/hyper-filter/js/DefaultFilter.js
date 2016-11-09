@@ -1,7 +1,5 @@
 'use strict';
 
-var _ = require('object-iterators');
-
 var FilterTree = require('filter-tree');
 var ParserCQL = require('./parser-CQL');
 
@@ -95,7 +93,7 @@ var CustomFilterLeaf = FilterTree.prototype.addEditor({
 FilterTree.prototype.addEditor('Columns');
 
 // Add some node templates by updating shared instance of FilterNode's templates. (OK to mutate shared instance; filter-tree not being used for anything else here. Alternatively, we could have instantiated a new Templates object for our DefaultFilter prototype, although this would only affect tree nodes, not leaf nodes, but that would be ok in this case since the additions below are tree node templates.)
-_(FilterTree.Node.prototype.templates).extendOwn({
+Object.assign(FilterTree.Node.prototype.templates, {
     columnFilter: [
         '<span class="filter-tree">',
         '   <strong><span>{2} </span></strong><br>',
@@ -311,7 +309,7 @@ var DefaultFilter = FilterTree.extend('DefaultFilter', {
         subexpression = this.getColumnFilter(columnName);
 
         if (state) {
-            options = _({}).extend(options); // clone it because we may mutate it below
+            options = Object.assign({}, options); // clone it because we may mutate it below
             options.syntax = options.syntax || 'CQL';
 
             if (options.syntax === 'CQL') {

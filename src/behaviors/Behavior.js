@@ -2,7 +2,6 @@
 
 'use strict';
 
-var _ = require('object-iterators');
 var Point = require('rectangular').Point;
 
 var Base = require('../Base');
@@ -329,7 +328,7 @@ var Behavior = Base.extend('Behavior', {
         var state = this.grid.properties;
         this.createColumns();
         this._setColumnOrder(memento.columnIndexes);
-        _(state).extendOwn(memento);
+        Object.assign(state, memento);
         this.setAllColumnProperties(colProperties);
         memento.columnProperties = colProperties;
 
@@ -341,7 +340,7 @@ var Behavior = Base.extend('Behavior', {
         for (var i = 0; i < properties.length; i++) {
             var current = this.grid.properties.columnProperties[i];
             this.clearObjectProperties(current, false);
-            _(current).extendOwn(properties[i]);
+            Object.assign(current, properties[i]);
         }
     },
 
@@ -1019,7 +1018,7 @@ var Behavior = Base.extend('Behavior', {
         if (!column) {
             throw 'Expected column.';
         }
-        var result = _(column.properties).extendOwn(properties);
+        var result = Object.assign(column.properties, properties);
         this.changed();
         return result;
     },
