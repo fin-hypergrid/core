@@ -1,8 +1,8 @@
-/* eslint-env browser */
-
 'use strict';
 
-var ALPHA_REGEX = /^(transparent|((RGB|HSL)A\(.*,\s*([\d\.]+)\)))$/i;
+var graphics = require('./lib/graphics');
+
+var warned = {};
 
 /**
  * This module lists the properties that can be set on a {@link Hypergrid} along with their default values.
@@ -373,11 +373,28 @@ var defaults = {
     halign: 'center',
 
     /**
+     * Padding to left and right of cell value.
+     *
+     * NOTE: Right padding may not be visible if column is not sized wide enough.
+     *
+     * See also {@link module:defaults.iconPadding|iconPadding}.
      * @default
      * @type {number}
      * @memberOf module:defaults
      */
     cellPadding: 5,
+
+    /**
+     * Padding to left and right of cell icons.
+     *
+     * Overrides {@link module:defaults.cellPadding|cellPadding}:
+     * * Left icon + `iconPadding` overrides left `cellPdding`.
+     * * Right icon + `iconPadding` overrides right `cellPaddin`.
+     * @default
+     * @type {number}
+     * @memberOf module:defaults
+     */
+    iconPadding: 3,
 
     /**
      * @default
@@ -407,6 +424,7 @@ var defaults = {
     lineColor: 'rgb(199, 199, 199)',
 
     /**
+     * Caveat: `lineWidth` should be an integer (whole pixel)
      * @default
      * @type {number}
      * @memberOf module:defaults
@@ -490,15 +508,13 @@ var defaults = {
      * @type {function}
      * @memberOf module:defaults
      */
-    getTextWidth: getTextWidth,
-
-    /**
-     * This function is referenced here so it will be available to truncateTextToWidththe renderer and cell renderers.
-     * @default {@link module:defaults.getTextWidthTruncated|getTextWidthTruncated}
-     * @type {function}
-     * @memberOf module:defaults
-     */
-    getTextWidthTruncated: getTextWidthTruncated,
+    getTextWidth: function(gc, string) {
+        if (!warned.getTextWidth) {
+            warned.getTextWidth = true;
+            console.warn('getTextWidth(gc, string) has been deprecated on the properties (or config) object as of v1.2.4 in favor of the graphics context (aka gc) object and will be removed from the properties object in a future release. Please change your calling context to gc.getTextWidth(string), excluding the first parameter (gc) from your call.');
+        }
+        return graphics.getTextWidth.apply(gc, string);
+    },
 
     /**
      * This function is referenced here so it will be available to the renderer and cell renderers.
@@ -506,15 +522,13 @@ var defaults = {
      * @type {function}
      * @memberOf module:defaults
      */
-    getTextHeight: getTextHeight,
-
-    /**
-     * This function is referenced here so it will be available to the renderer and cell renderers.
-     * @default {@link module:defaults.alpha|alpha}
-     * @type {function}
-     * @memberOf module:defaults
-     */
-    alpha: alpha,
+    getTextHeight: function(font) {
+        if (!warned.getTextHeight) {
+            warned.getTextHeight = true;
+            console.warn('getTextHeight(font) has been deprecated on the properties (or config) object as of v1.2.4 in favor of the graphics context (aka gc) object and will be removed from the properties object in a future release. Please change your calling context to gc.getTextHeight(font).');
+        }
+        return graphics.getTextHeight(font);
+    },
 
     /**
      * @default
@@ -864,134 +878,5 @@ var defaults = {
 /** @typedef {string} cssFont
  * @see https://developer.mozilla.org/en-US/docs/Web/CSS/font
  */
-
-var fontMetrics = {};
-
-/**
- * Accumulates width of string in pixels, character by character, by chaching character widths and reusing those values when previously cached.
- *
- * NOTE: There is a minor measuring error when taking the sum of the pixel widths of individual characters that make up a string vs. the pixel width of the string taken as a whole. This is possibly due to kerning or rounding. The error is typically about 0.1%.
- * @memberOf module:defaults
- * @param {CanvasRenderingContext2D} gc
- * @param {string} string - Text to measure.
- * @returns {nubmer} Width of string in pixels.
- */
-function getTextWidth(gc, string) {
-    var metrics = fontMetrics[gc.cache.font] = fontMetrics[gc.cache.font] || {};
-    string += '';
-    for (var i = 0, sum = 0, len = string.length; i < len; ++i) {
-        var c = string[i];
-        sum += metrics[c] = metrics[c] || gc.measureText(c).width;
-    }
-    return sum;
-}
-
-/**
- * Similar to `getTextWidth` except:
- * 1. Aborts accumulating when sum exceeds given `width`.
- * 2. Returns an object rather than a number.
- * @param {CanvasRenderingContext2D} gc
- * @param {string} string - Text to measure.
- * @param {number} width - Width of target cell; overflow point.
- * @param {boolean} [abort=false] - Abort measuring upon overflow.
- * @returns {{string:string,width:number}}
- * * `object.string` - `undefined` if it fits; truncated version of provided `string` if it does not.
- * * `object.width` - Width of provided `string` if it fits; width of truncated string if it does not.
- */
-function getTextWidthTruncated(gc, string, width, abort) {
-    var metrics = fontMetrics[gc.cache.font] = fontMetrics[gc.cache.font] || {},
-        truncString;
-    string += '';
-    for (var i = 0, sum = 0, len = string.length; i < len; ++i) {
-        var c = string[i];
-        sum += metrics[c] = metrics[c] || gc.measureText(c).width;
-        if (!truncString && sum > width) {
-            truncString = string.substr(0, i);
-            if (abort) { break; }
-        }
-    }
-    return {
-        string: truncString,
-        width: sum
-    };
-}
-
-var fontData = {};
-
-/**
- * @memberOf module:defaults
- * @param font
- * @returns {*}
- */
-function getTextHeight(font) {
-    var result = fontData[font];
-
-    if (!result) {
-        result = {};
-
-        var text = document.createElement('span');
-        text.textContent = 'Hg';
-        text.style.font = font;
-
-        var block = document.createElement('div');
-        block.style.display = 'inline-block';
-        block.style.width = '1px';
-        block.style.height = '0px';
-
-        var div = document.createElement('div');
-        div.appendChild(text);
-        div.appendChild(block);
-
-        div.style.position = 'absolute';
-        document.body.appendChild(div);
-
-        try {
-
-            block.style.verticalAlign = 'baseline';
-
-            var blockRect = block.getBoundingClientRect();
-            var textRect = text.getBoundingClientRect();
-
-            result.ascent = blockRect.top - textRect.top;
-
-            block.style.verticalAlign = 'bottom';
-            result.height = blockRect.top - textRect.top;
-
-            result.descent = result.height - result.ascent;
-
-        } finally {
-            document.body.removeChild(div);
-        }
-        if (result.height !== 0) {
-            fontData[font] = result;
-        }
-    }
-
-    return result;
-}
-
-/**
- * @memberOf module:defaults
- * @param cssColorSpec
- * @returns {*}
- */
-function alpha(cssColorSpec) {
-    var matches, result;
-
-    if (cssColorSpec === undefined) {
-        // undefined so not visible; treat as transparent
-        result = 0;
-    } else if ((matches = cssColorSpec.match(ALPHA_REGEX)) === null) {
-        // an opaque color (a color spec with no alpha channel)
-        result = 1;
-    } else if (matches[4] === undefined) {
-        // cssColorSpec must have been 'transparent'
-        result = 0;
-    } else {
-        result = Number(matches[4]);
-    }
-
-    return result;
-}
 
 module.exports = defaults;

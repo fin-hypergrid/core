@@ -37,7 +37,7 @@ var TreeCell = CellRenderer.extend('TreeCell', {
         gc.cache.fillStyle = config.isSelected ? config.backgroundColor : config.backgroundColor;
         gc.fillText(icon + val, x + indent, y + valignOffset);
 
-        var textWidth = config.getTextWidth(gc, icon + val);
+        var textWidth = gc.getTextWidth(icon + val);
         var minWidth = x + indent + textWidth + 10;
         config.minWidth = minWidth;
     }

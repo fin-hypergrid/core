@@ -146,7 +146,9 @@ var ColumnResizing = Feature.extend('ColumnResizing', {
                 columnAutosizing: true,
                 columnAutosized: false // todo: columnAutosizing should be a setter that automatically resets columnAutosized on state change to true
             });
-            grid.autosizeColumn(column);
+            setTimeout(function() { // do after next render, which measures text now that auto-sizing is on
+                grid.autosizeColumn(column);
+            });
         } else if (this.next) {
             this.next.handleDoubleClick(grid, event);
         }

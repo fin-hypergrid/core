@@ -42,8 +42,8 @@ var Button = CellRenderer.extend('Button', {
         gc.cache.strokeStyle = '#000000';
         this.roundRect(gc, x, y, width, height, radius, arcGradient, true);
 
-        var ox = (width - config.getTextWidth(gc, val)) / 2;
-        var oy = (height - config.getTextHeight(gc.cache.font).descent) / 2;
+        var ox = (width - gc.getTextWidth(val)) / 2;
+        var oy = (height - gc.getTextHeight(gc.cache.font).descent) / 2;
 
         // draw the text
         gc.cache.textBaseline = 'middle';

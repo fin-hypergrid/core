@@ -783,7 +783,7 @@ function getCachedContext(canvasElement, type) {
         values = Object.getPrototypeOf(values);
     };
 
-    return gc;
+    return Object.assign(gc, require('./graphics'));
 }
 
 module.exports = Canvas;
