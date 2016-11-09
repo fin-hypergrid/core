@@ -1470,28 +1470,27 @@ var Hypergrid = Base.extend('Hypergrid', {
     /**
      * @memberOf Hypergrid#
      * @summary Get data value at given cell.
-     * @desc Delegates to the behavior.
      * @param {number} x - The horizontal coordinate.
      * @param {number} y - The vertical coordinate.
-     * @param {*} value
      */
     getValue: function(x, y) {
-        return this.behavior.getValue.apply(this.behavior, arguments);
+        return this.behavior.getValue.apply(this.behavior, arguments); // must use .apply (see this.behavior.getValue)
     },
 
     /**
      * @memberOf Hypergrid#
-     * @desc Set a data value into the behavior (model) at the given point
+     * @summary Set a data value of a given cell.
      * @param {number} x - The horizontal coordinate.
      * @param {number} y - The vertical coordinate.
+     * @param {*} value - New cell value.
      */
     setValue: function(x, y, value) {
-        this.behavior.setValue.apply(this.beahvior, arguments);
+        this.behavior.setValue.apply(this.behavior, arguments); // must use .apply (see this.behavior.setValue)
     },
 
     /**
      * @memberOf Hypergrid#
-     * @desc The data dimensions have changed, or our pixel boundries have changed.
+     * @desc The data dimensions have changed, or our pixel boundaries have changed.
      * Adjust the scrollbar properties as necessary.
      */
     synchronizeScrollingBoundaries: function() {

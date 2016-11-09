@@ -17,7 +17,7 @@ var visibleColumnPropertiesDescriptor = {
                     return this[i];
                 }
             }
-            return Array.prototype.find.apply(this, arguments);
+            return Array.prototype.find.call(this, iteratee, context);
         }
     }
 };

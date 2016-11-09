@@ -539,7 +539,7 @@ var Behavior = Base.extend('Behavior', {
     },
 
     getDataValue: function(x, y) {
-        return this.deprecated('getDataValue(x, y, value)', 'dataModel.getValue(x, y, value)', '1.1.0', arguments);
+        return this.deprecated('getDataValue(x, y)', 'dataModel.getValue(x, y)', '1.1.0', arguments);
     },
 
     setDataValue: function(x, y, value) {
