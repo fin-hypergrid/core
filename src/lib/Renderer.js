@@ -209,7 +209,7 @@ var Renderer = Base.extend('Renderer', {
                 break; // scrolled beyond last column
             }
 
-            width = behavior.getColumnWidth(vx);
+            width = Math.ceil(behavior.getColumnWidth(vx));
 
             xSpaced = x ? x + lineWidth : x;
             widthSpaced = x ? width - lineWidth : width;
@@ -266,7 +266,7 @@ var Renderer = Base.extend('Renderer', {
 
 
                 rowIndex = vy - base;
-                height = behavior.getRowHeight(rowIndex, subgrid);
+                height = Math.ceil(behavior.getRowHeight(rowIndex, subgrid));
 
                 heightSpaced = height - lineWidth;
                 this.visibleRows[r] = vr = {
@@ -797,8 +797,7 @@ var Renderer = Base.extend('Renderer', {
             columnClip = gridProps.columnClip,
             clipHeight = this.getBounds().height,
             lineWidth = gridProps.lineWidth,
-            lineColor = gridProps.lineColor,
-            backgroundColor, bgAlpha;
+            lineColor = gridProps.lineColor;
 
         this.buttonCells = {};
 
@@ -826,16 +825,7 @@ var Renderer = Base.extend('Renderer', {
                 gc.clip();
             }
 
-            backgroundColor = cellEvent.columnProperties.backgroundColor;
-            bgAlpha = gridProps.alpha(backgroundColor);
-            if (bgAlpha < 1) {
-                // If background is translucent, we must clear the column before the fillRect below to prevent mixing with previous frame's render.
-                gc.clearRect(bounds.x, 0, bounds.width, clipHeight);
-            }
-            if (bgAlpha > 0) {
-                gc.cache.fillStyle = backgroundColor;
-                gc.fillRect(bounds.x, 0, bounds.width, clipHeight);
-            }
+            gc.fillCell(bounds.x, 0, bounds.width, clipHeight, cellEvent.columnProperties.backgroundColor);
 
             if (gridProps.gridLinesV) {
                 gc.cache.fillStyle = lineColor;

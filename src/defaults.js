@@ -2,8 +2,6 @@
 
 'use strict';
 
-var ALPHA_REGEX = /^(transparent|((RGB|HSL)A\(.*,\s*([\d\.]+)\)))$/i;
-
 /**
  * This module lists the properties that can be set on a {@link Hypergrid} along with their default values.
  * Edit this file to override the defaults.
@@ -373,11 +371,28 @@ var defaults = {
     halign: 'center',
 
     /**
+     * Padding to left and right of cell value.
+     *
+     * NOTE: Right padding may not be visible if column is not sized wide enough.
+     *
+     * See also {@link module:defaults.iconPadding|iconPadding}.
      * @default
      * @type {number}
      * @memberOf module:defaults
      */
     cellPadding: 5,
+
+    /**
+     * Padding to left and right of cell icons.
+     *
+     * Overrides {@link module:defaults.cellPadding|cellPadding}:
+     * * Left icon + `iconPadding` overrides left `cellPdding`.
+     * * Right icon + `iconPadding` overrides right `cellPaddin`.
+     * @default
+     * @type {number}
+     * @memberOf module:defaults
+     */
+    iconPadding: 3,
 
     /**
      * @default
@@ -407,6 +422,7 @@ var defaults = {
     lineColor: 'rgb(199, 199, 199)',
 
     /**
+     * Caveat: `lineWidth` should be an integer (whole pixel)
      * @default
      * @type {number}
      * @memberOf module:defaults
@@ -507,14 +523,6 @@ var defaults = {
      * @memberOf module:defaults
      */
     getTextHeight: getTextHeight,
-
-    /**
-     * This function is referenced here so it will be available to the renderer and cell renderers.
-     * @default {@link module:defaults.alpha|alpha}
-     * @type {function}
-     * @memberOf module:defaults
-     */
-    alpha: alpha,
 
     /**
      * @default
@@ -965,30 +973,6 @@ function getTextHeight(font) {
         if (result.height !== 0) {
             fontData[font] = result;
         }
-    }
-
-    return result;
-}
-
-/**
- * @memberOf module:defaults
- * @param cssColorSpec
- * @returns {*}
- */
-function alpha(cssColorSpec) {
-    var matches, result;
-
-    if (cssColorSpec === undefined) {
-        // undefined so not visible; treat as transparent
-        result = 0;
-    } else if ((matches = cssColorSpec.match(ALPHA_REGEX)) === null) {
-        // an opaque color (a color spec with no alpha channel)
-        result = 1;
-    } else if (matches[4] === undefined) {
-        // cssColorSpec must have been 'transparent'
-        result = 0;
-    } else {
-        result = Number(matches[4]);
     }
 
     return result;
