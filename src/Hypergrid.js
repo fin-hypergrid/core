@@ -1470,28 +1470,27 @@ var Hypergrid = Base.extend('Hypergrid', {
     /**
      * @memberOf Hypergrid#
      * @summary Get data value at given cell.
-     * @desc Delegates to the behavior.
      * @param {number} x - The horizontal coordinate.
      * @param {number} y - The vertical coordinate.
-     * @param {*} value
      */
     getValue: function(x, y) {
-        return this.behavior.getValue.apply(this.behavior, arguments);
+        return this.behavior.getValue.apply(this.behavior, arguments); // must use .apply (see this.behavior.getValue)
     },
 
     /**
      * @memberOf Hypergrid#
-     * @desc Set a data value into the behavior (model) at the given point
+     * @summary Set a data value of a given cell.
      * @param {number} x - The horizontal coordinate.
      * @param {number} y - The vertical coordinate.
+     * @param {*} value - New cell value.
      */
     setValue: function(x, y, value) {
-        this.behavior.setValue.apply(this.beahvior, arguments);
+        this.behavior.setValue.apply(this.behavior, arguments); // must use .apply (see this.behavior.setValue)
     },
 
     /**
      * @memberOf Hypergrid#
-     * @desc The data dimensions have changed, or our pixel boundries have changed.
+     * @desc The data dimensions have changed, or our pixel boundaries have changed.
      * Adjust the scrollbar properties as necessary.
      */
     synchronizeScrollingBoundaries: function() {
@@ -2097,83 +2096,13 @@ var Hypergrid = Base.extend('Hypergrid', {
     getRow: function(y) {
         return this.behavior.getRow(y);
     },
-    isCellSelection: function() {
-        if (!warned.isCellSelection) {
-            warned.isCellSelection = true;
-            console.warn('Property `isCellSelection` has been deprecated as of v1.2.2 in favor of `this.properties.cellSelection === true` and will be removed in a future version.');
-        }
-        return this.properties.cellSelection === true;
-    },
-    isRowSelection: function() {
-        if (!warned.isRowSelection) {
-            warned.isRowSelection = true;
-            console.warn('Property `isRowSelection` has been deprecated as of v1.2.2 in favor of `this.properties.rowSelection === true` and will be removed in a future version.');
-        }
-        return this.properties.rowSelection === true;
-    },
-    isColumnSelection: function() {
-        if (!warned.isColumnSelection) {
-            warned.isColumnSelection = true;
-            console.warn('Property `isColumnSelection` has been deprecated as of v1.2.2 in favor of `this.properties.columnSelection === true` and will be removed in a future version.');
-        }
-        return this.properties.columnSelection === true;
-    },
+
     isColumnAutosizing: function() {
         if (!warned.isColumnAutosizing) {
             warned.isColumnAutosizing = true;
             console.warn('Property `isColumnAutosizing` has been deprecated as of v1.2.2 in favor of `this.properties.columnAutosizing === true` and will be removed in a future version. Note however that as of v1.2.2 grid.properties.columnAutosizing no longer has the global meaning it had previously and should no longer be referred to directly. Refer to each column\'s `columnAutosizing` property instead.');
         }
         return this.properties.columnAutosizing === true;
-    },
-
-    selectRowsFromCells: function() {
-        if (!this.isCheckboxOnlyRowSelections()) {
-            var last,
-                hasCTRL = this.mouseDownState.primitiveEvent.detail.primitiveEvent.ctrlKey;
-
-            if (hasCTRL && !this.isSingleRowSelectionMode()) {
-                this.selectionModel.selectRowsFromCells(0, hasCTRL);
-            } else if ((last = this.selectionModel.getLastSelection())) {
-                this.selectRow(null, last.corner.y);
-            } else {
-                this.clearRowSelection();
-            }
-        }
-    },
-    selectColumnsFromCells: function() {
-        this.selectionModel.selectColumnsFromCells();
-    },
-    getSelectedRows: function() {
-        return this.behavior.getSelectedRows();
-    },
-    getSelectedColumns: function() {
-        return this.behavior.getSelectedColumns();
-    },
-    getSelections: function() {
-        return this.behavior.getSelections();
-    },
-    getLastSelectionType: function() {
-        return this.selectionModel.getLastSelectionType();
-    },
-    isInCurrentSelectionRectangle: function(x, y) {
-        return this.selectionModel.isInCurrentSelectionRectangle(x, y);
-    },
-    selectAllRows: function() {
-        this.selectionModel.selectAllRows();
-    },
-    areAllRowsSelected: function() {
-        return this.selectionModel.areAllRowsSelected();
-    },
-    toggleSelectAllRows: function() {
-        if (this.areAllRowsSelected()) {
-            this.selectionModel.clear();
-        } else {
-            this.selectAllRows();
-        }
-        this.repaint();
-    },
-    isSingleRowSelectionMode: function() {
-        return this.properties.singleRowSelectionMode;
     },
 
     newPoint: function(x, y) {

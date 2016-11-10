@@ -17,7 +17,7 @@ var visibleColumnPropertiesDescriptor = {
                     return this[i];
                 }
             }
-            return Array.prototype.find.apply(this, arguments);
+            return Array.prototype.find.call(this, iteratee, context);
         }
     }
 };
@@ -909,18 +909,20 @@ var Renderer = Base.extend('Renderer', {
     _paintCell: function(gc, cellEvent) {
 
         var grid = this.grid,
+            selectionModel = grid.selectionModel,
             behavior = grid.behavior,
             x = cellEvent.gridCell.x,
             // y = cellEvent.gridCell.y,
             // c = cellEvent.dataCell.x,
             r = cellEvent.dataCell.y,
 
+            columnProperties = cellEvent.columnProperties,
+
             isHandleColumn = cellEvent.isHandleColumn,
             isHierarchyColumn = cellEvent.isHierarchyColumn,
             isColumnSelected = cellEvent.isColumnSelected,
 
-            isShowRowNumbers = grid.isShowRowNumbers(),
-            isRowHandleOrHierarchyColumn = isShowRowNumbers && isHandleColumn || isHierarchyColumn,
+            isRowHandleOrHierarchyColumn = grid.properties.showRowNumbers && isHandleColumn || isHierarchyColumn,
 
             isGridRow = cellEvent.isGridRow,
             isRowSelected = cellEvent.isRowSelected,
@@ -929,7 +931,6 @@ var Renderer = Base.extend('Renderer', {
             isHeaderRow = cellEvent.isHeaderRow,
             isFilterRow = cellEvent.isFilterRow,
 
-            columnProperties = cellEvent.columnProperties,
             config,
             rowProperties,
             isSelected;
@@ -937,7 +938,7 @@ var Renderer = Base.extend('Renderer', {
         if (isRowHandleOrHierarchyColumn) {
             config = Object.create(isRowSelected ? columnProperties.rowHeaderRowSelection : columnProperties.rowHeader);
             config.halign = isHierarchyColumn ? 'left' : 'right';
-            isSelected = isRowSelected || grid.isCellSelectedInRow(r);
+            isSelected = isRowSelected || selectionModel.isCellSelectedInRow(r);
         } else if (isGridRow) {
             config = Object.create(cellEvent.properties);
 
@@ -955,21 +956,21 @@ var Renderer = Base.extend('Renderer', {
             isSelected = true;
         } else { // header or summary or other
             config = Object.create(columnProperties.columnHeader);
-            isSelected = grid.isCellSelectedInColumn(x);
+            isSelected = selectionModel.isCellSelectedInColumn(x);
         }
 
         // Set cell contents:
         // * For all cells: set `config.value` (writable property)
         // * For cells outside of row handle column: also set `config.dataRow` for use by valOrFunc
         if (!isHandleColumn) {
-            config.dataRow = grid.getRow(r);
+            config.dataRow = cellEvent.visibleRow.subgrid.getRow(r);
             config.value = cellEvent.value;
         } else if (isGridRow) {
             // row handle for a data row
             config.value = [images.checkbox(isRowSelected), r + 1, null]; // row number is 1-based
         } else if (isHeaderRow) {
             // row handle for header row: gets "master" checkbox
-            config.value = [images.checkbox(grid.areAllRowsSelected()), '', null];
+            config.value = [images.checkbox(selectionModel.areAllRowsSelected()), '', null];
         } else if (isFilterRow) {
             // row handle for filter row: gets filter icon
             config.value = [images.filter(false), '', null];
@@ -991,7 +992,7 @@ var Renderer = Base.extend('Renderer', {
         config.isCellSelected = isCellSelected;
         config.isRowSelected = isRowSelected;
         config.isColumnSelected = isColumnSelected;
-        config.isInCurrentSelectionRectangle = grid.isInCurrentSelectionRectangle(x, r);
+        config.isInCurrentSelectionRectangle = selectionModel.isInCurrentSelectionRectangle(x, r);
         config.columnBackgroundColor = columnProperties.backgroundColor;
 
         if (grid.mouseDownState) {

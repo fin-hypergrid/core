@@ -268,8 +268,7 @@ function isColumnReorderable() {
 function paintHeaderGroups(gc, config) {
     var paint = this.super.paint;
 
-    var args = arguments,
-        values = config.value.split(this.delimiter), // each group header including column header
+    var values = config.value.split(this.delimiter), // each group header including column header
         groupCount = values.length - 1; // group header levels above column header
 
     if (groupCount === 0 || config.x === 0) { // no group headers OR first column
@@ -343,7 +342,7 @@ function paintHeaderGroups(gc, config) {
                 // config.backgroundColor = 'transparent';
 
                 // Paint the group header foreground
-                paint.apply(this, arguments);
+                paint.call(this, gc, config);
 
                 var decorator = config.paintBackground || this.paintBackground;
                 if (decorator) {
@@ -353,7 +352,7 @@ function paintHeaderGroups(gc, config) {
                             throw 'Expected decorator function or name of registered decorator function.';
                         }
                     }
-                    decorator.apply(this, arguments);
+                    decorator.call(this, gc, config);
                 }
 
             }
@@ -374,7 +373,7 @@ function paintHeaderGroups(gc, config) {
     }
 
     // Render the actual column header
-    paint.apply(this, arguments);
+    paint.call(this, gc, config);
 
     function stash(key) { // iteratee function for iterating over `group.config`
         if (key in config) {
@@ -386,7 +385,7 @@ function paintHeaderGroups(gc, config) {
         }
         var property = group.config[key];
         if (key !== 'paintBackground' && typeof property === 'function') {
-            property = property.apply(this, args);
+            property = property.call(this, gc, config);
         }
         group[key] = property;
     }
