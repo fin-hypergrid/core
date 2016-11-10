@@ -963,7 +963,7 @@ var Renderer = Base.extend('Renderer', {
         // * For all cells: set `config.value` (writable property)
         // * For cells outside of row handle column: also set `config.dataRow` for use by valOrFunc
         if (!isHandleColumn) {
-            config.dataRow = cellEvent.visibleRow.subgrid.getRow(r);
+            config.dataRow = cellEvent.row;
             config.value = cellEvent.value;
         } else if (isGridRow) {
             // row handle for a data row

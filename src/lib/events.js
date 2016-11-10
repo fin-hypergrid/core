@@ -2,6 +2,10 @@
 
 'use strict';
 
+var Behavior = require('../behaviors/Behavior');
+
+var warned = {};
+
 module.exports = {
     /**
      * @memberOf Hypergrid#
@@ -9,58 +13,42 @@ module.exports = {
      * @param {string[]} keys
      */
     fireSyntheticColumnSortEvent: function(c, keys) {
-        var event = new CustomEvent('fin-column-sort', {
-            detail: {
-                column: c,
-                keys: keys
-            }
+        return dispatchEvent.call(this, 'fin-column-sort', {
+            column: c,
+            keys: keys
         });
-        this.canvas.dispatchEvent(event);
     },
 
     fireSyntheticEditorKeyUpEvent: function(inputControl, keyEvent) {
-        var clickEvent = new CustomEvent('fin-editor-keyup', {
-            detail: {
-                input: inputControl,
-                keyEvent: keyEvent,
-                char: this.canvas.getCharMap()[keyEvent.keyCode][keyEvent.shiftKey ? 1 : 0]
-            }
+        return dispatchEvent.call(this, 'fin-editor-keyup', {
+            input: inputControl,
+            keyEvent: keyEvent,
+            char: this.canvas.getCharMap()[keyEvent.keyCode][keyEvent.shiftKey ? 1 : 0]
         });
-        this.canvas.dispatchEvent(clickEvent);
     },
 
     fireSyntheticEditorKeyDownEvent: function(inputControl, keyEvent) {
-        var clickEvent = new CustomEvent('fin-editor-keydown', {
-            detail: {
-                input: inputControl,
-                keyEvent: keyEvent,
-                char: this.canvas.getCharMap()[keyEvent.keyCode][keyEvent.shiftKey ? 1 : 0]
-            }
+        return dispatchEvent.call(this, 'fin-editor-keydown', {
+            input: inputControl,
+            keyEvent: keyEvent,
+            char: this.canvas.getCharMap()[keyEvent.keyCode][keyEvent.shiftKey ? 1 : 0]
         });
-        this.canvas.dispatchEvent(clickEvent);
     },
 
     fireSyntheticEditorKeyPressEvent: function(inputControl, keyEvent) {
-        var clickEvent = new CustomEvent('fin-editor-keypress', {
-            detail: {
-                input: inputControl,
-                keyEvent: keyEvent,
-                char: this.canvas.getCharMap()[keyEvent.keyCode][keyEvent.shiftKey ? 1 : 0]
-            }
+        return dispatchEvent.call(this, 'fin-editor-keypress', {
+            input: inputControl,
+            keyEvent: keyEvent,
+            char: this.canvas.getCharMap()[keyEvent.keyCode][keyEvent.shiftKey ? 1 : 0]
         });
-        this.canvas.dispatchEvent(clickEvent);
     },
 
     fireSyntheticEditorDataChangeEvent: function(inputControl, oldValue, newValue) {
-        var clickEvent = new CustomEvent('fin-editor-data-change', {
-            detail: {
-                input: inputControl,
-                oldValue: oldValue,
-                newValue: newValue
-            },
-            cancelable: true
+        return dispatchEvent.call(this, 'fin-editor-data-change', true, {
+            input: inputControl,
+            oldValue: oldValue,
+            newValue: newValue
         });
-        return this.canvas.dispatchEvent(clickEvent);
     },
 
     /**
@@ -68,25 +56,19 @@ module.exports = {
      * @desc Synthesize and fire a `fin-row-selection-changed` event.
      */
     fireSyntheticRowSelectionChangedEvent: function() {
-        var selectionEvent = new CustomEvent('fin-row-selection-changed', {
-            detail: {
-                rows: this.getSelectedRows(),
-                columns: this.getSelectedColumns(),
-                selections: this.selectionModel.getSelections(),
-            }
+        return dispatchEvent.call(this, 'fin-row-selection-changed', {
+            rows: this.getSelectedRows(),
+            columns: this.getSelectedColumns(),
+            selections: this.selectionModel.getSelections(),
         });
-        this.canvas.dispatchEvent(selectionEvent);
-    },
+   },
 
     fireSyntheticColumnSelectionChangedEvent: function() {
-        var selectionEvent = new CustomEvent('fin-column-selection-changed', {
-            detail: {
-                rows: this.getSelectedRows(),
-                columns: this.getSelectedColumns(),
-                selections: this.selectionModel.getSelections()
-            }
+        return dispatchEvent.call(this, 'fin-column-selection-changed', {
+            rows: this.getSelectedRows(),
+            columns: this.getSelectedColumns(),
+            selections: this.selectionModel.getSelections()
         });
-        this.canvas.dispatchEvent(selectionEvent);
     },
 
     /**
@@ -98,34 +80,26 @@ module.exports = {
         event.rows = this.getSelectedRows();
         event.columns = this.getSelectedColumns();
         event.selections = this.selectionModel.getSelections();
-        this.canvas.dispatchEvent(
-            new CustomEvent('fin-context-menu', { detail: event })
-        );
+        return dispatchEvent.call(this, 'fin-context-menu', {}, event);
     },
 
     fireSyntheticMouseUpEvent: function(event) {
         event.rows = this.getSelectedRows();
         event.columns = this.getSelectedColumns();
         event.selections = this.selectionModel.getSelections();
-        this.canvas.dispatchEvent(
-            new CustomEvent('fin-mouseup', { detail: event })
-        );
+        return dispatchEvent.call(this, 'fin-mouseup', {}, event);
     },
 
     fireSyntheticMouseDownEvent: function(event) {
         event.rows = this.getSelectedRows();
         event.columns = this.getSelectedColumns();
         event.selections = this.selectionModel.getSelections();
-        this.canvas.dispatchEvent(
-            new CustomEvent('fin-mousedown', { detail: event })
-        );
+        return dispatchEvent.call(this, 'fin-mousedown', {}, event);
     },
 
     fireSyntheticButtonPressedEvent: function(event) {
         if (this.isViewableButton(event.dataCell.x, event.gridCell.y)) {
-            this.canvas.dispatchEvent(
-                new CustomEvent('fin-button-pressed', { detail: event })
-            );
+            return dispatchEvent.call(this, 'fin-button-pressed', {}, event);
         }
     },
 
@@ -134,14 +108,7 @@ module.exports = {
      * @desc Synthesize and fire a `fin-column-drag-start` event.
      */
     fireSyntheticOnColumnsChangedEvent: function() {
-        var detail = {
-            time: Date.now(),
-            grid: this
-        };
-        var cEvent = new CustomEvent('fin-column-changed-event', {
-            detail: detail
-        });
-        this.canvas.dispatchEvent(cEvent);
+        return dispatchEvent.call(this, 'fin-column-changed-event', {});
     },
 
     /**
@@ -150,10 +117,7 @@ module.exports = {
      * @param {keyEvent} event - The canvas event.
      */
     fireSyntheticKeydownEvent: function(keyEvent) {
-        var clickEvent = new CustomEvent('fin-keydown', {
-            detail: keyEvent.detail
-        });
-        this.canvas.dispatchEvent(clickEvent);
+        return dispatchEvent.call(this, 'fin-keydown', keyEvent.detail);
     },
 
     /**
@@ -162,15 +126,11 @@ module.exports = {
      * @param {keyEvent} event - The canvas event.
      */
     fireSyntheticKeyupEvent: function(keyEvent) {
-        var clickEvent = new CustomEvent('fin-keyup', {
-            detail: keyEvent.detail
-        });
-        this.canvas.dispatchEvent(clickEvent);
+        return dispatchEvent.call(this, 'fin-keyup', keyEvent.detail);
     },
 
     fireSyntheticFilterAppliedEvent: function() {
-        var filterEvent = new CustomEvent('fin-filter-applied');
-        this.canvas.dispatchEvent(filterEvent);
+        return dispatchEvent.call(this, 'fin-filter-applied', {});
     },
 
     /**
@@ -180,15 +140,7 @@ module.exports = {
      * @param {MouseEvent} event - The system mouse event.
      */
     fireSyntheticOnCellEnterEvent: function(cell) {
-        var detail = {
-            gridCell: cell,
-            time: Date.now(),
-            grid: this
-        };
-        var clickEvent = new CustomEvent('fin-cell-enter', {
-            detail: detail
-        });
-        this.canvas.dispatchEvent(clickEvent);
+        return dispatchEvent.call(this, 'fin-cell-enter', { gridCell: cell });
     },
 
     /**
@@ -198,15 +150,7 @@ module.exports = {
      * @param {MouseEvent} event - The system mouse event.
      */
     fireSyntheticOnCellExitEvent: function(cell) {
-        var detail = {
-            gridCell: cell,
-            time: Date.now(),
-            grid: this
-        };
-        var clickEvent = new CustomEvent('fin-cell-exit', {
-            detail: detail
-        });
-        this.canvas.dispatchEvent(clickEvent);
+        return dispatchEvent.call(this, 'fin-cell-exit', { gridCell: cell });
     },
 
     /**
@@ -215,21 +159,8 @@ module.exports = {
      * @param {Point} cell - The pixel location of the cell in which the click event occured.
      * @param {MouseEvent} event - The system mouse event.
      */
-    fireSyntheticClickEvent: function(mouseEvent) {
-        var cell = mouseEvent.gridCell;
-        var detail = {
-            gridCell: cell,
-            mousePoint: mouseEvent.mousePoint,
-            keys: mouseEvent.keys,
-            primitiveEvent: mouseEvent,
-            time: Date.now(),
-            grid: this
-        };
-        this.behavior.enhanceDoubleClickEvent(detail);
-        var clickEvent = new CustomEvent('fin-click', {
-            detail: detail
-        });
-        this.canvas.dispatchEvent(clickEvent);
+    fireSyntheticClickEvent: function(cellEvent) {
+        return dispatchEvent.call(this, 'fin-click', {}, cellEvent);
     },
 
     /**
@@ -237,21 +168,20 @@ module.exports = {
      * @desc Synthesize and fire a `fin-double-click` event.
      * @param {MouseEvent} event - The system mouse event.
      */
-    fireSyntheticDoubleClickEvent: function(mouseEvent) {
+    fireSyntheticDoubleClickEvent: function(cellEvent) {
         if (!this.abortEditing()) { return; }
-        var cell = mouseEvent.gridCell;
-        var detail = {
-            gridCell: cell,
-            mousePoint: mouseEvent.mousePoint,
-            time: Date.now(),
-            grid: this
-        };
-        this.behavior.enhanceDoubleClickEvent(mouseEvent);
-        var clickEvent = new CustomEvent('fin-double-click', {
-            detail: detail
-        });
-        this.behavior.cellDoubleClicked(cell, mouseEvent);
-        this.canvas.dispatchEvent(clickEvent);
+
+        if (
+            this.behavior.cellDoubleClicked !== Behavior.prototype.cellDoubleClicked &&
+            !warned['fin-double-click']
+        ) {
+            warned['fin-double-click'] = true;
+            console.warn('behavior.cellDoubleClicked(gridCell, cellEvent) has been deprecated as of v1.2.6 in favor of handling in a \'fin-double-click\' event (event.detail.gridCell, event.primitiveEvent) and will be removed in a future release.');
+        }
+        // to deprecate, remove above warning + warned + following line + abstract implementation in Behavior.js
+        this.behavior.cellDoubleClicked(cellEvent.gridCell, cellEvent);
+
+        return dispatchEvent.call(this, 'fin-double-click', {}, cellEvent);
     },
 
     /**
@@ -259,15 +189,7 @@ module.exports = {
      * @desc Synthesize and fire a rendered event.
      */
     fireSyntheticGridRenderedEvent: function() {
-        var event = new CustomEvent('fin-grid-rendered', {
-            detail: {
-                source: this,
-                time: Date.now()
-            }
-        });
-        if (this.canvas) {
-            this.canvas.dispatchEvent(event);
-        }
+       return dispatchEvent.call(this, 'fin-grid-rendered', { source: this });
     },
 
     /**
@@ -277,28 +199,15 @@ module.exports = {
      * @param {number} oldValue - The old scroll value.
      * @param {number} newValue - The new scroll value.
      */
-    fireScrollEvent: function(type, oldValue, newValue) {
-        var event = new CustomEvent(type, {
-            detail: {
-                oldValue: oldValue,
-                value: newValue,
-                time: Date.now()
-            }
+    fireScrollEvent: function(eventName, oldValue, newValue) {
+        return dispatchEvent.call(this, eventName, {
+            oldValue: oldValue,
+            value: newValue
         });
-        this.canvas.dispatchEvent(event);
-
     },
 
-    fireRequestCellEdit: function(cell, value) {
-        var clickEvent = new CustomEvent('fin-request-cell-edit', {
-            cancelable: true,
-            detail: {
-                value: value,
-                gridCell: cell,
-                time: Date.now()
-            }
-        });
-        return this.canvas.dispatchEvent(clickEvent); //I wasn't cancelled
+    fireRequestCellEdit: function(cellEvent, value) {
+        return dispatchEvent.call(this, 'fin-request-cell-edit', true, { value: value }, cellEvent);
     },
 
     /**
@@ -308,19 +217,12 @@ module.exports = {
      * @param {Object} value - The current value.
      * @returns {boolean} Proceed (don't cancel).
      */
-    fireBeforeCellEdit: function(cell, oldValue, newValue, control) {
-        var clickEvent = new CustomEvent('fin-before-cell-edit', {
-            cancelable: true,
-            detail: {
-                oldValue: oldValue,
-                newValue: newValue,
-                gridCell: cell,
-                time: Date.now(),
-                input: control,
-                row: this.getRow(cell.y)
-            }
-        });
-        return this.canvas.dispatchEvent(clickEvent);
+    fireBeforeCellEdit: function(cellEvent, oldValue, newValue, control) {
+        return dispatchEvent.call(this, 'fin-before-cell-edit', true, {
+            oldValue: oldValue,
+            newValue: newValue,
+            input: control
+        }, cellEvent);
     },
 
     /**
@@ -330,18 +232,12 @@ module.exports = {
      * @param {Object} oldValue - The old value.
      * @param {Object} newValue - The new value.
      */
-    fireAfterCellEdit: function(cell, oldValue, newValue, control) {
-        var clickEvent = new CustomEvent('fin-after-cell-edit', {
-            detail: {
-                newValue: newValue,
-                oldValue: oldValue,
-                gridCell: cell,
-                time: Date.now(),
-                input: control,
-                row: this.getRow(cell.y)
-            }
-        });
-        this.canvas.dispatchEvent(clickEvent);
+    fireAfterCellEdit: function(cellEvent, oldValue, newValue, control) {
+        return dispatchEvent.call(this, 'fin-after-cell-edit', {
+            newValue: newValue,
+            oldValue: oldValue,
+            input: control
+        }, cellEvent);
     },
 
     delegateCanvasEvents: function() {
@@ -572,3 +468,56 @@ module.exports = {
         this.behavior.onKeyUp(this, event);
     },
 };
+
+var details = [
+    'gridCell',
+    'dataCell',
+    'mousePoint',
+    'keys',
+    'row'
+];
+
+/**
+ *
+ * @param {string} eventName
+ * @param {boolean} [cancelable=false]
+ * @param {object} event
+ * @param {CellEvent|MouseEvent|KeyboardEvent|object} [primitiveEvent]
+ * @returns {undefined|boolean}
+ */
+function dispatchEvent(eventName, cancelable, event, primitiveEvent) {
+    if (typeof cancelable !== 'boolean') {
+        primitiveEvent = event; // propmote primitiveEvent to 3rd position
+        event = cancelable; // promote event to 2nd position
+    }
+
+    if (!event.detail) {
+        event = { detail: event };
+    }
+
+    var detail = event.detail;
+
+    detail.grid = this;
+    detail.time = Date.now();
+
+    if (primitiveEvent) {
+        if (!detail.primitiveEvent) {
+            detail.primitiveEvent = primitiveEvent;
+        }
+        details.forEach(function(key) {
+            if (key in primitiveEvent && !(key in detail)) {
+                detail[key] = primitiveEvent[key];
+            }
+        });
+    }
+
+    var result = this.canvas.dispatchEvent(new CustomEvent(eventName, event)) && cancelable;
+
+    if (cancelable) {
+        event.cancelable = true;
+    } else {
+        result = undefined;
+    }
+
+    return result;
+}

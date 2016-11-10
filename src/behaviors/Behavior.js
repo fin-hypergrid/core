@@ -1256,13 +1256,6 @@ var Behavior = Base.extend('Behavior', {
 
     /**
      * @memberOf Behavior.prototype
-     * @desc this function enhance the double click event just before it's broadcast to listeners
-     * @param {Object} event - event to enhance
-     */
-    enhanceDoubleClickEvent: function(event) {},
-
-    /**
-     * @memberOf Behavior.prototype
      * @desc swap src and tar columns
      * @param {number} src - column index
      * @param {number} tar - column index
