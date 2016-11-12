@@ -486,6 +486,8 @@ var details = [
  * @returns {undefined|boolean}
  */
 function dispatchEvent(eventName, cancelable, event, primitiveEvent) {
+    var detail, result;
+
     if (typeof cancelable !== 'boolean') {
         primitiveEvent = event; // propmote primitiveEvent to 3rd position
         event = cancelable; // promote event to 2nd position
@@ -495,7 +497,7 @@ function dispatchEvent(eventName, cancelable, event, primitiveEvent) {
         event = { detail: event };
     }
 
-    var detail = event.detail;
+    detail = event.detail;
 
     detail.grid = this;
     detail.time = Date.now();
@@ -511,13 +513,13 @@ function dispatchEvent(eventName, cancelable, event, primitiveEvent) {
         });
     }
 
-    var result = this.canvas.dispatchEvent(new CustomEvent(eventName, event)) && cancelable;
-
     if (cancelable) {
         event.cancelable = true;
-    } else {
-        result = undefined;
     }
 
-    return result;
+    result = this.canvas.dispatchEvent(new CustomEvent(eventName, event));
+
+    if (cancelable) {
+        return result;
+    }
 }
