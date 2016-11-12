@@ -23,6 +23,7 @@ HeaderRow.prototype = {
     },
 
     getValue: function(x, y) {
+<<<<<<< a231b18260b7a7ccae3b7941d83800935348c136
         var column, sortString, groups, result;
 
         if (y < this.getRowCount()) {
@@ -43,6 +44,10 @@ HeaderRow.prototype = {
         }
 
         return result;
+=======
+        var column = this.behavior.getColumn(x);
+        return column.header || column.name; // uses field name when header undefined
+>>>>>>> moved header decoration to formatter
     },
 
     setValue: function(x, y, value) {

@@ -43,7 +43,7 @@ var prototype = Object.defineProperties({}, {
         return (this._cellOwnProperties = this._cellOwnProperties || this.column.getCellOwnProperties(this.dataCell.y, this.visibleRow.subgrid));
     } },
     properties: { get: function() {
-        return (this._properties = this._properties || this.cellOwnProperties || this.columnProperties);
+        return this.cellOwnProperties || this.columnProperties;
     } },
     getCellProperty: { value: function(propName) {
         return this.properties[propName];

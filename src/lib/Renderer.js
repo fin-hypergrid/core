@@ -922,7 +922,7 @@ var Renderer = Base.extend('Renderer', {
             isHierarchyColumn = cellEvent.isHierarchyColumn,
             isColumnSelected = cellEvent.isColumnSelected,
 
-            isRowHandleOrHierarchyColumn = grid.properties.showRowNumbers && isHandleColumn || isHierarchyColumn,
+            isRowHandleOrHierarchyColumn = isHandleColumn || isHierarchyColumn,
 
             isGridRow = cellEvent.isGridRow,
             isRowSelected = cellEvent.isRowSelected,
@@ -1014,7 +1014,7 @@ var Renderer = Base.extend('Renderer', {
         //allow the renderer to identify itself if it's a button
         config.buttonCells = this.buttonCells;
 
-        config.formatValue = grid.getFormatter(config.isUserDataArea && config.format);
+        config.formatValue = grid.getFormatter(config.isGridColumn && config.format);
 
         cellRenderer.paint(gc, config);
 

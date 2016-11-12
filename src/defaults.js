@@ -531,6 +531,14 @@ var defaults = {
     },
 
     /**
+     * This function is referenced here so it will be available to the cell renderers.
+     * @default {@link module:defaults.exec|exec}
+     * @type {function}
+     * @memberOf module:defaults
+     */
+    exec: exec,
+
+    /**
      * @default
      * @type {number}
      * @memberOf module:defaults
@@ -878,5 +886,15 @@ var defaults = {
 /** @typedef {string} cssFont
  * @see https://developer.mozilla.org/en-US/docs/Web/CSS/font
  */
+
+function exec(vf) {
+    if (this.dataRow) {
+        var calculator = (typeof vf)[0] === 'f' && vf || this.calculator;
+        if (calculator) {
+            vf = calculator(this.dataRow, this.name);
+        }
+    }
+    return vf;
+}
 
 module.exports = defaults;

@@ -58,18 +58,21 @@ function createColumnProperties() {
     properties = Object.create(tableState, {
 
         index: { // read-only (no setter)
+            enumerable: true,
             get: function() {
                 return column.index;
             }
         },
 
         name: { // read-only (no setter)
+            enumerable: true,
             get: function() {
                 return column.name;
             }
         },
 
         field: { // read-only (no setter)
+            enumerable: true,
             get: function() {
                 if (FIELD) { console.warn(FIELD); FIELD = undefined; }
                 return column.name;
@@ -77,6 +80,7 @@ function createColumnProperties() {
         },
 
         columnName: { // read-only (no setter)
+            enumerable: true,
             get: function() {
                 if (COLUMN_NAME) { console.warn(COLUMN_NAME); COLUMN_NAME = undefined; }
                 return column.name;
@@ -84,6 +88,7 @@ function createColumnProperties() {
         },
 
         header: {
+            enumerable: true,
             get: function() {
                 return column.header;
             },
@@ -93,6 +98,7 @@ function createColumnProperties() {
         },
 
         type: {
+            enumerable: true,
             get: function() {
                 return column.type;
             },
@@ -102,6 +108,7 @@ function createColumnProperties() {
         },
 
         calculator: {
+            enumerable: true,
             get: function() {
                 return column.calculator;
             },
@@ -116,6 +123,7 @@ function createColumnProperties() {
     Object.defineProperty(properties, 'rowNumbersProperties', { value: Object.create(properties, {
         foregroundSelectionColor: {
             configurable: true,
+            enumerable: true,
             get: function() {
                 return this.columnHeaderForegroundSelectionColor;
             },
@@ -125,6 +133,7 @@ function createColumnProperties() {
         },
         backgroundSelectionColor: {
             configurable: true,
+            enumerable: true,
             get: function() {
                 return this.columnHeaderBackgroundSelectionColor;
             },
@@ -137,6 +146,7 @@ function createColumnProperties() {
     Object.defineProperty(properties, 'rowHeader', { value: Object.create(properties, {
         font: {
             configurable: true,
+            enumerable: true,
             get: function() {
                 return this.rowHeaderFont;
             },
@@ -146,6 +156,7 @@ function createColumnProperties() {
         },
         color: {
             configurable: true,
+            enumerable: true,
             get: function() {
                 return this.rowHeaderColor;
             },
@@ -155,6 +166,7 @@ function createColumnProperties() {
         },
         backgroundColor: {
             configurable: true,
+            enumerable: true,
             get: function() {
                 return this.rowHeaderBackgroundColor;
             },
@@ -164,6 +176,7 @@ function createColumnProperties() {
         },
         foregroundSelectionFont: {
             configurable: true,
+            enumerable: true,
             get: function() {
                 return this.rowHeaderForegroundSelectionFont;
             },
@@ -173,6 +186,7 @@ function createColumnProperties() {
         },
         foregroundSelectionColor: {
             configurable: true,
+            enumerable: true,
             get: function() {
                 return this.rowHeaderForegroundSelectionColor;
             },
@@ -182,6 +196,7 @@ function createColumnProperties() {
         },
         backgroundSelectionColor: {
             configurable: true,
+            enumerable: true,
             get: function() {
                 return this.rowHeaderBackgroundSelectionColor;
             },
@@ -194,6 +209,7 @@ function createColumnProperties() {
     Object.defineProperty(properties, 'columnHeader', { value: Object.create(properties, {
         font: {
             configurable: true,
+            enumerable: true,
             get: function() {
                 return this.columnHeaderFont;
             },
@@ -203,6 +219,7 @@ function createColumnProperties() {
         },
         color: {
             configurable: true,
+            enumerable: true,
             get: function() {
                 return this.columnHeaderColor;
             },
@@ -212,6 +229,7 @@ function createColumnProperties() {
         },
         backgroundColor: {
             configurable: true,
+            enumerable: true,
             get: function() {
                 return this.columnHeaderBackgroundColor;
             },
@@ -221,6 +239,7 @@ function createColumnProperties() {
         },
         foregroundSelectionFont: {
             configurable: true,
+            enumerable: true,
             get: function() {
                 return this.columnHeaderForegroundSelectionFont;
             },
@@ -230,6 +249,7 @@ function createColumnProperties() {
         },
         foregroundSelectionColor: {
             configurable: true,
+            enumerable: true,
             get: function() {
                 return this.columnHeaderForegroundSelectionColor;
             },
@@ -239,6 +259,7 @@ function createColumnProperties() {
         },
         backgroundSelectionColor: {
             configurable: true,
+            enumerable: true,
             get: function() {
                 return this.columnHeaderBackgroundSelectionColor;
             },
@@ -248,18 +269,25 @@ function createColumnProperties() {
         },
         halign: {
             configurable: true,
+            enumerable: true,
             get: function() {
                 return this.columnHeaderHalign;
             },
             set: function(value) {
                 this.columnHeaderHalign = value;
             }
+        },
+        format: {
+            writable: true,
+            enumerable: true,
+            value: 'header'
         }
     })});
 
     Object.defineProperty(properties, 'columnHeaderColumnSelection', { value: Object.create(properties.columnHeader, {
         foregroundSelectionColor: {
             configurable: true,
+            enumerable: true,
             get: function() {
                 return this.columnHeaderForegroundColumnSelectionColor;
             },
@@ -269,6 +297,7 @@ function createColumnProperties() {
         },
         backgroundSelectionColor: {
             configurable: true,
+            enumerable: true,
             get: function() {
                 return this.columnHeaderBackgroundColumnSelectionColor;
             },
@@ -281,6 +310,7 @@ function createColumnProperties() {
     Object.defineProperty(properties, 'rowHeaderRowSelection', { value: Object.create(properties.rowHeader, {
         foregroundSelectionColor: {
             configurable: true,
+            enumerable: true,
             get: function() {
                 return this.rowHeaderForegroundRowSelectionColor;
             },
@@ -290,6 +320,7 @@ function createColumnProperties() {
         },
         backgroundSelectionColor: {
             configurable: true,
+            enumerable: true,
             get: function() {
                 return this.rowHeaderBackgroundRowSelectionColor;
             },
@@ -302,6 +333,7 @@ function createColumnProperties() {
     Object.defineProperty(properties, 'filterProperties', { value: Object.create(properties, {
         font: {
             configurable: true,
+            enumerable: true,
             get: function() {
                 return this.filterFont;
             },
@@ -311,6 +343,7 @@ function createColumnProperties() {
         },
         color: {
             configurable: true,
+            enumerable: true,
             get: function() {
                 return this.filterColor;
             },
@@ -320,6 +353,7 @@ function createColumnProperties() {
         },
         backgroundColor: {
             configurable: true,
+            enumerable: true,
             get: function() {
                 return this.filterBackgroundColor;
             },
@@ -329,6 +363,7 @@ function createColumnProperties() {
         },
         foregroundSelectionColor: {
             configurable: true,
+            enumerable: true,
             get: function() {
                 return this.filterForegroundSelectionColor;
             },
@@ -338,6 +373,7 @@ function createColumnProperties() {
         },
         backgroundSelectionColor: {
             configurable: true,
+            enumerable: true,
             get: function() {
                 return this.filterBackgroundSelectionColor;
             },
@@ -347,6 +383,7 @@ function createColumnProperties() {
         },
         halign: {
             configurable: true,
+            enumerable: true,
             get: function() {
                 return this.filterHalign;
             },
@@ -359,6 +396,7 @@ function createColumnProperties() {
     Object.defineProperty(properties, 'treeColumnProperties', { value: Object.create(properties, {
         font: {
             configurable: true,
+            enumerable: true,
             get: function() {
                 return this.treeColumnFont;
             },
@@ -368,6 +406,7 @@ function createColumnProperties() {
         },
         color: {
             configurable: true,
+            enumerable: true,
             get: function() {
                 return this.treeColumnColor;
             },
@@ -377,6 +416,7 @@ function createColumnProperties() {
         },
         backgroundColor: {
             configurable: true,
+            enumerable: true,
             get: function() {
                 return this.treeColumnBackgroundColor;
             },
@@ -386,6 +426,7 @@ function createColumnProperties() {
         },
         foregroundSelectionColor: {
             configurable: true,
+            enumerable: true,
             get: function() {
                 return this.treeColumnForegroundSelectionColor;
             },
@@ -395,6 +436,7 @@ function createColumnProperties() {
         },
         backgroundSelectionColor: {
             configurable: true,
+            enumerable: true,
             get: function() {
                 return this.treeColumnBackgroundSelectionColor;
             },
@@ -407,6 +449,7 @@ function createColumnProperties() {
     Object.defineProperty(properties, 'treeColumnPropertiesColumnSelection', { value: Object.create(properties.treeColumnProperties, {
         foregroundSelectionColor: {
             configurable: true,
+            enumerable: true,
             get: function() {
                 return this.treeColumnForegroundColumnSelectionColor;
             },
@@ -416,6 +459,7 @@ function createColumnProperties() {
         },
         backgroundSelectionColor: {
             configurable: true,
+            enumerable: true,
             get: function() {
                 return this.treeColumnBackgroundColumnSelectionColor;
             },

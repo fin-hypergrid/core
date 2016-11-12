@@ -1430,8 +1430,15 @@ function enlivenSubgrids(dataModel) {
         dataModel = this.dataModel;
     } else if (dataModel instanceof Array && dataModel.length) {
         var Constructor = dataModel[0],
-            args = dataModel.slice(1);
-        dataModel = new (Function.prototype.bind.apply(Constructor, [null, this.grid].concat(args)));
+            boundArgs = dataModel.slice(1),
+            BoundConstructor;
+
+        boundArgs.unshift(this.grid); // first bound arg
+        boundArgs.unshift(null); // context for the `bind` call below
+
+        BoundConstructor = Constructor.bind.apply(Constructor, boundArgs);
+
+        dataModel = new BoundConstructor;
     } else if (typeof dataModel === 'function') {
         dataModel = new dataModel(this.grid); // eslint-disable-line new-cap
     }
