@@ -238,15 +238,6 @@ var JSON = Behavior.extend('behaviors.JSON', {
         console.warn('This function does not do anything');
     },
 
-    /**
-     * @memberOf behaviors.JSON.prototype
-     * @description Enhance the double-click event just before it's broadcast to listeners.
-     * @param {Point} event
-     */
-    enhanceDoubleClickEvent: function(event) {
-        event.row = this.getRow(event.gridCell.y);
-    },
-
     //Not being used. Should be repurposed??
     setDataProvider: function(dataProvider) {
         this.dataModel.setDataProvider(dataProvider);

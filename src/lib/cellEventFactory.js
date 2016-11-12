@@ -19,6 +19,10 @@ var prototype = Object.defineProperties({}, {
         set: function(value) { this.visibleRow.subgrid.setValue(this.dataCell.x, this.dataCell.y, value); }
     },
 
+    row: {
+        get: function() { return this.visibleRow.subgrid.getRow(this.dataCell.y); },
+    },
+
     formattedValue: {
         get: function() { return this.grid.formatValue(this.getCellProperty('format'), this.value); }
     },

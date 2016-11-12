@@ -157,7 +157,7 @@ var CellEditor = Base.extend('CellEditor', {
     },
 
     beginEditing: function() {
-        if (this.grid.fireRequestCellEdit(this.event.gridCell, this.initialValue)) {
+        if (this.grid.fireRequestCellEdit(this.event, this.initialValue)) {
             this.checkEditorPositionFlag = true;
             this.checkEditor();
         }

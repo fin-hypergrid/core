@@ -715,7 +715,7 @@ window.onload = function() {
 
     grid.addEventListener('fin-double-click', function(e) {
         var cell = e.detail.gridCell;
-        var rowContext = behavior.getRow(cell.y);
+        var rowContext = e.detail.row;
         if (vent) { console.log('fin-double-click row-context:', rowContext); }
     });
 
