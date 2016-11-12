@@ -13,6 +13,8 @@ FilterRow.prototype = {
 
     type: 'filter',
 
+    setData: function(dataRows, schema) {},
+
     getRowCount: function() {
         return this.grid.isShowFilterRow() ? 1 : 0;
     },

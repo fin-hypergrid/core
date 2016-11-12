@@ -181,12 +181,13 @@ var JSON = Behavior.extend('behaviors.JSON', {
         }
 
         options = options || {};
-        var grid = this.grid;
+        var behavior = this,
+            grid = this.grid,
+            schema = this.unwrap(options.schema) || []; // *always* define a new schema on reset
 
-        this.dataModel.setData(
-            dataRows,
-            this.unwrap(options.schema) || [] // *always* define a new schema on reset
-        );
+        this.subgrids.forEach(function(dataModel) {
+            dataModel.setData(dataRows, schema);
+        });
 
         if (grid.cellEditor) {
             grid.cellEditor.cancelEditing();
@@ -196,11 +197,11 @@ var JSON = Behavior.extend('behaviors.JSON', {
             this.reindex();
         }
 
-        var self = this;
         this.createColumns();
-        setTimeout(function() { self.autosizeAllColumns(); }, 100); // after app has had a chance to re/set individual column's `columnAutosizing`
-        self.grid.allowEvents(self.dataModel.getRowCount() > 0);
+        setTimeout(function() { behavior.autosizeAllColumns(); }, 100); // after app has had a chance to re/set individual column's `columnAutosizing`
+        grid.allowEvents(this.dataModel.getRowCount() > 0);
     },
+
     /**
      * @summary Rebinds the data without reshaping it.
      * @param dataRows
@@ -218,7 +219,6 @@ var JSON = Behavior.extend('behaviors.JSON', {
             dataRows,
             this.unwrap(options.schema) // undefined will be ignored
         );
-
         this.reindex();
     },
 
