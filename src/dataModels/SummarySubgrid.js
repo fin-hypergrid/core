@@ -27,7 +27,7 @@ SummaryRow.prototype = {
     },
 
     setData: function(data) {
-        this.data = data || [];
+        this.data = data.length && data[0] instanceof Array ? data : [];
     },
 
     getValue: function(x, y) {
