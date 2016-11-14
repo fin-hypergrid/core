@@ -37,7 +37,23 @@ var prototype = Object.defineProperties({}, {
     } },
 
     columnProperties: { get: function() {
-        return (this._columnProperties = this._columnProperties || this.column.properties);
+        var cp = this._columnProperties;
+        if (!cp) {
+            cp = this.column.properties;
+            if (this.isHandleColumn || this.isHierarchyColumn) {
+                cp = this.isRowSelected ? cp.rowHeaderRowSelection : cp.rowHeader;
+            } else if (this.isGridRow) {
+                // cp already set to basic props
+            } else if (this.isFilterRow) {
+                cp = cp.filterProperties;
+            } else if (this.isColumnSelected) { // selected header, summary, etc., all have save look as selected header
+                cp = cp.columnHeaderColumnSelection;
+            } else { // unselected header, summary, etc., all have save look as unselected header
+                cp = cp.columnHeader;
+            }
+            this._columnProperties = cp;
+        }
+        return cp;
     } },
     cellOwnProperties: { get: function() {
         return (this._cellOwnProperties = this._cellOwnProperties || this.column.getCellOwnProperties(this.dataCell.y, this.visibleRow.subgrid));
@@ -62,6 +78,13 @@ var prototype = Object.defineProperties({}, {
         this.gridCell.y = visibleRow.index;
         this.dataCell.y = visibleRow.rowIndex;
         this._cellOwnProperties = this._properties = undefined;
+    } },
+    resetCell: { value: function() {
+        // Resetting columnProperties causes columnProperties to be recalculated. Although this could have been done
+        // in resetRow, for better performance can avoid this recalculation for a run of data cells, which is a
+        // dominant use case as render progresses down each column. Therefore, renderer calls this function iff
+        // either this is a non-data cell OR this is a data cell and the previous use was not.
+        this._columnProperties = undefined;
     } },
 
     // "Visible" means scrolled into view.

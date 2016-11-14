@@ -196,7 +196,7 @@ Column.prototype = {
         config.x = this.index;
         config.normalizedY = cellEvent.dataCell.y;
 
-        return this.dataModel.getCell(config, (cellEvent.cellOwnProperties || config).renderer);
+        return this.dataModel.getCell(config, config.renderer);
     },
 
     checkColumnAutosizing: function(force) {

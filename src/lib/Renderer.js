@@ -786,6 +786,7 @@ var Renderer = Base.extend('Renderer', {
      */
     paintCells: function(gc) {
         var message,
+            previousRowWasDataRow,
             behavior = this.grid.behavior,
             c, C, // column loop index and limit
             r, R, // row loop index and limit
@@ -839,6 +840,11 @@ var Renderer = Base.extend('Renderer', {
                 r++
             ) {
                 cellEvent.resetRow(vr = visibleRows[r]);
+
+                // See note at resetCell definition for explanation of the following.
+                var isGridRow = cellEvent.isGridRow;
+                if (!isGridRow || !previousRowWasDataRow) { cellEvent.resetCell(); }
+                previousRowWasDataRow = isGridRow;
 
                 bounds.y = vr.top;
                 bounds.height = vr.height;
@@ -916,13 +922,9 @@ var Renderer = Base.extend('Renderer', {
             // c = cellEvent.dataCell.x,
             r = cellEvent.dataCell.y,
 
-            columnProperties = cellEvent.columnProperties,
-
             isHandleColumn = cellEvent.isHandleColumn,
             isHierarchyColumn = cellEvent.isHierarchyColumn,
             isColumnSelected = cellEvent.isColumnSelected,
-
-            isRowHandleOrHierarchyColumn = isHandleColumn || isHierarchyColumn,
 
             isGridRow = cellEvent.isGridRow,
             isRowSelected = cellEvent.isRowSelected,
@@ -931,31 +933,32 @@ var Renderer = Base.extend('Renderer', {
             isHeaderRow = cellEvent.isHeaderRow,
             isFilterRow = cellEvent.isFilterRow,
 
-            config,
+            isRowHandleOrHierarchyColumn = isHandleColumn || isHierarchyColumn,
+            isUserDataArea = !isRowHandleOrHierarchyColumn && isGridRow,
+
+            columnProperties = cellEvent.column.properties, // generic column props object
+            config = Object.create(cellEvent.properties), // cell props || specific column props object (wrapped)
             rowProperties,
             isSelected;
 
-        if (isRowHandleOrHierarchyColumn) {
-            config = Object.create(isRowSelected ? columnProperties.rowHeaderRowSelection : columnProperties.rowHeader);
-            config.halign = isHierarchyColumn ? 'left' : 'right';
+        if (isHandleColumn) {
             isSelected = isRowSelected || selectionModel.isCellSelectedInRow(r);
+            config.halign = 'left';
+        } else if (isHierarchyColumn) {
+            isSelected = isRowSelected || selectionModel.isCellSelectedInRow(r);
+            config.halign = 'right';
         } else if (isGridRow) {
-            config = Object.create(cellEvent.properties);
+            isSelected = isCellSelected || isRowSelected || isColumnSelected;
 
             // Iff we have a defined rowProperties array, apply it to config, treating it as a repeating pattern, keyed to row index.
             // Note that Object.assign will ignore undefined, including rowProperties itself if undefined or any properties bag therein.
             rowProperties = cellEvent.properties.rowProperties;
             Object.assign(config, rowProperties && rowProperties[r % rowProperties.length]);
-
-            isSelected = isCellSelected || isRowSelected || isColumnSelected;
         } else if (isFilterRow) {
-            config = Object.create(columnProperties.filterProperties);
             isSelected = false;
         } else if (isColumnSelected) {
-            config = Object.create(columnProperties.columnHeaderColumnSelection);
             isSelected = true;
         } else { // header or summary or other
-            config = Object.create(columnProperties.columnHeader);
             isSelected = selectionModel.isCellSelectedInColumn(x);
         }
 
@@ -984,7 +987,7 @@ var Renderer = Base.extend('Renderer', {
         config.isGridRow = isGridRow;
         config.isHeaderRow = isHeaderRow;
         config.isFilterRow = isFilterRow;
-        config.isUserDataArea = !isRowHandleOrHierarchyColumn && isGridRow;
+        config.isUserDataArea = isUserDataArea;
         config.isColumnHovered = cellEvent.isColumnHovered;
         config.isRowHovered = cellEvent.isRowHovered;
         config.isCellHovered = cellEvent.isCellHovered;
