@@ -387,7 +387,7 @@ Localization.prototype = {
      * @param {string} localizerName
      * @param {Constructor
      * @param {object} {factoryOptions}
-     * @returns {localizeInerface} The new localizer.
+     * @returns {localizerInterface} The new localizer.
      */
     construct: function(localizerName, Constructor, factoryOptions) {
         var constructorName = localizerName[0].toUpperCase() + localizerName.substr(1).toLowerCase() + 'Formatter',
@@ -405,7 +405,7 @@ Localization.prototype = {
      * @param {string} name
      * @param {localizerInterface} localizer
      * @memberOf Localization.prototype
-     * @returns {localizeInerface} The provided localizer.
+     * @returns {localizerInterface} The provided localizer.
      */
     add: function(name, localizer) {
         if (typeof name === 'object') {

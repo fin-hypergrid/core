@@ -111,11 +111,12 @@ var SimpleCell = CellRenderer.extend('SimpleCell', {
         }
 
         if (val) {
-            if (config.isUserDataArea) {
-                val = valOrFunc(val, config, config.calculator);
-            }
+            val = config.exec(val);
 
-            val = config.formatValue(val);
+            // Note: vf == 0 is fastest equivalent of vf === 0 || vf === false which excludes NaN, null, undefined
+            val = val || val == 0 ? val : ''; // eslint-disable-line eqeqeq
+
+            val = config.formatValue(val, config);
 
             gc.cache.font = config.isSelected ? config.foregroundSelectionFont : config.font;
             gc.cache.textAlign = 'left';
@@ -370,17 +371,6 @@ function layerColors(gc, colors, x, y, width, height, foundational) {
             gc.fillRect(x, y, width, height);
         }
     });
-}
-
-function valOrFunc(vf, config, calculator) {
-    var result = vf;
-    if (config.isGridColumn && config.isGridRow && config.dataRow) {
-        calculator = (typeof vf)[0] === 'f' && vf || calculator;
-        if (calculator) {
-            result = calculator(config.dataRow, config.name);
-        }
-    }
-    return result || result === 0 || result === false ? result : '';
 }
 
 module.exports = SimpleCell;

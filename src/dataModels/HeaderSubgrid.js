@@ -23,26 +23,8 @@ HeaderRow.prototype = {
     },
 
     getValue: function(x, y) {
-        var column, sortString, groups, result;
-
-        if (y < this.getRowCount()) {
-            column = this.behavior.getColumn(x);
-            result = column.header || column.name; // uses field name when header undefined
-            sortString = this.behavior.dataModel.getSortImageForColumn(x);
-
-            if (sortString) {
-                // if grouped header, prepend group headers to sort direction indicator
-                if ((groups = result.lastIndexOf(this.behavior.groupHeaderDelimiter) + 1)) {
-                    sortString = result.substr(0, groups) + sortString;
-                    result = result.substr(groups);
-                }
-
-                // prepend sort direction indicator to column header
-                result = sortString + result;
-            }
-        }
-
-        return result;
+        var column = this.behavior.getColumn(x);
+        return column.header || column.name; // use field name when header undefined
     },
 
     setValue: function(x, y, value) {

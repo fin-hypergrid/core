@@ -19,7 +19,7 @@ Base.prototype.HypergridError = require('./lib/error');
  * @returns {*}
  */
 Base.prototype.unwrap = function(value) {
-    if (typeof value === 'function') {
+    if ((typeof value)[0] === 'f') {
         value = value();
     }
     return value;

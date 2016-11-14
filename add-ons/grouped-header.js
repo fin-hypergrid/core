@@ -223,7 +223,8 @@ function setHeaders(headers) {
 
     // 3. Set all active header cells to use the GroupHeader cell renderer
     this.columns.forEach(function(column) {
-        column.setCellProperty(0, 'renderer', CLASS_NAME, headerDataModel);
+        column.properties.columnHeader.renderer = CLASS_NAME;
+        // column.setCellProperty(0, 'renderer', CLASS_NAME, headerDataModel);
     });
 }
 

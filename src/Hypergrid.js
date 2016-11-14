@@ -348,7 +348,7 @@ var Hypergrid = Base.extend('Hypergrid', {
         }
 
         plugins.forEach(function(plugin) {
-            var name, args, hash;
+            var name, args, hash, BoundConstructor;
 
             if (!plugin) {
                 return; // ignore falsy plugin spec
@@ -395,8 +395,9 @@ var Hypergrid = Base.extend('Hypergrid', {
                 hash = this.plugins;
                 if (typeof plugin === 'function') {
                     // Install "object API" by instantiating
-                    args.unshift(null); // context for the `bind` call
-                    plugin = new (Function.prototype.bind.apply(plugin, args));
+                    args.unshift(null); // context for the `bind` call below
+                    BoundConstructor = plugin.bind.apply(plugin, args);
+                    plugin = new BoundConstructor;
                 } else if (plugin.install) {
                     // Install "simple API" by calling its `install` method
                     plugin.install.apply(plugin, args);
@@ -461,7 +462,12 @@ var Hypergrid = Base.extend('Hypergrid', {
             options.numberOptions || Hypergrid.localization.numberOptions,
             options.dateOptions || Hypergrid.localization.dateOptions
         );
+
+        this.localization.header = {
+            format: headerFormatter.bind(this)
+        };
     },
+
     getFormatter: function(localizerName) {
         return this.localization.get(localizerName).format;
     },
@@ -2369,6 +2375,25 @@ function clearObjectProperties(obj) {
             delete obj[prop];
         }
     }
+}
+
+function headerFormatter(value, config) {
+    var sortString = this.behavior.dataModel.getSortImageForColumn(config.x);
+
+    if (sortString) {
+        var groups = value.lastIndexOf(this.behavior.groupHeaderDelimiter) + 1;
+
+        // if grouped header, prepend group headers to sort direction indicator
+        if (groups) {
+            sortString = value.substr(0, groups) + sortString;
+            value = value.substr(groups);
+        }
+
+        // prepend sort direction indicator to column header
+        value = sortString + value;
+    }
+
+    return value;
 }
 
 /**
