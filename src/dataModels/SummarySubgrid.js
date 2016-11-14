@@ -26,8 +26,8 @@ SummaryRow.prototype = {
         return this.behavior.dataModel.dataSource.getGrandTotals() || this.data;
     },
 
-    setData: function(data) {
-        this.data = data.length && data[0] instanceof Array ? data : [];
+    setData: function(data, schema) {
+        this.data = schema ? [] : data; // if there's a schema, means new data rows have arrived
     },
 
     getValue: function(x, y) {
