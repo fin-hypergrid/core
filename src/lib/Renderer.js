@@ -796,7 +796,7 @@ var Renderer = Base.extend('Renderer', {
             vr, visibleRows = this.visibleRows,
             gridProps = this.grid.properties,
             columnClip = gridProps.columnClip,
-            clipHeight = this.getBounds().height,
+            clipHeight = visibleRows.length ? visibleRows[visibleRows.length - 1].bottom : 0,
             lineWidth = gridProps.lineWidth,
             lineColor = gridProps.lineColor;
 
