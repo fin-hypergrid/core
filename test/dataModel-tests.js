@@ -8,38 +8,6 @@ var instance = [
         type: 'object'
     },
     {
-        name:'topTotals',
-        type: 'object'
-    },
-    {
-        name:'bottomTotals',
-        type: 'object'
-    },
-    {
-        name:'selectedData',
-        type: 'object'
-    },
-    {
-        name:'sources',
-        type: 'object'
-    },
-    {
-        name:'source',
-        type: 'object'
-    },
-    {
-        name:'dataSource',
-        type: 'object'
-    },
-    {
-        name:'pipelineSchemaStash',
-        type: 'object'
-    },
-    {
-        name:'defaultPipelineSchema',
-        type: 'object'
-    },
-    {
         name:'initialize',
         type: 'function'
     },
@@ -48,79 +16,7 @@ var instance = [
         type: 'function'
     },
     {
-        name:'resetSources',
-        type: 'function'
-    },
-    {
-        name:'clearSelectedData',
-        type: 'function'
-    },
-    {
-        name:'getData',
-        type: 'function'
-    },
-    {
-        name:'getFilteredData',
-        type: 'function'
-    },
-    {
-        name:'getValue',
-        type: 'function'
-    },
-    {
-        name:'getDataIndex',
-        type: 'function'
-    },
-    {
-        name:'getHeaderRowValue',
-        type: 'function'
-    },
-    {
-        name:'setValue',
-        type: 'function'
-    },
-    {
-        name:'setHeaderRowValue',
-        type: 'function'
-    },
-
-    {
-        name:'getColumnProperties',
-        type: 'function'
-    },
-
-    {
-        name:'getColumnCount',
-        type: 'function'
-    },
-
-    {
-        name:'getRowCount',
-        type: 'function'
-    },
-    {
-        name:'getHeaders',
-        type: 'function'
-    },
-
-    {
-        name:'setHeaders',
-        type: 'function'
-    },
-    {
-        name:'setFields',
-        type: 'function'
-    },
-    {
-        name:'getFields',
-        type: 'function'
-    },
-    {
-        name:'getCalculators',
-        type: 'function'
-    },
-    {
-        name:'applyAnalytics',
+        name:'reindex',
         type: 'function'
     },
     {
@@ -132,79 +28,7 @@ var instance = [
         type: 'function'
     },
     {
-        name:'getPipelineSchemaStash',
-        type: 'function'
-    },
-    {
-        name:'unstashPipeline',
-        type: 'function'
-    },
-    {
-        name:'truncatePipeline',
-        type: 'function'
-    },
-    {
         name:'isDrillDown',
-        type: 'function'
-    },
-    {
-        name:'setTopTotals',
-        type: 'function'
-    },
-    {
-        name:'getTopTotals',
-        type: 'function'
-    },
-    {
-        name:'setBottomTotals',
-        type: 'function'
-    },
-    {
-        name:'getBottomTotals',
-        type: 'function'
-    },
-    {
-        name:'getActiveColumns',
-        type: 'function'
-    },
-    {
-        name:'getVisibleColumns',
-        type: 'function'
-    },
-    {
-        name:'hasHierarchyColumn',
-        type: 'function'
-    },
-    {
-        name:'getSortedColumnIndexes',
-        type: 'function'
-    },
-    {
-        name:'getSortImageForColumn',
-        type: 'function'
-    },
-    {
-        name:'cellClicked',
-        type: 'function'
-    },
-    {
-        name:'toggleRow',
-        type: 'function'
-    },
-    {
-        name:'getRow',
-        type: 'function'
-    },
-    {
-        name:'getUnfilteredValue',
-        type: 'function'
-    },
-    {
-        name:'getUnfilteredRowCount',
-        type: 'function'
-    },
-    {
-        name:'addRow',
         type: 'function'
     }
 ];
