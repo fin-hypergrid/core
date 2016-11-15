@@ -124,20 +124,6 @@ var defaults = {
 
     /**
      * @default
-     * @type {cssColor}
-     * @memberOf module:defaults
-     */
-    columnHeaderForegroundColumnSelectionColor: 'rgb(25, 25, 25)',
-
-    /**
-     * @default
-     * @type {cssColor}
-     * @memberOf module:defaults
-     */
-    columnHeaderBackgroundColumnSelectionColor: 'rgb(255, 180, 0)',
-
-    /**
-     * @default
      * @type {string}
      * @memberOf module:defaults
      */
@@ -189,20 +175,6 @@ var defaults = {
      */
     rowHeaderBackgroundSelectionColor: 'rgba(255, 220, 97, 0.45)',
 
-    /**
-     * @default
-     * @type {cssColor}
-     * @memberOf module:defaults
-     */
-    rowHeaderForegroundRowSelectionColor: 'rgb(25, 25, 25)',
-
-    /**
-     * @default
-     * @type {cssColor}
-     * @memberOf module:defaults
-     */
-    rowHeaderBackgroundRowSelectionColor: 'rgb(255, 180, 0)',
-
 
     /********** SECTION: FILTER ROW COLORS **********/
 
@@ -247,59 +219,6 @@ var defaults = {
      * @memberOf module:defaults
      */
     filterHalign: 'center',
-
-
-    /********** SECTION: TREE COLUMN COLORS **********/
-    // The "tree column" contains the hierarchical drill-down controls.
-
-    /**
-     * @default
-     * @type {cssFont}
-     * @memberOf module:defaults
-     */
-    treeColumnFont: '12px Tahoma, Geneva, sans-serif',
-
-    /**
-     * @default
-     * @type {cssColor}
-     * @memberOf module:defaults
-     */
-    treeColumnColor: 'rgb(25, 25, 25)',
-
-    /**
-     * @default
-     * @type {cssColor}
-     * @memberOf module:defaults
-     */
-    treeColumnBackgroundColor: 'rgb(223, 227, 232)',
-
-    /**
-     * @default
-     * @type {cssColor}
-     * @memberOf module:defaults
-     */
-    treeColumnForegroundSelectionColor: 'rgb(25, 25, 25)',
-
-    /**
-     * @default
-     * @type {cssColor}
-     * @memberOf module:defaults
-     */
-    treeColumnBackgroundSelectionColor: 'rgba(255, 220, 97, 0.45)',
-
-    /**
-     * @default
-     * @type {cssColor}
-     * @memberOf module:defaults
-     */
-    treeColumnForegroundColumnSelectionColor: 'rgb(25, 25, 25)',
-
-    /**
-     * @default
-     * @type {cssColor}
-     * @memberOf module:defaults
-     */
-    treeColumnBackgroundColumnSelectionColor: 'rgb(255, 180, 0)',
 
     /**
      * @default

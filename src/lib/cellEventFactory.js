@@ -41,13 +41,11 @@ var prototype = Object.defineProperties({}, {
         if (!cp) {
             cp = this.column.properties;
             if (this.isHandleColumn || this.isHierarchyColumn) {
-                cp = this.isRowSelected ? cp.rowHeaderRowSelection : cp.rowHeader;
+                cp = cp.rowHeader;
             } else if (this.isGridRow) {
                 // cp already set to basic props
             } else if (this.isFilterRow) {
                 cp = cp.filterProperties;
-            } else if (this.isColumnSelected) { // selected header, summary, etc., all have save look as selected header
-                cp = cp.columnHeaderColumnSelection;
             } else { // unselected header, summary, etc., all have save look as unselected header
                 cp = cp.columnHeader;
             }
@@ -152,7 +150,7 @@ var prototype = Object.defineProperties({}, {
  *
  * @returns {CellEvent}
  */
-function CellEvent(grid) {
+function factory(grid) {
 
     /**
      * @summary Create a new CellEvent object.
@@ -235,4 +233,4 @@ function CellEvent(grid) {
     return CellEvent;
 }
 
-module.exports = CellEvent;
+module.exports = factory;

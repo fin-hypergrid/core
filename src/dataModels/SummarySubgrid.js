@@ -31,7 +31,7 @@ SummaryRow.prototype = {
     },
 
     getValue: function(x, y) {
-        return this.data[y][x];
+        return this.getData()[y][x];
     },
 
     setValue: function(x, y, value) {

@@ -813,7 +813,7 @@ var Renderer = Base.extend('Renderer', {
             bounds.x = vc.left;
             bounds.width = vc.width;
 
-            cellEvent.columnProperties.preferredWidth = 0;
+            cellEvent.column.properties.preferredWidth = 0;
 
             gc.cache.save();
 
@@ -826,7 +826,7 @@ var Renderer = Base.extend('Renderer', {
                 gc.clip();
             }
 
-            gc.fillCell(bounds.x, 0, bounds.width, clipHeight, cellEvent.columnProperties.backgroundColor);
+            gc.fillCell(bounds.x, 0, bounds.width, clipHeight, cellEvent.column.properties.backgroundColor);
 
             if (gridProps.gridLinesV) {
                 gc.cache.fillStyle = lineColor;
@@ -943,10 +943,10 @@ var Renderer = Base.extend('Renderer', {
 
         if (isHandleColumn) {
             isSelected = isRowSelected || selectionModel.isCellSelectedInRow(r);
-            config.halign = 'left';
+            config.halign = 'right';
         } else if (isHierarchyColumn) {
             isSelected = isRowSelected || selectionModel.isCellSelectedInRow(r);
-            config.halign = 'right';
+            config.halign = 'left';
         } else if (isGridRow) {
             isSelected = isCellSelected || isRowSelected || isColumnSelected;
 
