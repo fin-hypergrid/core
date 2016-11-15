@@ -1,47 +1,6 @@
 'use strict';
 
-/**
- * @param {function|string} string
- * @returns {function}
- * @private
- */
-function toFunction(string) {
-    switch (typeof string) {
-        case 'undefined':
-        case 'function':
-            return string;
-        case 'string':
-            break;
-        default:
-            throw 'Expected string, function, or undefined.';
-    }
-
-    var args = string.match(/function\s*\(([^]*?)\)/);
-    if (!args) {
-        throw 'Expected function keyword with formal parameter list.';
-    }
-    args = args[1].split(',').map(function(s, i) {
-        s = s.match(/\s*(\w*)\s*/); // trim each argument
-        if (!s && i) {
-            throw 'Expected formal parameter.';
-        }
-        return s[1];
-    });
-
-    var body = string.match(/{\s*([^]*?)\s*}/);
-    if (!body) {
-        throw 'Expected function body.';
-    }
-    body = body[1];
-
-    if (args.length === 1 && !args[0]) {
-        args[0] = body;
-    } else {
-        args = args.concat(body);
-    }
-
-    return Function.apply(null, args);
-}
+var toFunction = require('../lib/toFunction');
 
 var FIELD = 'columnProperties.field is deprecated as of v1.1.0 in favor of columnProperties.name. (Will be removed in a future release.)',
     COLUMN_NAME = 'columnProperties.columnName is deprecated as of v1.1.0 in favor of columnProperties.name. (Will be removed in a future release.)';
@@ -118,30 +77,6 @@ function createColumnProperties() {
         }
 
     });
-
-
-    Object.defineProperty(properties, 'rowNumbersProperties', { value: Object.create(properties, {
-        foregroundSelectionColor: {
-            configurable: true,
-            enumerable: true,
-            get: function() {
-                return this.columnHeaderForegroundSelectionColor;
-            },
-            set: function(value) {
-                this.columnHeaderForegroundSelectionColor = value;
-            }
-        },
-        backgroundSelectionColor: {
-            configurable: true,
-            enumerable: true,
-            get: function() {
-                return this.columnHeaderBackgroundSelectionColor;
-            },
-            set: function(value) {
-                this.columnHeaderBackgroundSelectionColor = value;
-            }
-        }
-    })});
 
     Object.defineProperty(properties, 'rowHeader', { value: Object.create(properties, {
         font: {
@@ -284,52 +219,6 @@ function createColumnProperties() {
         }
     })});
 
-    Object.defineProperty(properties, 'columnHeaderColumnSelection', { value: Object.create(properties.columnHeader, {
-        foregroundSelectionColor: {
-            configurable: true,
-            enumerable: true,
-            get: function() {
-                return this.columnHeaderForegroundColumnSelectionColor;
-            },
-            set: function(value) {
-                this.columnHeaderForegroundColumnSelectionColor = value;
-            }
-        },
-        backgroundSelectionColor: {
-            configurable: true,
-            enumerable: true,
-            get: function() {
-                return this.columnHeaderBackgroundColumnSelectionColor;
-            },
-            set: function(value) {
-                this.columnHeaderBackgroundColumnSelectionColor = value;
-            }
-        }
-    })});
-
-    Object.defineProperty(properties, 'rowHeaderRowSelection', { value: Object.create(properties.rowHeader, {
-        foregroundSelectionColor: {
-            configurable: true,
-            enumerable: true,
-            get: function() {
-                return this.rowHeaderForegroundRowSelectionColor;
-            },
-            set: function(value) {
-                this.rowHeaderForegroundRowSelectionColor = value;
-            }
-        },
-        backgroundSelectionColor: {
-            configurable: true,
-            enumerable: true,
-            get: function() {
-                return this.rowHeaderBackgroundRowSelectionColor;
-            },
-            set: function(value) {
-                this.rowHeaderBackgroundRowSelectionColor = value;
-            }
-        }
-    })});
-
     Object.defineProperty(properties, 'filterProperties', { value: Object.create(properties, {
         font: {
             configurable: true,
@@ -389,82 +278,6 @@ function createColumnProperties() {
             },
             set: function(value) {
                 this.filterHalign = value;
-            }
-        }
-    })});
-
-    Object.defineProperty(properties, 'treeColumnProperties', { value: Object.create(properties, {
-        font: {
-            configurable: true,
-            enumerable: true,
-            get: function() {
-                return this.treeColumnFont;
-            },
-            set: function(value) {
-                this.treeColumnFont = value;
-            }
-        },
-        color: {
-            configurable: true,
-            enumerable: true,
-            get: function() {
-                return this.treeColumnColor;
-            },
-            set: function(value) {
-                this.treeColumnColor = value;
-            }
-        },
-        backgroundColor: {
-            configurable: true,
-            enumerable: true,
-            get: function() {
-                return this.treeColumnBackgroundColor;
-            },
-            set: function(value) {
-                this.treeColumnBackgroundColor = value;
-            }
-        },
-        foregroundSelectionColor: {
-            configurable: true,
-            enumerable: true,
-            get: function() {
-                return this.treeColumnForegroundSelectionColor;
-            },
-            set: function(value) {
-                this.treeColumnForegroundSelectionColor = value;
-            }
-        },
-        backgroundSelectionColor: {
-            configurable: true,
-            enumerable: true,
-            get: function() {
-                return this.treeColumnBackgroundSelectionColor;
-            },
-            set: function(value) {
-                this.treeColumnBackgroundSelectionColor = value;
-            }
-        }
-    })});
-
-    Object.defineProperty(properties, 'treeColumnPropertiesColumnSelection', { value: Object.create(properties.treeColumnProperties, {
-        foregroundSelectionColor: {
-            configurable: true,
-            enumerable: true,
-            get: function() {
-                return this.treeColumnForegroundColumnSelectionColor;
-            },
-            set: function(value) {
-                this.treeColumnForegroundColumnSelectionColor = value;
-            }
-        },
-        backgroundSelectionColor: {
-            configurable: true,
-            enumerable: true,
-            get: function() {
-                return this.treeColumnBackgroundColumnSelectionColor;
-            },
-            set: function(value) {
-                this.treeColumnBackgroundColumnSelectionColor = value;
             }
         }
     })});
