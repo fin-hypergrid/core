@@ -1201,7 +1201,7 @@ var Behavior = Base.extend('Behavior', {
      * @param {CellEvent} editPoint - The grid cell coordinates.
      */
     getCellEditorAt: function(event) {
-        return event.isGridColumn && (
+        return event.isDataColumn && (
             event.isFilterCell
                 ? this.grid.cellEditors.create('filterbox', event)
                 : event.column.getCellEditorAt(event)

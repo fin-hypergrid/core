@@ -72,7 +72,7 @@ var RowSelection = Feature.extend('RowSelection', {
         if (rowSelectable && event.isHeaderHandle) {
             //global row selection
             grid.toggleSelectAllRows();
-        } else if (rowSelectable && event.isGridRow)  {
+        } else if (rowSelectable && event.isDataRow)  {
             // if we are in the fixed area, do not apply the scroll values
             this.dragArmed = true;
             this.extendSelection(grid, event.dataCell.y, event.primitiveEvent.detail.keys);

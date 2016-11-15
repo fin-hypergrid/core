@@ -42,7 +42,7 @@ var prototype = Object.defineProperties({}, {
             cp = this.column.properties;
             if (this.isHandleColumn || this.isHierarchyColumn) {
                 cp = cp.rowHeader;
-            } else if (this.isGridRow) {
+            } else if (this.isDataRow) {
                 // cp already set to basic props
             } else if (this.isFilterRow) {
                 cp = cp.filterProperties;
@@ -90,47 +90,67 @@ var prototype = Object.defineProperties({}, {
     isColumnVisible: { get: function() { return !!this.visibleColumn; } },
     isCellVisible:   { get: function() { return this.isRowVisible && this.isColumnVisible; } },
 
-    isGridRow:    { get: function() { return !this.visibleRow.subgrid.type; } },
-    isGridColumn: { get: function() { return this.gridCell.x >= 0; } },
-    isGridCell:   { get: function() { return this.isGridRow && this.isGridColumn; } },
+    isDataRow:    { get: function() { return !this.visibleRow.subgrid.type; } },
+    isDataColumn: { get: function() { return this.gridCell.x >= 0; } },
+    isDataCell:   { get: function() { return this.isDataRow && this.isDataColumn; } },
 
-    isRowSelected:    { get: function() { return this.isGridRow && this.selectionModel.isRowSelected(this.dataCell.y); } },
-    isColumnSelected: { get: function() { return this.isGridColumn && this.selectionModel.isColumnSelected(this.gridCell.x); } },
+    isRowSelected:    { get: function() { return this.isDataRow && this.selectionModel.isRowSelected(this.dataCell.y); } },
+    isColumnSelected: { get: function() { return this.isDataColumn && this.selectionModel.isColumnSelected(this.gridCell.x); } },
     isCellSelected:   { get: function() { return this.selectionModel.isCellSelected(this.gridCell.x, this.dataCell.y); } },
 
-    isRowHovered:    { get: function() { return this.isGridRow && this.grid.hoverCell && this.grid.hoverCell.y === this.gridCell.y; } },
-    isColumnHovered: { get: function() { return this.isGridColumn && this.grid.hoverCell && this.grid.hoverCell.x === this.gridCell.x; } },
+    isRowHovered:    { get: function() { return this.isDataRow && this.grid.hoverCell && this.grid.hoverCell.y === this.gridCell.y; } },
+    isColumnHovered: { get: function() { return this.isDataColumn && this.grid.hoverCell && this.grid.hoverCell.x === this.gridCell.x; } },
     isCellHovered:   { get: function() { return this.isRowHovered && this.isColumnHovered; } },
 
-    isRowFixed:    { get: function() { return this.isGridRow && this.dataCell.y < this.grid.properties.fixedRowCount; } },
-    isColumnFixed: { get: function() { return this.isGridColumn && this.gridCell.x < this.grid.properties.fixedColumnCount; } },
+    isRowFixed:    { get: function() { return this.isDataRow && this.dataCell.y < this.grid.properties.fixedRowCount; } },
+    isColumnFixed: { get: function() { return this.isDataColumn && this.gridCell.x < this.grid.properties.fixedColumnCount; } },
     isCellFixed:   { get: function() { return this.isRowFixed && this.isColumnFixed; } },
 
-    isHandleColumn: { get: function() { return !this.isGridColumn; } },
-    isHandleCell:   { get: function() { return this.isHandleColumn && this.isGridRow; } },
+    isHandleColumn: { get: function() { return !this.isDataColumn; } },
+    isHandleCell:   { get: function() { return this.isHandleColumn && this.isDataRow; } },
 
     isHierarchyColumn: { get: function() { return this.gridCell.x === 0 && this.grid.properties.showTreeColumn && this.dataModel.isDrillDown(this.dataCell.x); } },
 
     isHeaderRow:    { get: function() { return this.visibleRow.subgrid.type === 'header'; } },
     isHeaderHandle: { get: function() { return this.isHeaderRow && this.isHandleColumn; } },
-    isHeaderCell:   { get: function() { return this.isHeaderRow && this.isGridColumn; } },
+    isHeaderCell:   { get: function() { return this.isHeaderRow && this.isDataColumn; } },
 
     isFilterRow:    { get: function() { return this.visibleRow.subgrid.type === 'filter'; } },
     isFilterHandle: { get: function() { return this.isFilterRow && this.isHandleColumn; } },
-    isFilterCell:   { get: function() { return this.isFilterRow && this.isGridColumn; } },
+    isFilterCell:   { get: function() { return this.isFilterRow && this.isDataColumn; } },
 
     isSummaryRow:    { get: function() { return this.visibleRow.subgrid.type === 'summary'; } },
     isSummaryHandle: { get: function() { return this.isSummaryRow && this.isHandleColumn; } },
-    isSummaryCell:   { get: function() { return this.isSummaryRow && this.isGridColumn; } },
+    isSummaryCell:   { get: function() { return this.isSummaryRow && this.isDataColumn; } },
 
     isTopTotalsRow:    { get: function() { return this.visibleRow.subgrid === this.behavior.subgrids.topTotals; } },
     isTopTotalsHandle: { get: function() { return this.isTopTotalsRow && this.isHandleColumn; } },
-    isTopTotalsCell:   { get: function() { return this.isTopTotalsRow && this.isGridColumn; } },
+    isTopTotalsCell:   { get: function() { return this.isTopTotalsRow && this.isDataColumn; } },
 
     isBottomTotalsRow:    { get: function() { return this.visibleRow.subgrid === this.behavior.subgrids.bottomTotals; } },
     isBottomTotalsHandle: { get: function() { return this.isBottomTotalsRow && this.isHandleColumn; } },
-    isBottomTotalsCell:   { get: function() { return this.isBottomTotalsRow && this.isGridColumn; } }
+    isBottomTotalsCell:   { get: function() { return this.isBottomTotalsRow && this.isDataColumn; } }
 });
+
+var deprecatedDescriptors = {
+    isGridRow:    { get: function() { return deprecated.call(this, 'isGridRow', 'isDataRow'); } },
+    isGridColumn: { get: function() { return deprecated.call(this, 'isGridColumn', 'isDataColumn'); } },
+    isGridCell:   { get: function() { return deprecated.call(this, 'isGridCell', 'isDataCell'); } }
+};
+
+var warn = {};
+
+function deprecated(propName, inFavorOf) {
+    if (!warn[propName]) {
+        console.warn(propName + ' is deprecated as of v1.2.6 in favor of ' + inFavorOf + ' and will be removed in a future release.');
+        warn[propName] = true;
+    }
+    return this[inFavorOf];
+}
+
+prototype = Object.defineProperties(prototype, deprecatedDescriptors);
+Object.defineProperties(require('../defaults'), deprecatedDescriptors);
+deprecatedDescriptors = undefined; // trash
 
 /**
  * @classdesc `CellEvent` is a very low-level object that needs to be super-efficient. JavaScript objects are well known to be light weight in general, but at this level we need to be careful.

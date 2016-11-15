@@ -842,9 +842,9 @@ var Renderer = Base.extend('Renderer', {
                 cellEvent.resetRow(vr = visibleRows[r]);
 
                 // See note at resetCell definition for explanation of the following.
-                var isGridRow = cellEvent.isGridRow;
-                if (!isGridRow || !previousRowWasDataRow) { cellEvent.resetCell(); }
-                previousRowWasDataRow = isGridRow;
+                var isDataRow = cellEvent.isDataRow;
+                if (!isDataRow || !previousRowWasDataRow) { cellEvent.resetCell(); }
+                previousRowWasDataRow = isDataRow;
 
                 bounds.y = vr.top;
                 bounds.height = vr.height;
@@ -913,7 +913,6 @@ var Renderer = Base.extend('Renderer', {
     },
 
     _paintCell: function(gc, cellEvent) {
-
         var grid = this.grid,
             selectionModel = grid.selectionModel,
             behavior = grid.behavior,
@@ -926,7 +925,7 @@ var Renderer = Base.extend('Renderer', {
             isHierarchyColumn = cellEvent.isHierarchyColumn,
             isColumnSelected = cellEvent.isColumnSelected,
 
-            isGridRow = cellEvent.isGridRow,
+            isDataRow = cellEvent.isDataRow,
             isRowSelected = cellEvent.isRowSelected,
             isCellSelected = cellEvent.isCellSelected,
 
@@ -934,7 +933,7 @@ var Renderer = Base.extend('Renderer', {
             isFilterRow = cellEvent.isFilterRow,
 
             isRowHandleOrHierarchyColumn = isHandleColumn || isHierarchyColumn,
-            isUserDataArea = !isRowHandleOrHierarchyColumn && isGridRow,
+            isUserDataArea = !isRowHandleOrHierarchyColumn && isDataRow,
 
             columnProperties = cellEvent.column.properties, // generic column props object
             config = Object.create(cellEvent.properties), // cell props || specific column props object (wrapped)
@@ -947,7 +946,7 @@ var Renderer = Base.extend('Renderer', {
         } else if (isHierarchyColumn) {
             isSelected = isRowSelected || selectionModel.isCellSelectedInRow(r);
             config.halign = 'left';
-        } else if (isGridRow) {
+        } else if (isDataRow) {
             isSelected = isCellSelected || isRowSelected || isColumnSelected;
 
             // Iff we have a defined rowProperties array, apply it to config, treating it as a repeating pattern, keyed to row index.
@@ -968,7 +967,7 @@ var Renderer = Base.extend('Renderer', {
         if (!isHandleColumn) {
             config.dataRow = cellEvent.row;
             config.value = cellEvent.value;
-        } else if (isGridRow) {
+        } else if (isDataRow) {
             // row handle for a data row
             config.value = [images.checkbox(isRowSelected), r + 1, null]; // row number is 1-based
         } else if (isHeaderRow) {
@@ -983,8 +982,8 @@ var Renderer = Base.extend('Renderer', {
         }
 
         config.isSelected = isSelected;
-        config.isGridColumn = !isRowHandleOrHierarchyColumn;
-        config.isGridRow = isGridRow;
+        config.isDataColumn = !isRowHandleOrHierarchyColumn;
+        config.isDataRow = isDataRow;
         config.isHeaderRow = isHeaderRow;
         config.isFilterRow = isFilterRow;
         config.isUserDataArea = isUserDataArea;
@@ -1017,7 +1016,7 @@ var Renderer = Base.extend('Renderer', {
         //allow the renderer to identify itself if it's a button
         config.buttonCells = this.buttonCells;
 
-        config.formatValue = grid.getFormatter(config.isGridColumn && config.format);
+        config.formatValue = grid.getFormatter(config.isDataColumn && config.format);
 
         cellRenderer.paint(gc, config);
 

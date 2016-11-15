@@ -60,9 +60,9 @@ var SimpleCell = CellRenderer.extend('SimpleCell', {
         if (config.isCellHovered && config.hoverCellHighlight.enabled) {
             hoverColor = config.hoverCellHighlight.backgroundColor;
         } else if (config.isRowHovered && (hover = config.hoverRowHighlight).enabled) {
-            hoverColor = config.isGridColumn || !hover.header || hover.header.backgroundColor === undefined ? hover.backgroundColor : hover.header.backgroundColor;
+            hoverColor = config.isDataColumn || !hover.header || hover.header.backgroundColor === undefined ? hover.backgroundColor : hover.header.backgroundColor;
         } else if (config.isColumnHovered && (hover = config.hoverColumnHighlight).enabled) {
-            hoverColor = config.isGridRow || !hover.header || hover.header.backgroundColor === undefined ? hover.backgroundColor : hover.header.backgroundColor;
+            hoverColor = config.isDataRow || !hover.header || hover.header.backgroundColor === undefined ? hover.backgroundColor : hover.header.backgroundColor;
         }
         if (gc.alpha(hoverColor) < 1) {
             if (config.isSelected) {
