@@ -28,7 +28,7 @@ var SimpleCell = CellRenderer.extend('SimpleCell', {
             ixoffset, iyoffset,
             leftIcon, rightIcon, centerIcon,
             leftPadding, rightPadding,
-            foundational;
+            foundationColor;
 
         // setting gc properties are expensive, let's not do it needlessly
 
@@ -72,8 +72,8 @@ var SimpleCell = CellRenderer.extend('SimpleCell', {
             if (gc.alpha(selectColor) < 1) {
                 inheritsBackgroundColor = (config.backgroundColor === config.prefillColor);
                 if (!inheritsBackgroundColor) {
-                    foundational = true;
-                    colors.push(config.backgroundColor); // asterisk means foundation color
+                    foundationColor = true;
+                    colors.push(config.backgroundColor);
                 }
             }
 
@@ -84,7 +84,7 @@ var SimpleCell = CellRenderer.extend('SimpleCell', {
         if (hoverColor !== undefined) {
             colors.push(hoverColor);
         }
-        layerColors(gc, colors, x, y, width, height, foundational);
+        layerColors(gc, colors, x, y, width, height, foundationColor);
 
         if (leftIcon) {
             // Measure & draw left icon
@@ -137,10 +137,10 @@ var SimpleCell = CellRenderer.extend('SimpleCell', {
             iyoffset = Math.round((height - rightIcon.height) / 2);
             var rightX = x + width - (rightIcon.width + iconPadding);
             if (inheritsBackgroundColor) {
-                foundational = true;
+                foundationColor = true;
                 colors.unshift(config.backgroundColor);
             }
-            layerColors(gc, colors, rightX, y, rightPadding, height, foundational);
+            layerColors(gc, colors, rightX, y, rightPadding, height, foundationColor);
             gc.drawImage(rightIcon, rightX, y + iyoffset);
         }
 
@@ -362,10 +362,10 @@ function underline(config, gc, text, x, y, thickness) {
     gc.lineTo(x + width + 0.5, y + 0.5);
 }
 
-function layerColors(gc, colors, x, y, width, height, foundational) {
+function layerColors(gc, colors, x, y, width, height, foundationColor) {
     colors.forEach(function(color, i) {
-        if (foundational && !i) {
-            gc.fillCell(x, y, width, height, color);
+        if (foundationColor && !i) {
+            gc.clearFill(x, y, width, height, color);
         } else {
             gc.cache.fillStyle = color;
             gc.fillRect(x, y, width, height);

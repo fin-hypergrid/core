@@ -497,7 +497,6 @@ var Renderer = Base.extend('Renderer', {
      */
     renderGrid: function(gc) {
         gc.beginPath();
-
         this.paintCells(gc);
         this.renderOverrides(gc);
         this.renderLastSelection(gc);
@@ -784,28 +783,31 @@ var Renderer = Base.extend('Renderer', {
      * @param {CanvasRenderingContext2D} gc
      */
     paintCellsByColumns: function(gc) {
-        var clipped, prefillColor, width,
+        var width,
             previousRowWasDataRow,
             grid = this.grid,
             gridProps = grid.properties,
             behavior = grid.behavior,
+            prefillColor, columnPrefillColor, gridPrefillColor = gridProps.backgroundColor,
             cellEvent = new behavior.CellEvent(0, 0),
             bounds = cellEvent._bounds = { x:0, y:0, width:0, height:0 },
             vc, visibleColumns = this.visibleColumns,
             vr, visibleRows = this.visibleRows,
-            c, C = visibleColumns.length, c0 = grid.isShowRowNumbers() ? -1 : 0, Clast = C - 1,
-            r, R = visibleRows.length, Rlast = R - 1,
+            c, C = visibleColumns.length, c0 = grid.isShowRowNumbers() ? -1 : 0, cLast = C - 1,
+            r, R = visibleRows.length, rLast = R - 1,
             preferredWidth,
             rowPropsList = gridProps.rowProperties,
             rowProperties = Array(R),
             columnClip = gridProps.columnClip,
-            viewWidth = C ? visibleColumns[Clast].right : 0,
-            viewHeight = R ? visibleRows[Rlast].bottom : 0,
+            clipToGrid = columnClip === null,
+            viewWidth = C ? visibleColumns[cLast].right : 0,
+            viewHeight = R ? visibleRows[rLast].bottom : 0,
             lineWidth = gridProps.lineWidth,
             lineColor = gridProps.lineColor;
 
         this.buttonCells = {};
 
+        // cache rowProperties objects for quicker access inside inner loop below
         if (rowPropsList) {
             for (r = 0; r < R; r++) {
                 vr = visibleRows[r];
@@ -815,6 +817,13 @@ var Renderer = Base.extend('Renderer', {
             }
         }
 
+        if (gc.alpha(gridPrefillColor) > 0) {
+            gc.cache.fillStyle = gridPrefillColor;
+            gc.fillRect(0, 0, viewWidth, viewHeight);
+        }
+
+        clip(clipToGrid && gc, viewWidth, viewHeight);
+
         // For each column...
         for (c = c0; c < C; c++) {
             cellEvent.resetColumn(vc = visibleColumns[c]);
@@ -822,19 +831,16 @@ var Renderer = Base.extend('Renderer', {
             bounds.x = vc.left;
             bounds.width = vc.width;
 
-            prefillColor = cellEvent.column.properties.backgroundColor;
+            // Optionally clip to visible portion of column to prevent text from overflowing to right.
+            clip(columnClip && gc, vc.right, viewHeight);
 
-            if ((clipped = columnClip || columnClip === null && c === Clast)) {
-                // Optionally clip to visible portion of column to prevent text from overflowing to right.
-                // (Text never overflows to left because text starting point is never < 0.)
-                // (The reason we don't clip to the left is for cell renderers that need to re-render to the left to produce a merged cell effect, such as grouped column header.)
-                gc.cache.save();
-                gc.beginPath();
-                gc.rect(0, 0, vc.right, viewHeight);
-                gc.clip();
+            columnPrefillColor = cellEvent.column.properties.backgroundColor;
+            if (columnPrefillColor === gridPrefillColor) {
+                prefillColor = gridPrefillColor;
+            } else {
+                prefillColor = columnPrefillColor;
+                gc.clearFill(vc.left, 0, vc.width, viewHeight, prefillColor);
             }
-
-            gc.fillCell(vc.left, 0, vc.width, viewHeight, prefillColor);
 
             if (gridProps.gridLinesV) {
                 gc.cache.fillStyle = lineColor;
@@ -863,10 +869,10 @@ var Renderer = Base.extend('Renderer', {
 
             cellEvent.column.properties.preferredWidth = preferredWidth;
 
-            if (clipped) {
-                gc.cache.restore(); // Remove column's clip region
-            }
+            unclip(columnClip && gc);
         }
+
+        unclip(clipToGrid && gc);
 
         resetNumberColumnWidth(gc, behavior);
 
@@ -879,28 +885,37 @@ var Renderer = Base.extend('Renderer', {
     },
 
     paintCellsByRows: function(gc) {
-        var clipped, prefillColor, width,
+        var width,
             grid = this.grid,
-            behavior = grid.behavior,
             gridProps = grid.properties,
+            behavior = grid.behavior,
+            prefillColor, rowPrefillColor, gridPrefillColor = gridProps.backgroundColor,
             cellEvent = new behavior.CellEvent(0, 0),
             bounds = cellEvent._bounds = { x:0, y:0, width:0, height:0 },
             vc, visibleColumns = this.visibleColumns,
             vr, visibleRows = this.visibleRows,
-            c, C = visibleColumns.length, c0 = grid.isShowRowNumbers() ? -1 : 0, Clast = C - 1,
-            r, R = visibleRows.length, Rlast = R - 1,
+            c, C = visibleColumns.length, c0 = grid.isShowRowNumbers() ? -1 : 0, cLast = C - 1,
+            r, R = visibleRows.length, rLast = R - 1,
             preferredWidth = Array(visibleColumns.length).fill(0),
             rowPropsList = gridProps.rowProperties,
             rowProperties,
             columnClip = gridProps.columnClip,
-            viewWidth = C ? visibleColumns[Clast].right : 0,
-            viewHeight = R ? visibleRows[Rlast].bottom : 0,
+            clipToGrid = columnClip === null,
+            viewWidth = C ? visibleColumns[cLast].right : 0,
+            viewHeight = R ? visibleRows[rLast].bottom : 0,
             lineWidth = gridProps.lineWidth,
             lineColor = gridProps.lineColor;
 
         this.buttonCells = {};
 
-        // For each row of each subgrid (of each column)...
+        if (gc.alpha(gridPrefillColor) > 0) {
+            gc.cache.fillStyle = gridPrefillColor;
+            gc.fillRect(0, 0, viewWidth, viewHeight);
+        }
+
+        clip(clipToGrid && gc, viewWidth, viewHeight);
+
+        // For each row of each subgrid...
         for (r = 0; r < R; r++) {
             cellEvent.resetRow(vr = visibleRows[r]);
 
@@ -908,30 +923,28 @@ var Renderer = Base.extend('Renderer', {
             bounds.height = vr.height;
 
             rowProperties = !vr.subgrid.type && rowPropsList && rowPropsList[vr.rowIndex % rowPropsList.length];
-            prefillColor = rowProperties && rowProperties.backgroundColor || gridProps.backgroundColor;
-            gc.fillCell(0, vr.top, viewWidth, bounds.height, prefillColor);
+            rowPrefillColor = rowProperties && rowProperties.backgroundColor || gridProps.backgroundColor;
+            if (rowPrefillColor === gridPrefillColor) {
+                prefillColor = gridPrefillColor;
+            } else {
+                prefillColor = rowPrefillColor;
+                gc.clearFill(0, vr.top, viewWidth, vr.height, prefillColor);
+            }
 
             if (gridProps.gridLinesH) {
                 gc.cache.fillStyle = lineColor;
                 gc.fillRect(0, vr.bottom, viewWidth, lineWidth);
             }
 
-            // For each column...
+            // For each column (of each row)...
             for (c = c0; c < C; c++) {
                 cellEvent.resetColumn(vc = visibleColumns[c]);
 
                 bounds.x = vc.left;
                 bounds.width = vc.width;
 
-                if ((clipped = columnClip || columnClip === null && c === C - 1)) {
-                    // Optionally clip to visible portion of cell to prevent text from overflowing to right.
-                    // (Text never overflows to left because text starting point is never < 0.)
-                    // (The reason we don't clip to the left is for cell renderers that need to re-render to the left to produce a merged cell effect, such as grouped column header.)
-                    gc.cache.save();
-                    gc.beginPath();
-                    gc.rect(0, vr.top, vc.right, vr.height);
-                    gc.clip();
-                }
+                // Optionally clip to visible portion of column to prevent text from overflowing to right.
+                clip(columnClip && gc, vc.right, viewHeight);
 
                 try {
                     width = this._paintCell(gc, cellEvent, rowProperties, prefillColor);
@@ -940,18 +953,18 @@ var Renderer = Base.extend('Renderer', {
                     this.renderErrorCell(e, gc, vc, vr);
                 }
 
-                if (clipped) {
-                    gc.cache.restore(); // Remove column's clip region
-                }
+                unclip(columnClip && gc);
             }
         }
 
-        for (c = c0, C = visibleColumns.length; c < C; c++) {
+        unclip(clipToGrid && gc);
+
+        resetNumberColumnWidth(gc, behavior);
+
+        for (c = c0; c < C; c++) {
             cellEvent.resetColumn(visibleColumns[c]);
             cellEvent.column.properties.preferredWidth = preferredWidth[c];
         }
-
-        resetNumberColumnWidth(gc, behavior);
 
         if (gridProps.gridLinesV) {
             gc.cache.fillStyle = lineColor;
@@ -1119,6 +1132,21 @@ var Renderer = Base.extend('Renderer', {
 
 // synonyms
 Renderer.prototype.paintCells = Renderer.prototype.paintCellsByColumns;
+
+function clip(gc, width, height) {
+    if (gc) {
+        // Text never overflows to left because text starting point is never < 0. The reason we don't clip to the left is for cell renderers that need to re-render to the left to produce a merged cell effect, such as grouped column header.
+        gc.cache.save();
+        gc.beginPath();
+        gc.rect(0, 0, width, height);
+        gc.clip();
+    }
+}
+function unclip(gc) {
+    if (gc) {
+        gc.cache.restore(); // Remove column's clip region
+    }
+}
 
 function resetNumberColumnWidth(gc, behavior) {
     var rowCount = behavior.dataModel.getRowCount(),
