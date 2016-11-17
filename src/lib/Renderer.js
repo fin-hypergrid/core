@@ -526,6 +526,8 @@ var Renderer = Base.extend('Renderer', {
     renderGrid: function(gc) {
         gc.beginPath();
         this.paintCells(gc);
+        resetNumberColumnWidth(gc, this.grid.behavior);
+        this.paintGridlines(gc);
         this.renderOverrides(gc);
         this.renderLastSelection(gc);
         gc.closePath();
@@ -799,7 +801,6 @@ var Renderer = Base.extend('Renderer', {
         var width,
             grid = this.grid,
             gridProps = grid.properties,
-            behavior = grid.behavior,
             prefillColor, columnPrefillColor, gridPrefillColor = gridProps.backgroundColor,
             cellEvent,
             vc, visibleColumns = this.visibleColumns,
@@ -813,9 +814,7 @@ var Renderer = Base.extend('Renderer', {
             columnClip = gridProps.columnClip,
             clipToGrid = columnClip === null,
             viewWidth = C ? visibleColumns[C - 1].right : 0,
-            viewHeight = R ? visibleRows[R - 1].bottom : 0,
-            lineWidth = gridProps.lineWidth,
-            lineColor = gridProps.lineColor;
+            viewHeight = R ? visibleRows[R - 1].bottom : 0;
 
         if (paintCells.reset) {
             paintCells.reset = false;
@@ -859,11 +858,6 @@ var Renderer = Base.extend('Renderer', {
                 gc.clearFill(vc.left, 0, vc.width, viewHeight, prefillColor);
             }
 
-            if (gridProps.gridLinesV) {
-                gc.cache.fillStyle = lineColor;
-                gc.fillRect(vc.left - lineWidth, 0, lineWidth, viewHeight);
-            }
-
             // Optionally clip to visible portion of column to prevent text from overflowing to right.
             clip(columnClip && gc, vc.right, viewHeight);
 
@@ -885,24 +879,14 @@ var Renderer = Base.extend('Renderer', {
         }
 
         unclip(clipToGrid && gc);
-
-        resetNumberColumnWidth(gc, behavior);
-
-        if (gridProps.gridLinesH) {
-            gc.cache.fillStyle = lineColor;
-            for (r = 0; r < R; r++) {
-                gc.fillRect(0, visibleRows[r].bottom, viewWidth, lineWidth);
-            }
-        }
     },
 
     paintCellsByRows: function paintCells(gc) {
         var width,
             grid = this.grid,
             gridProps = grid.properties,
-            behavior = grid.behavior,
             prefillColor, rowPrefillColor, gridPrefillColor = gridProps.backgroundColor,
-            cellEvent = new behavior.CellEvent(0, 0),
+            cellEvent,
             vc, visibleColumns = this.visibleColumns,
             vr, visibleRows = this.visibleRows,
             c, C = visibleColumns.length, c0 = grid.isShowRowNumbers() ? -1 : 0,
@@ -977,17 +961,8 @@ var Renderer = Base.extend('Renderer', {
 
         unclip(clipToGrid && gc);
 
-        resetNumberColumnWidth(gc, behavior);
-
         for (c = c0; c < C; c++) {
             visibleColumns[c].column.properties.preferredWidth = preferredWidth[c];
-        }
-
-        if (gridProps.gridLinesV) {
-            gc.cache.fillStyle = lineColor;
-            for (c = 0; c < C; c++) {
-                gc.fillRect(visibleColumns[c].left - lineWidth, 0, lineWidth, viewHeight);
-            }
         }
     },
 
@@ -1006,6 +981,38 @@ var Renderer = Base.extend('Renderer', {
         this.grid.cellRenderers.get('errorcell').paint(gc, config, message);
 
         gc.cache.restore(); // discard clipping region
+    },
+
+    /**
+     * @memberOf Renderer.prototype
+     * @desc We opted to not paint borders for each cell as that was extremely expensive. Instead we draw gridlines here. Also we record the widths and heights for later.
+     * @param {CanvasRenderingContext2D} gc
+     */
+    paintGridlines: function(gc) {
+        var visibleColumns = this.visibleColumns, C = this.visibleColumns.length,
+            visibleRows = this.visibleRows, R = this.visibleRows.length;
+
+        if (C && R) {
+            var gridProps = this.grid.properties,
+                lineWidth = gridProps.lineWidth,
+                lineColor = gridProps.lineColor;
+
+            if (gridProps.gridLinesV) {
+                gc.cache.fillStyle = lineColor;
+                var viewHeight = visibleRows[R - 1].bottom;
+                for (var c = this.grid.isShowRowNumbers() ? 0 : 1; c < C; c++) {
+                    gc.fillRect(visibleColumns[c].left - lineWidth, 0, lineWidth, viewHeight);
+                }
+            }
+
+            if (gridProps.gridLinesH) {
+                gc.cache.fillStyle = lineColor;
+                var viewWidth = visibleColumns[C - 1].right;
+                for (var r = 0; r < R; r++) {
+                    gc.fillRect(0, visibleRows[r].bottom, viewWidth, lineWidth);
+                }
+            }
+        }
     },
 
     /**
