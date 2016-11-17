@@ -3,11 +3,7 @@
 var rectangular = require('rectangular');
 
 // Variation of rectangular.Point but with writable x and y:
-function WritablePoint(x, y) {
-    this.x = x;
-    this.y = y;
-}
-
+function WritablePoint() {}
 WritablePoint.prototype = rectangular.Point.prototype;
 
 // The nullSubgrid is for CellEvents representing clicks below last row.
@@ -174,25 +170,13 @@ function factory(grid) {
      * * Includes `this.column` defined by constructor (as enumerable).
      * * Excludes `this.gridCell`, `this.dataCell`, `this.visibleRow.subgrid` defined by constructor (as non-enumerable).
      * * Any additional (enumerable) members mixed in by application's `getCellEditorAt` override.
-     * @param {number} x - grid cell coordinate (adjusted for horizontal scrolling after fixed columns)
-     * @param {number} y - grid cell coordinate, adjusted (adjusted for vertical scrolling if data subgrid)
+     *
+     * Omit params to defer `reset`.
+     * @param {number} [x] - grid cell coordinate (adjusted for horizontal scrolling after fixed columns).
+     * @param {number} [y] - grid cell coordinate, adjusted (adjusted for vertical scrolling if data subgrid)
      * @constructor
      */
     function CellEvent(x, y) {
-        var visibleRow = grid.renderer.visibleRows[y];
-
-        /**
-         * @summary Reference to column's {@link Column} object.
-         * @desc Notes:
-         * * Defined as enumerable so that `CellEditor` constructor mixes into itself.
-         * * Defined as writable so it can be overwritten in `renderer.paintCells`.
-         * @name column
-         * @type {Column}
-         * @memberOf CellEvent#
-         */
-        this.column = grid.behavior.getActiveColumn(x);
-
-
         // remaining instance vars are non-enumerable so `CellEditor` constructor won't mix them in (for mustache use).
         Object.defineProperties(this, {
             /**
@@ -201,8 +185,7 @@ function factory(grid) {
              * @memberOf CellEvent#
              */
             visibleColumn: {
-                writable: true, // Allow to be overwritten in `renderer.paintCells` and `.computeCellsBounds`.
-                value: this.grid.renderer.visibleColumns.find(function(vc) { return vc.columnIndex === x; })
+                writable: true // Allow to be overwritten by `reset`.
             },
 
             /**
@@ -211,8 +194,7 @@ function factory(grid) {
              * @memberOf CellEvent#
              */
             visibleRow: {
-                writable: true, // Allow to be overwritten in `renderer.paintCells` and `.computeCellsBounds`.
-                value: visibleRow
+                writable: true // Allow to be overwritten by `reset`.
             },
 
             /**
@@ -221,7 +203,7 @@ function factory(grid) {
              * @memberOf CellEvent#
              */
             gridCell: {
-                value: new WritablePoint(x, y)
+                value: new WritablePoint
             },
 
             /**
@@ -230,9 +212,18 @@ function factory(grid) {
              * @memberOf CellEvent#
              */
             dataCell: {
-                value: new WritablePoint(this.column && this.column.index, visibleRow.rowIndex)
+                value: new WritablePoint
             }
         });
+
+        if (arguments.length) {
+            this.reset(
+                this.grid.renderer.visibleColumns.find(function(vc) {
+                    return vc.columnIndex === x;
+                }),
+                this.grid.renderer.visibleRows[y]
+            );
+        }
     }
 
     CellEvent.prototype = Object.create(prototype);

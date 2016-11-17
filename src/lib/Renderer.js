@@ -324,7 +324,7 @@ var Renderer = Base.extend('Renderer', {
             pool.length = P; // grow pool to accommodate more cells
         }
         for (var p = previousLength; p < P; p++) {
-            pool[p] = new behavior.CellEvent(0, 0); // instantiate new members
+            pool[p] = new behavior.CellEvent; // instantiate new members
         }
 
         // Notify renderers that grid shape has changed
