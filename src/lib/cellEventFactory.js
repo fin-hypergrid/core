@@ -69,13 +69,13 @@ var prototype = Object.defineProperties({}, {
         this.column = this.behavior.getActiveColumn(visibleColumn.columnIndex);
         this.gridCell.x = visibleColumn.columnIndex;
         this.dataCell.x = this.column && this.column.index;
-        this._columnProperties = undefined;
+        this._properties = this._columnProperties = this._cellOwnProperties = undefined;
     } },
     resetRow: { value: function(visibleRow) {
         this.visibleRow = visibleRow;
         this.gridCell.y = visibleRow.index;
         this.dataCell.y = visibleRow.rowIndex;
-        this._cellOwnProperties = this._properties = undefined;
+        this._properties = this._cellOwnProperties = undefined;
     } },
     resetCell: { value: function() {
         // Resetting columnProperties causes columnProperties to be recalculated. Although this could have been done
@@ -84,6 +84,8 @@ var prototype = Object.defineProperties({}, {
         // either this is a non-data cell OR this is a data cell and the previous use was not.
         this._columnProperties = undefined;
     } },
+
+    subgrid: { get: function() { return this.visibleRow.subgrid; } },
 
     // "Visible" means scrolled into view.
     isRowVisible:    { get: function() { return !!this.visibleRow; } },

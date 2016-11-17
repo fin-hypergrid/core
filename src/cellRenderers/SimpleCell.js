@@ -70,7 +70,7 @@ var SimpleCell = CellRenderer.extend('SimpleCell', {
             }
 
             if (gc.alpha(selectColor) < 1) {
-                inheritsBackgroundColor = (config.backgroundColor === config.columnBackgroundColor);
+                inheritsBackgroundColor = (config.backgroundColor === config.prefillColor);
                 if (!inheritsBackgroundColor) {
                     foundational = true;
                     colors.push(config.backgroundColor); // asterisk means foundation color

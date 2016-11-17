@@ -33,6 +33,16 @@ if (typeof Array.prototype.findIndex !== 'function') {
     };
 }
 
+// Simple version of fill that takes JUST ONE arg.
+if (typeof Array.prototype.fill !== 'function') {
+    Array.prototype.fill = function(value) {
+        for (var i = this.length; --i;) {
+            this[i] = value;
+        }
+        return this;
+    };
+}
+
 // Lite version of: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/assign#Polyfill
 if (typeof Object.assign !== 'function') {
     Object.assign = function(target) {

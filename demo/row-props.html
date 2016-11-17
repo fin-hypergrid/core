@@ -19,21 +19,30 @@
 </style>
 </head>
 <body>
-    <label>
+    <label title="grid.properties.enableContinuousRepaint = true vs. false">
         <input type="checkbox" onclick="grid.properties.enableContinuousRepaint=this.checked" checked>
-        Continuous repaint</label>
+        Continuous repaint
+    </label>
+    <label title="grid.renderer.paintCells = grid.renderer.paintCellsByRows vs. grid.renderer.paintCellsByColumns">
+        <input type="checkbox" onclick="grid.renderer.paintCells = this.checked ? grid.renderer.paintCellsByRows : grid.renderer.paintCellsByColumns">
+        Render by rows
+    </label>
     <label title="Adds a rowProperties array to grid.properties.">
         <input type="checkbox" onclick="if(this.checked)grid.addProperties(alternatingThreeGreenRows);else deleteProps(grid.properties,alternatingThreeGreenRows);">
-        Grid row properties (alternate 3 white rows with 3 green rows)</label>
+        Grid row properties (alternate 3 white rows with 3 green rows)
+    </label>
     <label title="Column properties defines a light blue background color BUT inherit's grid's rowProperties array.">
         <input type="checkbox" onclick="columnProps.call(this, [2,3], columnColorUnderAlternateColors)">
-        Columns 2-3 <em>under</em> alternating rows</label>
+        Columns 2-3 <em>under</em> alternating rows
+    </label>
     <label title="Column properties defines a light blue background color AND overrides rowProperties with an undefined.">
         <input type="checkbox" onclick="columnProps.call(this, [6,7], columnColorOverAlternateColors)">
-        Columns 6-7 <em>over</em> alternating rows</label>
+        Columns 6-7 <em>over</em> alternating rows
+    </label>
     <label>
         <input type="checkbox" onclick="columnProps.call(this, [10,11], columnOwnAlternateColors)">
-        Columns 10-11 override row props</label>
+        Columns 10-11 override row props
+    </label>
 
     <script src="build/fin-hypergrid.js"></script>
 
@@ -64,11 +73,11 @@ grid.addProperties({
 
 var alternatingThreeGreenRows = {
         rowProperties: [
-            undefined,
-            undefined,
-            undefined,
-            { color: '#116611', backgroundColor: '#e8ffe8' },
-            { color: '#116611', backgroundColor: '#e8ffe8' },
+//            undefined,
+//            undefined,
+//            undefined,
+//            { color: '#116611', backgroundColor: '#e8ffe8' },
+//            { color: '#116611', backgroundColor: '#e8ffe8' },
             { color: '#116611', backgroundColor: '#e8ffe8' }
         ]
     },
