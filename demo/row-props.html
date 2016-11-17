@@ -14,6 +14,7 @@
             line-height: 2.75em;
             white-space: nowrap;
             padding-right: .5em;
+            user-select: none;
         }
         input[type=checkbox] { outline:0 }
 </style>
@@ -24,7 +25,7 @@
         Continuous repaint
     </label>
     <label title="grid.renderer.paintCells = grid.renderer.paintCellsByRows vs. grid.renderer.paintCellsByColumns">
-        <input type="checkbox" onclick="grid.renderer.paintCells = this.checked ? grid.renderer.paintCellsByRows : grid.renderer.paintCellsByColumns">
+        <input type="checkbox" onclick="grid.renderer.setGridRenderer(this.checked ? 'by-rows' : 'by-columns')">
         Render by rows
     </label>
     <label title="Adds a rowProperties array to grid.properties.">
@@ -68,6 +69,9 @@ grid.addProperties({
     foregroundSelectionFont: '13px Tahoma, Geneva, sans-serif',
     columnClip: false,
     editor: 'textfield',
+    showRowNumbers: false,
+    gridLinesH: false,
+    gridLinesV: false,
     enableContinuousRepaint: true
 });
 
