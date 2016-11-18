@@ -363,14 +363,14 @@ function underline(config, gc, text, x, y, thickness) {
 }
 
 function layerColors(gc, colors, x, y, width, height, foundationColor) {
-    colors.forEach(function(color, i) {
+    for (var i = 0; i < colors.length; i++) {
         if (foundationColor && !i) {
-            gc.clearFill(x, y, width, height, color);
+            gc.clearFill(x, y, width, height, colors[i]);
         } else {
-            gc.cache.fillStyle = color;
+            gc.cache.fillStyle = colors[i];
             gc.fillRect(x, y, width, height);
         }
-    });
+    }
 }
 
 module.exports = SimpleCell;

@@ -61,7 +61,7 @@ function Column(behavior, options) {
 
     this._index = index;
 
-    this.clearAllCellProperties();
+    this.properties = options;
 
     switch (index) {
         case -1:
@@ -72,10 +72,10 @@ function Column(behavior, options) {
         default:
             if (index < 0) {
                 throw '`index` out of range';
-            } else {
-                this.properties = options;
             }
     }
+
+    this.clearAllCellProperties();
 }
 
 Column.prototype = {
@@ -274,25 +274,10 @@ Column.prototype = {
     },
 
     get properties() {
-        var columnProperties = this.behavior.grid.properties.columnProperties,
-            result = columnProperties[this.index];
-
-        if (!result) {
-            result = columnProperties[this.index] = this.createColumnProperties();
-        }
-
-        return result;
+        return this._properties;
     },
     set properties(properties) {
-        var key, descriptor, obj = this.properties;
-
-        for (key in obj) {
-            descriptor = Object.getOwnPropertyDescriptor(obj, key);
-            if (!descriptor || descriptor.configurable) {
-                delete obj[key];
-            }
-        }
-
+        this._properties = this.createColumnProperties();
         this.addProperties(properties);
     },
 
@@ -320,9 +305,11 @@ Column.prototype = {
         var key, descriptor, obj = this.properties;
 
         for (key in properties) {
-            descriptor = Object.getOwnPropertyDescriptor(obj, key);
-            if (!descriptor || descriptor.writable || descriptor.set) {
-                obj[key] = properties[key];
+            if (properties.hasOwnProperty(key)) {
+                descriptor = Object.getOwnPropertyDescriptor(obj, key);
+                if (!descriptor || descriptor.writable || descriptor.set) {
+                    obj[key] = properties[key];
+                }
             }
         }
     },

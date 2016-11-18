@@ -50,7 +50,10 @@ var prototype = Object.defineProperties({}, {
         return cp;
     } },
     cellOwnProperties: { get: function() {
-        return (this._cellOwnProperties = this._cellOwnProperties || this.column.getCellOwnProperties(this.dataCell.y, this.visibleRow.subgrid));
+        if (this._cellOwnProperties === undefined) {
+            this._cellOwnProperties = this.column.getCellOwnProperties(this.dataCell.y, this.visibleRow.subgrid);
+        }
+        return this._cellOwnProperties; // null return means there is no cell properties object
     } },
     properties: { get: function() {
         return this.cellOwnProperties || this.columnProperties;
@@ -72,7 +75,7 @@ var prototype = Object.defineProperties({}, {
         this.dataCell.x = this.column && this.column.index;
         this.dataCell.y = visibleRow.rowIndex;
 
-        this._properties = this._columnProperties = this._cellOwnProperties = this._bounds = undefined;
+        this._columnProperties = this._cellOwnProperties = this._bounds = undefined;
     } },
 
     subgrid: { get: function() { return this.visibleRow.subgrid; } },
