@@ -327,6 +327,10 @@ var Renderer = Base.extend('Renderer', {
             pool[p] = new behavior.CellEvent; // instantiate new members
         }
 
+        this.resetGridRenderers();
+    },
+
+    resetGridRenderers: function() {
         // Notify renderers that grid shape has changed
         Object.keys(this.gridRendererMap).forEach(function(key) {
             this.gridRendererMap[key].reset = true;
@@ -893,16 +897,14 @@ var Renderer = Base.extend('Renderer', {
             lineWidth = gridProps.lineWidth,
             lineColor = gridProps.lineColor;
 
-        if (paintCells.reset) {
-            paintCells.reset = false;
-            setRowBackgrounds.call(this, true);
-        }
-
-        rowPrefillColors = this.rowPrefillColors;
-
         if (gc.alpha(gridPrefillColor) > 0) {
             gc.cache.fillStyle = gridPrefillColor;
             gc.fillRect(0, 0, viewWidth, viewHeight);
+        }
+
+        if (paintCells.reset) {
+            paintCells.reset = false;
+            bundleRows.call(this, true);
         }
 
         for (rowBundles = this.rowBundles, r = rowBundles.length; r--;) {
@@ -910,18 +912,17 @@ var Renderer = Base.extend('Renderer', {
             gc.clearFill(0, rowBundle.top, viewWidth, rowBundle.bottom - rowBundle.top + 1, rowBundle.backgroundColor);
         }
 
+        rowPrefillColors = this.rowPrefillColors;
+
         clip(clipToGrid && gc, viewWidth, viewHeight);
 
         // For each row of each subgrid...
         for (p = 0, r = 0; r < R; r++) {
-            cellEvent = pool[p]; // first cell in row r
-            vr = cellEvent.visibleRow;
-
             prefillColor = rowPrefillColors[r];
 
             if (gridProps.gridLinesH) {
                 gc.cache.fillStyle = lineColor;
-                gc.fillRect(0, vr.bottom, viewWidth, lineWidth);
+                gc.fillRect(0, pool[p].visibleRow.bottom, viewWidth, lineWidth);
             }
 
             // For each column (of each row)...
@@ -949,52 +950,59 @@ var Renderer = Base.extend('Renderer', {
             visibleColumns[c].column.properties.preferredWidth = preferredWidth[c];
         }
     },
-/*
+
     paintCellsByColumnsWithRowRects: function paintCells(gc) {
         var width,
             grid = this.grid,
             gridProps = grid.properties,
-            prefillColor, columnPrefillColor, gridPrefillColor = gridProps.backgroundColor,
+            prefillColor, rowPrefillColors, columnPrefillColor, gridPrefillColor = gridProps.backgroundColor,
             cellEvent,
+            rowBundle, rowBundles,
             vc, visibleColumns = this.visibleColumns,
             visibleRows = this.visibleRows,
             c, C = visibleColumns.length, c0 = grid.isShowRowNumbers() ? -1 : 0,
             r, R = visibleRows.length,
-            p, P = C * R, pool = this.cellEventPool,
+            p, pool = this.cellEventPool,
             preferredWidth,
-            rowBackgrounds,
             columnClip = gridProps.columnClip,
             clipToGrid = columnClip === null,
             viewWidth = C ? visibleColumns[C - 1].right : 0,
             viewHeight = R ? visibleRows[R - 1].bottom : 0;
-
-        if (paintCells.reset) {
-            paintCells.reset = false;
-            for (p = 0, c = c0; c < C; c++) {
-                for (r = 0; r < R; r++, p++) {
-                    // reset pool members to reflect coordinates of cells in newly shaped grid
-                    pool[p].reset(visibleColumns[c], visibleRows[r]);
-                }
-            }
-        }
-
-        rowBackgrounds = getRowBackgrounds(c0, C, R);
 
         if (gc.alpha(gridPrefillColor) > 0) {
             gc.cache.fillStyle = gridPrefillColor;
             gc.fillRect(0, 0, viewWidth, viewHeight);
         }
 
+        if (paintCells.reset) {
+            paintCells.reset = false;
+
+            for (p = 0, c = c0; c < C; c++) {
+                for (r = 0; r < R; r++, p++) {
+                    // reset pool members to reflect coordinates of cells in newly shaped grid
+                    pool[p].reset(visibleColumns[c], visibleRows[r]);
+                }
+            }
+
+            bundleRows.call(this, false);
+        }
+
+        for (rowBundles = this.rowBundles, r = rowBundles.length; r--;) {
+            rowBundle = rowBundles[r];
+            gc.clearFill(0, rowBundle.top, viewWidth, rowBundle.bottom - rowBundle.top + 1, rowBundle.backgroundColor);
+        }
+
+        rowPrefillColors = rowBundles.length && this.rowPrefillColors;
+
         clip(clipToGrid && gc, viewWidth, viewHeight);
 
         // For each column...
         for (p = 0, c = c0; c < C; c++) {
-            cellEvent = pool[p]; // first cell in column c
+            cellEvent = pool[p];
             vc = cellEvent.visibleColumn;
 
-            if (!bundles.length) {
-                columnPrefillColor = cellEvent.column.properties.backgroundColor;
-                if (columnPrefillColor === gridPrefillColor) {
+            if (!rowPrefillColors) {
+                if ((columnPrefillColor = cellEvent.column.properties.backgroundColor) === gridPrefillColor) {
                     prefillColor = gridPrefillColor;
                 } else {
                     prefillColor = columnPrefillColor;
@@ -1007,13 +1015,15 @@ var Renderer = Base.extend('Renderer', {
 
             // For each row of each subgrid (of each column)...
             for (preferredWidth = r = 0; r < R; r++, p++) {
-                cellEvent = pool[p]; // next cell down the column (redundant for first cell in column)
+                if (rowPrefillColors) {
+                    prefillColor = rowPrefillColors[r];
+                }
 
                 try {
-                    width = this._paintCell(gc, cellEvent, prefillColor);
+                    width = this._paintCell(gc, pool[p], prefillColor);
                     preferredWidth = Math.max(width, preferredWidth);
                 } catch (e) {
-                    this.renderErrorCell(e, gc, vc, cellEvent.visibleRow);
+                    this.renderErrorCell(e, gc, vc, pool[p].visibleRow);
                 }
             }
 
@@ -1024,7 +1034,7 @@ var Renderer = Base.extend('Renderer', {
 
         unclip(clipToGrid && gc);
     },
-*/
+
     renderErrorCell: function(err, gc, vc, vr) {
         var message = err && (err.message || err) || 'Unknown error.',
             bounds = { x: vc.left, y: vr.top, width: vc.width, height: vr.height },
@@ -1091,7 +1101,7 @@ var Renderer = Base.extend('Renderer', {
         }
     },
 
-    _paintCell: function(gc, cellEvent, /*rowProperties,*/ prefillColor) {
+    _paintCell: function(gc, cellEvent, prefillColor) {
         var grid = this.grid,
             selectionModel = grid.selectionModel,
             behavior = grid.behavior,
@@ -1216,10 +1226,11 @@ var Renderer = Base.extend('Renderer', {
 
 Renderer.prototype.gridRendererMap = {
     'by-columns': Renderer.prototype.paintCellsByColumns,
-    'by-rows': Renderer.prototype.paintCellsByRows
+    'by-rows': Renderer.prototype.paintCellsByRows,
+    'by-columns-with-row-backgrounds': Renderer.prototype.paintCellsByColumnsWithRowRects
 };
 
-function setRowBackgrounds(resetCellEvents) {
+function bundleRows(resetCellEvents) {
     var bundle, rowBundles = [],
         gridProps = this.grid.properties,
         gridPrefillColor = gridProps.backgroundColor,
@@ -1241,9 +1252,8 @@ function setRowBackgrounds(resetCellEvents) {
         }
     }
 
-    for (p = 0, r = 0; r < R; r++, p += C) {
-        vr = pool[p].visibleRow; // first cell in row r
-
+    for (r = 0; r < R; r++) {
+        vr = visibleRows[r]; // first cell in row r
         rowProperties = !vr.subgrid.type && rowPropsList && rowPropsList[vr.rowIndex % rowPropsList.length];
         backgroundColor = rowPrefillColors[r] = rowProperties && rowProperties.backgroundColor || gridPrefillColor;
         if (bundle && bundle.backgroundColor === backgroundColor) {

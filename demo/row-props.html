@@ -3,17 +3,16 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" >
     <style>
-        .hypergrid-container { width:1580px; height:1050px; margin-top:.5em }
-        label {
+        .hypergrid-container { width:1580px; height:1050px; }
+        body { margin: 5px }
+        body > label, .radio-group {
+            display: inline-block;
             background-color: beige;
-            padding: 0.35em;
+            margin: 0 .5em 7px 5px;
+            padding: .15em .5em .15em .35em;
             border: 1px solid tan;
-            margin-right: 1em;
             font-family: sans-serif;
             font-size: 10pt;
-            line-height: 2.75em;
-            white-space: nowrap;
-            padding-right: .5em;
             user-select: none;
         }
         input[type=checkbox] { outline:0 }
@@ -24,12 +23,23 @@
         <input type="checkbox" onclick="grid.properties.enableContinuousRepaint=this.checked" checked>
         Continuous repaint
     </label>
-    <label title="grid.renderer.paintCells = grid.renderer.paintCellsByRows vs. grid.renderer.paintCellsByColumns">
-        <input type="checkbox" onclick="grid.renderer.setGridRenderer(this.checked ? 'by-rows' : 'by-columns')">
-        Render by rows
-    </label>
+    <div class="radio-group">
+        Render by:
+        <label title="setGridRenderer('by-columns')">
+            <input type="radio" name="renderer" onclick="grid.renderer.setGridRenderer('by-columns')" checked>
+            columns
+        </label>
+        <label title="setGridRenderer('by-rows')">
+            <input type="radio" name="renderer" onclick="grid.renderer.setGridRenderer('by-rows')">
+            rows
+        </label>
+        <label title="setGridRenderer('by-columns-with-row-backgrounds')">
+            <input type="radio" name="renderer" onclick="grid.renderer.setGridRenderer('by-columns-with-row-backgrounds')">
+            columns/rows
+        </label>
+    </div>
     <label title="Adds a rowProperties array to grid.properties.">
-        <input type="checkbox" onclick="if(this.checked)grid.addProperties(alternatingThreeGreenRows);else deleteProps(grid.properties,alternatingThreeGreenRows);">
+        <input type="checkbox" onclick="if(this.checked)grid.addProperties(alternatingThreeGreenRows);else deleteProps(grid.properties,alternatingThreeGreenRows);grid.renderer.resetGridRenderers()">
         Grid row properties (alternate 3 white rows with 3 green rows)
     </label>
     <label title="Column properties defines a light blue background color BUT inherit's grid's rowProperties array.">
@@ -69,6 +79,7 @@ grid.addProperties({
     foregroundSelectionFont: '13px Tahoma, Geneva, sans-serif',
     columnClip: false,
     editor: 'textfield',
+    showHeaderRow: false,
     showRowNumbers: false,
     lineColor: 'brown',
 //    gridLinesH: false,
