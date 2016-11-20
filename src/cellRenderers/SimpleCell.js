@@ -25,6 +25,7 @@ var SimpleCell = CellRenderer.extend('SimpleCell', {
             height = bounds.height,
             iconPadding = config.iconPadding,
             valWidth = 0,
+            textColor,
             ixoffset, iyoffset,
             leftIcon, rightIcon, centerIcon,
             leftPadding, rightPadding,
@@ -50,6 +51,28 @@ var SimpleCell = CellRenderer.extend('SimpleCell', {
             }
             if (centerIcon && centerIcon.nodeName !== 'IMG') {
                 centerIcon = null;
+            }
+        }
+
+        if (val) {
+            val = config.exec(val);
+
+            // Note: vf == 0 is fastest equivalent of vf === 0 || vf === false which excludes NaN, null, undefined
+            val = val || val == 0 ? val : ''; // eslint-disable-line eqeqeq
+
+            val = config.formatValue(val, config);
+
+            gc.cache.font = config.isSelected ? config.foregroundSelectionFont : config.font;
+
+            textColor = gc.cache.strokeStyle = config.isSelected
+                ? config.foregroundSelectionColor
+                : config.color;
+
+            config.value = val; // return this for saving into cellEvent as `previousValue` for future comparisons
+
+            // todo skip rest if val + icons + font + textColor + layers all the same
+            if (config.prefillColor === undefined && val === config.previousValue) {
+                return;
             }
         }
 
@@ -86,23 +109,17 @@ var SimpleCell = CellRenderer.extend('SimpleCell', {
         }
         layerColors(gc, colors, x, y, width, height, foundationColor);
 
-        if (leftIcon) {
-            // Measure & draw left icon
-            iyoffset = Math.round((height - leftIcon.height) / 2);
-            gc.drawImage(leftIcon, x + iconPadding, y + iyoffset);
-            leftPadding = iconPadding + leftIcon.width + iconPadding;
-        } else {
-            leftPadding = config.cellPadding;
-        }
+        // Measure left and right icons, needed for rendering and for return value (min width)
+        leftPadding = leftIcon ? iconPadding + leftIcon.width + iconPadding : config.cellPadding;
+        rightPadding = rightIcon ? iconPadding + rightIcon.width + iconPadding : config.cellPadding;
 
-        if (rightIcon) {
-            // Measure right icon
-            rightPadding = iconPadding + rightIcon.width + iconPadding;
-        } else {
-            rightPadding = config.cellPadding;
-        }
-
-        if (centerIcon) {
+        if (val) {
+            // draw text
+            gc.cache.fillStyle = textColor;
+            valWidth = config.isHeaderRow && config.headerTextWrapping
+                ? renderMultiLineText(gc, config, val, leftPadding, rightPadding)
+                : renderSingleLineText(gc, config, val, leftPadding, rightPadding);
+        } else if (centerIcon) {
             // Measure & draw center icon
             iyoffset = Math.round((height - centerIcon.height) / 2);
             ixoffset = Math.round((width - centerIcon.width) / 2);
@@ -110,37 +127,24 @@ var SimpleCell = CellRenderer.extend('SimpleCell', {
             valWidth = iconPadding + centerIcon.width + iconPadding;
         }
 
-        if (val) {
-            val = config.exec(val);
-
-            // Note: vf == 0 is fastest equivalent of vf === 0 || vf === false which excludes NaN, null, undefined
-            val = val || val == 0 ? val : ''; // eslint-disable-line eqeqeq
-
-            val = config.formatValue(val, config);
-
-            gc.cache.font = config.isSelected ? config.foregroundSelectionFont : config.font;
-            gc.cache.textAlign = 'left';
-            gc.textBaseline = 'middle';
-
-            // draw text
-            gc.cache.fillStyle = gc.cache.strokeStyle = config.isSelected
-                ? config.foregroundSelectionColor
-                : config.color;
-
-            valWidth = config.isHeaderRow && config.headerTextWrapping
-                ? renderMultiLineText(gc, config, val, leftPadding, rightPadding)
-                : renderSingleLineText(gc, config, val, leftPadding, rightPadding);
+        if (leftIcon) {
+            // Draw left icon
+            iyoffset = Math.round((height - leftIcon.height) / 2);
+            gc.drawImage(leftIcon, x + iconPadding, y + iyoffset);
         }
 
         if (rightIcon) {
-            // Draw right icon on top of text that may have flowed under where it will be
-            iyoffset = Math.round((height - rightIcon.height) / 2);
+            // Repaint background before painting right icon, because text may have flowed under where it will be.
+            // This is a work-around to clipping which is too expensive to perform here.
             var rightX = x + width - (rightIcon.width + iconPadding);
             if (inheritsBackgroundColor) {
                 foundationColor = true;
                 colors.unshift(config.backgroundColor);
             }
             layerColors(gc, colors, rightX, y, rightPadding, height, foundationColor);
+
+            // Draw right icon
+            iyoffset = Math.round((height - rightIcon.height) / 2);
             gc.drawImage(rightIcon, rightX, y + iyoffset);
         }
 
@@ -204,6 +208,7 @@ function renderMultiLineText(gc, config, val, leftPadding, rightPadding) {
     gc.clip();
 
     gc.cache.textAlign = halign;
+    gc.cache.textBaseline = 'middle';
 
     for (var i = 0; i < lines.length; i++) {
         gc.fillText(lines[i], x + halignOffset, y + valignOffset + (i * textHeight));
@@ -269,22 +274,25 @@ function renderSingleLineText(gc, config, val, leftPadding, rightPadding) {
     valignOffset += Math.ceil(height / 2);
 
     if (val !== null) {
+        gc.cache.textAlign = 'left';
+        gc.cache.textBaseline = 'middle';
         gc.fillText(val, x + halignOffset, y + valignOffset);
-    }
 
-    if (isCellHovered) {
-        gc.beginPath();
-        if (isLink) {
-            underline(config, gc, val, x + halignOffset, y + valignOffset + Math.floor(fontMetrics.height / 2), 1);
-            gc.stroke();
+        if (isCellHovered) {
+            gc.beginPath();
+            if (isLink) {
+                underline(config, gc, val, x + halignOffset, y + valignOffset + Math.floor(fontMetrics.height / 2), 1);
+                gc.stroke();
+            }
+            gc.closePath();
         }
-        gc.closePath();
-    }
-    if (config.strikeThrough === true) {
-        gc.beginPath();
-        strikeThrough(config, gc, val, x + halignOffset, y + valignOffset + Math.floor(fontMetrics.height / 2), 1);
-        gc.stroke();
-        gc.closePath();
+
+        if (config.strikeThrough === true) {
+            gc.beginPath();
+            strikeThrough(config, gc, val, x + halignOffset, y + valignOffset + Math.floor(fontMetrics.height / 2), 1);
+            gc.stroke();
+            gc.closePath();
+        }
     }
 
     return minWidth;

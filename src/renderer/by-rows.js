@@ -24,7 +24,7 @@ function paintCellsByRows(gc) {
         rowBundle, rowBundles = this.rowBundles,
         vc, visibleColumns = this.visibleColumns,
         vr, visibleRows = this.visibleRows,
-        c, C = visibleColumns.length, c0 = grid.isShowRowNumbers() ? -1 : 0,
+        c, C = visibleColumns.length, c0 = gridProps.showRowNumbers ? -1 : 0,
         r, R = visibleRows.length,
         p, pool = this.cellEventPool,
         preferredWidth = Array(C - c0).fill(0),
@@ -34,6 +34,8 @@ function paintCellsByRows(gc) {
         viewHeight = R ? visibleRows[R - 1].bottom : 0,
         lineWidth = gridProps.lineWidth,
         lineColor = gridProps.lineColor;
+
+    gc.clearRect(0, 0, this.bounds.width, this.bounds.height);
 
     if (gc.alpha(gridPrefillColor) > 0) {
         gc.cache.fillStyle = gridPrefillColor;

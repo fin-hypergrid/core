@@ -188,7 +188,7 @@ var Renderer = Base.extend('Renderer', {
 
             lineWidth = grid.properties.lineWidth,
 
-            start = this.grid.isShowRowNumbers() ? -1 : 0,
+            start = grid.properties.showRowNumbers ? -1 : 0,
             x, X, // horizontal pixel loop index and limit
             y, Y, // vertical pixel loop index and limit
             c, C, // column loop index and limit
@@ -477,7 +477,7 @@ var Renderer = Base.extend('Renderer', {
             y = point.y,
             vrs = this.visibleRows,
             vcs = this.visibleColumns,
-            firstColumn = vcs[this.grid.isShowRowNumbers() ? -1 : 0],
+            firstColumn = vcs[this.grid.properties.showRowNumbers ? -1 : 0],
             inFirstColumn = x < firstColumn.right,
             vc = inFirstColumn ? firstColumn : vcs.find(function(vc) { return x < vc.right; }) || vcs[vcs.length - 1],
             vr = vrs.find(function(vr) { return y < vr.bottom; }) || vrs[vrs.length - 1],
@@ -596,15 +596,15 @@ var Renderer = Base.extend('Renderer', {
             return;
         }
 
-        var props = this.grid.properties;
+        var gridProps = this.grid.properties;
         vcOrigin = vcOrigin || lastColumn;
         vcCorner = vcCorner || selection.corner.x > lastColumn.columnIndex
             ? lastColumn.columnIndex
-            : vci[props.fixedColumnCount - 1];
+            : vci[gridProps.fixedColumnCount - 1];
         vrOrigin = vrOrigin || lastRow;
         vrCorner = vrCorner || selection.corner.y > lastRow.rowIndex
             ? lastRow.rowIndex
-            : vri[props.fixedRowCount - 1];
+            : vri[gridProps.fixedRowCount - 1];
 
         // Render the selection model around the bounds
         var config = {
@@ -614,8 +614,8 @@ var Renderer = Base.extend('Renderer', {
                 width: vcCorner.right - vcOrigin.left,
                 height: vrCorner.bottom - vrOrigin.top
             },
-            selectionRegionOverlayColor: this.grid.properties.selectionRegionOverlayColor,
-            selectionRegionOutlineColor: this.grid.properties.selectionRegionOutlineColor
+            selectionRegionOverlayColor: gridProps.selectionRegionOverlayColor,
+            selectionRegionOutlineColor: gridProps.selectionRegionOutlineColor
         };
         this.grid.cellRenderers.get('lastselection').paint(gc, config);
     },
@@ -840,7 +840,7 @@ var Renderer = Base.extend('Renderer', {
             if (gridProps.gridLinesV) {
                 gc.cache.fillStyle = lineColor;
                 var viewHeight = visibleRows[R - 1].bottom;
-                for (var c = this.grid.isShowRowNumbers() ? 0 : 1; c < C; c++) {
+                for (var c = gridProps.showRowNumbers ? 0 : 1; c < C; c++) {
                     gc.fillRect(visibleColumns[c].left - lineWidth, 0, lineWidth, viewHeight);
                 }
             }
@@ -976,7 +976,16 @@ var Renderer = Base.extend('Renderer', {
 
         config.formatValue = grid.getFormatter(config.isDataColumn && config.format);
 
+        // Following supports partial render (when `paint` aborts before setting `minWidth`)
+        config.previousValue = cellEvent.previousValue;
+        config.minWidth = cellEvent.minWidth;
+
+        // Render the cell
         cellRenderer.paint(gc, config);
+
+        // Following supports partial render:
+        cellEvent.previousValue = config.value;
+        cellEvent.minWidth = config.minWidth;
 
         return config.minWidth;
     },
@@ -1017,6 +1026,7 @@ function warn(name, message) {
     }
 }
 
+Renderer.prototype.registerGridRenderer(require('./by-cells'));
 Renderer.prototype.registerGridRenderer(require('./by-columns'));
 Renderer.prototype.registerGridRenderer(require('./by-columns-and-rows'));
 Renderer.prototype.registerGridRenderer(require('./by-rows'));

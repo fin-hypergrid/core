@@ -1,7 +1,5 @@
 'use strict';
 
-var bundleRows = require('./bundle-rows');
-
 /** @summary Render the grid.
  * @desc Paint all the cells of a grid, one column at a time.
  *
@@ -15,16 +13,14 @@ var bundleRows = require('./bundle-rows');
  * @param {CanvasRenderingContext2D} gc
  * @memberOf Renderer.prototype
  */
-function paintCellsByColumnsWithRowRects(gc) {
+function paintCells(gc) {
     var width,
         grid = this.grid,
         gridProps = grid.properties,
-        prefillColor, rowPrefillColors, columnPrefillColor, gridPrefillColor = gridProps.backgroundColor,
         cellEvent,
-        rowBundle, rowBundles,
         vc, visibleColumns = this.visibleColumns,
         visibleRows = this.visibleRows,
-        c, C = visibleColumns.length, c0 = grid.isShowRowNumbers() ? -1 : 0,
+        c, C = visibleColumns.length, c0 = gridProps.showRowNumbers ? -1 : 0,
         r, R = visibleRows.length,
         p, pool = this.cellEventPool,
         preferredWidth,
@@ -33,58 +29,32 @@ function paintCellsByColumnsWithRowRects(gc) {
         viewWidth = C ? visibleColumns[C - 1].right : 0,
         viewHeight = R ? visibleRows[R - 1].bottom : 0;
 
-    if (gc.alpha(gridPrefillColor) > 0) {
-        gc.cache.fillStyle = gridPrefillColor;
-        gc.fillRect(0, 0, viewWidth, viewHeight);
-    }
-
-    if (paintCellsByColumnsWithRowRects.reset) {
-        paintCellsByColumnsWithRowRects.reset = false;
-
+    if (paintCells.reset) {
+        paintCells.reset = false;
         for (p = 0, c = c0; c < C; c++) {
             for (r = 0; r < R; r++, p++) {
                 // reset pool members to reflect coordinates of cells in newly shaped grid
                 pool[p].reset(visibleColumns[c], visibleRows[r]);
             }
         }
-
-        bundleRows.call(this, false);
     }
-
-    for (rowBundles = this.rowBundles, r = rowBundles.length; r--;) {
-        rowBundle = rowBundles[r];
-        gc.clearFill(0, rowBundle.top, viewWidth, rowBundle.bottom - rowBundle.top + 1, rowBundle.backgroundColor);
-    }
-
-    rowPrefillColors = rowBundles.length && this.rowPrefillColors;
 
     gc.clipSave(clipToGrid, 0, 0, viewWidth, viewHeight);
 
     // For each column...
     for (p = 0, c = c0; c < C; c++) {
-        cellEvent = pool[p];
+        cellEvent = pool[p]; // first cell in column c
         vc = cellEvent.visibleColumn;
-
-        if (!rowPrefillColors) {
-            if ((columnPrefillColor = cellEvent.column.properties.backgroundColor) === gridPrefillColor) {
-                prefillColor = gridPrefillColor;
-            } else {
-                prefillColor = columnPrefillColor;
-                gc.clearFill(vc.left, 0, vc.width, viewHeight, prefillColor);
-            }
-        }
 
         // Optionally clip to visible portion of column to prevent text from overflowing to right.
         gc.clipSave(columnClip, 0, 0, vc.right, viewHeight);
 
         // For each row of each subgrid (of each column)...
         for (preferredWidth = r = 0; r < R; r++, p++) {
-            if (rowPrefillColors) {
-                prefillColor = rowPrefillColors[r];
-            }
+            cellEvent = pool[p]; // next cell down the column (redundant for first cell in column)
 
             try {
-                width = this._paintCell(gc, pool[p], prefillColor);
+                width = this._paintCell(gc, pool[p]);
                 preferredWidth = Math.max(width, preferredWidth);
             } catch (e) {
                 this.renderErrorCell(e, gc, vc, pool[p].visibleRow);
@@ -99,6 +69,6 @@ function paintCellsByColumnsWithRowRects(gc) {
     gc.clipRestore(clipToGrid);
 }
 
-paintCellsByColumnsWithRowRects.key = 'by-columns-and-rows';
+paintCells.key = 'by-cells';
 
-module.exports = paintCellsByColumnsWithRowRects;
+module.exports = paintCells;

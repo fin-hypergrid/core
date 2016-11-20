@@ -135,13 +135,15 @@ Column.prototype = {
      */
     set calculator(calculator) {
         var schema = this.dataModel.schema;
-        if (calculator === undefined) {
-            delete schema[this.index].calculator;
-        } else {
-            schema[this.index].calculator = calculator;
+        if (calculator !== schema[this.index].calculator) {
+            if (calculator === undefined) {
+                delete schema[this.index].calculator;
+            } else {
+                schema[this.index].calculator = calculator;
+            }
+            this.behavior.filter.prop(this.index, 'calculator', calculator);
+            this.behavior.applyAnalytics();
         }
-        this.behavior.filter.prop(this.index, 'calculator', calculator);
-        this.behavior.applyAnalytics();
     },
     get calculator() {
         return this.dataModel.schema[this.index].calculator;
@@ -207,7 +209,7 @@ Column.prototype = {
             width = properties.width;
             preferredWidth = properties.preferredWidth || width;
             force = force || !properties.columnAutosized;
-            if (width !== preferredWidth || force) {
+            if (width !== preferredWidth || force && preferredWidth !== undefined) {
                 properties.width = force ? preferredWidth : Math.max(width, preferredWidth);
                 properties.columnAutosized = !isNaN(properties.width);
                 autoSized = properties.width !== width;

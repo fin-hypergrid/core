@@ -26,7 +26,7 @@ function paintCellsByColumnWithRowRect(gc) {
         columnBundle, columnBundles,
         vc, visibleColumns = this.visibleColumns,
         visibleRows = this.visibleRows,
-        c, C = visibleColumns.length, c0 = grid.isShowRowNumbers() ? -1 : 0,
+        c, C = visibleColumns.length, c0 = gridProps.showRowNumbers ? -1 : 0,
         r, R = visibleRows.length,
         p, pool = this.cellEventPool,
         preferredWidth,
@@ -34,6 +34,8 @@ function paintCellsByColumnWithRowRect(gc) {
         clipToGrid = columnClip === null,
         viewWidth = C ? visibleColumns[C - 1].right : 0,
         viewHeight = R ? visibleRows[R - 1].bottom : 0;
+
+    gc.clearRect(0, 0, this.bounds.width, this.bounds.height);
 
     if (gc.alpha(gridPrefillColor) > 0) {
         gc.cache.fillStyle = gridPrefillColor;

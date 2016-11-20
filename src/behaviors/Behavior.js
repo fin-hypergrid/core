@@ -1310,8 +1310,8 @@ var Behavior = Base.extend('Behavior', {
 
     checkColumnAutosizing: function(force) {
         force = force === true;
-        this.autoSizeRowNumberColumn();
-        var autoSized = this.allColumns[-2].checkColumnAutosizing(force);
+        var autoSized = this.autoSizeRowNumberColumn() ||
+            this.hasHierarchyColumn() && this.allColumns[-2].checkColumnAutosizing(force);
         this.allColumns.forEach(function(column) {
             autoSized = column.checkColumnAutosizing(force) || autoSized;
         });
@@ -1319,8 +1319,8 @@ var Behavior = Base.extend('Behavior', {
     },
 
     autoSizeRowNumberColumn: function() {
-        if (this.grid.isRowNumberAutosizing()) {
-            this.allColumns[-1].checkColumnAutosizing(true);
+        if (this.grid.properties.showRowNumbers && this.grid.properties.rowNumberAutosizing) {
+            return this.allColumns[-1].checkColumnAutosizing(true);
         }
     },
 

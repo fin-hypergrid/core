@@ -76,6 +76,9 @@ var prototype = Object.defineProperties({}, {
         this.dataCell.y = visibleRow.rowIndex;
 
         this._columnProperties = this._cellOwnProperties = this._bounds = undefined;
+
+        // Following supports cell renderers' partial render capability:
+        this.previousValue = this.minWidth = undefined;
     } },
 
     subgrid: { get: function() { return this.visibleRow.subgrid; } },
@@ -137,7 +140,7 @@ var warn = {};
 
 function deprecated(propName, inFavorOf) {
     if (!warn[propName]) {
-        console.warn(propName + ' is deprecated as of v1.2.6 in favor of ' + inFavorOf + ' and will be removed in a future release.');
+        console.warn(propName + ' is deprecated as of v1.3.0 in favor of ' + inFavorOf + ' and will be removed in a future release.');
         warn[propName] = true;
     }
     return this[inFavorOf];

@@ -6,7 +6,7 @@ function bundleColumns() {
         gridPrefillColor = gridProps.backgroundColor,
         vc, visibleColumns = this.visibleColumns,
         visibleRows = this.visibleRows,
-        c, C = visibleColumns.length, c0 = this.grid.isShowRowNumbers() ? -1 : 0,
+        c, C = visibleColumns.length, c0 = gridProps.showRowNumbers ? -1 : 0,
         r, R = visibleRows.length,
         columnPrefillColors = Array(C),
         p, pool, backgroundColor;

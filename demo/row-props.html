@@ -25,6 +25,10 @@
     </label>
     <div class="radio-group">
         Render by:
+        <label title="setGridRenderer('by-cells')">
+            <input type="radio" name="renderer" onclick="grid.renderer.setGridRenderer('by-cells')">
+            cells
+        </label>
         <label title="setGridRenderer('by-columns')">
             <input type="radio" name="renderer" onclick="grid.renderer.setGridRenderer('by-columns')" checked>
             columns

@@ -289,8 +289,6 @@ Canvas.prototype = {
     paintNow: function() {
         var self = this;
         this.safePaintImmediately(function(gc) {
-            gc.clearRect(0, 0, self.width, self.height);
-
             var comp = self.component;
             if (comp) {
                 comp.paint(gc);
