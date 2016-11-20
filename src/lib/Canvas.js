@@ -783,6 +783,24 @@ function getCachedContext(canvasElement, type) {
         values = Object.getPrototypeOf(values);
     };
 
+    var conditionalsStack = [];
+
+    gc.clipSave = function(conditional, x, y, width, height) {
+        conditionalsStack.push(conditional);
+        if (conditional) {
+            gc.cache.save();
+            gc.beginPath();
+            gc.rect(x, y, width, height);
+            gc.clip();
+        }
+    };
+
+    gc.clipRestore = function(conditional) {
+        if (conditionalsStack.pop()) {
+            gc.cache.restore(); // Remove clip region
+        }
+    };
+
     return Object.assign(gc, require('./graphics'));
 }
 

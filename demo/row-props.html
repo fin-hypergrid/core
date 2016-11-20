@@ -34,12 +34,12 @@
             rows
         </label>
         <label title="setGridRenderer('by-columns-with-row-backgrounds')">
-            <input type="radio" name="renderer" onclick="grid.renderer.setGridRenderer('by-columns-with-row-backgrounds')">
+            <input type="radio" name="renderer" onclick="grid.renderer.setGridRenderer('by-columns-and-rows')">
             columns/rows
         </label>
     </div>
     <label title="Adds a rowProperties array to grid.properties.">
-        <input type="checkbox" onclick="if(this.checked)grid.addProperties(alternatingThreeGreenRows);else deleteProps(grid.properties,alternatingThreeGreenRows);grid.renderer.resetGridRenderers()">
+        <input type="checkbox" onclick="if(this.checked)grid.addProperties(alternatingThreeGreenRows);else deleteProps(grid.properties,alternatingThreeGreenRows);grid.renderer.resetAllGridRenderers()">
         Grid row properties (alternate 3 white rows with 3 green rows)
     </label>
     <label title="Column properties defines a light blue background color BUT inherit's grid's rowProperties array.">
@@ -53,6 +53,10 @@
     <label>
         <input type="checkbox" onclick="columnProps.call(this, [10,11], columnOwnAlternateColors)">
         Columns 10-11 override row props
+    </label>
+    <label title="Column properties defines a light blue background color BUT inherit's grid's rowProperties array.">
+        <input type="checkbox" onclick="altColumnProps.call(this, columnColorUnderAlternateColors)">
+        Striped columns
     </label>
 
     <script src="build/fin-hypergrid.js"></script>
@@ -112,6 +116,14 @@ var alternatingThreeGreenRows = {
             { backgroundColor: 'tan' }
         ]
     };
+
+function altColumnProps(props) {
+    grid.renderer.visibleColumns.forEach(function(column, i) {
+        if (i & 1) {
+            columnProps.call(this, [i, i], props);
+        }
+    }, this);
+}
 
 function columnProps(columnIndexes, props) {
     columnIndexes.forEach(function(columnIndex) {

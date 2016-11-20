@@ -4,7 +4,7 @@
 'use strict';
 
 var Base = require('../Base');
-var images = require('../../images');
+var images = require('../../images/index');
 
 
 var visibleColumnPropertiesDescriptor = {
@@ -126,17 +126,33 @@ var Renderer = Base.extend('Renderer', {
      * > All `initialize()` methods in the inheritance chain are called, in turn, each with the same parameters that were passed to the constructor, beginning with that of the most "senior" class through that of the class of the new instance.
      * @memberOf Renderer.prototype
      */
-    initialize: function(grid) {
+    initialize: function(grid, options) {
+        options = options || {};
+
         this.grid = grid;
 
-        this.setGridRenderer('by-columns');
+        var defaultGridRenderer = options.gridRenderer || 'by-columns';
+        this.setGridRenderer(defaultGridRenderer);
 
         this.reset();
     },
 
+    gridRenderers: {},
+
+    registerGridRenderer: function(gridRenderer, name) {
+        this.gridRenderers[name || gridRenderer.key] = gridRenderer;
+    },
+
     setGridRenderer: function(key) {
-        this.paintCells = this.gridRendererMap[key];
+        this.paintCells = this.gridRenderers[key];
         this.paintCells.reset = true;
+    },
+
+    resetAllGridRenderers: function() {
+        // Notify renderers that grid shape has changed
+        Object.keys(this.gridRenderers).forEach(function(key) {
+            this.gridRenderers[key].reset = true;
+        }, this);
     },
 
     /**
@@ -327,14 +343,7 @@ var Renderer = Base.extend('Renderer', {
             pool[p] = new behavior.CellEvent; // instantiate new members
         }
 
-        this.resetGridRenderers();
-    },
-
-    resetGridRenderers: function() {
-        // Notify renderers that grid shape has changed
-        Object.keys(this.gridRendererMap).forEach(function(key) {
-            this.gridRendererMap[key].reset = true;
-        }, this);
+        this.resetAllGridRenderers();
     },
 
     /**
@@ -797,244 +806,6 @@ var Renderer = Base.extend('Renderer', {
         return this.grid.getHeaderRowCount();
     },
 
-    /** @summary Smart render the grid.
-     * @desc Paint all the cells of a grid, including all "fixed" columns and rows.
-     * We snapshot the context to insure against its pollution.
-     * `try...catch` surrounds each cell paint in case a cell renderer throws an error.
-     * The error message is error-logged to console AND displayed in cell.
-     *
-     * Each cell to be rendered is described by a `CellEvent` object. For performance reasons, to avoid constantly instantiating these objects, we maintain a pool of them. When the grid shape changes, we reset their coordinates by calling `cellEvent.reset(...)` on each (see).
-     * @memberOf Renderer.prototype
-     * @param {CanvasRenderingContext2D} gc
-     */
-    paintCellsByColumns: function paintCells(gc) {
-        var width,
-            grid = this.grid,
-            gridProps = grid.properties,
-            prefillColor, columnPrefillColor, gridPrefillColor = gridProps.backgroundColor,
-            cellEvent,
-            vc, visibleColumns = this.visibleColumns,
-            visibleRows = this.visibleRows,
-            c, C = visibleColumns.length, c0 = grid.isShowRowNumbers() ? -1 : 0,
-            r, R = visibleRows.length,
-            p, pool = this.cellEventPool,
-            preferredWidth,
-            columnClip = gridProps.columnClip,
-            clipToGrid = columnClip === null,
-            viewWidth = C ? visibleColumns[C - 1].right : 0,
-            viewHeight = R ? visibleRows[R - 1].bottom : 0;
-
-        if (paintCells.reset) {
-            paintCells.reset = false;
-            for (p = 0, c = c0; c < C; c++) {
-                for (r = 0; r < R; r++, p++) {
-                    // reset pool members to reflect coordinates of cells in newly shaped grid
-                    pool[p].reset(visibleColumns[c], visibleRows[r]);
-                }
-            }
-        }
-
-        if (gc.alpha(gridPrefillColor) > 0) {
-            gc.cache.fillStyle = gridPrefillColor;
-            gc.fillRect(0, 0, viewWidth, viewHeight);
-        }
-
-        clip(clipToGrid && gc, viewWidth, viewHeight);
-
-        // For each column...
-        for (p = 0, c = c0; c < C; c++) {
-            cellEvent = pool[p]; // first cell in column c
-            vc = cellEvent.visibleColumn;
-
-            columnPrefillColor = cellEvent.column.properties.backgroundColor;
-            if (columnPrefillColor === gridPrefillColor) {
-                prefillColor = gridPrefillColor;
-            } else {
-                prefillColor = columnPrefillColor;
-                gc.clearFill(vc.left, 0, vc.width, viewHeight, prefillColor);
-            }
-
-            // Optionally clip to visible portion of column to prevent text from overflowing to right.
-            clip(columnClip && gc, vc.right, viewHeight);
-
-            // For each row of each subgrid (of each column)...
-            for (preferredWidth = r = 0; r < R; r++, p++) {
-                cellEvent = pool[p]; // next cell down the column (redundant for first cell in column)
-
-                try {
-                    width = this._paintCell(gc, cellEvent, prefillColor);
-                    preferredWidth = Math.max(width, preferredWidth);
-                } catch (e) {
-                    this.renderErrorCell(e, gc, vc, cellEvent.visibleRow);
-                }
-            }
-
-            unclip(columnClip && gc);
-
-            cellEvent.column.properties.preferredWidth = preferredWidth;
-        }
-
-        unclip(clipToGrid && gc);
-    },
-
-    paintCellsByRows: function paintCells(gc) {
-        var width,
-            grid = this.grid,
-            gridProps = grid.properties,
-            prefillColor, rowPrefillColors, gridPrefillColor = gridProps.backgroundColor,
-            cellEvent,
-            rowBundle, rowBundles,
-            vc, visibleColumns = this.visibleColumns,
-            vr, visibleRows = this.visibleRows,
-            c, C = visibleColumns.length, c0 = grid.isShowRowNumbers() ? -1 : 0,
-            r, R = visibleRows.length,
-            p, pool = this.cellEventPool,
-            preferredWidth = Array(C - c0).fill(0),
-            columnClip = gridProps.columnClip,
-            clipToGrid = columnClip === null,
-            viewWidth = C ? visibleColumns[C - 1].right : 0,
-            viewHeight = R ? visibleRows[R - 1].bottom : 0,
-            lineWidth = gridProps.lineWidth,
-            lineColor = gridProps.lineColor;
-
-        if (gc.alpha(gridPrefillColor) > 0) {
-            gc.cache.fillStyle = gridPrefillColor;
-            gc.fillRect(0, 0, viewWidth, viewHeight);
-        }
-
-        if (paintCells.reset) {
-            paintCells.reset = false;
-            bundleRows.call(this, true);
-        }
-
-        for (rowBundles = this.rowBundles, r = rowBundles.length; r--;) {
-            rowBundle = rowBundles[r];
-            gc.clearFill(0, rowBundle.top, viewWidth, rowBundle.bottom - rowBundle.top + 1, rowBundle.backgroundColor);
-        }
-
-        rowPrefillColors = this.rowPrefillColors;
-
-        clip(clipToGrid && gc, viewWidth, viewHeight);
-
-        // For each row of each subgrid...
-        for (p = 0, r = 0; r < R; r++) {
-            prefillColor = rowPrefillColors[r];
-
-            if (gridProps.gridLinesH) {
-                gc.cache.fillStyle = lineColor;
-                gc.fillRect(0, pool[p].visibleRow.bottom, viewWidth, lineWidth);
-            }
-
-            // For each column (of each row)...
-            for (c = c0; c < C; c++, p++) {
-                cellEvent = pool[p]; // next cell across the row (redundant for first cell in row)
-                vc = cellEvent.visibleColumn;
-
-                // Optionally clip to visible portion of column to prevent text from overflowing to right.
-                clip(columnClip && gc, vc.right, viewHeight);
-
-                try {
-                    width = this._paintCell(gc, cellEvent, prefillColor);
-                    preferredWidth[c] = Math.max(width, preferredWidth[c]);
-                } catch (e) {
-                    this.renderErrorCell(e, gc, vc, vr);
-                }
-
-                unclip(columnClip && gc);
-            }
-        }
-
-        unclip(clipToGrid && gc);
-
-        for (c = c0; c < C; c++) {
-            visibleColumns[c].column.properties.preferredWidth = preferredWidth[c];
-        }
-    },
-
-    paintCellsByColumnsWithRowRects: function paintCells(gc) {
-        var width,
-            grid = this.grid,
-            gridProps = grid.properties,
-            prefillColor, rowPrefillColors, columnPrefillColor, gridPrefillColor = gridProps.backgroundColor,
-            cellEvent,
-            rowBundle, rowBundles,
-            vc, visibleColumns = this.visibleColumns,
-            visibleRows = this.visibleRows,
-            c, C = visibleColumns.length, c0 = grid.isShowRowNumbers() ? -1 : 0,
-            r, R = visibleRows.length,
-            p, pool = this.cellEventPool,
-            preferredWidth,
-            columnClip = gridProps.columnClip,
-            clipToGrid = columnClip === null,
-            viewWidth = C ? visibleColumns[C - 1].right : 0,
-            viewHeight = R ? visibleRows[R - 1].bottom : 0;
-
-        if (gc.alpha(gridPrefillColor) > 0) {
-            gc.cache.fillStyle = gridPrefillColor;
-            gc.fillRect(0, 0, viewWidth, viewHeight);
-        }
-
-        if (paintCells.reset) {
-            paintCells.reset = false;
-
-            for (p = 0, c = c0; c < C; c++) {
-                for (r = 0; r < R; r++, p++) {
-                    // reset pool members to reflect coordinates of cells in newly shaped grid
-                    pool[p].reset(visibleColumns[c], visibleRows[r]);
-                }
-            }
-
-            bundleRows.call(this, false);
-        }
-
-        for (rowBundles = this.rowBundles, r = rowBundles.length; r--;) {
-            rowBundle = rowBundles[r];
-            gc.clearFill(0, rowBundle.top, viewWidth, rowBundle.bottom - rowBundle.top + 1, rowBundle.backgroundColor);
-        }
-
-        rowPrefillColors = rowBundles.length && this.rowPrefillColors;
-
-        clip(clipToGrid && gc, viewWidth, viewHeight);
-
-        // For each column...
-        for (p = 0, c = c0; c < C; c++) {
-            cellEvent = pool[p];
-            vc = cellEvent.visibleColumn;
-
-            if (!rowPrefillColors) {
-                if ((columnPrefillColor = cellEvent.column.properties.backgroundColor) === gridPrefillColor) {
-                    prefillColor = gridPrefillColor;
-                } else {
-                    prefillColor = columnPrefillColor;
-                    gc.clearFill(vc.left, 0, vc.width, viewHeight, prefillColor);
-                }
-            }
-
-            // Optionally clip to visible portion of column to prevent text from overflowing to right.
-            clip(columnClip && gc, vc.right, viewHeight);
-
-            // For each row of each subgrid (of each column)...
-            for (preferredWidth = r = 0; r < R; r++, p++) {
-                if (rowPrefillColors) {
-                    prefillColor = rowPrefillColors[r];
-                }
-
-                try {
-                    width = this._paintCell(gc, pool[p], prefillColor);
-                    preferredWidth = Math.max(width, preferredWidth);
-                } catch (e) {
-                    this.renderErrorCell(e, gc, vc, pool[p].visibleRow);
-                }
-            }
-
-            unclip(columnClip && gc);
-
-            cellEvent.column.properties.preferredWidth = preferredWidth;
-        }
-
-        unclip(clipToGrid && gc);
-    },
-
     renderErrorCell: function(err, gc, vc, vr) {
         var message = err && (err.message || err) || 'Unknown error.',
             bounds = { x: vc.left, y: vr.top, width: vc.width, height: vr.height },
@@ -1224,71 +995,6 @@ var Renderer = Base.extend('Renderer', {
     }
 });
 
-Renderer.prototype.gridRendererMap = {
-    'by-columns': Renderer.prototype.paintCellsByColumns,
-    'by-rows': Renderer.prototype.paintCellsByRows,
-    'by-columns-with-row-backgrounds': Renderer.prototype.paintCellsByColumnsWithRowRects
-};
-
-function bundleRows(resetCellEvents) {
-    var bundle, rowBundles = [],
-        gridProps = this.grid.properties,
-        gridPrefillColor = gridProps.backgroundColor,
-        rowPropsList = gridProps.rowProperties,
-        visibleColumns = this.visibleColumns,
-        vr, visibleRows = this.visibleRows,
-        c, C = visibleColumns.length, c0 = this.grid.isShowRowNumbers() ? -1 : 0,
-        r, R = visibleRows.length,
-        rowPrefillColors = Array(R),
-        p, pool, rowProperties, backgroundColor;
-
-    if (resetCellEvents) {
-        pool = this.cellEventPool;
-        for (p = 0, r = 0; r < R; r++) {
-            for (c = c0; c < C; c++, p++) {
-                // reset pool members to reflect coordinates of cells in newly shaped grid
-                pool[p].reset(visibleColumns[c], visibleRows[r]);
-            }
-        }
-    }
-
-    for (r = 0; r < R; r++) {
-        vr = visibleRows[r]; // first cell in row r
-        rowProperties = !vr.subgrid.type && rowPropsList && rowPropsList[vr.rowIndex % rowPropsList.length];
-        backgroundColor = rowPrefillColors[r] = rowProperties && rowProperties.backgroundColor || gridPrefillColor;
-        if (bundle && bundle.backgroundColor === backgroundColor) {
-            bundle.bottom = vr.bottom;
-        } else if (backgroundColor === gridPrefillColor) {
-            bundle = undefined;
-        } else {
-            bundle = {
-                backgroundColor: backgroundColor,
-                top: vr.top,
-                bottom: vr.bottom
-            };
-            rowBundles.push(bundle);
-        }
-    }
-
-    this.rowBundles = rowBundles;
-    this.rowPrefillColors = rowPrefillColors;
-}
-
-function clip(gc, width, height) {
-    if (gc) {
-        // Text never overflows to left because text starting point is never < 0. The reason we don't clip to the left is for cell renderers that need to re-render to the left to produce a merged cell effect, such as grouped column header.
-        gc.cache.save();
-        gc.beginPath();
-        gc.rect(0, 0, width, height);
-        gc.clip();
-    }
-}
-function unclip(gc) {
-    if (gc) {
-        gc.cache.restore(); // Remove column's clip region
-    }
-}
-
 function resetNumberColumnWidth(gc, behavior) {
     var rowCount = behavior.dataModel.getRowCount(),
         columnProperties = behavior.getColumnProperties(-1),
@@ -1310,5 +1016,9 @@ function warn(name, message) {
         console.warn(message);
     }
 }
+
+Renderer.prototype.registerGridRenderer(require('./by-columns'));
+Renderer.prototype.registerGridRenderer(require('./by-columns-and-rows'));
+Renderer.prototype.registerGridRenderer(require('./by-rows'));
 
 module.exports = Renderer;
