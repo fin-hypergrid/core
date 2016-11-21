@@ -42,6 +42,32 @@
             columns/rows
         </label>
     </div>
+    <div class="radio-group">
+        Clip to:
+        <label title="grid.properties.columnClip = true">
+            <input type="radio" name="clipping" onclick="grid.properties.columnClip = true">
+            all columns
+        </label>
+        <label title="grid.properties.columnClip = null">
+            <input type="radio" name="clipping" onclick="grid.properties.columnClip = null">
+            last column only
+        </label>
+        <label title="grid.properties.columnClip = false">
+            <input type="radio" name="clipping" onclick="grid.properties.columnClip = false" checked>
+            none
+        </label>
+    </div>
+    <div class="radio-group">
+        Truncate text:
+        <label title="grid.canvas.gc.truncPartialChar = grid.canvas.bc.truncPartialChar = false">
+            <input type="radio" name="truncate" onclick="grid.canvas.gc.truncPartialChar = grid.canvas.bc.truncPartialChar = true" checked>
+            whole
+        </label>
+        <label title="grid.canvas.gc.truncPartialChar = grid.canvas.bc.truncPartialChar = true">
+            <input type="radio" name="truncate" onclick="grid.canvas.gc.truncPartialChar = grid.canvas.bc.truncPartialChar = false">
+            partial
+        </label>
+    </div>
     <label title="Adds a rowProperties array to grid.properties.">
         <input type="checkbox" onclick="if(this.checked)grid.addProperties(alternatingThreeGreenRows);else deleteProps(grid.properties,alternatingThreeGreenRows);grid.renderer.resetAllGridRenderers()">
         Grid row properties (alternate 3 white rows with 3 green rows)

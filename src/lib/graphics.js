@@ -60,11 +60,11 @@ function getTextWidth(string) {
 /**
  * Similar to `getTextWidth` except:
  * 1. Aborts accumulating when sum exceeds given `width`.
- * 2. Returns an object rather than a number.
+ * 2. Returns an object containing both the truncated string and the sum (rather than a number primitive containing the sum alone).
  * @param {CanvasRenderingContext2D} gc
  * @param {string} string - Text to measure.
  * @param {number} width - Width of target cell; overflow point.
- * @param {boolean} [abort=false] - Abort measuring upon overflow.
+ * @param {boolean} [abort=false] - Abort measuring upon overflow. Returned `width` sum will reflect truncated string rather than untruncated string. Note that returned `string` is truncated in either case.
  * @returns {{string:string,width:number}}
  * * `object.string` - `undefined` if it fits; truncated version of provided `string` if it does not.
  * * `object.width` - Width of provided `string` if it fits; width of truncated string if it does not.
@@ -72,12 +72,19 @@ function getTextWidth(string) {
 function getTextWidthTruncated(string, width, abort) {
     var metrics = fontMetrics[this.cache.font] = fontMetrics[this.cache.font] || {},
         truncString;
-    string += '';
+    string += ''; // convert to string
+    width -= 1; // fudge for less than *or* more-or-less equal
     for (var i = 0, sum = 0, len = string.length; i < len; ++i) {
-        var c = string[i];
-        sum += metrics[c] = metrics[c] || this.measureText(c).width;
+        var char = string[i];
+        var charWidth = metrics[char] = metrics[char] || this.measureText(char).width;
+        sum += charWidth;
         if (!truncString && sum > width) {
-            truncString = string.substr(0, i);
+            if (this.truncPartialChar) {
+                sum -= charWidth;
+                truncString = string.substr(0, i);
+            } else if (++i < string.length) {
+                truncString = string.substr(0, i);
+            }
             if (abort) { break; }
         }
     }

@@ -265,7 +265,7 @@ function renderSingleLineText(gc, config, val, leftPadding, rightPadding) {
         metrics;
 
     if (config.columnAutosizing) {
-        metrics = gc.getTextWidthTruncated(val, width);
+        metrics = gc.getTextWidthTruncated(val, width - leftPadding);
         minWidth = metrics.width;
         val = metrics.string || val;
         switch (halign) {
@@ -277,7 +277,7 @@ function renderSingleLineText(gc, config, val, leftPadding, rightPadding) {
                 break;
         }
     } else {
-        metrics = gc.getTextWidthTruncated(val, width, true);
+        metrics = gc.getTextWidthTruncated(val, width - leftPadding, true);
         minWidth = 0;
         if (metrics.string) {
             val = metrics.string;
