@@ -17,8 +17,7 @@ var bundleRows = require('./bundle-rows');
  * @memberOf Renderer.prototype
  */
 function paintCellsByColumnWithRowRect(gc) {
-    var width,
-        grid = this.grid,
+    var grid = this.grid,
         gridProps = grid.properties,
         prefillColor, rowPrefillColors, gridPrefillColor = gridProps.backgroundColor,
         cellEvent,
@@ -83,8 +82,7 @@ function paintCellsByColumnWithRowRect(gc) {
             }
 
             try {
-                width = this._paintCell(gc, pool[p], prefillColor);
-                preferredWidth = Math.max(width, preferredWidth);
+                preferredWidth = Math.max(preferredWidth, this._paintCell(gc, pool[p], prefillColor));
             } catch (e) {
                 this.renderErrorCell(e, gc, vc, pool[p].visibleRow);
             }
@@ -92,7 +90,7 @@ function paintCellsByColumnWithRowRect(gc) {
 
         gc.clipRestore(columnClip);
 
-        cellEvent.column.properties.preferredWidth = preferredWidth;
+        cellEvent.column.properties.preferredWidth = Math.round(preferredWidth);
     }
 
     gc.clipRestore(clipToGrid);

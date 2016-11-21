@@ -14,8 +14,7 @@
  * @memberOf Renderer.prototype
  */
 function paintCells(gc) {
-    var width,
-        grid = this.grid,
+    var grid = this.grid,
         gridProps = grid.properties,
         cellEvent,
         vc, visibleColumns = this.visibleColumns,
@@ -54,8 +53,7 @@ function paintCells(gc) {
             cellEvent = pool[p]; // next cell down the column (redundant for first cell in column)
 
             try {
-                width = this._paintCell(gc, pool[p]);
-                preferredWidth = Math.max(width, preferredWidth);
+                preferredWidth = Math.max(preferredWidth, this._paintCell(gc, pool[p]));
             } catch (e) {
                 this.renderErrorCell(e, gc, vc, pool[p].visibleRow);
             }
@@ -63,7 +61,7 @@ function paintCells(gc) {
 
         gc.clipRestore(columnClip);
 
-        cellEvent.column.properties.preferredWidth = preferredWidth;
+        cellEvent.column.properties.preferredWidth = Math.round(preferredWidth);
     }
 
     gc.clipRestore(clipToGrid);

@@ -180,7 +180,7 @@ Column.prototype = {
     },
 
     getWidth: function() {
-        return this.properties && this.properties.width || this.behavior.grid.properties.defaultColumnWidth;
+        return this.properties.width || this.behavior.grid.properties.defaultColumnWidth;
     },
 
     setWidth: function(width) {
