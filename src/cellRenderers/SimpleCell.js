@@ -24,11 +24,16 @@ var SimpleCell = CellRenderer.extend('SimpleCell', {
             width = bounds.width,
             height = bounds.height,
             iconPadding = config.iconPadding,
+            partialRender = config.prefillColor === undefined, // signifies abort before rendering if same
+            snapshot = config.snapshot,
+            same = snapshot && partialRender,
             valWidth = 0,
+            textColor, textFont,
             ixoffset, iyoffset,
             leftIcon, rightIcon, centerIcon,
             leftPadding, rightPadding,
-            foundational;
+            hover, hoverColor, selectColor, foundationColor, inheritsBackgroundColor,
+            c, colors;
 
         // setting gc properties are expensive, let's not do it needlessly
 
@@ -53,63 +58,6 @@ var SimpleCell = CellRenderer.extend('SimpleCell', {
             }
         }
 
-        // fill background only if our bgColor is populated or we are a selected cell
-        var hover, hoverColor, selectColor, inheritsBackgroundColor,
-            colors = [];
-
-        if (config.isCellHovered && config.hoverCellHighlight.enabled) {
-            hoverColor = config.hoverCellHighlight.backgroundColor;
-        } else if (config.isRowHovered && (hover = config.hoverRowHighlight).enabled) {
-            hoverColor = config.isGridColumn || !hover.header || hover.header.backgroundColor === undefined ? hover.backgroundColor : hover.header.backgroundColor;
-        } else if (config.isColumnHovered && (hover = config.hoverColumnHighlight).enabled) {
-            hoverColor = config.isGridRow || !hover.header || hover.header.backgroundColor === undefined ? hover.backgroundColor : hover.header.backgroundColor;
-        }
-        if (gc.alpha(hoverColor) < 1) {
-            if (config.isSelected) {
-                selectColor = config.backgroundSelectionColor;
-            }
-
-            if (gc.alpha(selectColor) < 1) {
-                inheritsBackgroundColor = (config.backgroundColor === config.columnBackgroundColor);
-                if (!inheritsBackgroundColor) {
-                    foundational = true;
-                    colors.push(config.backgroundColor); // asterisk means foundation color
-                }
-            }
-
-            if (selectColor !== undefined) {
-                colors.push(selectColor);
-            }
-        }
-        if (hoverColor !== undefined) {
-            colors.push(hoverColor);
-        }
-        layerColors(gc, colors, x, y, width, height, foundational);
-
-        if (leftIcon) {
-            // Measure & draw left icon
-            iyoffset = Math.round((height - leftIcon.height) / 2);
-            gc.drawImage(leftIcon, x + iconPadding, y + iyoffset);
-            leftPadding = iconPadding + leftIcon.width + iconPadding;
-        } else {
-            leftPadding = config.cellPadding;
-        }
-
-        if (rightIcon) {
-            // Measure right icon
-            rightPadding = iconPadding + rightIcon.width + iconPadding;
-        } else {
-            rightPadding = config.cellPadding;
-        }
-
-        if (centerIcon) {
-            // Measure & draw center icon
-            iyoffset = Math.round((height - centerIcon.height) / 2);
-            ixoffset = Math.round((width - centerIcon.width) / 2);
-            gc.drawImage(centerIcon, x + width - ixoffset - centerIcon.width, y + iyoffset);
-            valWidth = iconPadding + centerIcon.width + iconPadding;
-        }
-
         if (val) {
             val = config.exec(val);
 
@@ -118,29 +66,108 @@ var SimpleCell = CellRenderer.extend('SimpleCell', {
 
             val = config.formatValue(val, config);
 
-            gc.cache.font = config.isSelected ? config.foregroundSelectionFont : config.font;
-            gc.cache.textAlign = 'left';
-            gc.textBaseline = 'middle';
+            textFont = config.isSelected ? config.foregroundSelectionFont : config.font;
 
-            // draw text
-            gc.cache.fillStyle = gc.cache.strokeStyle = config.isSelected
+            textColor = gc.cache.strokeStyle = config.isSelected
                 ? config.foregroundSelectionColor
                 : config.color;
+        }
 
+        same = same &&
+            val === snapshot.value &&
+            textFont === snapshot.textFont &&
+            textColor === snapshot.textColor;
+
+        // fill background only if our bgColor is populated or we are a selected cell
+        colors = [];
+        c = 0;
+        if (config.isCellHovered && config.hoverCellHighlight.enabled) {
+            hoverColor = config.hoverCellHighlight.backgroundColor;
+        } else if (config.isRowHovered && (hover = config.hoverRowHighlight).enabled) {
+            hoverColor = config.isDataColumn || !hover.header || hover.header.backgroundColor === undefined ? hover.backgroundColor : hover.header.backgroundColor;
+        } else if (config.isColumnHovered && (hover = config.hoverColumnHighlight).enabled) {
+            hoverColor = config.isDataRow || !hover.header || hover.header.backgroundColor === undefined ? hover.backgroundColor : hover.header.backgroundColor;
+        }
+        if (gc.alpha(hoverColor) < 1) {
+            if (config.isSelected) {
+                selectColor = config.backgroundSelectionColor;
+            }
+
+            if (gc.alpha(selectColor) < 1) {
+                inheritsBackgroundColor = (config.backgroundColor === config.prefillColor);
+                if (!inheritsBackgroundColor) {
+                    foundationColor = true;
+                    colors.push(config.backgroundColor);
+                    same = same &&  foundationColor === snapshot.foundationColor &&
+                        config.backgroundColor === snapshot.colors[c++];
+                }
+            }
+
+            if (selectColor !== undefined) {
+                colors.push(selectColor);
+                same = same && selectColor === snapshot.colors[c++];
+            }
+        }
+        if (hoverColor !== undefined) {
+            colors.push(hoverColor);
+            same = same && hoverColor === snapshot.colors[c++];
+        }
+
+        if (partialRender) {
+            // todo check if icons have changed
+            if (same && c === snapshot.colors.length) {
+                return;
+            }
+
+            // return snapshot gets saved into cellEvent for future comparisons
+            config.snapshot = {
+                value: val,
+                textColor: textColor,
+                textFont: textFont,
+                foundationColor: foundationColor,
+                colors: colors
+            };
+        }
+
+        layerColors(gc, colors, x, y, width, height, foundationColor);
+
+        // Measure left and right icons, needed for rendering and for return value (min width)
+        leftPadding = leftIcon ? iconPadding + leftIcon.width + iconPadding : config.cellPadding;
+        rightPadding = rightIcon ? iconPadding + rightIcon.width + iconPadding : config.cellPadding;
+
+        if (val) {
+            // draw text
+            gc.cache.fillStyle = textColor;
+            gc.cache.font = textFont;
             valWidth = config.isHeaderRow && config.headerTextWrapping
                 ? renderMultiLineText(gc, config, val, leftPadding, rightPadding)
                 : renderSingleLineText(gc, config, val, leftPadding, rightPadding);
+        } else if (centerIcon) {
+            // Measure & draw center icon
+            iyoffset = Math.round((height - centerIcon.height) / 2);
+            ixoffset = Math.round((width - centerIcon.width) / 2);
+            gc.drawImage(centerIcon, x + width - ixoffset - centerIcon.width, y + iyoffset);
+            valWidth = iconPadding + centerIcon.width + iconPadding;
+        }
+
+        if (leftIcon) {
+            // Draw left icon
+            iyoffset = Math.round((height - leftIcon.height) / 2);
+            gc.drawImage(leftIcon, x + iconPadding, y + iyoffset);
         }
 
         if (rightIcon) {
-            // Draw right icon on top of text that may have flowed under where it will be
-            iyoffset = Math.round((height - rightIcon.height) / 2);
+            // Repaint background before painting right icon, because text may have flowed under where it will be.
+            // This is a work-around to clipping which is too expensive to perform here.
             var rightX = x + width - (rightIcon.width + iconPadding);
             if (inheritsBackgroundColor) {
-                foundational = true;
+                foundationColor = true;
                 colors.unshift(config.backgroundColor);
             }
-            layerColors(gc, colors, rightX, y, rightPadding, height, foundational);
+            layerColors(gc, colors, rightX, y, rightPadding, height, foundationColor);
+
+            // Draw right icon
+            iyoffset = Math.round((height - rightIcon.height) / 2);
             gc.drawImage(rightIcon, rightX, y + iyoffset);
         }
 
@@ -204,6 +231,7 @@ function renderMultiLineText(gc, config, val, leftPadding, rightPadding) {
     gc.clip();
 
     gc.cache.textAlign = halign;
+    gc.cache.textBaseline = 'middle';
 
     for (var i = 0; i < lines.length; i++) {
         gc.fillText(lines[i], x + halignOffset, y + valignOffset + (i * textHeight));
@@ -269,22 +297,25 @@ function renderSingleLineText(gc, config, val, leftPadding, rightPadding) {
     valignOffset += Math.ceil(height / 2);
 
     if (val !== null) {
+        gc.cache.textAlign = 'left';
+        gc.cache.textBaseline = 'middle';
         gc.fillText(val, x + halignOffset, y + valignOffset);
-    }
 
-    if (isCellHovered) {
-        gc.beginPath();
-        if (isLink) {
-            underline(config, gc, val, x + halignOffset, y + valignOffset + Math.floor(fontMetrics.height / 2), 1);
-            gc.stroke();
+        if (isCellHovered) {
+            gc.beginPath();
+            if (isLink) {
+                underline(config, gc, val, x + halignOffset, y + valignOffset + Math.floor(fontMetrics.height / 2), 1);
+                gc.stroke();
+            }
+            gc.closePath();
         }
-        gc.closePath();
-    }
-    if (config.strikeThrough === true) {
-        gc.beginPath();
-        strikeThrough(config, gc, val, x + halignOffset, y + valignOffset + Math.floor(fontMetrics.height / 2), 1);
-        gc.stroke();
-        gc.closePath();
+
+        if (config.strikeThrough === true) {
+            gc.beginPath();
+            strikeThrough(config, gc, val, x + halignOffset, y + valignOffset + Math.floor(fontMetrics.height / 2), 1);
+            gc.stroke();
+            gc.closePath();
+        }
     }
 
     return minWidth;
@@ -362,15 +393,15 @@ function underline(config, gc, text, x, y, thickness) {
     gc.lineTo(x + width + 0.5, y + 0.5);
 }
 
-function layerColors(gc, colors, x, y, width, height, foundational) {
-    colors.forEach(function(color, i) {
-        if (foundational && !i) {
-            gc.fillCell(x, y, width, height, color);
+function layerColors(gc, colors, x, y, width, height, foundationColor) {
+    for (var i = 0; i < colors.length; i++) {
+        if (foundationColor && !i) {
+            gc.clearFill(x, y, width, height, colors[i]);
         } else {
-            gc.cache.fillStyle = color;
+            gc.cache.fillStyle = colors[i];
             gc.fillRect(x, y, width, height);
         }
-    });
+    }
 }
 
 module.exports = SimpleCell;

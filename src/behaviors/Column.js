@@ -61,7 +61,7 @@ function Column(behavior, options) {
 
     this._index = index;
 
-    this.clearAllCellProperties();
+    this.properties = options;
 
     switch (index) {
         case -1:
@@ -72,10 +72,10 @@ function Column(behavior, options) {
         default:
             if (index < 0) {
                 throw '`index` out of range';
-            } else {
-                this.properties = options;
             }
     }
+
+    this.clearAllCellProperties();
 }
 
 Column.prototype = {
@@ -135,13 +135,15 @@ Column.prototype = {
      */
     set calculator(calculator) {
         var schema = this.dataModel.schema;
-        if (calculator === undefined) {
-            delete schema[this.index].calculator;
-        } else {
-            schema[this.index].calculator = calculator;
+        if (calculator !== schema[this.index].calculator) {
+            if (calculator === undefined) {
+                delete schema[this.index].calculator;
+            } else {
+                schema[this.index].calculator = calculator;
+            }
+            this.behavior.filter.prop(this.index, 'calculator', calculator);
+            this.behavior.applyAnalytics();
         }
-        this.behavior.filter.prop(this.index, 'calculator', calculator);
-        this.behavior.applyAnalytics();
     },
     get calculator() {
         return this.dataModel.schema[this.index].calculator;
@@ -207,7 +209,7 @@ Column.prototype = {
             width = properties.width;
             preferredWidth = properties.preferredWidth || width;
             force = force || !properties.columnAutosized;
-            if (width !== preferredWidth || force) {
+            if (width !== preferredWidth || force && preferredWidth !== undefined) {
                 properties.width = force ? preferredWidth : Math.max(width, preferredWidth);
                 properties.columnAutosized = !isNaN(properties.width);
                 autoSized = properties.width !== width;
@@ -274,25 +276,10 @@ Column.prototype = {
     },
 
     get properties() {
-        var columnProperties = this.behavior.grid.properties.columnProperties,
-            result = columnProperties[this.index];
-
-        if (!result) {
-            result = columnProperties[this.index] = this.createColumnProperties();
-        }
-
-        return result;
+        return this._properties;
     },
     set properties(properties) {
-        var key, descriptor, obj = this.properties;
-
-        for (key in obj) {
-            descriptor = Object.getOwnPropertyDescriptor(obj, key);
-            if (!descriptor || descriptor.configurable) {
-                delete obj[key];
-            }
-        }
-
+        this._properties = this.createColumnProperties();
         this.addProperties(properties);
     },
 
@@ -320,9 +307,11 @@ Column.prototype = {
         var key, descriptor, obj = this.properties;
 
         for (key in properties) {
-            descriptor = Object.getOwnPropertyDescriptor(obj, key);
-            if (!descriptor || descriptor.writable || descriptor.set) {
-                obj[key] = properties[key];
+            if (properties.hasOwnProperty(key)) {
+                descriptor = Object.getOwnPropertyDescriptor(obj, key);
+                if (!descriptor || descriptor.writable || descriptor.set) {
+                    obj[key] = properties[key];
+                }
             }
         }
     },

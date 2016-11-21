@@ -62,7 +62,7 @@ var CellSelection = Feature.extend('CellSelection', {
             dy = event.dataCell.y,
             isSelectable = grid.behavior.getCellProperty(event.dataCell.x, event.gridCell.y, 'cellSelection');
 
-        if (isSelectable && event.isGridCell && !event.primitiveEvent.detail.isRightClick) {
+        if (isSelectable && event.isDataCell && !event.primitiveEvent.detail.isRightClick) {
             var dCell = grid.newPoint(dx, dy),
                 primEvent = event.primitiveEvent,
                 keys = primEvent.detail.keys;

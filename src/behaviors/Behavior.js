@@ -293,10 +293,7 @@ var Behavior = Base.extend('Behavior', {
      * @return {object} Newly created default empty tablestate.
      */
     getDefaultState: function() {
-        return Object.create(
-            this.grid._getProperties(),
-            { columnProperties: { value: [] } }
-        );
+        return this.grid._getProperties();
     },
 
     /**
@@ -322,25 +319,33 @@ var Behavior = Base.extend('Behavior', {
                 memento.columnIndexes[i] = i;
             }
         }
-        var colProperties = memento.columnProperties;
-        delete memento.columnProperties;
+
         this.clearState();
         var state = this.grid.properties;
         this.createColumns();
         this._setColumnOrder(memento.columnIndexes);
-        Object.assign(state, memento);
-        this.setAllColumnProperties(colProperties);
-        memento.columnProperties = colProperties;
+
+        for (var key in memento) {
+            switch (key) {
+                case 'columnIndexes':
+                case 'columnProperties':
+                    continue;
+            }
+            if (memento.hasOwnProperty(key)) {
+                state[key] = memento[key];
+            }
+        }
+
+        this.setAllColumnProperties(memento.columnProperties);
 
         this.dataModel.reindex();
     },
 
-    setAllColumnProperties: function(properties) {
-        properties = properties || [];
-        for (var i = 0; i < properties.length; i++) {
-            var current = this.grid.properties.columnProperties[i];
-            this.clearObjectProperties(current, false);
-            Object.assign(current, properties[i]);
+    setAllColumnProperties: function(columnProperties) {
+        if (columnProperties) {
+            columnProperties.forEach(function(properties, i) {
+                this.getColumn(i).properties = properties;
+            }, this);
         }
     },
 
@@ -1201,7 +1206,7 @@ var Behavior = Base.extend('Behavior', {
      * @param {CellEvent} editPoint - The grid cell coordinates.
      */
     getCellEditorAt: function(event) {
-        return event.isGridColumn && (
+        return event.isDataColumn && (
             event.isFilterCell
                 ? this.grid.cellEditors.create('filterbox', event)
                 : event.column.getCellEditorAt(event)
@@ -1305,8 +1310,8 @@ var Behavior = Base.extend('Behavior', {
 
     checkColumnAutosizing: function(force) {
         force = force === true;
-        this.autoSizeRowNumberColumn();
-        var autoSized = this.allColumns[-2].checkColumnAutosizing(force);
+        var autoSized = this.autoSizeRowNumberColumn() ||
+            this.hasHierarchyColumn() && this.allColumns[-2].checkColumnAutosizing(force);
         this.allColumns.forEach(function(column) {
             autoSized = column.checkColumnAutosizing(force) || autoSized;
         });
@@ -1314,8 +1319,8 @@ var Behavior = Base.extend('Behavior', {
     },
 
     autoSizeRowNumberColumn: function() {
-        if (this.grid.isRowNumberAutosizing()) {
-            this.allColumns[-1].checkColumnAutosizing(true);
+        if (this.grid.properties.showRowNumbers && this.grid.properties.rowNumberAutosizing) {
+            return this.allColumns[-1].checkColumnAutosizing(true);
         }
     },
 

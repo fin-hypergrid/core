@@ -2,7 +2,7 @@
 
 'use strict';
 
-function fillCell(x, y, width, height, color) {
+function clearFill(x, y, width, height, color) {
     var a = alpha(color);
     if (a < 1) {
         // If background is translucent, we must clear the rect before the fillRect
@@ -142,7 +142,7 @@ function getTextHeight(font) {
 }
 
 module.exports = {
-    fillCell: fillCell,
+    clearFill: clearFill,
     alpha: alpha,
     getTextWidth: getTextWidth,
     getTextWidthTruncated: getTextWidthTruncated,

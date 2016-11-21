@@ -12,7 +12,7 @@ var _ = require('object-iterators'); // fyi: installs the Array.prototype.find p
 var Base = require('./Base');
 var defaults = require('./defaults');
 var Canvas = require('./lib/Canvas');
-var Renderer = require('./lib/Renderer');
+var Renderer = require('./renderer');
 var SelectionModel = require('./lib/SelectionModel');
 var stylesheet = require('./lib/stylesheet');
 var Localization = require('./lib/Localization');
@@ -1062,8 +1062,8 @@ var Hypergrid = Base.extend('Hypergrid', {
         this.abortEditing(); // if another editor is open, close it first
 
         if (
-            event.isGridColumn &&
-            event.getCellProperty(event.isGridRow ? 'editable' : 'filterable')
+            event.isDataColumn &&
+            event.getCellProperty(event.isDataRow ? 'editable' : 'filterable')
         ) {
             this.setMouseDown(event.gridCell);
             this.setDragExtent(new Point(0, 0));
@@ -2039,7 +2039,7 @@ var Hypergrid = Base.extend('Hypergrid', {
     },
 
     /**
-     * @todo row refac: deprecate in favor of CellEvent.isGridRow
+     * @todo row refac: deprecate in favor of CellEvent.isDataRow
      * @param {integerRowIndex|sectionPoint} rn
      * @returns {boolean}
      */

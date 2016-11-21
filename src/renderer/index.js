@@ -4,7 +4,7 @@
 'use strict';
 
 var Base = require('../Base');
-var images = require('../../images');
+var images = require('../../images/index');
 
 
 var visibleColumnPropertiesDescriptor = {
@@ -116,6 +116,8 @@ var Renderer = Base.extend('Renderer', {
         this.visibleRows = [];
 
         this.insertionBounds = [];
+
+        this.cellEventPool = [];
     },
 
     /**
@@ -124,9 +126,33 @@ var Renderer = Base.extend('Renderer', {
      * > All `initialize()` methods in the inheritance chain are called, in turn, each with the same parameters that were passed to the constructor, beginning with that of the most "senior" class through that of the class of the new instance.
      * @memberOf Renderer.prototype
      */
-    initialize: function(grid) {
+    initialize: function(grid, options) {
+        options = options || {};
+
         this.grid = grid;
+
+        var defaultGridRenderer = options.gridRenderer || 'by-columns';
+        this.setGridRenderer(defaultGridRenderer);
+
         this.reset();
+    },
+
+    gridRenderers: {},
+
+    registerGridRenderer: function(gridRenderer, name) {
+        this.gridRenderers[name || gridRenderer.key] = gridRenderer;
+    },
+
+    setGridRenderer: function(key) {
+        this.paintCells = this.gridRenderers[key];
+        this.paintCells.reset = true;
+    },
+
+    resetAllGridRenderers: function() {
+        // Notify renderers that grid shape has changed
+        Object.keys(this.gridRenderers).forEach(function(key) {
+            this.gridRenderers[key].reset = true;
+        }, this);
     },
 
     /**
@@ -162,7 +188,7 @@ var Renderer = Base.extend('Renderer', {
 
             lineWidth = grid.properties.lineWidth,
 
-            start = this.grid.isShowRowNumbers() ? -1 : 0,
+            start = grid.properties.showRowNumbers ? -1 : 0,
             x, X, // horizontal pixel loop index and limit
             y, Y, // vertical pixel loop index and limit
             c, C, // column loop index and limit
@@ -216,6 +242,7 @@ var Renderer = Base.extend('Renderer', {
             this.visibleColumns[c] = this.visibleColumnsByIndex[vx] = vc = {
                 index: c,
                 columnIndex: vx,
+                column: behavior.getActiveColumn(vx),
                 left: xSpaced,
                 width: widthSpaced,
                 right: xSpaced + widthSpaced
@@ -232,13 +259,13 @@ var Renderer = Base.extend('Renderer', {
         }
 
         footerHeight = grid.properties.defaultRowHeight * subgrids.reduce(function(rows, subgrid) {
-            if (scrollableSubgrid) {
-                rows += subgrid.getRowCount();
-            } else {
-                scrollableSubgrid = !subgrid.type;
-            }
-            return rows;
-        }, 0);
+                if (scrollableSubgrid) {
+                    rows += subgrid.getRowCount();
+                } else {
+                    scrollableSubgrid = !subgrid.type;
+                }
+                return rows;
+            }, 0);
 
         for (
             base = r = g = y = 0, G = subgrids.length, Y = bounds.height - footerHeight;
@@ -303,6 +330,20 @@ var Renderer = Base.extend('Renderer', {
         this.viewHeight = Y;
 
         this.dataWindow = this.grid.newRectangle(firstVX, firstVY, lastVX - firstVX, lastVY - firstVY);
+
+        // Resize CellEvent pool
+        var pool = this.cellEventPool,
+            previousLength = pool.length,
+            P = (this.visibleColumns.length - start) * this.visibleRows.length;
+
+        if (P > previousLength) {
+            pool.length = P; // grow pool to accommodate more cells
+        }
+        for (var p = previousLength; p < P; p++) {
+            pool[p] = new behavior.CellEvent; // instantiate new members
+        }
+
+        this.resetAllGridRenderers();
     },
 
     /**
@@ -436,7 +477,7 @@ var Renderer = Base.extend('Renderer', {
             y = point.y,
             vrs = this.visibleRows,
             vcs = this.visibleColumns,
-            firstColumn = vcs[this.grid.isShowRowNumbers() ? -1 : 0],
+            firstColumn = vcs[this.grid.properties.showRowNumbers ? -1 : 0],
             inFirstColumn = x < firstColumn.right,
             vc = inFirstColumn ? firstColumn : vcs.find(function(vc) { return x < vc.right; }) || vcs[vcs.length - 1],
             vr = vrs.find(function(vr) { return y < vr.bottom; }) || vrs[vrs.length - 1],
@@ -498,10 +539,16 @@ var Renderer = Base.extend('Renderer', {
     renderGrid: function(gc) {
         gc.beginPath();
 
+        this.buttonCells = {};
         this.paintCells(gc);
+        resetNumberColumnWidth(gc, this.grid.behavior);
+
         this.paintGridlines(gc);
+
         this.renderOverrides(gc);
+
         this.renderLastSelection(gc);
+
         gc.closePath();
     },
 
@@ -549,15 +596,15 @@ var Renderer = Base.extend('Renderer', {
             return;
         }
 
-        var props = this.grid.properties;
+        var gridProps = this.grid.properties;
         vcOrigin = vcOrigin || lastColumn;
         vcCorner = vcCorner || selection.corner.x > lastColumn.columnIndex
             ? lastColumn.columnIndex
-            : vci[props.fixedColumnCount - 1];
+            : vci[gridProps.fixedColumnCount - 1];
         vrOrigin = vrOrigin || lastRow;
         vrCorner = vrCorner || selection.corner.y > lastRow.rowIndex
             ? lastRow.rowIndex
-            : vri[props.fixedRowCount - 1];
+            : vri[gridProps.fixedRowCount - 1];
 
         // Render the selection model around the bounds
         var config = {
@@ -567,8 +614,8 @@ var Renderer = Base.extend('Renderer', {
                 width: vcCorner.right - vcOrigin.left,
                 height: vrCorner.bottom - vrOrigin.top
             },
-            selectionRegionOverlayColor: this.grid.properties.selectionRegionOverlayColor,
-            selectionRegionOutlineColor: this.grid.properties.selectionRegionOutlineColor
+            selectionRegionOverlayColor: gridProps.selectionRegionOverlayColor,
+            selectionRegionOutlineColor: gridProps.selectionRegionOutlineColor
         };
         this.grid.cellRenderers.get('lastselection').paint(gc, config);
     },
@@ -759,122 +806,21 @@ var Renderer = Base.extend('Renderer', {
         return this.grid.getHeaderRowCount();
     },
 
-    /** @summary Smart render the grid.
-     * @desc Paint all the cells of a grid, including all "fixed" columns and rows.
-     * We snapshot the context to insure against its pollution.
-     * `try...catch` surrounds each cell paint in case a cell renderer throws an error.
-     * The error message is error-logged to console AND displayed in cell.
-     *
-     * For performance reasons, we do not create a new `CellEvent` on for each `_paintCell` call.
-     * Rather, we create one for all the calls and maintain the instance variables in the loops
-     * (which is why `CellEvent` uses `WritablePoint` instead of `Point` for `gridCell` and `dataCell`):
-     * * Set in column loop:
-     *   * `cellEvent.column`
-     *   * `cellEvent.gridCell.x`
-     *   * `cellEvent.dataCell.x`
-     *   * `cellEvent.bounds.x`
-     *   * `cellEvent.bounds.width`
-     * * Set in subgrid loop:
-     *   * `cellEvent.subgrid`
-     * * Set in row loop:
-     *   * `cellEvent.gridCell.y`
-     *   * `cellEvent.dataCell.y`
-     *   * `cellEvent.bounds.y`
-     *   * `cellEvent.bounds.height`
-     * @memberOf Renderer.prototype
-     * @param {CanvasRenderingContext2D} gc
-     */
-    paintCells: function(gc) {
-        var message,
-            previousRowWasDataRow,
-            behavior = this.grid.behavior,
-            c, C, // column loop index and limit
-            r, R, // row loop index and limit
-            cellEvent = new behavior.CellEvent(0, 0),
-            bounds = cellEvent._bounds = { x:0, y:0, width:0, height:0 },
-            vc, visibleColumns = this.visibleColumns,
-            vr, visibleRows = this.visibleRows,
-            gridProps = this.grid.properties,
-            columnClip = gridProps.columnClip,
-            clipHeight = visibleRows.length ? visibleRows[visibleRows.length - 1].bottom : 0,
-            lineWidth = gridProps.lineWidth,
-            lineColor = gridProps.lineColor;
+    renderErrorCell: function(err, gc, vc, vr) {
+        var message = err && (err.message || err) || 'Unknown error.',
+            bounds = { x: vc.left, y: vr.top, width: vc.width, height: vr.height },
+            config = { bounds: bounds };
 
-        this.buttonCells = {};
+        console.error(message);
 
-        // For each column...
-        for (
-            c = this.grid.isShowRowNumbers() ? -1 : 0, C = visibleColumns.length;
-            c < C;
-            c++
-        ) {
-            cellEvent.resetColumn(vc = visibleColumns[c]);
+        gc.cache.save(); // define clipping region
+        gc.beginPath();
+        gc.rect(bounds.x, bounds.y, bounds.width, bounds.height);
+        gc.clip();
 
-            bounds.x = vc.left;
-            bounds.width = vc.width;
+        this.grid.cellRenderers.get('errorcell').paint(gc, config, message);
 
-            cellEvent.column.properties.preferredWidth = 0;
-
-            gc.cache.save();
-
-            if (columnClip || columnClip === null && c === C - 1) {
-                // Clip to visible portion of column to prevent text from overflowing to right.
-                // (Text never overflows to left because text starting point is never < 0.)
-                // (The reason we don't clip to the left is for cell renderers that need to re-render to the left to produce a merged cell effect, such as grouped column header.)
-                gc.beginPath();
-                gc.rect(0, 0, bounds.x + bounds.width, clipHeight);
-                gc.clip();
-            }
-
-            gc.fillCell(bounds.x, 0, bounds.width, clipHeight, cellEvent.column.properties.backgroundColor);
-
-            if (gridProps.gridLinesV) {
-                gc.cache.fillStyle = lineColor;
-                gc.fillRect(bounds.x - lineWidth, 0, lineWidth, clipHeight);
-            }
-
-            // For each row of each subgrid (of each column)...
-            for (
-                r = 0, R = visibleRows.length;
-                r < R;
-                r++
-            ) {
-                cellEvent.resetRow(vr = visibleRows[r]);
-
-                // See note at resetCell definition for explanation of the following.
-                var isGridRow = cellEvent.isGridRow;
-                if (!isGridRow || !previousRowWasDataRow) { cellEvent.resetCell(); }
-                previousRowWasDataRow = isGridRow;
-
-                bounds.y = vr.top;
-                bounds.height = vr.height;
-
-                try {
-                    this._paintCell(gc, cellEvent);
-                } catch (e) {
-                    message = e && (e.message || e) || 'Unknown error.';
-
-                    console.error(message);
-
-                    var errX = vc.left, errWidth = vc.right,
-                        errY = vr.top, errHeight = vr.bottom,
-                        config = { bounds: { c: errX, y: errY, width: errWidth, height: errHeight } };
-
-                    gc.cache.save(); // define clipping region
-                    gc.beginPath();
-                    gc.rect(errX, errY, errWidth, errHeight);
-                    gc.clip();
-
-                    this.grid.cellRenderers.get('errorcell').paint(gc, config, message);
-
-                    gc.cache.restore(); // discard clipping region
-                }
-            }
-
-            gc.cache.restore(); // Remove column's clip region (and anything else renderCellError() might have set)
-        }
-
-        resetNumberColumnWidth(gc, behavior);
+        gc.cache.restore(); // discard clipping region
     },
 
     /**
@@ -883,15 +829,29 @@ var Renderer = Base.extend('Renderer', {
      * @param {CanvasRenderingContext2D} gc
      */
     paintGridlines: function(gc) {
-        if (this.grid.properties.gridLinesH) {
-            var viewWidth = this.visibleColumns[this.visibleColumns.length - 1].right,
-                lineWidth = this.grid.properties.lineWidth;
+        var visibleColumns = this.visibleColumns, C = visibleColumns.length,
+            visibleRows = this.visibleRows, R = visibleRows.length;
 
-            gc.cache.fillStyle = this.grid.properties.lineColor;
+        if (C && R) {
+            var gridProps = this.grid.properties,
+                lineWidth = gridProps.lineWidth,
+                lineColor = gridProps.lineColor;
 
-            this.visibleRows.forEach(function(visibleRow) {
-                gc.fillRect(0, visibleRow.bottom, viewWidth, lineWidth);
-            });
+            if (gridProps.gridLinesV) {
+                gc.cache.fillStyle = lineColor;
+                var viewHeight = visibleRows[R - 1].bottom;
+                for (var c = gridProps.showRowNumbers ? 0 : 1; c < C; c++) {
+                    gc.fillRect(visibleColumns[c].left - lineWidth, 0, lineWidth, viewHeight);
+                }
+            }
+
+            if (gridProps.gridLinesH) {
+                gc.cache.fillStyle = lineColor;
+                var viewWidth = visibleColumns[C - 1].right;
+                for (var r = 0; r < R; r++) {
+                    gc.fillRect(0, visibleRows[r].bottom, viewWidth, lineWidth);
+                }
+            }
         }
     },
 
@@ -912,8 +872,7 @@ var Renderer = Base.extend('Renderer', {
         }
     },
 
-    _paintCell: function(gc, cellEvent) {
-
+    _paintCell: function(gc, cellEvent, prefillColor) {
         var grid = this.grid,
             selectionModel = grid.selectionModel,
             behavior = grid.behavior,
@@ -926,7 +885,7 @@ var Renderer = Base.extend('Renderer', {
             isHierarchyColumn = cellEvent.isHierarchyColumn,
             isColumnSelected = cellEvent.isColumnSelected,
 
-            isGridRow = cellEvent.isGridRow,
+            isDataRow = cellEvent.isDataRow,
             isRowSelected = cellEvent.isRowSelected,
             isCellSelected = cellEvent.isCellSelected,
 
@@ -934,11 +893,9 @@ var Renderer = Base.extend('Renderer', {
             isFilterRow = cellEvent.isFilterRow,
 
             isRowHandleOrHierarchyColumn = isHandleColumn || isHierarchyColumn,
-            isUserDataArea = !isRowHandleOrHierarchyColumn && isGridRow,
+            isUserDataArea = !isRowHandleOrHierarchyColumn && isDataRow,
 
-            columnProperties = cellEvent.column.properties, // generic column props object
             config = Object.create(cellEvent.properties), // cell props || specific column props object (wrapped)
-            rowProperties,
             isSelected;
 
         if (isHandleColumn) {
@@ -947,13 +904,13 @@ var Renderer = Base.extend('Renderer', {
         } else if (isHierarchyColumn) {
             isSelected = isRowSelected || selectionModel.isCellSelectedInRow(r);
             config.halign = 'left';
-        } else if (isGridRow) {
+        } else if (isDataRow) {
             isSelected = isCellSelected || isRowSelected || isColumnSelected;
 
             // Iff we have a defined rowProperties array, apply it to config, treating it as a repeating pattern, keyed to row index.
-            // Note that Object.assign will ignore undefined, including rowProperties itself if undefined or any properties bag therein.
-            rowProperties = cellEvent.properties.rowProperties;
-            Object.assign(config, rowProperties && rowProperties[r % rowProperties.length]);
+            // Note that Object.assign will ignore undefined.
+            var row = cellEvent.columnProperties.rowProperties;
+            Object.assign(config, row && row[cellEvent.dataCell.y % row.length]);
         } else if (isFilterRow) {
             isSelected = false;
         } else if (isColumnSelected) {
@@ -968,7 +925,7 @@ var Renderer = Base.extend('Renderer', {
         if (!isHandleColumn) {
             config.dataRow = cellEvent.row;
             config.value = cellEvent.value;
-        } else if (isGridRow) {
+        } else if (isDataRow) {
             // row handle for a data row
             config.value = [images.checkbox(isRowSelected), r + 1, null]; // row number is 1-based
         } else if (isHeaderRow) {
@@ -983,8 +940,8 @@ var Renderer = Base.extend('Renderer', {
         }
 
         config.isSelected = isSelected;
-        config.isGridColumn = !isRowHandleOrHierarchyColumn;
-        config.isGridRow = isGridRow;
+        config.isDataColumn = !isRowHandleOrHierarchyColumn;
+        config.isDataRow = isDataRow;
         config.isHeaderRow = isHeaderRow;
         config.isFilterRow = isFilterRow;
         config.isUserDataArea = isUserDataArea;
@@ -996,7 +953,7 @@ var Renderer = Base.extend('Renderer', {
         config.isRowSelected = isRowSelected;
         config.isColumnSelected = isColumnSelected;
         config.isInCurrentSelectionRectangle = selectionModel.isInCurrentSelectionRectangle(x, r);
-        config.columnBackgroundColor = columnProperties.backgroundColor;
+        config.prefillColor = prefillColor;
 
         if (grid.mouseDownState) {
             config.mouseDown = grid.mouseDownState.gridCell.equals(cellEvent.gridCell);
@@ -1017,13 +974,20 @@ var Renderer = Base.extend('Renderer', {
         //allow the renderer to identify itself if it's a button
         config.buttonCells = this.buttonCells;
 
-        config.formatValue = grid.getFormatter(config.isGridColumn && config.format);
+        config.formatValue = grid.getFormatter(config.isDataColumn && config.format);
 
+        // Following supports partial render (when `paint` aborts before setting `minWidth`)
+        config.snapshot = cellEvent.snapshot;
+        config.minWidth = cellEvent.minWidth;
+
+        // Render the cell
         cellRenderer.paint(gc, config);
 
-        if (config.minWidth > columnProperties.preferredWidth) {
-            columnProperties.preferredWidth = config.minWidth;
-        }
+        // Following supports partial render:
+        cellEvent.snapshot = config.snapshot;
+        cellEvent.minWidth = config.minWidth;
+
+        return config.minWidth;
     },
 
     isViewableButton: function(c, r) {
@@ -1061,5 +1025,10 @@ function warn(name, message) {
         console.warn(message);
     }
 }
+
+Renderer.prototype.registerGridRenderer(require('./by-cells'));
+Renderer.prototype.registerGridRenderer(require('./by-columns'));
+Renderer.prototype.registerGridRenderer(require('./by-columns-and-rows'));
+Renderer.prototype.registerGridRenderer(require('./by-rows'));
 
 module.exports = Renderer;

@@ -55,15 +55,16 @@ var cell = {
      *
      * Call this method only when you need to know if the the cell has its own properties object; otherwise call {@link Column#getCellProperties|getCellProperties}.
      * @param {number} rowIndex - Data row coordinate.
-     * @returns {undefined|object} The "own" properties of the cell at x,y in the grid. If the cell does not own a properties object, returns `undefined`.
+     * @returns {null|object} The "own" properties of the cell at x,y in the grid. If the cell does not own a properties object, returns `undefined`.
      * @memberOf Column#
      */
     getCellOwnProperties: function(rowIndex, dataModel) {
         var rowData;
         return (
             this.index >= 0 && // no cell props on row handle cells
-            (rowData = (dataModel || this.dataModel).getRow(rowIndex)) && // no cell props on non-existant rows
-            rowData.__META && rowData.__META[this.name] // undefined if not previously created
+            (rowData = (dataModel || this.dataModel).getRow(rowIndex)) && // no cell props on non-existent rows
+            rowData.__META && rowData.__META[this.name] ||
+            null // null means not previously created
         );
     },
 

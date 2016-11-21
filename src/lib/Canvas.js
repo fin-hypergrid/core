@@ -289,8 +289,6 @@ Canvas.prototype = {
     paintNow: function() {
         var self = this;
         this.safePaintImmediately(function(gc) {
-            gc.clearRect(0, 0, self.width, self.height);
-
             var comp = self.component;
             if (comp) {
                 comp.paint(gc);
@@ -781,6 +779,24 @@ function getCachedContext(canvasElement, type) {
     gc.cache.restore = function() {
         gc.restore();
         values = Object.getPrototypeOf(values);
+    };
+
+    var conditionalsStack = [];
+
+    gc.clipSave = function(conditional, x, y, width, height) {
+        conditionalsStack.push(conditional);
+        if (conditional) {
+            gc.cache.save();
+            gc.beginPath();
+            gc.rect(x, y, width, height);
+            gc.clip();
+        }
+    };
+
+    gc.clipRestore = function(conditional) {
+        if (conditionalsStack.pop()) {
+            gc.cache.restore(); // Remove clip region
+        }
     };
 
     return Object.assign(gc, require('./graphics'));

@@ -3,11 +3,7 @@
 var rectangular = require('rectangular');
 
 // Variation of rectangular.Point but with writable x and y:
-function WritablePoint(x, y) {
-    this.x = x;
-    this.y = y;
-}
-
+function WritablePoint() {}
 WritablePoint.prototype = rectangular.Point.prototype;
 
 // The nullSubgrid is for CellEvents representing clicks below last row.
@@ -42,7 +38,7 @@ var prototype = Object.defineProperties({}, {
             cp = this.column.properties;
             if (this.isHandleColumn || this.isHierarchyColumn) {
                 cp = cp.rowHeader;
-            } else if (this.isGridRow) {
+            } else if (this.isDataRow) {
                 // cp already set to basic props
             } else if (this.isFilterRow) {
                 cp = cp.filterProperties;
@@ -54,7 +50,10 @@ var prototype = Object.defineProperties({}, {
         return cp;
     } },
     cellOwnProperties: { get: function() {
-        return (this._cellOwnProperties = this._cellOwnProperties || this.column.getCellOwnProperties(this.dataCell.y, this.visibleRow.subgrid));
+        if (this._cellOwnProperties === undefined) {
+            this._cellOwnProperties = this.column.getCellOwnProperties(this.dataCell.y, this.visibleRow.subgrid);
+        }
+        return this._cellOwnProperties; // null return means there is no cell properties object
     } },
     properties: { get: function() {
         return this.cellOwnProperties || this.columnProperties;
@@ -64,73 +63,92 @@ var prototype = Object.defineProperties({}, {
     } },
 
     // special methods for use by renderer which reuses cellEvent object for performance reasons
-    resetColumn: { value: function(visibleColumn) {
+    reset: { value: function(visibleColumn, visibleRow) {
         this.visibleColumn = visibleColumn;
-        this.column = this.behavior.getActiveColumn(visibleColumn.columnIndex);
-        this.gridCell.x = visibleColumn.columnIndex;
-        this.dataCell.x = this.column && this.column.index;
-        this._columnProperties = undefined;
-    } },
-    resetRow: { value: function(visibleRow) {
         this.visibleRow = visibleRow;
+
+        this.column = visibleColumn.column;
+
+        this.gridCell.x = visibleColumn.columnIndex;
         this.gridCell.y = visibleRow.index;
+
+        this.dataCell.x = this.column && this.column.index;
         this.dataCell.y = visibleRow.rowIndex;
-        this._cellOwnProperties = this._properties = undefined;
+
+        this._columnProperties = this._cellOwnProperties = this._bounds = undefined;
+
+        // Following supports cell renderers' partial render capability:
+        this.snapshot = this.minWidth = undefined;
     } },
-    resetCell: { value: function() {
-        // Resetting columnProperties causes columnProperties to be recalculated. Although this could have been done
-        // in resetRow, for better performance can avoid this recalculation for a run of data cells, which is a
-        // dominant use case as render progresses down each column. Therefore, renderer calls this function iff
-        // either this is a non-data cell OR this is a data cell and the previous use was not.
-        this._columnProperties = undefined;
-    } },
+
+    subgrid: { get: function() { return this.visibleRow.subgrid; } },
 
     // "Visible" means scrolled into view.
     isRowVisible:    { get: function() { return !!this.visibleRow; } },
     isColumnVisible: { get: function() { return !!this.visibleColumn; } },
     isCellVisible:   { get: function() { return this.isRowVisible && this.isColumnVisible; } },
 
-    isGridRow:    { get: function() { return !this.visibleRow.subgrid.type; } },
-    isGridColumn: { get: function() { return this.gridCell.x >= 0; } },
-    isGridCell:   { get: function() { return this.isGridRow && this.isGridColumn; } },
+    isDataRow:    { get: function() { return !this.visibleRow.subgrid.type; } },
+    isDataColumn: { get: function() { return this.gridCell.x >= 0; } },
+    isDataCell:   { get: function() { return this.isDataRow && this.isDataColumn; } },
 
-    isRowSelected:    { get: function() { return this.isGridRow && this.selectionModel.isRowSelected(this.dataCell.y); } },
-    isColumnSelected: { get: function() { return this.isGridColumn && this.selectionModel.isColumnSelected(this.gridCell.x); } },
+    isRowSelected:    { get: function() { return this.isDataRow && this.selectionModel.isRowSelected(this.dataCell.y); } },
+    isColumnSelected: { get: function() { return this.isDataColumn && this.selectionModel.isColumnSelected(this.gridCell.x); } },
     isCellSelected:   { get: function() { return this.selectionModel.isCellSelected(this.gridCell.x, this.dataCell.y); } },
 
-    isRowHovered:    { get: function() { return this.isGridRow && this.grid.hoverCell && this.grid.hoverCell.y === this.gridCell.y; } },
-    isColumnHovered: { get: function() { return this.isGridColumn && this.grid.hoverCell && this.grid.hoverCell.x === this.gridCell.x; } },
+    isRowHovered:    { get: function() { return this.isDataRow && this.grid.hoverCell && this.grid.hoverCell.y === this.gridCell.y; } },
+    isColumnHovered: { get: function() { return this.isDataColumn && this.grid.hoverCell && this.grid.hoverCell.x === this.gridCell.x; } },
     isCellHovered:   { get: function() { return this.isRowHovered && this.isColumnHovered; } },
 
-    isRowFixed:    { get: function() { return this.isGridRow && this.dataCell.y < this.grid.properties.fixedRowCount; } },
-    isColumnFixed: { get: function() { return this.isGridColumn && this.gridCell.x < this.grid.properties.fixedColumnCount; } },
+    isRowFixed:    { get: function() { return this.isDataRow && this.dataCell.y < this.grid.properties.fixedRowCount; } },
+    isColumnFixed: { get: function() { return this.isDataColumn && this.gridCell.x < this.grid.properties.fixedColumnCount; } },
     isCellFixed:   { get: function() { return this.isRowFixed && this.isColumnFixed; } },
 
-    isHandleColumn: { get: function() { return !this.isGridColumn; } },
-    isHandleCell:   { get: function() { return this.isHandleColumn && this.isGridRow; } },
+    isHandleColumn: { get: function() { return !this.isDataColumn; } },
+    isHandleCell:   { get: function() { return this.isHandleColumn && this.isDataRow; } },
 
     isHierarchyColumn: { get: function() { return this.gridCell.x === 0 && this.grid.properties.showTreeColumn && this.dataModel.isDrillDown(this.dataCell.x); } },
 
     isHeaderRow:    { get: function() { return this.visibleRow.subgrid.type === 'header'; } },
     isHeaderHandle: { get: function() { return this.isHeaderRow && this.isHandleColumn; } },
-    isHeaderCell:   { get: function() { return this.isHeaderRow && this.isGridColumn; } },
+    isHeaderCell:   { get: function() { return this.isHeaderRow && this.isDataColumn; } },
 
     isFilterRow:    { get: function() { return this.visibleRow.subgrid.type === 'filter'; } },
     isFilterHandle: { get: function() { return this.isFilterRow && this.isHandleColumn; } },
-    isFilterCell:   { get: function() { return this.isFilterRow && this.isGridColumn; } },
+    isFilterCell:   { get: function() { return this.isFilterRow && this.isDataColumn; } },
 
     isSummaryRow:    { get: function() { return this.visibleRow.subgrid.type === 'summary'; } },
     isSummaryHandle: { get: function() { return this.isSummaryRow && this.isHandleColumn; } },
-    isSummaryCell:   { get: function() { return this.isSummaryRow && this.isGridColumn; } },
+    isSummaryCell:   { get: function() { return this.isSummaryRow && this.isDataColumn; } },
 
     isTopTotalsRow:    { get: function() { return this.visibleRow.subgrid === this.behavior.subgrids.topTotals; } },
     isTopTotalsHandle: { get: function() { return this.isTopTotalsRow && this.isHandleColumn; } },
-    isTopTotalsCell:   { get: function() { return this.isTopTotalsRow && this.isGridColumn; } },
+    isTopTotalsCell:   { get: function() { return this.isTopTotalsRow && this.isDataColumn; } },
 
     isBottomTotalsRow:    { get: function() { return this.visibleRow.subgrid === this.behavior.subgrids.bottomTotals; } },
     isBottomTotalsHandle: { get: function() { return this.isBottomTotalsRow && this.isHandleColumn; } },
-    isBottomTotalsCell:   { get: function() { return this.isBottomTotalsRow && this.isGridColumn; } }
+    isBottomTotalsCell:   { get: function() { return this.isBottomTotalsRow && this.isDataColumn; } }
 });
+
+var deprecatedDescriptors = {
+    isGridRow:    { get: function() { return deprecated.call(this, 'isGridRow', 'isDataRow'); } },
+    isGridColumn: { get: function() { return deprecated.call(this, 'isGridColumn', 'isDataColumn'); } },
+    isGridCell:   { get: function() { return deprecated.call(this, 'isGridCell', 'isDataCell'); } }
+};
+
+var warn = {};
+
+function deprecated(propName, inFavorOf) {
+    if (!warn[propName]) {
+        console.warn(propName + ' is deprecated as of v1.3.0 in favor of ' + inFavorOf + ' and will be removed in a future release.');
+        warn[propName] = true;
+    }
+    return this[inFavorOf];
+}
+
+prototype = Object.defineProperties(prototype, deprecatedDescriptors);
+Object.defineProperties(require('../defaults'), deprecatedDescriptors);
+deprecatedDescriptors = undefined; // trash
 
 /**
  * @classdesc `CellEvent` is a very low-level object that needs to be super-efficient. JavaScript objects are well known to be light weight in general, but at this level we need to be careful.
@@ -158,25 +176,13 @@ function factory(grid) {
      * * Includes `this.column` defined by constructor (as enumerable).
      * * Excludes `this.gridCell`, `this.dataCell`, `this.visibleRow.subgrid` defined by constructor (as non-enumerable).
      * * Any additional (enumerable) members mixed in by application's `getCellEditorAt` override.
-     * @param {number} x - grid cell coordinate (adjusted for horizontal scrolling after fixed columns)
-     * @param {number} y - grid cell coordinate, adjusted (adjusted for vertical scrolling if data subgrid)
+     *
+     * Omit params to defer `reset`.
+     * @param {number} [x] - grid cell coordinate (adjusted for horizontal scrolling after fixed columns).
+     * @param {number} [y] - grid cell coordinate, adjusted (adjusted for vertical scrolling if data subgrid)
      * @constructor
      */
     function CellEvent(x, y) {
-        var visibleRow = grid.renderer.visibleRows[y];
-
-        /**
-         * @summary Reference to column's {@link Column} object.
-         * @desc Notes:
-         * * Defined as enumerable so that `CellEditor` constructor mixes into itself.
-         * * Defined as writable so it can be overwritten in `renderer.paintCells`.
-         * @name column
-         * @type {Column}
-         * @memberOf CellEvent#
-         */
-        this.column = grid.behavior.getActiveColumn(x);
-
-
         // remaining instance vars are non-enumerable so `CellEditor` constructor won't mix them in (for mustache use).
         Object.defineProperties(this, {
             /**
@@ -185,8 +191,7 @@ function factory(grid) {
              * @memberOf CellEvent#
              */
             visibleColumn: {
-                writable: true, // Allow to be overwritten in `renderer.paintCells` and `.computeCellsBounds`.
-                value: this.grid.renderer.visibleColumns.find(function(vc) { return vc.columnIndex === x; })
+                writable: true // Allow to be overwritten by `reset`.
             },
 
             /**
@@ -195,8 +200,7 @@ function factory(grid) {
              * @memberOf CellEvent#
              */
             visibleRow: {
-                writable: true, // Allow to be overwritten in `renderer.paintCells` and `.computeCellsBounds`.
-                value: visibleRow
+                writable: true // Allow to be overwritten by `reset`.
             },
 
             /**
@@ -205,7 +209,7 @@ function factory(grid) {
              * @memberOf CellEvent#
              */
             gridCell: {
-                value: new WritablePoint(x, y)
+                value: new WritablePoint
             },
 
             /**
@@ -214,9 +218,18 @@ function factory(grid) {
              * @memberOf CellEvent#
              */
             dataCell: {
-                value: new WritablePoint(this.column && this.column.index, visibleRow.rowIndex)
+                value: new WritablePoint
             }
         });
+
+        if (arguments.length) {
+            this.reset(
+                this.grid.renderer.visibleColumns.find(function(vc) {
+                    return vc.columnIndex === x;
+                }),
+                this.grid.renderer.visibleRows[y]
+            );
+        }
     }
 
     CellEvent.prototype = Object.create(prototype);

@@ -3,37 +3,65 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" >
     <style>
-        .hypergrid-container { width:1580px; height:1050px; margin-top:.5em }
-        label {
+        .hypergrid-container { width:1580px; height:1050px; }
+        body { margin: 5px }
+        body > label, .radio-group {
+            display: inline-block;
             background-color: beige;
-            padding: 0.35em;
+            margin: 0 .5em 7px 5px;
+            padding: .15em .5em .15em .35em;
             border: 1px solid tan;
-            margin-right: 1em;
             font-family: sans-serif;
             font-size: 10pt;
-            line-height: 2.75em;
-            white-space: nowrap;
-            padding-right: .5em;
+            user-select: none;
         }
         input[type=checkbox] { outline:0 }
 </style>
 </head>
 <body>
-    <label>
-        <input type="checkbox" onclick="grid.properties.enableContinuousRepaint=this.checked" checked>
-        Continuous repaint</label>
+    <label title="grid.properties.enableContinuousRepaint = true vs. false">
+        <input type="checkbox" onclick="grid.properties.enableContinuousRepaint=this.checked">
+        Continuous repaint
+    </label>
+    <div class="radio-group">
+        Render by:
+        <label title="setGridRenderer('by-cells')">
+            <input type="radio" name="renderer" onclick="grid.renderer.setGridRenderer('by-cells')">
+            cells
+        </label>
+        <label title="setGridRenderer('by-columns')">
+            <input type="radio" name="renderer" onclick="grid.renderer.setGridRenderer('by-columns')" checked>
+            columns
+        </label>
+        <label title="setGridRenderer('by-rows')">
+            <input type="radio" name="renderer" onclick="grid.renderer.setGridRenderer('by-rows')">
+            rows
+        </label>
+        <label title="setGridRenderer('by-columns-with-row-backgrounds')">
+            <input type="radio" name="renderer" onclick="grid.renderer.setGridRenderer('by-columns-and-rows')">
+            columns/rows
+        </label>
+    </div>
     <label title="Adds a rowProperties array to grid.properties.">
-        <input type="checkbox" onclick="if(this.checked)grid.addProperties(alternatingThreeGreenRows);else deleteProps(grid.properties,alternatingThreeGreenRows);">
-        Grid row properties (alternate 3 white rows with 3 green rows)</label>
+        <input type="checkbox" onclick="if(this.checked)grid.addProperties(alternatingThreeGreenRows);else deleteProps(grid.properties,alternatingThreeGreenRows);grid.renderer.resetAllGridRenderers()">
+        Grid row properties (alternate 3 white rows with 3 green rows)
+    </label>
     <label title="Column properties defines a light blue background color BUT inherit's grid's rowProperties array.">
         <input type="checkbox" onclick="columnProps.call(this, [2,3], columnColorUnderAlternateColors)">
-        Columns 2-3 <em>under</em> alternating rows</label>
+        Columns 2-3 <em>under</em> alternating rows
+    </label>
     <label title="Column properties defines a light blue background color AND overrides rowProperties with an undefined.">
         <input type="checkbox" onclick="columnProps.call(this, [6,7], columnColorOverAlternateColors)">
-        Columns 6-7 <em>over</em> alternating rows</label>
+        Columns 6-7 <em>over</em> alternating rows
+    </label>
     <label>
         <input type="checkbox" onclick="columnProps.call(this, [10,11], columnOwnAlternateColors)">
-        Columns 10-11 override row props</label>
+        Columns 10-11 override row props
+    </label>
+    <label title="Column properties defines a light blue background color BUT inherit's grid's rowProperties array.">
+        <input type="checkbox" onclick="altColumnProps.call(this, columnColorUnderAlternateColors)">
+        Striped columns
+    </label>
 
     <script src="build/fin-hypergrid.js"></script>
 
@@ -59,7 +87,12 @@ grid.addProperties({
     foregroundSelectionFont: '13px Tahoma, Geneva, sans-serif',
     columnClip: false,
     editor: 'textfield',
-    enableContinuousRepaint: true
+//    showHeaderRow: false,
+    showRowNumbers: false,
+    lineColor: 'brown',
+//    gridLinesH: false,
+//    gridLinesV: false,
+//    enableContinuousRepaint: true
 });
 
 var alternatingThreeGreenRows = {
@@ -87,6 +120,14 @@ var alternatingThreeGreenRows = {
             { backgroundColor: 'tan' }
         ]
     };
+
+function altColumnProps(props) {
+    grid.renderer.visibleColumns.forEach(function(column, i) {
+        if (i & 1) {
+            columnProps.call(this, [i, i], props);
+        }
+    }, this);
+}
 
 function columnProps(columnIndexes, props) {
     columnIndexes.forEach(function(columnIndex) {
