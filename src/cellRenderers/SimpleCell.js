@@ -265,7 +265,7 @@ function renderSingleLineText(gc, config, val, leftPadding, rightPadding) {
         metrics;
 
     if (config.columnAutosizing) {
-        metrics = gc.getTextWidthTruncated(val, width - leftPadding);
+        metrics = gc.getTextWidthTruncated(val, width - leftPadding, config.truncateTextWithEllipsis);
         minWidth = metrics.width;
         val = metrics.string || val;
         switch (halign) {
@@ -277,9 +277,9 @@ function renderSingleLineText(gc, config, val, leftPadding, rightPadding) {
                 break;
         }
     } else {
-        metrics = gc.getTextWidthTruncated(val, width - leftPadding, true);
+        metrics = gc.getTextWidthTruncated(val, width - leftPadding, config.truncateTextWithEllipsis, true);
         minWidth = 0;
-        if (metrics.string) {
+        if (metrics.string !== undefined) {
             val = metrics.string;
         } else {
             switch (halign) {

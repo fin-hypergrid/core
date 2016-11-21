@@ -2,6 +2,8 @@
 
 'use strict';
 
+var API;
+
 function clearFill(x, y, width, height, color) {
     var a = alpha(color);
     if (a < 1) {
@@ -57,6 +59,8 @@ function getTextWidth(string) {
     return sum;
 }
 
+var ELLIPSIS = '\u2026'; // The "…" (dot-dot-dot) character
+
 /**
  * Similar to `getTextWidth` except:
  * 1. Aborts accumulating when sum exceeds given `width`.
@@ -64,26 +68,47 @@ function getTextWidth(string) {
  * @param {CanvasRenderingContext2D} gc
  * @param {string} string - Text to measure.
  * @param {number} width - Width of target cell; overflow point.
+ * @param {boolean|null|undefined} truncateTextWithEllipsis - See {@link module:defaults.truncateTextWithEllipsis}.
  * @param {boolean} [abort=false] - Abort measuring upon overflow. Returned `width` sum will reflect truncated string rather than untruncated string. Note that returned `string` is truncated in either case.
  * @returns {{string:string,width:number}}
  * * `object.string` - `undefined` if it fits; truncated version of provided `string` if it does not.
  * * `object.width` - Width of provided `string` if it fits; width of truncated string if it does not.
  */
-function getTextWidthTruncated(string, width, abort) {
-    var metrics = fontMetrics[this.cache.font] = fontMetrics[this.cache.font] || {},
-        truncString;
+function getTextWidthTruncated(string, width, truncateTextWithEllipsis, abort) {
+    var metrics = fontMetrics[this.cache.font],
+        truncating = truncateTextWithEllipsis !== undefined,
+        truncString, truncWidth, truncAt;
+
+    if (!metrics) {
+        metrics = fontMetrics[this.cache.font] = {};
+        metrics[ELLIPSIS] = this.measureText(ELLIPSIS).width;
+    }
+
     string += ''; // convert to string
-    width -= 1; // fudge for less than *or* more-or-less equal
+    width += truncateTextWithEllipsis === false ? 2 : -1; // fudge for inequality
     for (var i = 0, sum = 0, len = string.length; i < len; ++i) {
         var char = string[i];
         var charWidth = metrics[char] = metrics[char] || this.measureText(char).width;
         sum += charWidth;
-        if (!truncString && sum > width) {
-            if (this.truncPartialChar) {
-                sum -= charWidth;
-                truncString = string.substr(0, i);
-            } else if (++i < string.length) {
-                truncString = string.substr(0, i);
+        if (!truncString && truncating && sum > width) {
+            truncAt = i;
+            switch (truncateTextWithEllipsis) {
+                case true: // truncate sufficient characters to fit ellipsis if possible
+                    truncWidth = sum - charWidth + metrics[ELLIPSIS];
+                    while (truncAt && truncWidth > width) {
+                        truncWidth -= metrics[string[--truncAt]];
+                    }
+                    truncString = truncWidth > width
+                        ? '' // not enough room even for ellipsis
+                        : truncString = string.substr(0, truncAt) + ELLIPSIS;
+                    break;
+                case false: // truncate *before* last partially visible character
+                    truncString = string.substr(0, truncAt);
+                    break;
+                default: // truncate *after* partially visible character
+                    if (++truncAt < string.length) {
+                        truncString = string.substr(0, truncAt);
+                    }
             }
             if (abort) { break; }
         }
@@ -148,10 +173,13 @@ function getTextHeight(font) {
     return result;
 }
 
-module.exports = {
+API = {
     clearFill: clearFill,
     alpha: alpha,
     getTextWidth: getTextWidth,
     getTextWidthTruncated: getTextWidthTruncated,
-    getTextHeight: getTextHeight
+    getTextHeight: getTextHeight,
+    truncateTextWithEllipsis: true
 };
+
+module.exports = API;

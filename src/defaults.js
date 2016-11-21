@@ -797,6 +797,18 @@ var defaults = {
      * @memberOf module:defaults
      */
     rowProperties: undefined,
+
+    /** @summary How to truncate text.
+     * @desc A "quaternary" value, one of:
+     * * `undefined` - Text is not truncated.
+     * * `true` (default) - Truncate sufficient characters to fit ellipsis if possible. Most acceptable option that avoids need for clipping.
+     * * `false` - Truncate *before* last partially visible character. Visibly annoying; semantically jarring.
+     * * `null` - Truncate *after* partially visible character. Less visibly annoying; still semantically confusing. Best solution when combined with either column clipping or painting over with next column's background.
+     * @type {boolean|null|undefined}
+     * @default
+     * @memberOf module:defaults
+     */
+    truncateTextWithEllipsis: true,
 };
 
 /** @typedef {string} cssColor

@@ -45,27 +45,35 @@
     <div class="radio-group">
         Clip to:
         <label title="grid.properties.columnClip = true">
-            <input type="radio" name="clipping" onclick="grid.properties.columnClip = true">
+            <input type="radio" name="clipping" onclick="grid.properties.columnClip = true; // can be overridden at column level">
             all columns
         </label>
         <label title="grid.properties.columnClip = null">
-            <input type="radio" name="clipping" onclick="grid.properties.columnClip = null">
+            <input type="radio" name="clipping" onclick="grid.properties.columnClip = null; // can be overridden at column level">
             last column only
         </label>
         <label title="grid.properties.columnClip = false">
-            <input type="radio" name="clipping" onclick="grid.properties.columnClip = false" checked>
+            <input type="radio" name="clipping" onclick="grid.properties.columnClip = false; // can be overridden at column level" checked>
             none
         </label>
     </div>
     <div class="radio-group">
-        Truncate text:
-        <label title="grid.canvas.gc.truncPartialChar = grid.canvas.bc.truncPartialChar = false">
-            <input type="radio" name="truncate" onclick="grid.canvas.gc.truncPartialChar = grid.canvas.bc.truncPartialChar = true" checked>
-            whole
+        Text truncation:
+        <label title="grid.properties.truncateTextWithEllipsis = undefined; // can be overridden at a higher level">
+            <input type="radio" name="truncate" onclick="grid.properties.truncateTextWithEllipsis = undefined">
+            none
         </label>
-        <label title="grid.canvas.gc.truncPartialChar = grid.canvas.bc.truncPartialChar = true">
-            <input type="radio" name="truncate" onclick="grid.canvas.gc.truncPartialChar = grid.canvas.bc.truncPartialChar = false">
-            partial
+        <label title="grid.properties.truncateTextWithEllipsis = true; // can be overridden at a higher level">
+            <input type="radio" name="truncate" onclick="grid.properties.truncateTextWithEllipsis = true" checked>
+            with ellipsis (&hellip;)
+        </label>
+        <label title="grid.properties.truncateTextWithEllipsis = false; // can be overridden at a higher level">
+            <input type="radio" name="truncate" onclick="grid.properties.truncateTextWithEllipsis = false">
+            <em>before</em> partial char
+        </label>
+        <label title="grid.properties.truncateTextWithEllipsis = null; // can be overridden at a higher level">
+            <input type="radio" name="truncate" onclick="grid.properties.truncateTextWithEllipsis = null">
+            <em>after</em> partial char
         </label>
     </div>
     <label title="Adds a rowProperties array to grid.properties.">
