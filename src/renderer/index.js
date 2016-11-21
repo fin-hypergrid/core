@@ -543,8 +543,6 @@ var Renderer = Base.extend('Renderer', {
         this.paintCells(gc);
         resetNumberColumnWidth(gc, this.grid.behavior);
 
-        this.paintGridlines(gc);
-
         this.renderOverrides(gc);
 
         this.renderLastSelection(gc);

@@ -88,6 +88,8 @@ function paintCellsByRows(gc) {
     for (c = c0; c < C; c++) {
         visibleColumns[c].column.properties.preferredWidth = Math.round(preferredWidth[c]);
     }
+
+    this.paintGridlines(gc);
 }
 
 paintCellsByRows.key = 'by-rows';

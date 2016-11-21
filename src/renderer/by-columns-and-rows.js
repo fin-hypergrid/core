@@ -95,6 +95,8 @@ function paintCellsByColumnWithRowRect(gc) {
     }
 
     gc.clipRestore(clipToGrid);
+
+    this.paintGridlines(gc);
 }
 
 paintCellsByColumnWithRowRect.key = 'by-columns-and-rows';

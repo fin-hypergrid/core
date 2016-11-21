@@ -88,6 +88,8 @@ function paintCellsByColumns(gc) {
     }
 
     gc.clipRestore(clipToGrid);
+
+    this.paintGridlines(gc);
 }
 
 paintCellsByColumns.key = 'by-columns';
