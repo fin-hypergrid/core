@@ -49,6 +49,7 @@ function paintCellsByColumns(gc) {
     }
 
     if (paintCellsByColumns.reset) {
+        this.resetAllGridRenderers();
         paintCellsByColumns.reset = false;
         bundleColumns.call(this);
     }

@@ -42,6 +42,7 @@ function paintCellsByColumnWithRowRect(gc) {
     }
 
     if (paintCellsByColumnWithRowRect.reset) {
+        this.resetAllGridRenderers();
         paintCellsByColumnWithRowRect.reset = false;
         bundleRows.call(this, false);
         bundleColumns.call(this);

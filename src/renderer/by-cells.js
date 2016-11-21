@@ -1,5 +1,7 @@
 'use strict';
 
+var paintCellsByColumnWithRowRect = require('./by-columns-and-rows');
+
 /** @summary Render the grid.
  * @desc Paint all the cells of a grid, one column at a time.
  *
@@ -29,13 +31,9 @@ function paintCells(gc) {
         viewHeight = R ? visibleRows[R - 1].bottom : 0;
 
     if (paintCells.reset) {
+        this.resetAllGridRenderers();
+        paintCellsByColumnWithRowRect.call(this, gc);
         paintCells.reset = false;
-        for (p = 0, c = c0; c < C; c++) {
-            for (r = 0; r < R; r++, p++) {
-                // reset pool members to reflect coordinates of cells in newly shaped grid
-                pool[p].reset(visibleColumns[c], visibleRows[r]);
-            }
-        }
     }
 
     gc.clipSave(clipToGrid, 0, 0, viewWidth, viewHeight);
