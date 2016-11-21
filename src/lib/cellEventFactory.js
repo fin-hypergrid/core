@@ -78,7 +78,7 @@ var prototype = Object.defineProperties({}, {
         this._columnProperties = this._cellOwnProperties = this._bounds = undefined;
 
         // Following supports cell renderers' partial render capability:
-        this.previousValue = this.minWidth = undefined;
+        this.snapshot = this.minWidth = undefined;
     } },
 
     subgrid: { get: function() { return this.visibleRow.subgrid; } },

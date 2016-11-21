@@ -24,12 +24,16 @@ var SimpleCell = CellRenderer.extend('SimpleCell', {
             width = bounds.width,
             height = bounds.height,
             iconPadding = config.iconPadding,
+            partialRender = config.prefillColor === undefined, // signifies abort before rendering if same
+            snapshot = config.snapshot,
+            same = snapshot && partialRender,
             valWidth = 0,
-            textColor,
+            textColor, textFont,
             ixoffset, iyoffset,
             leftIcon, rightIcon, centerIcon,
             leftPadding, rightPadding,
-            foundationColor;
+            hover, hoverColor, selectColor, foundationColor, inheritsBackgroundColor,
+            c, colors;
 
         // setting gc properties are expensive, let's not do it needlessly
 
@@ -62,24 +66,21 @@ var SimpleCell = CellRenderer.extend('SimpleCell', {
 
             val = config.formatValue(val, config);
 
-            gc.cache.font = config.isSelected ? config.foregroundSelectionFont : config.font;
+            textFont = config.isSelected ? config.foregroundSelectionFont : config.font;
 
             textColor = gc.cache.strokeStyle = config.isSelected
                 ? config.foregroundSelectionColor
                 : config.color;
-
-            config.value = val; // return this for saving into cellEvent as `previousValue` for future comparisons
-
-            // todo skip rest if val + icons + font + textColor + layers all the same
-            if (config.prefillColor === undefined && val === config.previousValue) {
-                return;
-            }
         }
 
-        // fill background only if our bgColor is populated or we are a selected cell
-        var hover, hoverColor, selectColor, inheritsBackgroundColor,
-            colors = [];
+        same = same &&
+            val === snapshot.value &&
+            textFont === snapshot.textFont &&
+            textColor === snapshot.textColor;
 
+        // fill background only if our bgColor is populated or we are a selected cell
+        colors = [];
+        c = 0;
         if (config.isCellHovered && config.hoverCellHighlight.enabled) {
             hoverColor = config.hoverCellHighlight.backgroundColor;
         } else if (config.isRowHovered && (hover = config.hoverRowHighlight).enabled) {
@@ -97,16 +98,37 @@ var SimpleCell = CellRenderer.extend('SimpleCell', {
                 if (!inheritsBackgroundColor) {
                     foundationColor = true;
                     colors.push(config.backgroundColor);
+                    same = same &&  foundationColor === snapshot.foundationColor &&
+                        config.backgroundColor === snapshot.colors[c++];
                 }
             }
 
             if (selectColor !== undefined) {
                 colors.push(selectColor);
+                same = same && selectColor === snapshot.colors[c++];
             }
         }
         if (hoverColor !== undefined) {
             colors.push(hoverColor);
+            same = same && hoverColor === snapshot.colors[c++];
         }
+
+        if (partialRender) {
+            // todo check if icons have changed
+            if (same && c === snapshot.colors.length) {
+                return;
+            }
+
+            // return snapshot gets saved into cellEvent for future comparisons
+            config.snapshot = {
+                value: val,
+                textColor: textColor,
+                textFont: textFont,
+                foundationColor: foundationColor,
+                colors: colors
+            };
+        }
+
         layerColors(gc, colors, x, y, width, height, foundationColor);
 
         // Measure left and right icons, needed for rendering and for return value (min width)
@@ -116,6 +138,7 @@ var SimpleCell = CellRenderer.extend('SimpleCell', {
         if (val) {
             // draw text
             gc.cache.fillStyle = textColor;
+            gc.cache.font = textFont;
             valWidth = config.isHeaderRow && config.headerTextWrapping
                 ? renderMultiLineText(gc, config, val, leftPadding, rightPadding)
                 : renderSingleLineText(gc, config, val, leftPadding, rightPadding);

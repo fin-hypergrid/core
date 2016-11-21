@@ -977,14 +977,14 @@ var Renderer = Base.extend('Renderer', {
         config.formatValue = grid.getFormatter(config.isDataColumn && config.format);
 
         // Following supports partial render (when `paint` aborts before setting `minWidth`)
-        config.previousValue = cellEvent.previousValue;
+        config.snapshot = cellEvent.snapshot;
         config.minWidth = cellEvent.minWidth;
 
         // Render the cell
         cellRenderer.paint(gc, config);
 
         // Following supports partial render:
-        cellEvent.previousValue = config.value;
+        cellEvent.snapshot = config.snapshot;
         cellEvent.minWidth = config.minWidth;
 
         return config.minWidth;
