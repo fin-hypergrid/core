@@ -1511,29 +1511,33 @@ var Hypergrid = Base.extend('Hypergrid', {
             return;
         }
 
-        // 15px padding at bottom and right side
-        var scrollableHeight = bounds.height - this.behavior.getFixedRowsMaxHeight() - 15;
-        var scrollableWidth = bounds.width - this.behavior.getFixedColumnsMaxWidth() - 15;
-
+        var scrollableWidth = bounds.width - this.behavior.getFixedColumnsMaxWidth();
         for (
             var columnsWidth = 0, lastPageColumnCount = 0;
-            lastPageColumnCount < numColumns && columnsWidth <= scrollableWidth;
+            lastPageColumnCount < numColumns && columnsWidth < scrollableWidth;
             lastPageColumnCount++
         ) {
             columnsWidth += this.getColumnWidth(numColumns - lastPageColumnCount - 1);
         }
+        if (columnsWidth > scrollableWidth) {
+            lastPageColumnCount--;
+        }
 
+        var scrollableHeight = bounds.height - this.behavior.getFixedRowsMaxHeight();
         for (
             var rowsHeight = 0, lastPageRowCount = 0;
-            lastPageRowCount < numRows && rowsHeight <= scrollableHeight;
+            lastPageRowCount < numRows && rowsHeight < scrollableHeight;
             lastPageRowCount++
         ) {
             rowsHeight += this.getRowHeight(numRows - lastPageRowCount - 1);
         }
+        if (rowsHeight > scrollableHeight) {
+            lastPageRowCount--;
+        }
 
         // inform scroll bars
         if (this.sbHScroller) {
-            var hMax = 1 + Math.max(0, numColumns - numFixedColumns - lastPageColumnCount);
+            var hMax = Math.max(0, numColumns - numFixedColumns - lastPageColumnCount);
             this.setHScrollbarValues(hMax);
             this.setHScrollValue(Math.min(this.getHScrollValue(), hMax));
         }

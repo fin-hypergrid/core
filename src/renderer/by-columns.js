@@ -25,8 +25,7 @@ var bundleColumns = require('./bundle-columns');
  * @memberOf Renderer.prototype
  */
 function paintCellsByColumns(gc) {
-    var width,
-        grid = this.grid,
+    var grid = this.grid,
         gridProps = grid.properties,
         prefillColor, gridPrefillColor = gridProps.backgroundColor,
         cellEvent,
@@ -76,8 +75,7 @@ function paintCellsByColumns(gc) {
             cellEvent = pool[p]; // next cell down the column (redundant for first cell in column)
 
             try {
-                width = this._paintCell(gc, cellEvent, prefillColor);
-                preferredWidth = Math.max(width, preferredWidth);
+                preferredWidth = Math.max(preferredWidth, this._paintCell(gc, cellEvent, prefillColor));
             } catch (e) {
                 this.renderErrorCell(e, gc, vc, cellEvent.visibleRow);
             }
@@ -85,7 +83,7 @@ function paintCellsByColumns(gc) {
 
         gc.clipRestore(columnClip);
 
-        cellEvent.column.properties.preferredWidth = preferredWidth;
+        cellEvent.column.properties.preferredWidth = Math.round(preferredWidth);
     }
 
     gc.clipRestore(clipToGrid);

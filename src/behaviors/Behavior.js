@@ -743,10 +743,7 @@ var Behavior = Base.extend('Behavior', {
     getFixedColumnsWidth: function() {
         var count = this.getFixedColumnCount();
         var total = 0;
-        if (this.grid.isShowRowNumbers()) {
-            total = this.getColumnWidth(-1);
-        }
-        for (var i = 0; i < count; i++) {
+        for (var i = this.grid.properties.showRowNumbers ? -1 : 0; i < count; i++) {
             total += this.getColumnWidth(i);
         }
         return total;

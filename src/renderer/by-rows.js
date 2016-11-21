@@ -16,8 +16,7 @@ var bundleRows = require('./bundle-rows');
  * @memberOf Renderer.prototype
  */
 function paintCellsByRows(gc) {
-    var width,
-        grid = this.grid,
+    var grid = this.grid,
         gridProps = grid.properties,
         prefillColor, rowPrefillColors, gridPrefillColor = gridProps.backgroundColor,
         cellEvent,
@@ -74,8 +73,7 @@ function paintCellsByRows(gc) {
             gc.clipSave(columnClip, 0, 0, vc.right, viewHeight);
 
             try {
-                width = this._paintCell(gc, cellEvent, prefillColor);
-                preferredWidth[c] = Math.max(width, preferredWidth[c]);
+                preferredWidth[c] = Math.max(preferredWidth[c], this._paintCell(gc, cellEvent, prefillColor));
             } catch (e) {
                 this.renderErrorCell(e, gc, vc, vr);
             }
@@ -87,7 +85,7 @@ function paintCellsByRows(gc) {
     gc.clipRestore(clipToGrid);
 
     for (c = c0; c < C; c++) {
-        visibleColumns[c].column.properties.preferredWidth = preferredWidth[c];
+        visibleColumns[c].column.properties.preferredWidth = Math.round(preferredWidth[c]);
     }
 }
 
