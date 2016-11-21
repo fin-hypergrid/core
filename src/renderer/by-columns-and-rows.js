@@ -4,14 +4,20 @@ var bundleColumns = require('./bundle-columns');
 var bundleRows = require('./bundle-rows');
 
 /** @summary Render the grid.
- * @desc Paint all the cells of a grid, one column at a time.
+ * @desc Paints all the cells of a grid, one column at a time.
+ *
+ * First, a background rect is drawn using the grid background color.
+ *
+ * Then, if there are any rows with their own background color _that differs from the grid background color,_ these are consolidated and the consolidated groups of row backgrounds are all drawn before iterating through cells. These row backgrounds get priority over column backgrounds.
+ *
+ * If there are no such row background rects to draw, the column rects are consolidated and drawn instead (again, before the cells). Note that these column rects are _not_ suitable for clipping overflow text from previous columns. If you have overflow text, either turn on clipping (big performance hit) or turn on one of the `truncateTextWithEllipsis` options.
  *
  * `try...catch` surrounds each cell paint in case a cell renderer throws an error.
  * The error message is error-logged to console AND displayed in cell.
  *
- * Each cell to be rendered is described by a {@link CellEvent} object. For performance reasons, to avoid constantly instantiating these objects, we maintain a pool of these. When the grid shape changes, we reset their coordinates by calling {@link CellEvent#reset|reset} on each.
+ * Each cell to be rendered is described by a {@link CellEvent} object. For performance reasons, to avoid constantly instantiating these objects, we maintain a pool of these. When the grid shape changes, we reset their coordinates by setting {@link CellEvent#reset|reset} on each.
  *
- * See discussion of clipping in {@link Renderer#paintCellsByColumns|paintCellsByColumns}.
+ * See also the discussion of clipping in {@link Renderer#paintCellsByColumns|paintCellsByColumns}.
  * @this {Renderer}
  * @param {CanvasRenderingContext2D} gc
  * @memberOf Renderer.prototype

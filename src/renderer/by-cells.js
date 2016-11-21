@@ -3,14 +3,30 @@
 var paintCellsByColumnWithRowRect = require('./by-columns-and-rows');
 
 /** @summary Render the grid.
- * @desc Paint all the cells of a grid, one column at a time.
+ * @desc Paints all the cells of a grid, one column at a time.
+ *
+ * Paints all the cells of a grid, one row at a time.
+ *
+ * #### On reset
+ *
+ * Defers to {@link Renderer#paintCellsByColumnWithRowRect|paintCellsByColumnWithRowRect}, which draws the gridlines.
+ *
+ * #### On the next call (afer reset)
+ *
+ * First, a background rect is drawn using the grid background color.
+ *
+ * Then, each cell is drawn. If its background differs from the grid background, the background is repainted.
  *
  * `try...catch` surrounds each cell paint in case a cell renderer throws an error.
  * The error message is error-logged to console AND displayed in cell.
  *
- * Each cell to be rendered is described by a {@link CellEvent} object. For performance reasons, to avoid constantly instantiating these objects, we maintain a pool of these. When the grid shape changes, we reset their coordinates by calling {@link CellEvent#reset|reset} on each.
+ * #### On subsequent calls
  *
- * See discussion of clipping in {@link Renderer#paintCellsByColumns|paintCellsByColumns}.
+ * Iterates through each cell, calling `_paintCell` with `undefined` prefill color. This signifies partial render to the {@link SimpleCell} cell renderer, which only renders the cell when it's text, font, or colors have changed.
+ *
+ * Each cell to be rendered is described by a {@link CellEvent} object. For performance reasons, to avoid constantly instantiating these objects, we maintain a pool of these. When the grid shape changes, we reset their coordinates by setting {@link CellEvent#reset|reset} on each.
+ *
+ * See also the discussion of clipping in {@link Renderer#paintCellsByColumns|paintCellsByColumns}.
  * @this {Renderer}
  * @param {CanvasRenderingContext2D} gc
  * @memberOf Renderer.prototype

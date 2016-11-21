@@ -113,21 +113,19 @@ var SimpleCell = CellRenderer.extend('SimpleCell', {
             same = same && hoverColor === snapshot.colors[c++];
         }
 
-        if (partialRender) {
-            // todo check if icons have changed
-            if (same && c === snapshot.colors.length) {
-                return;
-            }
-
-            // return snapshot gets saved into cellEvent for future comparisons
-            config.snapshot = {
-                value: val,
-                textColor: textColor,
-                textFont: textFont,
-                foundationColor: foundationColor,
-                colors: colors
-            };
+        // todo check if icons have changed
+        if (same && c === snapshot.colors.length) {
+            return;
         }
+
+        // return a snapshot to save in cellEvent for future comparisons by partial renderer
+        config.snapshot = {
+            value: val,
+            textColor: textColor,
+            textFont: textFont,
+            foundationColor: foundationColor,
+            colors: colors
+        };
 
         layerColors(gc, colors, x, y, width, height, foundationColor);
 

@@ -3,14 +3,20 @@
 var bundleRows = require('./bundle-rows');
 
 /** @summary Render the grid.
- * @desc Paint all the cells of a grid, one row at a time.
+ * @desc _**NOTE:** This grid renderer is not as performant as the others and it's use is not recommended if you care about performance. The reasons for the wanting performance are unclear, possibly having to do with the way Chrome optimizes access to the column objects?_
+ *
+ * Paints all the cells of a grid, one row at a time.
+ *
+ * First, a background rect is drawn using the grid background color.
+ *
+ * Then, if there are any rows with their own background color _that differs from the grid background color,_ these are consolidated and the consolidated groups of row backgrounds are all drawn before iterating through cells.
  *
  * `try...catch` surrounds each cell paint in case a cell renderer throws an error.
  * The error message is error-logged to console AND displayed in cell.
  *
- * Each cell to be rendered is described by a {@link CellEvent} object. For performance reasons, to avoid constantly instantiating these objects, we maintain a pool of these. When the grid shape changes, we reset their coordinates by calling {@link CellEvent#reset|reset} on each.
+ * Each cell to be rendered is described by a {@link CellEvent} object. For performance reasons, to avoid constantly instantiating these objects, we maintain a pool of these. When the grid shape changes, we reset their coordinates by setting {@link CellEvent#reset|reset} on each.
  *
- * See discussion of clipping in {@link Renderer#paintCellsByColumns|paintCellsByColumns}.
+ * See also the discussion of clipping in {@link Renderer#paintCellsByColumns|paintCellsByColumns}.
  * @this {Renderer}
  * @param {CanvasRenderingContext2D} gc
  * @memberOf Renderer.prototype
