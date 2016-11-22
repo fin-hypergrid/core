@@ -1,6 +1,7 @@
 'use strict';
 
 var CellRenderer = require('./CellRenderer');
+var images = require('../../images/index');
 
 var WHITESPACE = /\s\s+/g;
 
@@ -37,6 +38,24 @@ var SimpleCell = CellRenderer.extend('SimpleCell', {
 
         // setting gc properties are expensive, let's not do it needlessly
 
+        if (config.isHandleColumn) {
+            if (config.isDataRow) {
+                // row handle for a data row
+                val = [images.checkbox(config.isRowSelected), val, null];
+            } else if (config.isHeaderRow) {
+                // row handle for header row: gets "master" checkbox
+                val = [images.checkbox(config.allRowsSelected), '', null];
+            } else if (config.isFilterRow) {
+                // row handle for filter row: gets filter icon
+                val = [images.filter(false), '', null];
+            } else {
+                // row handles for "summary" or other rows: empty
+                val = '';
+            }
+        } else if (config.isFilterRow) {
+            val = [null, val, images.filter(val.length)];
+        }
+
         if (val && val.constructor === Array) {
             leftIcon = val[0];
             rightIcon = val[2];
@@ -59,8 +78,6 @@ var SimpleCell = CellRenderer.extend('SimpleCell', {
         }
 
         if (val) {
-            val = config.exec(val);
-
             // Note: vf == 0 is fastest equivalent of vf === 0 || vf === false which excludes NaN, null, undefined
             val = val || val == 0 ? val : ''; // eslint-disable-line eqeqeq
 
