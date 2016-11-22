@@ -16,6 +16,17 @@
             user-select: none;
         }
         input[type=checkbox] { outline:0 }
+        div#behind {
+            position: absolute;
+            visibility: hidden;
+            top: 150px;
+            left: 150px;
+            width: 400px;
+            height: 400px;
+            border-radius: 500px;
+            border: 8px solid black;
+            background-color: orange;
+        }
 </style>
 </head>
 <body>
@@ -94,26 +105,73 @@ Renders all cells over consolidated row backgrounds, if any. Unsuitable as a cli
             <em>after</em> partial char
         </label>
     </div>
-    <label title="Adds a rowProperties array to grid.properties.">
+    <label title="Adds a rowProperties array to grid.properties that defines 3 grid background rows alternating with 3 light green rows.">
         <input type="checkbox" onclick="if(this.checked)grid.addProperties(alternatingThreeGreenRows);else deleteProps(grid.properties,alternatingThreeGreenRows);grid.renderer.resetAllGridRenderers()">
-        Grid row properties (alternate 3 white rows with 3 green rows)
+        Grid row properties
     </label>
     <label title="Column properties defines a light blue background color BUT inherit's grid's rowProperties array.">
-        <input type="checkbox" onclick="columnProps.call(this, [2,3], columnColorUnderAlternateColors)">
+        <input type="checkbox" onclick="columnProps(this.checked, [2,3], columnColorUnderAlternateColors)">
         Columns 2-3 <em>under</em> alternating rows
     </label>
     <label title="Column properties defines a light blue background color AND overrides rowProperties with an undefined.">
-        <input type="checkbox" onclick="columnProps.call(this, [6,7], columnColorOverAlternateColors)">
+        <input type="checkbox" onclick="columnProps(this.checked, [6,7], columnColorOverAlternateColors)">
         Columns 6-7 <em>over</em> alternating rows
     </label>
-    <label>
-        <input type="checkbox" onclick="columnProps.call(this, [10,11], columnOwnAlternateColors)">
+    <label title="Column properties overrides grid's rowProperties with one of its own that defines 2 tan rows alternating with 2 beige rows.">
+        <input type="checkbox" onclick="columnProps(this.checked, [10,11], columnOwnAlternateColors)">
         Columns 10-11 override row props
     </label>
-    <label title="Column properties defines a light blue background color BUT inherit's grid's rowProperties array.">
-        <input type="checkbox" onclick="altColumnProps.call(this, columnColorUnderAlternateColors)">
-        Striped columns
+    <div class="radio-group">
+        Striped columns:
+        <label title="altColumnProps.call(this, { backgroundColor: rgb(210, 180, 140) })">
+            <input type="radio" name="striped-columns" onclick="altColumnProps(true, { backgroundColor: 'rgb(210, 180, 140)' })">
+            tan
+        </label>
+        <label title="altColumnProps.call(this, { backgroundColor: rgba(210, 180, 140, .5) })">
+            <input type="radio" name="striped-columns" onclick="altColumnProps(true, { backgroundColor: 'rgba(210, 180, 140, .5)' })">
+            translucent tan
+        </label>
+        <label title="document.body.style.backgroundColor='beige'">
+            <input type="radio" name="striped-columns" onclick="altColumnProps(false, columnColorUnderAlternateColors)" checked>
+            none
+        </label>
+    </div>
+    <div class="radio-group">
+        body color:
+        <label title="document.body.style.backgroundColor='white'">
+            <input type="radio" name="bodybg" onclick="document.body.style.backgroundColor='white'" checked>
+            white
+        </label>
+        <label title="document.body.style.backgroundColor='beige'">
+            <input type="radio" name="bodybg" onclick="document.body.style.backgroundColor='lime'">
+            lime
+        </label>
+    </div>
+    <div class="radio-group">
+        grid color:
+        <label title="grid.properties.backgroundColor='white'">
+            <input type="radio" name="gridbg" onclick="grid.properties.backgroundColor='white'" checked>
+            white
+        </label>
+        <label title="grid.properties.backgroundColor='transparent'">
+            <input type="radio" name="gridbg" onclick="grid.properties.backgroundColor='transparent'">
+            transparent
+        </label>
+        <label title="grid.properties.backgroundColor='rgb(128,128,255)'">
+            <input type="radio" name="gridbg" onclick="grid.properties.backgroundColor='rgb(128,128,255)'">
+            blue
+        </label>
+        <label title="grid.properties.backgroundColor='rgba(128,128,255,.5)">
+            <input type="radio" name="gridbg" onclick="grid.properties.backgroundColor='rgba(128,128,255,.5)';">
+            translucent blue
+        </label>
+    </div>
+    <label>
+        <input type="checkbox" onclick="document.querySelector('#behind').style.visibility=this.checked?'visible':'hidden'">
+        Behind-the-grid content
     </label>
+
+    <div id="behind"></div>
 
     <script src="build/fin-hypergrid.js"></script>
 
@@ -174,22 +232,25 @@ var alternatingThreeGreenRows = {
         ]
     };
 
-function altColumnProps(props) {
+function altColumnProps(checked, props) {
     grid.renderer.visibleColumns.forEach(function(column, i) {
         if (i & 1) {
-            columnProps.call(this, [i, i], props);
+            columnProps(checked, [i, i], props);
         }
     }, this);
 }
 
-function columnProps(columnIndexes, props) {
+function columnProps(checked, columnIndexes, props) {
     columnIndexes.forEach(function(columnIndex) {
-        if (this.checked) {
+        if (checked) {
             grid.setColumnProperties(columnIndex, props);
         } else {
             deleteProps(grid.getColumnProperties(columnIndex), columnColorOverAlternateColors);
         }
-    }, this);
+    });
+    if (!checked) {
+        grid.behavior.changed();
+    }
 }
 
 function deleteProps(object, props) {
