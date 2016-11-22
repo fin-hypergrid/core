@@ -3,7 +3,7 @@
 var bundleColumns = require('./bundle-columns');
 var bundleRows = require('./bundle-rows');
 
-/** @summary Render the grid.
+/** @summary Render the grid with consolidated row OR column rects.
  * @desc Paints all the cells of a grid, one column at a time.
  *
  * First, a background rect is drawn using the grid background color.
@@ -22,7 +22,7 @@ var bundleRows = require('./bundle-rows');
  * @param {CanvasRenderingContext2D} gc
  * @memberOf Renderer.prototype
  */
-function paintCellsByColumnsWithConsolidatedRowRects(gc) {
+function paintCellsByColumnsAndRows(gc) {
     var grid = this.grid,
         gridProps = grid.properties,
         prefillColor, rowPrefillColors, gridPrefillColor = gridProps.backgroundColor,
@@ -47,10 +47,13 @@ function paintCellsByColumnsWithConsolidatedRowRects(gc) {
         gc.fillRect(0, 0, viewWidth, viewHeight);
     }
 
-    if (paintCellsByColumnsWithConsolidatedRowRects.reset) {
+    if (paintCellsByColumnsAndRows.reset) {
         this.resetAllGridRenderers();
-        paintCellsByColumnsWithConsolidatedRowRects.reset = false;
+        paintCellsByColumnsAndRows.reset = false;
         bundleRows.call(this, false);
+        bundleColumns.call(this, true);
+    } else if (paintCellsByColumnsAndRows.rebundle) {
+        paintCellsByColumnsAndRows.rebundle = false;
         bundleColumns.call(this);
     }
 
@@ -106,6 +109,7 @@ function paintCellsByColumnsWithConsolidatedRowRects(gc) {
     this.paintGridlines(gc);
 }
 
-paintCellsByColumnsWithConsolidatedRowRects.key = 'by-columns-and-rows';
+paintCellsByColumnsAndRows.key = 'by-columns-and-rows';
+paintCellsByColumnsAndRows.rebundle = false; // see rebundleGridRenderers
 
-module.exports = paintCellsByColumnsWithConsolidatedRowRects;
+module.exports = paintCellsByColumnsAndRows;

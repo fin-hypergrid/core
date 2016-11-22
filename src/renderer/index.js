@@ -131,7 +131,7 @@ var Renderer = Base.extend('Renderer', {
 
         this.grid = grid;
 
-        var defaultGridRenderer = options.gridRenderer || 'by-columns';
+        var defaultGridRenderer = options.gridRenderer || 'by-columns-and-rows';
         this.setGridRenderer(defaultGridRenderer);
 
         this.reset();
@@ -152,6 +152,17 @@ var Renderer = Base.extend('Renderer', {
         // Notify renderers that grid shape has changed
         Object.keys(this.gridRenderers).forEach(function(key) {
             this.gridRenderers[key].reset = !blackList || blackList.indexOf(key) < 0;
+        }, this);
+    },
+
+    /**
+     * Certain renderers that pre-bundle column rects based on columns' background colors need to re-bundle when columns' background colors change. Only those renderers that have the `rebundle` property will have it set to `true`.
+     */
+    rebundleGridRenderers: function() {
+        Object.keys(this.gridRenderers).forEach(function(key) {
+            if ('rebundle' in this.gridRenderers[key]) {
+                this.gridRenderers[key].rebundle = true;
+            }
         }, this);
     },
 
@@ -1030,7 +1041,7 @@ function warn(name, message) {
 
 Renderer.prototype.registerGridRenderer(require('./by-cells'));
 Renderer.prototype.registerGridRenderer(require('./by-columns'));
-Renderer.prototype.registerGridRenderer(require('./by-columns-with-backgrounds'));
+Renderer.prototype.registerGridRenderer(require('./by-columns-discrete'));
 Renderer.prototype.registerGridRenderer(require('./by-columns-and-rows'));
 Renderer.prototype.registerGridRenderer(require('./by-rows'));
 

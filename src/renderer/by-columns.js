@@ -2,7 +2,7 @@
 
 var bundleColumns = require('./bundle-columns');
 
-/** @summary Render the grid.
+/** @summary Render the grid with consolidated column rects.
  * @desc Paints all the cells of a grid, one column at a time.
  *
  * First, a background rect is drawn using the grid background color.
@@ -53,8 +53,11 @@ function paintCellsByColumns(gc) {
     }
 
     if (paintCellsByColumns.reset) {
-        this.resetAllGridRenderers(['by-columns-with-backgrounds']);
+        this.resetAllGridRenderers(['by-columns-discrete']);
         paintCellsByColumns.reset = false;
+        bundleColumns.call(this, true);
+    } else if (paintCellsByColumns.rebundle) {
+        paintCellsByColumns.rebundle = false;
         bundleColumns.call(this);
     }
 
@@ -98,5 +101,6 @@ function paintCellsByColumns(gc) {
 }
 
 paintCellsByColumns.key = 'by-columns';
+paintCellsByColumns.rebundle = false; // see rebundleGridRenderers
 
 module.exports = paintCellsByColumns;

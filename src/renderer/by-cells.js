@@ -1,15 +1,15 @@
 'use strict';
 
-var paintCellsByColumnsWithConsolidatedRowRects = require('./by-columns-and-rows');
+var paintCellsByColumnsAndRows = require('./by-columns-and-rows');
 
-/** @summary Render the grid.
- * @desc Paints all the cells of a grid, one column at a time.
+/** @summary Render the grid only as needed ("partial render").
+ * @desc Paints all the cells of a grid, one column at a time, but only as needed.
  *
  * Paints all the cells of a grid, one row at a time.
  *
  * #### On reset
  *
- * Defers to {@link Renderer#paintCellsByColumnsWithConsolidatedRowRects|paintCellsByColumnsWithConsolidatedRowRects}, which clears the canvas, draws the grid, and draws the grid lines.
+ * Defers to {@link Renderer#paintCellsByColumnsAndRows|paintCellsByColumnsAndRows}, which clears the canvas, draws the grid, and draws the grid lines.
  *
  * #### On the next call (afer reset)
  *
@@ -48,7 +48,7 @@ function paintCells(gc) {
 
     if (paintCells.reset) {
         this.resetAllGridRenderers();
-        paintCellsByColumnsWithConsolidatedRowRects.call(this, gc);
+        paintCellsByColumnsAndRows.call(this, gc);
         paintCells.reset = false;
     }
 

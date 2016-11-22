@@ -31,24 +31,28 @@ This is the partial renderer. Relatively non-performant compared to some of the 
             <input type="radio" name="renderer" onclick="grid.renderer.setGridRenderer('by-cells')">
             cells (partial)
         </label>
-        <label title="setGridRenderer('by-columns-with-backgrounds');
+
+        <label title="setGridRenderer('by-columns-discrete');
 ——————————————————
 Renders each column with its own background rect, and then its cells. If the colors of the column backgrounds are all opaque, this can serve as an alternative to clipping.">
-            <input type="radio" name="renderer" onclick="grid.renderer.setGridRenderer('by-columns-with-backgrounds')" checked>
+            <input type="radio" name="renderer" onclick="grid.renderer.setGridRenderer('by-columns-discrete')">
             columns (discrete)
         </label>
+
         <label title="setGridRenderer('by-columns');
 ——————————————————
 Renders all cells over consolidated column backgrounds, if any. (These column backgrounds are however unsuitable as a clipping alternative because they are all drawn before any of the cells are drawn.)">
-            <input type="radio" name="renderer" onclick="grid.renderer.setGridRenderer('by-columns')" checked>
+            <input type="radio" name="renderer" onclick="grid.renderer.setGridRenderer('by-columns')">
             columns (consolidated)
         </label>
-        <label title="setGridRenderer('by-columns-with-row-backgrounds');
+
+        <label title="setGridRenderer('by-columns-and-rows');
 ——————————————————
 Renders all cells over consolidated row backgrounds, if any; otherwise over consolidated column backgrounds, if any. (Such column backgrounds are however unsuitable as a clipping alternative because they are all drawn before any of the cells are drawn.)">
-            <input type="radio" name="renderer" onclick="grid.renderer.setGridRenderer('by-columns-and-rows')">
+            <input type="radio" name="renderer" onclick="grid.renderer.setGridRenderer('by-columns-and-rows')" checked>
             columns (consolidated rows)
         </label>
+
         <label title="setGridRenderer('by-rows');
 ——————————————————
 Renders all cells over consolidated row backgrounds, if any. Unsuitable as a clipping alternative. Caveat: This renderer turned out to be the least performant of all (for unclear reasons -- possibly due to poor optimization).">

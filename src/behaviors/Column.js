@@ -287,6 +287,16 @@ Column.prototype = {
         return this.deprecated('getProperties()', 'properties', '1.2.0');
     },
 
+    /** This method is provided because some grid renderer optimizations require that the grid renderer be informed when column colors change. Due to performance concerns, they cannot take the time to figure it out for themselves. Along the same lines, making the property a getter/setter (in columnProperties.js), though doable, might present performance concerns as this property is possibly the most accessed of all column properties.
+     * @param color
+     */
+    setBackgroundColor: function(color) {
+        if (this.properties.backgroundColor !== color) {
+            this.properties.backgroundColor = color;
+            this.behavior.grid.renderer.rebundleGridRenderers();
+        }
+    },
+
     /**
      * @param {object} properties
      * @param {boolean} [preserve=false]
