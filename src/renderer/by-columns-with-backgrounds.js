@@ -1,39 +1,33 @@
 'use strict';
 
-var paintCellsByColumnsWithConsolidatedRowRects = require('./by-columns-and-rows');
+var bundleColumns = require('./bundle-columns');
 
 /** @summary Render the grid.
  * @desc Paints all the cells of a grid, one column at a time.
  *
- * Paints all the cells of a grid, one row at a time.
+ * In this grid renderer, a background rect is _not_ drawn using the grid background color.
  *
- * #### On reset
+ * Rather, all columns paint their own background rects, with color defaulting to grid background color.
  *
- * Defers to {@link Renderer#paintCellsByColumnsWithConsolidatedRowRects|paintCellsByColumnsWithConsolidatedRowRects}, which clears the canvas, draws the grid, and draws the grid lines.
+ * The idea of painting each column rect is to "clip" text that might have overflowed from the previous column by painting over it with the background from this column. Only the last column will show overflowing text, and only if the canvas width exceeds the grid width. If this is the case, you can turn on clipping for the last column only by setting `columnClip` to `true` for the last column.
  *
- * #### On the next call (afer reset)
- *
- * First, a background rect is drawn using the grid background color.
- *
- * Then, each cell is drawn. If its background differs from the grid background, the background is repainted.
+ * NOTE: As a convenience feature, setting `columnClip` to `null` will clip only the last column, so simply setting it on the grid (rather than the last column) will have the same effect. This is much more convenient because you don't have to worry about the last column being redefined (moved, hidden, etc).
  *
  * `try...catch` surrounds each cell paint in case a cell renderer throws an error.
  * The error message is error-logged to console AND displayed in cell.
  *
- * #### On subsequent calls
- *
- * Iterates through each cell, calling `_paintCell` with `undefined` prefill color. This signifies partial render to the {@link SimpleCell} cell renderer, which only renders the cell when it's text, font, or colors have changed.
- *
  * Each cell to be rendered is described by a {@link CellEvent} object. For performance reasons, to avoid constantly instantiating these objects, we maintain a pool of these. When the grid shape changes, we reset their coordinates by setting {@link CellEvent#reset|reset} on each.
  *
- * See also the discussion of clipping in {@link Renderer#paintCellsByColumns|paintCellsByColumns}.
+ * See also the discussion of clipping in {@link Renderer#paintCellsByColumnsWithDiscreteColumnRects|paintCellsByColumnsWithDiscreteColumnRects}.
+
  * @this {Renderer}
  * @param {CanvasRenderingContext2D} gc
  * @memberOf Renderer.prototype
  */
-function paintCells(gc) {
+function paintCellsByColumnsWithDiscreteColumnRects(gc) {
     var grid = this.grid,
         gridProps = grid.properties,
+        prefillColor,
         cellEvent,
         vc, visibleColumns = this.visibleColumns,
         visibleRows = this.visibleRows,
@@ -43,13 +37,15 @@ function paintCells(gc) {
         preferredWidth,
         columnClip,
         // clipToGrid,
-        // viewWidth = C ? visibleColumns[cLast].right : 0,
+        // viewWidth = C ? visibleColumns[C - 1].right : 0,
         viewHeight = R ? visibleRows[R - 1].bottom : 0;
 
-    if (paintCells.reset) {
-        this.resetAllGridRenderers();
-        paintCellsByColumnsWithConsolidatedRowRects.call(this, gc);
-        paintCells.reset = false;
+    gc.clearRect(0, 0, this.bounds.width, this.bounds.height);
+
+    if (paintCellsByColumnsWithDiscreteColumnRects.reset) {
+        this.resetAllGridRenderers(['by-columns']);
+        paintCellsByColumnsWithDiscreteColumnRects.reset = false;
+        bundleColumns.call(this);
     }
 
     // gc.clipSave(clipToGrid, 0, 0, viewWidth, viewHeight);
@@ -58,6 +54,9 @@ function paintCells(gc) {
     for (p = 0, c = c0; c < C; c++) {
         cellEvent = pool[p]; // first cell in column c
         vc = cellEvent.visibleColumn;
+
+        prefillColor = cellEvent.column.properties.backgroundColor;
+        gc.clearFill(vc.left, 0, vc.width, viewHeight, prefillColor);
 
         // Optionally clip to visible portion of column to prevent text from overflowing to right.
         columnClip = vc.column.properties.columnClip;
@@ -68,9 +67,9 @@ function paintCells(gc) {
             cellEvent = pool[p]; // next cell down the column (redundant for first cell in column)
 
             try {
-                preferredWidth = Math.max(preferredWidth, this._paintCell(gc, pool[p]));
+                preferredWidth = Math.max(preferredWidth, this._paintCell(gc, cellEvent, prefillColor));
             } catch (e) {
-                this.renderErrorCell(e, gc, vc, pool[p].visibleRow);
+                this.renderErrorCell(e, gc, vc, cellEvent.visibleRow);
             }
         }
 
@@ -80,8 +79,10 @@ function paintCells(gc) {
     }
 
     // gc.clipRestore(clipToGrid);
+
+    this.paintGridlines(gc);
 }
 
-paintCells.key = 'by-cells';
+paintCellsByColumnsWithDiscreteColumnRects.key = 'by-columns-with-backgrounds';
 
-module.exports = paintCells;
+module.exports = paintCellsByColumnsWithDiscreteColumnRects;

@@ -148,10 +148,10 @@ var Renderer = Base.extend('Renderer', {
         this.paintCells.reset = true;
     },
 
-    resetAllGridRenderers: function() {
+    resetAllGridRenderers: function(blackList) {
         // Notify renderers that grid shape has changed
         Object.keys(this.gridRenderers).forEach(function(key) {
-            this.gridRenderers[key].reset = true;
+            this.gridRenderers[key].reset = !blackList || blackList.indexOf(key) < 0;
         }, this);
     },
 
@@ -1026,6 +1026,7 @@ function warn(name, message) {
 
 Renderer.prototype.registerGridRenderer(require('./by-cells'));
 Renderer.prototype.registerGridRenderer(require('./by-columns'));
+Renderer.prototype.registerGridRenderer(require('./by-columns-with-backgrounds'));
 Renderer.prototype.registerGridRenderer(require('./by-columns-and-rows'));
 Renderer.prototype.registerGridRenderer(require('./by-rows'));
 

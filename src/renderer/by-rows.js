@@ -29,12 +29,12 @@ function paintCellsByRows(gc) {
         rowBundle, rowBundles = this.rowBundles,
         vc, visibleColumns = this.visibleColumns,
         vr, visibleRows = this.visibleRows,
-        c, C = visibleColumns.length, c0 = gridProps.showRowNumbers ? -1 : 0,
+        c, C = visibleColumns.length, c0 = gridProps.showRowNumbers ? -1 : 0, cLast = C - 1,
         r, R = visibleRows.length,
         p, pool = this.cellEventPool,
         preferredWidth = Array(C - c0).fill(0),
-        columnClip = gridProps.columnClip,
-        clipToGrid = columnClip === null,
+        columnClip,
+        // clipToGrid,
         viewWidth = C ? visibleColumns[C - 1].right : 0,
         viewHeight = R ? visibleRows[R - 1].bottom : 0,
         lineWidth = gridProps.lineWidth,
@@ -60,7 +60,7 @@ function paintCellsByRows(gc) {
 
     rowPrefillColors = this.rowPrefillColors;
 
-    gc.clipSave(clipToGrid, 0, 0, viewWidth, viewHeight);
+    // gc.clipSave(clipToGrid, 0, 0, viewWidth, viewHeight);
 
     // For each row of each subgrid...
     for (p = 0, r = 0; r < R; r++) {
@@ -77,7 +77,8 @@ function paintCellsByRows(gc) {
             vc = cellEvent.visibleColumn;
 
             // Optionally clip to visible portion of column to prevent text from overflowing to right.
-            gc.clipSave(columnClip, 0, 0, vc.right, viewHeight);
+            columnClip = vc.column.properties.columnClip;
+            gc.clipSave(columnClip || columnClip === null && c === cLast, 0, 0, vc.right, viewHeight);
 
             try {
                 preferredWidth[c] = Math.max(preferredWidth[c], this._paintCell(gc, cellEvent, prefillColor));
@@ -89,7 +90,7 @@ function paintCellsByRows(gc) {
         }
     }
 
-    gc.clipRestore(clipToGrid);
+    // gc.clipRestore(clipToGrid);
 
     for (c = c0; c < C; c++) {
         visibleColumns[c].column.properties.preferredWidth = Math.round(preferredWidth[c]);

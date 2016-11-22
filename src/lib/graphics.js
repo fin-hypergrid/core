@@ -173,12 +173,30 @@ function getTextHeight(font) {
     return result;
 }
 
+function clipSave(conditional, x, y, width, height) {
+    this.conditionalsStack.push(conditional);
+    if (conditional) {
+        this.cache.save();
+        this.beginPath();
+        this.rect(x, y, width, height);
+        this.clip();
+    }
+}
+
+function clipRestore(conditional) {
+    if (this.conditionalsStack.pop()) {
+        this.cache.restore(); // Remove clip region
+    }
+}
+
 API = {
     clearFill: clearFill,
     alpha: alpha,
     getTextWidth: getTextWidth,
     getTextWidthTruncated: getTextWidthTruncated,
     getTextHeight: getTextHeight,
+    clipSave: clipSave,
+    clipRestore: clipRestore,
     truncateTextWithEllipsis: true
 };
 

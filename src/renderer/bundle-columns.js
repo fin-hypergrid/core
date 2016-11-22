@@ -8,7 +8,6 @@ function bundleColumns() {
         visibleRows = this.visibleRows,
         c, C = visibleColumns.length, c0 = gridProps.showRowNumbers ? -1 : 0,
         r, R = visibleRows.length,
-        columnPrefillColors = Array(C),
         p, pool, backgroundColor;
 
     pool = this.cellEventPool;
@@ -37,7 +36,6 @@ function bundleColumns() {
     }
 
     this.columnBundles = columnBundles;
-    this.columnPrefillColors = columnPrefillColors;
 }
 
 module.exports = bundleColumns;

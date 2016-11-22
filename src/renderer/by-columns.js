@@ -36,13 +36,13 @@ function paintCellsByColumns(gc) {
         columnBundle, columnBundles,
         vc, visibleColumns = this.visibleColumns,
         visibleRows = this.visibleRows,
-        c, C = visibleColumns.length, c0 = gridProps.showRowNumbers ? -1 : 0,
+        c, C = visibleColumns.length, c0 = gridProps.showRowNumbers ? -1 : 0, cLast = C - 1,
         r, R = visibleRows.length,
         p, pool = this.cellEventPool,
         preferredWidth,
-        columnClip = gridProps.columnClip,
-        clipToGrid = columnClip === null,
-        viewWidth = C ? visibleColumns[C - 1].right : 0,
+        columnClip,
+        // clipToGrid,
+        viewWidth = C ? visibleColumns[cLast].right : 0,
         viewHeight = R ? visibleRows[R - 1].bottom : 0;
 
     gc.clearRect(0, 0, this.bounds.width, this.bounds.height);
@@ -53,7 +53,7 @@ function paintCellsByColumns(gc) {
     }
 
     if (paintCellsByColumns.reset) {
-        this.resetAllGridRenderers();
+        this.resetAllGridRenderers(['by-columns-with-backgrounds']);
         paintCellsByColumns.reset = false;
         bundleColumns.call(this);
     }
@@ -63,7 +63,7 @@ function paintCellsByColumns(gc) {
         gc.clearFill(columnBundle.left, 0, columnBundle.right - columnBundle.left, viewHeight, columnBundle.backgroundColor);
     }
 
-    gc.clipSave(clipToGrid, 0, 0, viewWidth, viewHeight);
+    // gc.clipSave(clipToGrid, 0, 0, viewWidth, viewHeight);
 
     // For each column...
     for (p = 0, c = c0; c < C; c++) {
@@ -73,7 +73,8 @@ function paintCellsByColumns(gc) {
         prefillColor = cellEvent.column.properties.backgroundColor;
 
         // Optionally clip to visible portion of column to prevent text from overflowing to right.
-        gc.clipSave(columnClip, 0, 0, vc.right, viewHeight);
+        columnClip = vc.column.properties.columnClip;
+        gc.clipSave(columnClip || columnClip === null && c === cLast, 0, 0, vc.right, viewHeight);
 
         // For each row of each subgrid (of each column)...
         for (preferredWidth = r = 0; r < R; r++, p++) {
@@ -91,7 +92,7 @@ function paintCellsByColumns(gc) {
         cellEvent.column.properties.preferredWidth = Math.round(preferredWidth);
     }
 
-    gc.clipRestore(clipToGrid);
+    // gc.clipRestore(clipToGrid);
 
     this.paintGridlines(gc);
 }

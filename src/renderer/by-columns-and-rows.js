@@ -22,7 +22,7 @@ var bundleRows = require('./bundle-rows');
  * @param {CanvasRenderingContext2D} gc
  * @memberOf Renderer.prototype
  */
-function paintCellsByColumnWithRowRect(gc) {
+function paintCellsByColumnsWithConsolidatedRowRects(gc) {
     var grid = this.grid,
         gridProps = grid.properties,
         prefillColor, rowPrefillColors, gridPrefillColor = gridProps.backgroundColor,
@@ -31,12 +31,12 @@ function paintCellsByColumnWithRowRect(gc) {
         columnBundle, columnBundles,
         vc, visibleColumns = this.visibleColumns,
         visibleRows = this.visibleRows,
-        c, C = visibleColumns.length, c0 = gridProps.showRowNumbers ? -1 : 0,
+        c, C = visibleColumns.length, c0 = gridProps.showRowNumbers ? -1 : 0, cLast = C - 1,
         r, R = visibleRows.length,
         p, pool = this.cellEventPool,
         preferredWidth,
-        columnClip = gridProps.columnClip,
-        clipToGrid = columnClip === null,
+        columnClip,
+        // clipToGrid,
         viewWidth = C ? visibleColumns[C - 1].right : 0,
         viewHeight = R ? visibleRows[R - 1].bottom : 0;
 
@@ -47,9 +47,9 @@ function paintCellsByColumnWithRowRect(gc) {
         gc.fillRect(0, 0, viewWidth, viewHeight);
     }
 
-    if (paintCellsByColumnWithRowRect.reset) {
+    if (paintCellsByColumnsWithConsolidatedRowRects.reset) {
         this.resetAllGridRenderers();
-        paintCellsByColumnWithRowRect.reset = false;
+        paintCellsByColumnsWithConsolidatedRowRects.reset = false;
         bundleRows.call(this, false);
         bundleColumns.call(this);
     }
@@ -68,7 +68,7 @@ function paintCellsByColumnWithRowRect(gc) {
         }
     }
 
-    gc.clipSave(clipToGrid, 0, 0, viewWidth, viewHeight);
+    // gc.clipSave(clipToGrid, 0, 0, viewWidth, viewHeight);
 
     // For each column...
     for (p = 0, c = c0; c < C; c++) {
@@ -80,7 +80,8 @@ function paintCellsByColumnWithRowRect(gc) {
         }
 
         // Optionally clip to visible portion of column to prevent text from overflowing to right.
-        gc.clipSave(columnClip, 0, 0, vc.right, viewHeight);
+        columnClip = vc.column.properties.columnClip;
+        gc.clipSave(columnClip || columnClip === null && c === cLast, 0, 0, vc.right, viewHeight);
 
         // For each row of each subgrid (of each column)...
         for (preferredWidth = r = 0; r < R; r++, p++) {
@@ -100,11 +101,11 @@ function paintCellsByColumnWithRowRect(gc) {
         cellEvent.column.properties.preferredWidth = Math.round(preferredWidth);
     }
 
-    gc.clipRestore(clipToGrid);
+    // gc.clipRestore(clipToGrid);
 
     this.paintGridlines(gc);
 }
 
-paintCellsByColumnWithRowRect.key = 'by-columns-and-rows';
+paintCellsByColumnsWithConsolidatedRowRects.key = 'by-columns-and-rows';
 
-module.exports = paintCellsByColumnWithRowRect;
+module.exports = paintCellsByColumnsWithConsolidatedRowRects;
