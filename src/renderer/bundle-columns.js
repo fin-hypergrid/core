@@ -1,6 +1,6 @@
 'use strict';
 
-function bundleColumns() {
+function bundleColumns(resetCellEvents) {
     var bundle, columnBundles = [],
         gridProps = this.grid.properties,
         gridPrefillColor = gridProps.backgroundColor,
@@ -8,14 +8,15 @@ function bundleColumns() {
         visibleRows = this.visibleRows,
         c, C = visibleColumns.length, c0 = gridProps.showRowNumbers ? -1 : 0,
         r, R = visibleRows.length,
-        columnPrefillColors = Array(C),
         p, pool, backgroundColor;
 
-    pool = this.cellEventPool;
-    for (p = 0, c = c0; c < C; c++) {
-        for (r = 0; r < R; r++, p++) {
-            // reset pool members to reflect coordinates of cells in newly shaped grid
-            pool[p].reset(visibleColumns[c], visibleRows[r]);
+    if (resetCellEvents) {
+        pool = this.cellEventPool;
+        for (p = 0, c = c0; c < C; c++) {
+            for (r = 0; r < R; r++, p++) {
+                // reset pool members to reflect coordinates of cells in newly shaped grid
+                pool[p].reset(visibleColumns[c], visibleRows[r]);
+            }
         }
     }
 
@@ -37,7 +38,6 @@ function bundleColumns() {
     }
 
     this.columnBundles = columnBundles;
-    this.columnPrefillColors = columnPrefillColors;
 }
 
 module.exports = bundleColumns;

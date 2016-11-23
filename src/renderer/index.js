@@ -131,7 +131,7 @@ var Renderer = Base.extend('Renderer', {
 
         this.grid = grid;
 
-        var defaultGridRenderer = options.gridRenderer || 'by-columns';
+        var defaultGridRenderer = options.gridRenderer || 'by-columns-and-rows';
         this.setGridRenderer(defaultGridRenderer);
 
         this.reset();
@@ -148,10 +148,21 @@ var Renderer = Base.extend('Renderer', {
         this.paintCells.reset = true;
     },
 
-    resetAllGridRenderers: function() {
+    resetAllGridRenderers: function(blackList) {
         // Notify renderers that grid shape has changed
         Object.keys(this.gridRenderers).forEach(function(key) {
-            this.gridRenderers[key].reset = true;
+            this.gridRenderers[key].reset = !blackList || blackList.indexOf(key) < 0;
+        }, this);
+    },
+
+    /**
+     * Certain renderers that pre-bundle column rects based on columns' background colors need to re-bundle when columns' background colors change. Only those renderers that have the `rebundle` property will have it set to `true`.
+     */
+    rebundleGridRenderers: function() {
+        Object.keys(this.gridRenderers).forEach(function(key) {
+            if ('rebundle' in this.gridRenderers[key]) {
+                this.gridRenderers[key].rebundle = true;
+            }
         }, this);
     },
 
@@ -543,8 +554,6 @@ var Renderer = Base.extend('Renderer', {
         this.paintCells(gc);
         resetNumberColumnWidth(gc, this.grid.behavior);
 
-        this.paintGridlines(gc);
-
         this.renderOverrides(gc);
 
         this.renderLastSelection(gc);
@@ -925,18 +934,15 @@ var Renderer = Base.extend('Renderer', {
         if (!isHandleColumn) {
             config.dataRow = cellEvent.row;
             config.value = cellEvent.value;
-        } else if (isDataRow) {
-            // row handle for a data row
-            config.value = [images.checkbox(isRowSelected), r + 1, null]; // row number is 1-based
-        } else if (isHeaderRow) {
-            // row handle for header row: gets "master" checkbox
-            config.value = [images.checkbox(selectionModel.areAllRowsSelected()), '', null];
-        } else if (isFilterRow) {
-            // row handle for filter row: gets filter icon
-            config.value = [images.filter(false), '', null];
         } else {
-            // row handles for "summary" or other rows: empty
-            config.value = '';
+            config.isHandleColumn = true;
+            if (isDataRow) {
+                // row handle for a data row
+                config.value = r + 1; // row number is 1-based
+            } else if (isHeaderRow) {
+                // row handle for header row: gets "master" checkbox
+                config.allRowsSelected = selectionModel.areAllRowsSelected();
+            }
         }
 
         config.isSelected = isSelected;
@@ -963,6 +969,14 @@ var Renderer = Base.extend('Renderer', {
         // * mutate the (writable) properties of `config`
         // * mutate cell renderer choice (instance of which is returned)
         var cellRenderer = behavior.getCellRenderer(config, cellEvent);
+
+        if (!isHandleColumn && config.value) {
+            if (config.value.constructor === Array) {
+                config.value[1] = config.exec(config.value[1]);
+            } else {
+                config.value = config.exec(config.value);
+            }
+        }
 
         // Overwrite possibly mutated cell properties, if requested to do so by `getCell` override
         if (cellEvent.cellOwnProperties && config.reapplyCellProperties) {
@@ -1008,11 +1022,10 @@ function resetNumberColumnWidth(gc, behavior) {
     var rowCount = behavior.dataModel.getRowCount(),
         columnProperties = behavior.getColumnProperties(-1),
         cellProperties = columnProperties.rowHeader,
-        icon = images.checked,
         padding = 2 * columnProperties.cellPadding;
 
     gc.cache.font = cellProperties.font;
-    columnProperties.preferredWidth = icon.width + padding + gc.getTextWidth(rowCount);
+    columnProperties.preferredWidth = images.checked.width + padding + gc.getTextWidth(rowCount);
     if (columnProperties.width === undefined) {
         columnProperties.width = columnProperties.preferredWidth;
     }
@@ -1028,6 +1041,7 @@ function warn(name, message) {
 
 Renderer.prototype.registerGridRenderer(require('./by-cells'));
 Renderer.prototype.registerGridRenderer(require('./by-columns'));
+Renderer.prototype.registerGridRenderer(require('./by-columns-discrete'));
 Renderer.prototype.registerGridRenderer(require('./by-columns-and-rows'));
 Renderer.prototype.registerGridRenderer(require('./by-rows'));
 

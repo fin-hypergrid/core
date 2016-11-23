@@ -279,7 +279,8 @@ function paintHeaderGroups(gc, config) {
     if (groupCount) { // has group headers
         var group,
             groups = this.groups,
-            bounds = config.bounds,
+            rect = config.bounds,
+            bounds = Object.assign({}, rect), // save bounds for final column header render and resetting
 
             // save cosmetic properties for final column header render that follows this if-block
             columnConfigStash = {
@@ -287,22 +288,21 @@ function paintHeaderGroups(gc, config) {
                 isSelected: config.isSelected,
                 font: config.font,
                 backgroundColor: config.backgroundColor
-            },
-
-            // save bounds for final column header render
-            boundsLeft = bounds.x,
-            boundsWidth = bounds.width;
+            };
 
         // height of each level is the same, 1/levels of total height
-        bounds.height /= values.length;
+        rect.height /= values.length;
 
-        for (var g = 0, y = bounds.y; g < groupCount; g++, y += bounds.height) {
+        // Always paint the group header background
+        config.prefillColor = null;
+
+        for (var g = 0, y = rect.y; g < groupCount; g++, y += rect.height) {
             if (!groups[g] || values[g] !== groups[g].value) {
                 // Level has changed so reset left position (group[g] as on the renderer and persists between calls)
                 group = groups[g] = groups[g] || {};
                 group.value = values[g];
-                group.left = boundsLeft;
-                group.width = boundsWidth;
+                group.left = bounds.x;
+                group.width = bounds.width;
 
                 // save cosmetic properties for final column header render that follows this if-block
                 group.configStash = {
@@ -316,19 +316,15 @@ function paintHeaderGroups(gc, config) {
             } else {
                 // Continuation of same group level, so just repaint but with increased width
                 group = groups[g];
-                group.width += config.lineWidth + boundsWidth;
+                group.width += config.lineWidth + bounds.width;
             }
 
-            bounds.x = group.left;
-            bounds.y = y;
-            bounds.width = group.width;
+            rect.x = group.left;
+            rect.y = y;
+            rect.width = group.width;
 
             // Copy `group` members saved above from `group.config` to `config`
-            Object.keys(group.config).forEach(unstash.bind(group));
-
-            // Paint the group header background
-            gc.cache.fillStyle = config.backgroundColor;
-            gc.fillRect(bounds.x, bounds.y, bounds.width, bounds.height);
+            Object.assign(config, group);
 
             if (group.value) {
                 // Decorate the group header background
@@ -355,26 +351,30 @@ function paintHeaderGroups(gc, config) {
                     }
                     decorator.call(this, gc, config);
                 }
-
             }
 
             // Restore `config`
-            Object.keys(group.configStash).forEach(unstash.bind(group.configStash));
+            Object.assign(config, group.configStash);
         }
 
         // Restore bounds for final column header render.
         // Note that `y` and `height` have been altered from their original values.
-        bounds.x = boundsLeft;
-        bounds.y = y;
-        bounds.width = boundsWidth;
+        rect.x = bounds.x;
+        rect.y = y;
+        rect.width = bounds.width;
         config.value = values[g]; // low-order header
 
         // restore original column cosmetic properties for actual column header
-        Object.keys(columnConfigStash).forEach(unstash.bind(columnConfigStash));
+        Object.assign(config, columnConfigStash);
     }
 
     // Render the actual column header
     paint.call(this, gc, config);
+
+    // Restore to original shape for next render
+    if (groupCount) {
+        Object.assign(rect, bounds);
+    }
 
     function stash(key) { // iteratee function for iterating over `group.config`
         if (key in config) {
@@ -389,10 +389,6 @@ function paintHeaderGroups(gc, config) {
             property = property.call(this, gc, config);
         }
         group[key] = property;
-    }
-
-    function unstash(key) { // iteratee function for iterating over `group.configStash`
-        config[key] = this[key];
     }
 }
 
