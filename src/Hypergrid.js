@@ -10,7 +10,8 @@ var Rectangle = require('rectangular').Rectangle;
 var _ = require('object-iterators'); // fyi: installs the Array.prototype.find polyfill, as needed
 
 var Base = require('./Base');
-var defaults = require('./defaults');
+var globalProperties = require('./defaults');
+var dynamicProperties = require('./lib/dynamicProperties');
 var Canvas = require('./lib/Canvas');
 var Renderer = require('./renderer');
 var SelectionModel = require('./lib/SelectionModel');
@@ -20,10 +21,6 @@ var Localization = require('./lib/Localization');
 var CellRenderers = require('./cellRenderers');
 var CellEditors = require('./cellEditors');
 var BehaviorJSON = require('./behaviors/JSON');
-
-var themeInitialized = false,
-    gridTheme = Object.create(defaults),
-    globalProperties = Object.create(gridTheme);
 
 var warned = {};
 
@@ -61,11 +58,6 @@ var warned = {};
  */
 var Hypergrid = Base.extend('Hypergrid', {
     initialize: function(container, options) {
-        if (!themeInitialized) {
-            themeInitialized = true;
-            gridTheme = buildTheme(gridTheme);
-        }
-
         //Optional container argument
         if (!(typeof container === 'string') && !(container instanceof HTMLElement)) {
             options = container;
@@ -74,11 +66,19 @@ var Hypergrid = Base.extend('Hypergrid', {
 
         this.options = options = options || {};
 
+        //Set up the container for a grid instance
+        this.setContainer(
+            container ||
+            options.container ||
+            findOrCreateContainer(options.boundingRect)
+        );
+
         // Install shared plug-ins (those with a `preinstall` method)
         Object.getPrototypeOf(this).installPlugins(options.plugins);
 
+        this.clearState();
+
         this.lastEdgeSelection = [0, 0];
-        this.lnfProperties = Object.create(globalProperties);
         this.isWebkit = navigator.userAgent.toLowerCase().indexOf('webkit') > -1;
         this.selectionModel = new SelectionModel(this);
         this.renderOverridesCache = {};
@@ -95,13 +95,6 @@ var Hypergrid = Base.extend('Hypergrid', {
          * @memberOf Hypergrid#
          */
         this.cellRenderers = new CellRenderers();
-
-        //Set up the container for a grid instance
-        this.setContainer(
-            container ||
-            options.container ||
-            findOrCreateContainer(options.boundingRect)
-        );
 
         /**
          * @name cellEditors
@@ -269,13 +262,30 @@ var Hypergrid = Base.extend('Hypergrid', {
         this.div.setAttribute(attribute, value);
     },
 
-    /**
+    clearState: function() {
+        var cache = new Cache(dynamicProperties, globalProperties);
+
+        /**
+         * memento for the user configured visual properties of the table
+         * @type {object}
+         * @memberOf Hypergrid#
+         */
+        this.properties = Object.create(globalProperties, {
+            grid: { value: this },
+            cache: { value: cache }
+        });
+
+        Object.defineProperties(this.properties, dynamicProperties);
+    },
+
+/**
      * @memberOf Hypergrid#
      * @desc Clear out all state and data of a grid instance.
      */
     reset: function() {
+        this.clearState();
+
         this.lastEdgeSelection = [0, 0];
-        this.lnfProperties = Object.create(globalProperties);
         this.selectionModel = new SelectionModel(this);
         this.renderOverridesCache = {};
         this.clearMouseDown();
@@ -445,10 +455,6 @@ var Hypergrid = Base.extend('Hypergrid', {
 
     getProperties: function() {
         return this.deprecated('getProperties()', 'properties', '1.2.0');
-    },
-
-    _getProperties: function() {
-        return this.lnfProperties;
     },
 
     computeCellsBounds: function() {
@@ -2251,6 +2257,13 @@ var Hypergrid = Base.extend('Hypergrid', {
     }
 });
 
+function Cache(descriptors, defaults) {
+    defaults = defaults || {};
+    Object.keys(descriptors).forEach(function(key) {
+        this[key] = defaults[key];
+    }, this);
+}
+
 function findOrCreateContainer(boundingRect) {
     var div = document.getElementById('hypergrid'),
         used = div && !div.firstElementChild;
@@ -2308,77 +2321,6 @@ function addDeepProperties(destination, source) {
         }
     });
     return destination;
-}
-
-function buildTheme(theme) {
-    clearObjectProperties(theme);
-    var pb = document.createElement('paper-button'); // styles were based on old polymer theme
-
-    pb.style.display = 'none';
-    pb.setAttribute('disabled', true);
-    document.body.appendChild(pb);
-    var p = window.getComputedStyle(pb);
-
-    var section = document.createElement('section');
-    section.style.display = 'none';
-    section.setAttribute('hero', true);
-    document.body.appendChild(section);
-
-    var h = window.getComputedStyle(document.querySelector('html'));
-    var hb = window.getComputedStyle(document.querySelector('html, body'));
-    var s = window.getComputedStyle(section);
-
-    theme.columnHeaderBackgroundColor = p.color;
-    theme.rowHeaderBackgroundColor = p.color;
-    theme.topLeftBackgroundColor = p.color;
-    theme.lineColor = p.backgroundColor;
-
-    theme.backgroundColor2 = hb.backgroundColor;
-
-    theme.color = h.color;
-    theme.fontFamily = h.fontFamily;
-    theme.backgroundColor = s.backgroundColor;
-
-    pb.setAttribute('disabled', false);
-    pb.setAttribute('secondary', true);
-    pb.setAttribute('raised', true);
-    p = window.getComputedStyle(pb);
-
-    theme.columnHeaderColor = p.color;
-    theme.rowHeaderColor = p.color;
-    theme.topLeftColor = p.color;
-
-
-    theme.backgroundSelectionColor = p.backgroundColor;
-    theme.foregroundSelectionColor = p.color;
-
-    pb.setAttribute('secondary', false);
-    pb.setAttribute('warning', true);
-
-    theme.columnHeaderForegroundSelectionColor = p.color;
-    theme.columnHeaderBackgroundSelectionColor = p.backgroundColor;
-    theme.rowHeaderForegroundSelectionColor = p.color;
-    theme.fixedColumnBackgroundSelectionColor = p.backgroundColor;
-
-    //check if there is actually a theme loaded if not, clear out all bogus values
-    //from my cache
-    if (theme.columnHeaderBackgroundSelectionColor === 'rgba(0, 0, 0, 0)' ||
-        theme.lineColor === 'transparent') {
-        clearObjectProperties(theme);
-    }
-
-    document.body.removeChild(pb);
-    document.body.removeChild(section);
-
-    return theme;
-}
-
-function clearObjectProperties(obj) {
-    for (var prop in obj) {
-        if (obj.hasOwnProperty(prop)) {
-            delete obj[prop];
-        }
-    }
 }
 
 function headerFormatter(value, config) {

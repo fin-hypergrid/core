@@ -126,13 +126,11 @@ var Renderer = Base.extend('Renderer', {
      * > All `initialize()` methods in the inheritance chain are called, in turn, each with the same parameters that were passed to the constructor, beginning with that of the most "senior" class through that of the class of the new instance.
      * @memberOf Renderer.prototype
      */
-    initialize: function(grid, options) {
-        options = options || {};
-
+    initialize: function(grid) {
         this.grid = grid;
 
-        var defaultGridRenderer = options.gridRenderer || 'by-columns-and-rows';
-        this.setGridRenderer(defaultGridRenderer);
+        // typically grid properties won't exist yet
+        this.setGridRenderer(grid.properties && grid.properties.gridRenderer || 'by-columns-and-rows');
 
         this.reset();
     },
@@ -144,8 +142,16 @@ var Renderer = Base.extend('Renderer', {
     },
 
     setGridRenderer: function(key) {
-        this.paintCells = this.gridRenderers[key];
-        this.paintCells.reset = true;
+        var paintCells = this.gridRenderers[key];
+
+        if (!paintCells) {
+            throw new this.HypergridError('Unregistered grid renderer "' + key + '"');
+        }
+
+        if (paintCells !== this.paintCells) {
+            this.paintCells = paintCells;
+            this.paintCells.reset = true;
+        }
     },
 
     resetAllGridRenderers: function(blackList) {
@@ -156,7 +162,7 @@ var Renderer = Base.extend('Renderer', {
     },
 
     /**
-     * Certain renderers that pre-bundle column rects based on columns' background colors need to re-bundle when columns' background colors change. Only those renderers that have the `rebundle` property will have it set to `true`.
+     * Certain renderers that pre-bundle column rects based on columns' background colors need to re-bundle when columns' background colors change. This method sets the `rebundle` property to `true` for those renderers that have that property.
      */
     rebundleGridRenderers: function() {
         Object.keys(this.gridRenderers).forEach(function(key) {

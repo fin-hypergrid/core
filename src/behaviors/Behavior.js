@@ -92,8 +92,6 @@ var Behavior = Base.extend('Behavior', {
     features: [], // override in implementing class unless no features
 
     reset: function(options) {
-        this.clearState();
-
         if (this.dataModel) {
             this.dataModel.reset();
         } else {
@@ -110,7 +108,6 @@ var Behavior = Base.extend('Behavior', {
         this.dataUpdates = {}; //for overriding with edit values;
         this.scrollPositionX = this.scrollPositionY = 0;
         this.clearColumns();
-        this.clearState();
         this.createColumns();
 
         this.subgrids = options.subgrids || [
@@ -280,20 +277,7 @@ var Behavior = Base.extend('Behavior', {
      * @desc clear all table state
      */
     clearState: function() {
-        /**
-         * memento for the user configured visual properties of the table
-         * @type {object}
-         * @memberOf Behavior.prototype
-         */
-        this.grid.properties = this.getDefaultState();
-    },
-
-    /**
-     * @memberOf Behavior.prototype
-     * @return {object} Newly created default empty tablestate.
-     */
-    getDefaultState: function() {
-        return this.grid._getProperties();
+       this.grid.clearState();
     },
 
     /**
@@ -320,7 +304,6 @@ var Behavior = Base.extend('Behavior', {
             }
         }
 
-        this.clearState();
         var state = this.grid.properties;
         this.createColumns();
         this._setColumnOrder(memento.columnIndexes);

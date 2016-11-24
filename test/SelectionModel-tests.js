@@ -73,7 +73,7 @@ var instance = [
 //TODO: sinon mock object perhaps...
 function mockGrid(){
     return {
-        _getProperties: function() { return {}; }
+        properties: {}
     };
 }
 
