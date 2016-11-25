@@ -734,7 +734,7 @@ window.onload = function() {
 
     grid.addProperties({
         readOnly: false,
-        noDataMessage: 'No Date to Display',
+        noDataMessage: 'No Data to Display',
         showFilterRow: true
     });
 

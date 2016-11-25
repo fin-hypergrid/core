@@ -648,6 +648,16 @@ var defaults = {
      */
     renderer: 'SimpleCell',
 
+    /**
+     * Name of grid renderer.
+     * Renderer must have been registered.
+     * @see {@link Renderer#registerGridRenderer}.
+     * @default
+     * @type {string}
+     * @memberOf module:defaults
+     */
+    gridRenderer: 'by-column-and-rows',
+
     /********** HOVER COLORS **********/
 
     /** @typedef hoverColors
@@ -808,7 +818,7 @@ var defaults = {
      * @default
      * @memberOf module:defaults
      */
-    truncateTextWithEllipsis: true,
+    truncateTextWithEllipsis: true
 };
 
 /** @typedef {string} cssColor
