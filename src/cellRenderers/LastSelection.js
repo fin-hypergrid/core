@@ -14,19 +14,32 @@ var LastSelection = CellRenderer.extend('LastSelection', {
      * @memberOf LastSelection.prototype
      */
     paint: function(gc, config) {
-        var x = config.bounds.x,
-            y = config.bounds.y,
-            width = config.bounds.width,
-            height = config.bounds.height;
+        var visOverlay = gc.alpha(config.selectionRegionOverlayColor) > 0,
+            visOutline = gc.alpha(config.selectionRegionOutlineColor) > 0;
 
-        gc.rect(x + 1, y, width - 2, height - 2);
+        if (visOverlay || visOutline) {
+            var x = config.bounds.x,
+                y = config.bounds.y,
+                width = config.bounds.width,
+                height = config.bounds.height;
 
-        gc.cache.fillStyle = config.selectionRegionOverlayColor;
-        gc.fill();
+            gc.beginPath();
 
-        gc.cache.lineWidth = 1;
-        gc.cache.strokeStyle = config.selectionRegionOutlineColor;
-        gc.stroke();
+            gc.rect(x, y, width, height);
+
+            if (visOverlay) {
+                gc.cache.fillStyle = config.selectionRegionOverlayColor;
+                gc.fill();
+            }
+
+            if (visOutline) {
+                gc.cache.lineWidth = 1;
+                gc.cache.strokeStyle = config.selectionRegionOutlineColor;
+                gc.stroke();
+            }
+
+            gc.closePath();
+        }
     }
 });
 
