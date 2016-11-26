@@ -17,7 +17,7 @@
         }
     },
     "opts": {
-        "template": "jsdoc-template",
+        "template": "jsdoc-template-hypergrid",
         "tutorials": "./src/jsdoc/tutorials",
         "recurse": true,
         "verbose": true,
