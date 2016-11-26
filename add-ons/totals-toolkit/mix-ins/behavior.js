@@ -2,7 +2,7 @@
 
 module.exports = {
 
-    /** @typedef {*[]} valueList
+    /** @typedef {Array} valueList
      * @desc One of:
      * * `activeColumnsList` falsy - Array of row values semantically congruent to `this.columns`.
      * * `activeColumnsList` truthy - Array of row values semantically congruent to `this.allColumns`.
@@ -43,7 +43,7 @@ module.exports = {
      * @summary Get the top total row(s).
      * @returns {valueList[]}
      * @param {boolean} [activeColumnsList=false]
-     * @returns {valueList|*[]} Full data row object, or object containing just the "active" columns, per `activeColumnsList`.
+     * @returns {valueList|Array} Full data row object, or object containing just the "active" columns, per `activeColumnsList`.
      * @memberOf Behavior.prototype
      */
     getTopTotals: function(activeColumnsList) {

@@ -828,7 +828,7 @@ function propPrep(dataModel, columnIndex, propName, value) {
  * @private
  * @param {string} propName
  * @this DataSourceOrigin#
- * @returns {*[]}
+ * @returns {Array}
  */
 function getSchemaPropArr(propName, deprecatedMethodName) {
     this.deprecated(deprecatedMethodName, deprecatedMethodName + '() has been deprecated as of v1.2.0 and will be removed in a future release. Constructs like ' + deprecatedMethodName + '()[i] should be changed to schema[i]. (This deprecated method now returns a new array derived from schema.)');

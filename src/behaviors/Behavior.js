@@ -7,9 +7,7 @@ var Point = require('rectangular').Point;
 var Base = require('../Base');
 var Column = require('./Column');
 var cellEventFactory = require('./../lib/cellEventFactory');
-var HeaderSubgrid = require('../dataModels/HeaderSubgrid');
-var FilterSubgrid = require('../dataModels/FilterSubgrid');
-var SummarySubgrid = require('../dataModels/SummarySubgrid');
+var dataModels = require('../dataModels');
 var dialogs = require('../dialogs');
 
 var noExportProperties = [
@@ -108,13 +106,16 @@ var Behavior = Base.extend('Behavior', {
         this.clearColumns();
         this.createColumns();
 
+        /**
+         * Ordered list of subgrids to render.
+         * @type {subgridSpec[]}
+         */
         this.subgrids = options.subgrids || [
-            HeaderSubgrid,
-            FilterSubgrid,
-            [SummarySubgrid, { name: 'topTotals' }],
-            require('../dataModels/InfoSubgrid'),
+            dataModels.HeaderSubgrid,
+            dataModels.FilterSubgrid,
+            [dataModels.SummarySubgrid, { name: 'topTotals' }],
             this.dataModel,
-            [SummarySubgrid, { name: 'bottomTotals' }]
+            [dataModels.SummarySubgrid, { name: 'bottomTotals' }]
         ];
     },
 
@@ -1383,12 +1384,17 @@ var Behavior = Base.extend('Behavior', {
      * The list should always include at least one "data" subgrid, typically {@link Behavior#dataModel|dataModel}.
      * It may also include zero or more other types of subgrids such as header, filter, and summary subgrids.
      *
-     * This object also serves as a dictionary of selected subgrids by name (i.e., for those subgrids that have a defined property `name`).
+     * This object also serves as a dictionary of subgrids where each dictionary key is one of:
+     * * **`subgrid.name`** (for those that have a defined name, which is presumed to be unique)
+     * * **`subgrid.type`** (not unique, so if you plan on having multiple, name them!)
+     * * **`'data'`** for the one and only data subgrid (which is unnamed and untyped)
      *
      * The setter:
      * * "Enlivens" any constructors
      * * Reconstructs the dictionary
      * * Calls {@link Behavior#shapeChanged|shpaeChanged()}.
+     *
+     * @param {subgridSpec[]} subgrids
      *
      * @type {DataModel[]}
      * @memberOf Behavior.prototype
@@ -1396,6 +1402,7 @@ var Behavior = Base.extend('Behavior', {
     set subgrids(subgrids) {
         this._subgrids = subgrids = subgrids.map(enlivenSubgrids, this);
 
+        // create the dictionary from the array elements
         subgrids.forEach(function(subgrid) {
             // undefined type is data
             subgrid.type = subgrid.type || 'data';
@@ -1416,32 +1423,44 @@ var Behavior = Base.extend('Behavior', {
 });
 
 /**
- *
+ * Maps a `subgridSpec` to a data model.
  * @param {DataModel|Array|function|undefined|null} [subgridSpec] - One of:
- * * `DataModel` - Mapped to self (passed through as is).
- * * `Array` - Mapped to newly instantiated data model: First element is assumed to be a `DataModel` constructor to be called with `new` keyword and `this.grid` as first arg and remaining elements as additional args.
- * * function - Mapped to newly instantiated data model: A `DataModel` constructor to be called with `new` keyword and `this.grid` as only arg.
- * * Falsy value - Mapped to the behavior's data model (`this.dataModel`).
+ * * **{@link DataModel}** - Mapped to self (passed through as is).
+ * * **`Array`** - Mapped to newly instantiated data model: First element is assumed to be a {@link DataModel} constructor to be called with `new` keyword and `this.grid` as first arg and remaining elements as additional args.
+ * * **`function`** - Assumed to be a data model constructor. Mapped to newly instantiated data model: The constructor is called with `new` keyword and `this.grid` as only arg.
+ * * **`undefined`** - Mapped to the behavior's already-instantiated data model (`this.dataModel`).
  * @returns {DataModel}
  */
-function enlivenSubgrids(dataModel) {
-    if (!dataModel) {
-        dataModel = this.dataModel;
-    } else if (dataModel instanceof Array && dataModel.length) {
-        var Constructor = dataModel[0],
-            boundArgs = dataModel.slice(1),
-            BoundConstructor;
-
-        boundArgs.unshift(this.grid); // first bound arg
-        boundArgs.unshift(null); // context for the `bind` call below
-
-        BoundConstructor = Constructor.bind.apply(Constructor, boundArgs);
-
-        dataModel = new BoundConstructor;
-    } else if (typeof dataModel === 'function') {
-        dataModel = new dataModel(this.grid); // eslint-disable-line new-cap
+function enlivenSubgrids(subgridSpec) {
+    var result, Constructor, variableArgArray;
+    if (typeof subgridSpec === undefined) {
+        result = this.dataModel;
+    } else if (subgridSpec instanceof Array && subgridSpec.length) {
+        Constructor = derefSubgridRef.call(this, subgridSpec[0]);
+        variableArgArray = subgridSpec.slice(1);
+        result = this.createApply(Constructor, variableArgArray, this.grid);
+    } else if (typeof subgridSpec === 'object') {
+        result = subgridSpec;
+    } else {
+        Constructor = derefSubgridRef.call(this, subgridSpec);
+        result = new Constructor(this.grid);
     }
-    return dataModel;
+    return result;
+}
+
+function derefSubgridRef(subgridRef) {
+    var Constructor;
+    switch (typeof subgridRef) {
+        case 'string':
+            Constructor = dataModels[subgridRef];
+            break;
+        case 'function':
+            Constructor = subgridRef;
+            break;
+        default:
+            throw new this.HypergridError('Expected subgrid ref to be registered name or constructor, but found ' + typeof subgridSpec + '.');
+    }
+    return Constructor;
 }
 
 /**
@@ -1450,3 +1469,17 @@ function enlivenSubgrids(dataModel) {
 Behavior.prototype.reindex = Behavior.prototype.applyAnalytics;
 
 module.exports = Behavior;
+
+/** @typedef {undefined|string|DataModel} subgridRef
+ * @desc One of:
+ * * **`undefined`** - The behavior's data model (already instantiated).
+ * * **`string`** - The name of a registered data model (to be instantiated).
+ * * **{@link DataModel}** - A specific data model object (to be instantiated).
+ */
+/** @typedef {subgridRef|Array} subgridSpec
+ * @desc One of:
+ * * **{@link subgridRef}**
+ * * **`Array`**:
+ *   * first element is a {@link subgridRef}
+ *   * remaining elements to be passed to the data model constructor
+ */

@@ -39,19 +39,26 @@ var EDGE_STYLES = ['top', 'bottom', 'left', 'right'],
  * * A function returning a schema array. Called at filter reset time with behavior as context.
  * * Omit to generate a basic schema from `this.behavior.columns`.
  * @param {Behavior} [options.Behavior=JSON] - A grid behavior (descendant of Behavior "class").
+ *
  * @param {pluginSpec|pluginSpec[]} [options.plugins]
- * @param {DataModels[]} [options.subgrids]
- * @param {string} [options.localization=Hypergrid.localization]
+ *
+ * @param {subgridSpec[]} [options.subgrids]
+ *
  * @param {string|Element} [options.container] - CSS selector or Element
+ *
+ * @param {string} [options.localization=Hypergrid.localization]
  * @param {string|string[]} [options.localization.locale=Hypergrid.localization.locale] - The default locale to use when an explicit `locale` is omitted from localizer constructor calls. Passed to Intl.NumberFomrat` and `Intl.DateFomrat`. See {@ https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl#Locale_identification_and_negotiation|Locale identification and negotiation} for more information.
  * @param {string} [options.localization.numberOptions=Hypergrid.localization.numberOptions] - Options passed to `Intl.NumberFormat` for creating the basic "number" localizer.
  * @param {string} [options.localization.dateOptions=Hypergrid.localization.dateOptions] - Options passed to `Intl.DateFomrat` for creating the basic "date" localizer.
+ *
  * @param {object} [options.schema]
+ *
  * @param {object} [options.margin] - Optional canvas "margins" applied to containing div as .left, .top, .right, .bottom. (Default values actually derive from 'grid' stylesheet's `.hypergrid-container` rule.)
  * @param {string} [options.margin.top='0px']
  * @param {string} [options.margin.right='0px']
  * @param {string} [options.margin.bottom='0px']
  * @param {string} [options.margin.left='0px']
+ *
  * @param {object} [options.boundingRect] - Optional grid container size & position. (Default values actually derive from 'grid' stylesheet's `.hypergrid-container > div:first-child` rule.)
  * @param {string} [options.boundingRect.height='500px']
  * @param {string} [options.boundingRect.width='auto']
@@ -350,8 +357,8 @@ var Hypergrid = Base.extend('Hypergrid', {
      *
      * Plugins may have both `preinstall` _and_ `install` methods, in which case both will be called. However, note that in any case, `install` methods on object API plugins are ignored.
      *
-     * @this {Hypergrid|Hypergrid.prototype}
-     * @param {pluginSpec|pluginSpec[]} [plugins] - The plugins to install. This call is a no-op if omitted.
+     * @this {Hypergrid}
+     * @param {pluginSpec|pluginSpec[]} [plugins] - The plugins to install. If omitted, the call is a no-op.
      */
     installPlugins: function(plugins) {
         var shared = this === Hypergrid.prototype; // Do shared ("preinstalled") plugins (if any)
@@ -363,7 +370,7 @@ var Hypergrid = Base.extend('Hypergrid', {
         }
 
         plugins.forEach(function(plugin) {
-            var name, args, hash, BoundConstructor;
+            var name, args, hash;
 
             if (!plugin) {
                 return; // ignore falsy plugin spec
@@ -410,9 +417,7 @@ var Hypergrid = Base.extend('Hypergrid', {
                 hash = this.plugins;
                 if (typeof plugin === 'function') {
                     // Install "object API" by instantiating
-                    args.unshift(null); // context for the `bind` call below
-                    BoundConstructor = plugin.bind.apply(plugin, args);
-                    plugin = new BoundConstructor;
+                    plugin = this.createApply(plugin, args);
                 } else if (plugin.install) {
                     // Install "simple API" by calling its `install` method
                     plugin.install.apply(plugin, args);

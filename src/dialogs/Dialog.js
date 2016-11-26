@@ -90,8 +90,8 @@ var Dialog = Base.extend('Dialog', {
      * @param {HTMLElement} [container] - If undefined, dialog is appended to body.
      *
      * If defined, dialog is appended to container. When container is not body, it will be:
-     * # made visible before append (it should initially be hidden)
-     * # made hidden after remove
+     * 0. made visible before append (it should initially be hidden)
+     * 0. made hidden after remove
      */
     open: function(container) {
         var error;
