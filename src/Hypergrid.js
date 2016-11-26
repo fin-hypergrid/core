@@ -22,7 +22,10 @@ var CellRenderers = require('./cellRenderers');
 var CellEditors = require('./cellEditors');
 var BehaviorJSON = require('./behaviors/JSON');
 
-/**s
+var EDGE_STYLES = ['top', 'bottom', 'left', 'right'],
+    RECT_STYLES = EDGE_STYLES.concat(['width', 'height', 'position']);
+
+/**
  * @constructor
  * @param {string|Element} [container] - CSS selector or Element
  * @param {object} [options]
@@ -41,18 +44,22 @@ var BehaviorJSON = require('./behaviors/JSON');
  * @param {string} [options.localization=Hypergrid.localization]
  * @param {string|Element} [options.container] - CSS selector or Element
  * @param {string|string[]} [options.localization.locale=Hypergrid.localization.locale] - The default locale to use when an explicit `locale` is omitted from localizer constructor calls. Passed to Intl.NumberFomrat` and `Intl.DateFomrat`. See {@ https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl#Locale_identification_and_negotiation|Locale identification and negotiation} for more information.
- * @param {string} [options.localization.numberOptions=Hypergrid.localization.numberOptions] - Options passed to `Intl.NumberFomrat` for creating the basic "number" localizer.
+ * @param {string} [options.localization.numberOptions=Hypergrid.localization.numberOptions] - Options passed to `Intl.NumberFormat` for creating the basic "number" localizer.
  * @param {string} [options.localization.dateOptions=Hypergrid.localization.dateOptions] - Options passed to `Intl.DateFomrat` for creating the basic "date" localizer.
  * @param {object} [options.schema]
- * @param {object} [options.margin] - optional canvas margins
- * @param {string} [options.margin.top=0]
- * @param {string} [options.margin.right=0]
- * @param {string} [options.margin.bottom=0]
- * @param {string} [options.margin.left=0]
- * @param {object} [options.boundingRect] - optional grid container argument
- * @param {string} [options.boundingRect.height=300]
- * @param {string} [options.boundingRect.width=300]
- * @param {string} [options.boundingRect.postion=relative]
+ * @param {object} [options.margin] - Optional canvas "margins" applied to containing div as .left, .top, .right, .bottom. (Default values actually derive from 'grid' stylesheet's `.hypergrid-container` rule.)
+ * @param {string} [options.margin.top='0px']
+ * @param {string} [options.margin.right='0px']
+ * @param {string} [options.margin.bottom='0px']
+ * @param {string} [options.margin.left='0px']
+ * @param {object} [options.boundingRect] - Optional grid container size & position. (Default values actually derive from 'grid' stylesheet's `.hypergrid-container > div:first-child` rule.)
+ * @param {string} [options.boundingRect.height='500px']
+ * @param {string} [options.boundingRect.width='auto']
+ * @param {string} [options.boundingRect.left='auto']
+ * @param {string} [options.boundingRect.top='auto']
+ * @param {string} [options.boundingRect.right='auto']
+ * @param {string} [options.boundingRect.bottom='auto']
+ * @param {string} [options.boundingRect.position='relative']
  */
 var Hypergrid = Base.extend('Hypergrid', {
     initialize: function(container, options) {
@@ -576,7 +583,7 @@ var Hypergrid = Base.extend('Hypergrid', {
      * @see [Memento pattern](http://en.wikipedia.org/wiki/Memento_pattern)
      */
     getPrivateState: function() {
-        return this.deprecate('getPrivateState()', 'properties', '1.2.0');
+        return this.deprecated('getPrivateState()', 'properties', '1.2.0');
     },
 
     /**
@@ -908,28 +915,22 @@ var Hypergrid = Base.extend('Hypergrid', {
      * @private
      */
     initCanvas: function() {
-        if (this.divCanvas) {
-            return;
+        if (!this.divCanvas) {
+            var divCanvas = document.createElement('div');
+
+            setStyles(divCanvas, this.options.margin, EDGE_STYLES);
+
+            this.div.appendChild(divCanvas);
+
+            var canvas = new Canvas(divCanvas, this.renderer, this.options.canvas);
+            canvas.canvas.classList.add('hypergrid');
+            canvas.resize();
+
+            this.divCanvas = divCanvas;
+            this.canvas = canvas;
+
+            this.delegateCanvasEvents();
         }
-
-        var margin = this.options.margin || {},
-            divCanvas = this.divCanvas = document.createElement('div'),
-            style = divCanvas.style;
-
-        style.position = 'absolute';
-        style.top = margin.top || 0;
-        style.right = margin.right || 0;
-        style.bottom = margin.bottom || 0;
-        style.left = margin.left || 0;
-
-        this.div.appendChild(divCanvas);
-
-        this.canvas = undefined;
-        this.canvas = new Canvas(divCanvas, this.renderer, this.options.canvas);
-        this.canvas.canvas.classList.add('hypergrid');
-        this.canvas.resize();
-
-        this.delegateCanvasEvents();
     },
 
     convertViewPointToDataPoint: function(unscrolled) {
@@ -2263,15 +2264,7 @@ function findOrCreateContainer(boundingRect) {
 
     if (!used) {
         div = document.createElement('div');
-
-        if (boundingRect) {
-            ['width', 'height', 'position', 'top', 'bottom', 'left', 'right'].forEach(function(style) {
-                if (boundingRect[style]) {
-                    div.style[style] = boundingRect[style];
-                }
-            });
-        }
-
+        setStyles(div, boundingRect, RECT_STYLES);
         document.body.appendChild(div);
     }
 
