@@ -381,6 +381,8 @@ var Renderer = Base.extend('Renderer', {
     paint: function(gc) {
         if (this.grid) {
             if (!this.hasData()) {
+                var c = this.grid.canvas;
+                if (c) {gc.clearRect(0, 0, c.width, c.height);}
                 var message = this.grid.properties.noDataMessage;
                 gc.cache.font = '20px Arial';
                 gc.fillText(message, 20, 30);
