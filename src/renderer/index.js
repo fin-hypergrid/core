@@ -362,9 +362,6 @@ var Renderer = Base.extend('Renderer', {
                 };
             }
             // Pad all info rows sufficiently to reach bottom of canvas
-            // This code will work for a multi-row info subgrid.
-            // (InfoSubgrid currently only supports a single row.)
-            // todo: assumes foot subgrids are empty when info subgrid is not
             // todo: assumes there is at most one info subgrid
             var infoRowCount = info.getRowCount();
             if (infoRowCount) {
@@ -423,29 +420,15 @@ var Renderer = Base.extend('Renderer', {
 
     /**
      * @memberOf Renderer.prototype
-     * @summary Notify the fin-hypergrid everytime we've repainted.
+     * @summary Notify the fin-hypergrid every time we've repainted.
      * @desc This is the entry point from fin-canvas.
      * @param {CanvasRenderingContext2D} gc
      */
     paint: function(gc) {
-        if (this.grid) {
-            if (!this.hasData()) {
-                var message = this.grid.properties.noDataMessage;
-                gc.cache.font = '20px Arial';
-                gc.fillText(message, 20, 30);
-            } else {
-                this.renderGrid(gc);
-                this.grid.gridRenderedNotification();
-            }
+        if (this.grid.canvas) {
+            this.renderGrid(gc);
+            this.grid.gridRenderedNotification();
         }
-    },
-
-    hasData: function() {
-        var data = this.grid.behavior.getData();
-        if (data) {
-            return data.length > 0;
-        }
-        return false;
     },
 
     /**

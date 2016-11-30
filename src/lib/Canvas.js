@@ -224,12 +224,8 @@ Canvas.prototype = {
         //this is expensive lets do it at some modulo
         var sizeNow = this.div.getBoundingClientRect();
         if (sizeNow.width !== this.size.width || sizeNow.height !== this.size.height) {
-            this.sizeChangedNotification();
+            this.resize();
         }
-    },
-
-    sizeChangedNotification: function() {
-        this.resize();
     },
 
     resize: function() {
@@ -266,20 +262,9 @@ Canvas.prototype = {
             this.gc.scale(ratio, ratio);
         }
 
-        //this.origin = new rectangular.Point(Math.round(this.size.left), Math.round(this.size.top));
         this.bounds = new rectangular.Rectangle(0, 0, this.width, this.height);
-        //setTimeout(function() {
-        var comp = this.component;
-        if (comp) {
-            comp.setBounds(this.bounds);
-        }
-        this.resizeNotification();
+        this.component.setBounds(this.bounds);
         this.paintNow();
-        //});
-    },
-
-    resizeNotification: function() {
-        //to be overridden
     },
 
     getBounds: function() {
@@ -287,28 +272,19 @@ Canvas.prototype = {
     },
 
     paintNow: function() {
-        var self = this;
-        this.safePaintImmediately(function(gc) {
-            var comp = self.component;
-            if (comp) {
-                comp.paint(gc);
-            }
-
-            self.dirty = false;
-        });
-    },
-
-    safePaintImmediately: function(paintFunction) {
         var useBitBlit = this.component.properties.useBitBlit,
             gc = useBitBlit ? this.bc : this.gc;
+
         try {
             gc.cache.save();
-            paintFunction(gc);
+            this.component.paint(gc);
+            this.dirty = false;
         } catch (e) {
             console.error(e);
         } finally {
             gc.cache.restore();
         }
+
         if (useBitBlit) {
             this.flushBuffer();
         }

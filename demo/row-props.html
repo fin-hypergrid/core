@@ -31,7 +31,7 @@
 </head>
 <body>
     <label title="grid.properties.enableContinuousRepaint = true vs. false">
-        <input type="checkbox" onclick="enableContinuousRepaint=this.checked">
+        <input type="checkbox" onclick="grid.properties.enableContinuousRepaint=this.checked">
         Continuous repaint
     </label>
     <div class="radio-group">
@@ -184,11 +184,11 @@ Renders all cells over consolidated row backgrounds, if any. Unsuitable as a cli
     <div class="radio-group">
         Data rows:
         <label title="grid.properties.backgroundColor='white'">
-            <input type="radio" name="gridbg" onclick="grid.setData([]);" >
+            <input type="radio" name="datarows" onclick="grid.updateData([]);" >
             0
         </label>
         <label title="grid.properties.backgroundColor='transparent'">
-            <input type="radio" name="gridbg" onclick="grid.setData(data);" checked>
+            <input type="radio" name="datarows" onclick="grid.updateData(data);" checked>
             <span id="row-count"></span>
         </label>
     </div>
@@ -216,6 +216,7 @@ for(var i=0; i<256-4; ++i) {
 grid.setData(data);
 document.getElementById('row-count').innerHTML = data.length;
 grid.addProperties({
+    noDataMessage: 'Zero Rows!',
     backgroundColor: 'white',
     foregroundSelectionFont: '13px Tahoma, Geneva, sans-serif',
     columnClip: false,

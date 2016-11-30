@@ -42,6 +42,8 @@ function paintCellsByColumnsDiscrete(gc) {
 
     gc.clearRect(0, 0, this.bounds.width, this.bounds.height);
 
+    if (!C || !R) { return; }
+
     if (paintCellsByColumnsDiscrete.reset) {
         this.resetAllGridRenderers(['by-columns']);
         paintCellsByColumnsDiscrete.reset = false;
