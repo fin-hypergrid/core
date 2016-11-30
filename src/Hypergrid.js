@@ -22,8 +22,6 @@ var CellRenderers = require('./cellRenderers');
 var CellEditors = require('./cellEditors');
 var BehaviorJSON = require('./behaviors/JSON');
 
-var warned = {};
-
 /**s
  * @constructor
  * @param {string|Element} [container] - CSS selector or Element
@@ -825,10 +823,7 @@ var Hypergrid = Base.extend('Hypergrid', {
      */
     resolveProperty: function(key) {
         // todo: when we remove this method, also remove forwards from Behavior.js and Renderer.js
-        if (!warned.resolveProperty) {
-            warned.resolveProperty = true;
-            console.warn('resolveProperty(key) deprecated as of v1.2.0 in favor of grid.properties[key] and will be removed in a future version.');
-        }
+        this.deprecated('resolveProperty', '.resolveProperty(key) deprecated as of v1.2.0 in favor of .properties dereferenced by [key]. (Will be removed in a future version.)');
         return this.properties[key];
     },
 
@@ -2114,10 +2109,7 @@ var Hypergrid = Base.extend('Hypergrid', {
     },
 
     isColumnAutosizing: function() {
-        if (!warned.isColumnAutosizing) {
-            warned.isColumnAutosizing = true;
-            console.warn('Property `isColumnAutosizing` has been deprecated as of v1.2.2 in favor of `this.properties.columnAutosizing === true` and will be removed in a future version. Note however that as of v1.2.2 grid.properties.columnAutosizing no longer has the global meaning it had previously and should no longer be referred to directly. Refer to each column\'s `columnAutosizing` property instead.');
-        }
+        this.deprecated('isColumnAutosizing', 'Property .isColumnAutosizing has been deprecated as of v1.2.2 in favor of .properties.columnAutosizing === true. (Will be removed in a future version.) Note however that as of v1.2.2 grid.properties.columnAutosizing no longer has the global meaning it had previously and should no longer be referred to directly. Refer to each column\'s `columnAutosizing` property instead.');
         return this.properties.columnAutosizing === true;
     },
 

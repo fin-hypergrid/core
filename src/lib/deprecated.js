@@ -8,24 +8,20 @@ if (!console.warn) {
     };
 }
 
-var warned = {};
+var classWarned = {};
 
-var regexIsMethod = /\)$/;
+var regexIsMethod = /^\w+\(.*\)$/;
 
 /**
  * User is warned and new property is returned or new method is called and the result is returned.
- * @param {string} methodName - Deprecated method name with parentheses (required) containing argument list (optional; see `args` below).
- * @param {string} dotProps - Dot-separated new property name to invoke or method name to call. Method names are indicated by including parentheses with optional argument list. The arguments in each list are drawn from the arguments presented in the `methodName` parameter.
+ * @param {string} methodName - Warning key paired with arbitrary warning in `dotProps` OR deprecated method name with parentheses containing optional argument list paired with replacement property or method in `dotProps`.
+ * @param {string} dotProps - Arbitrary warning paired with warning key in `methodName` OR dot-separated new property name to invoke or method name to call. Method names are indicated by including parentheses with optional argument list. The arguments in each list are drawn from the arguments presented in the `methodName` parameter.
  * @param {string} since - Version in which the name was deprecated.
  * @param {Arguments|Array} [args] - The actual arguments in the order listed in `methodName`. Only needed when arguments need to be forwarded.
  * @param {string} [notes] - Notes to add to message.
  * @returns {*} Return value of new property or method call.
  */
 var deprecated = function(methodName, dotProps, since, args, notes) {
-    if (!regexIsMethod.test(methodName)) {
-        throw 'Expected method name to have parentheses.';
-    }
-
     if (typeof args === 'string') {
         // `args` omitted
         notes = args;
@@ -33,26 +29,44 @@ var deprecated = function(methodName, dotProps, since, args, notes) {
     }
 
     var chain = dotProps.split('.'),
-        formalArgList = argList(methodName),
-        result = this;
+        warned = classWarned[this.$$CLASS_NAME] = classWarned[this.$$CLASS_NAME] || {},
+        result = this,
+        isSimpleWarning = dotProps.indexOf(' ') >= 0,
+        isMethodCall = regexIsMethod.test(methodName),
+        memberType,
+        warning;
 
     if (!(methodName in warned)) {
         warned[methodName] = deprecated.warnings;
     }
-    if (warned[methodName]) {
-        var memberType = regexIsMethod.test(dotProps) ? 'method' : 'property';
-        var warning = 'The .' + methodName + ' method is deprecated as of v' + since +
-            ' in favor of the .' + chain.join('.') + ' ' + memberType + '.' +
-            ' (Will be removed in a future release.)';
 
-        if (notes) {
-            warning += ' ' + notes;
+    if (isMethodCall) {
+        if (isSimpleWarning) {
+            throw 'Expected replacement method or property in 2nd parameter of deprecated() call.';
+        } else if (warned[methodName]) {
+            --warned[methodName];
+            memberType = regexIsMethod.test(dotProps) ? 'method' : 'property';
+            warning = 'The .' + methodName + ' method is deprecated as of v' + since +
+                ' in favor of the .' + chain.join('.') + ' ' + memberType + '.' +
+                ' (Will be removed in a future release.)';
+
+            if (notes) {
+                warning += ' ' + notes;
+            }
+
+            console.warn(warning);
         }
-
-        console.warn(warning);
-
-        --warned[methodName];
+    } else if (isSimpleWarning) {
+        if (warned[methodName]) {
+            --warned[methodName];
+            console.warn(dotProps);
+        }
+        return;
+    } else {
+        throw 'Expected simple warning (containing one or more spaces) in 2nd parameter of deprecated() call.';
     }
+
+    var formalArgList = argList(methodName);
 
     function mapToFormalArg(argName) {
         var index = formalArgList.indexOf(argName);
@@ -65,14 +79,14 @@ var deprecated = function(methodName, dotProps, since, args, notes) {
     for (var i = 0, last = chain.length - 1; i <= last; ++i) {
         var link = chain[i],
             name = link.match(/\w+/)[0],
-            isMethod = regexIsMethod.test(link),
-            actualArgList = isMethod ? argList(link) : undefined,
+            linkIsMethodCall = regexIsMethod.test(link),
+            actualArgList = linkIsMethodCall ? argList(link) : undefined,
             actualArgs = [];
 
         if (actualArgList) {
             actualArgs = actualArgList.map(mapToFormalArg);
             result = result[name].apply(result, actualArgs);
-        } else if (isMethod) {
+        } else if (linkIsMethodCall) {
             result = result[name]();
         } else {
             result = result[name];

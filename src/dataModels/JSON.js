@@ -824,7 +824,6 @@ function propPrep(dataModel, columnIndex, propName, value) {
     return this.properties(properties);
 }
 
-var warned = {};
 /**
  * @private
  * @param {string} propName
@@ -832,10 +831,7 @@ var warned = {};
  * @returns {*[]}
  */
 function getSchemaPropArr(propName, deprecatedMethodName) {
-    if (!warned[deprecatedMethodName]) {
-        console.warn(deprecatedMethodName + '() has been deprecated as of v1.2.0 and will be removed in a future release. Constructs like ' + deprecatedMethodName + '()[i] should be changed to schema[i]. (This deprecated method now returns a new array derived from schema.)');
-        warned[deprecatedMethodName] = true;
-    }
+    this.deprecated(deprecatedMethodName, deprecatedMethodName + '() has been deprecated as of v1.2.0 and will be removed in a future release. Constructs like ' + deprecatedMethodName + '()[i] should be changed to schema[i]. (This deprecated method now returns a new array derived from schema.)');
     return this.schema.map(function(columnSchema) {
         return columnSchema[propName];
     }, this);

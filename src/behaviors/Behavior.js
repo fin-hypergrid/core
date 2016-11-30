@@ -23,8 +23,6 @@ var noExportProperties = [
     'treeColumnPropertiesColumnSelection',
 ];
 
-var warned = {};
-
 /**
  * @constructor
  * @abstract
@@ -289,10 +287,7 @@ var Behavior = Base.extend('Behavior', {
     setState: function(memento) {
 
         if (memento.rowHeights) {
-            if (!warned.rowHeights) {
-                warned.rowHeights = true;
-                console.warn('rowHeights, the hash of row heights you provided to setState method, is no longer supported as of v1.2.0 and will be ignored. Instead use individual calls to setRowHeight(y, height, dataModel) for each row height you wish to set, where y is local zero-based row index within dataModel. The dataModel arg is optional and defaults to this.dataModel; specify to set row heights in other data models, such as header row, filter cell row, individual summary rows, etc.');
-            }
+            this.deprecated('rowHeights', 'rowHeights, the hash of row heights you provided to setState method, is no longer supported as of v1.2.0 and will be ignored. Instead use individual calls to setRowHeight(y, height, dataModel) for each row height you wish to set, where y is local zero-based row index within dataModel. The dataModel arg is optional and defaults to this.dataModel; specify to set row heights in other data models, such as header row, filter cell row, individual summary rows, etc.');
         }
 
         //we don't want to clobber the column properties completely
@@ -692,7 +687,7 @@ var Behavior = Base.extend('Behavior', {
      * @returns {number} The row height in pixels.
      */
     getDefaultRowHeight: function() {
-        return this.deprecated('getDefaultRowHeight', 'grid.properties.defaultRowHeight', '1.2.0');
+        return this.deprecated('getDefaultRowHeight()', 'grid.properties.defaultRowHeight', '1.2.0');
     },
 
     /**

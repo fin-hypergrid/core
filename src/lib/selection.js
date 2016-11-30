@@ -4,8 +4,6 @@
 
 var Rectangle = require('rectangular').Rectangle;
 
-var warned = {};
-
 module.exports = {
     /**
      * @memberOf Hypergrid#
@@ -536,24 +534,15 @@ module.exports = {
         this.repaint();
     },
     isCellSelection: function() {
-        if (!warned.isCellSelection) {
-            warned.isCellSelection = true;
-            console.warn('Property `isCellSelection` has been deprecated as of v1.2.2 in favor of `this.properties.cellSelection === true` and will be removed in a future version.');
-        }
+        this.deprecated('isCellSelection', 'Property `isCellSelection` has been deprecated as of v1.2.2 in favor of `this.properties.cellSelection === true`. (Will be removed in a future version.)');
         return this.properties.cellSelection === true;
     },
     isRowSelection: function() {
-        if (!warned.isRowSelection) {
-            warned.isRowSelection = true;
-            console.warn('Property `isRowSelection` has been deprecated as of v1.2.2 in favor of `this.properties.rowSelection === true` and will be removed in a future version.');
-        }
+        this.deprecated('isRowSelection', 'Property `isRowSelection` has been deprecated as of v1.2.2 in favor of `this.properties.rowSelection === true`. (Will be removed in a future version.)');
         return this.properties.rowSelection === true;
     },
     isColumnSelection: function() {
-        if (!warned.isColumnSelection) {
-            warned.isColumnSelection = true;
-            console.warn('Property `isColumnSelection` has been deprecated as of v1.2.2 in favor of `this.properties.columnSelection === true` and will be removed in a future version.');
-        }
+        this.deprecated('isColumnSelection', 'Property `isColumnSelection` has been deprecated as of v1.2.2 in favor of `this.properties.columnSelection === true`. (Will be removed in a future version.)');
         return this.properties.columnSelection === true;
     },
     isSingleRowSelectionMode: function() {
