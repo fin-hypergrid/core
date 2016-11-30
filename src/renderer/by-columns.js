@@ -66,6 +66,8 @@ function paintCellsByColumns(gc) {
         gc.clearFill(columnBundle.left, 0, columnBundle.right - columnBundle.left, viewHeight, columnBundle.backgroundColor);
     }
 
+    this.paintGridlines(gc);
+
     // gc.clipSave(clipToGrid, 0, 0, viewWidth, viewHeight);
 
     // For each column...
@@ -96,8 +98,6 @@ function paintCellsByColumns(gc) {
     }
 
     // gc.clipRestore(clipToGrid);
-
-    this.paintGridlines(gc);
 }
 
 paintCellsByColumns.key = 'by-columns';

@@ -162,8 +162,8 @@ Canvas.prototype = {
 
 
     tickPaint: function(now) {
-        var isContinuousRepaint = this.component.resolveProperty('enableContinuousRepaint'),
-            fps = this.component.resolveProperty('repaintIntervalRate');
+        var isContinuousRepaint = this.component.properties.enableContinuousRepaint,
+            fps = this.component.properties.repaintIntervalRate;
         if (fps === 0) {
             return;
         }
@@ -242,7 +242,7 @@ Canvas.prototype = {
         //http://www.html5rocks.com/en/tutorials/canvas/hidpi/
         //just add 'hdpi' as an attribute to the fin-canvas tag
         var ratio = 1;
-        var isHIDPI = window.devicePixelRatio && this.component.resolveProperty('useHiDPI');
+        var isHIDPI = window.devicePixelRatio && this.component.properties.useHiDPI;
         if (isHIDPI) {
             var devicePixelRatio = window.devicePixelRatio || 1;
             var backingStoreRatio = this.gc.webkitBackingStorePixelRatio ||
@@ -262,7 +262,7 @@ Canvas.prototype = {
         this.canvas.style.height = this.buffer.style.height = this.height + 'px';
 
         this.bc.scale(ratio, ratio);
-        if (isHIDPI && !this.component.resolveProperty('useBitBlit')) {
+        if (isHIDPI && !this.component.properties.useBitBlit) {
             this.gc.scale(ratio, ratio);
         }
 
@@ -299,7 +299,7 @@ Canvas.prototype = {
     },
 
     safePaintImmediately: function(paintFunction) {
-        var useBitBlit = this.component.resolveProperty('useBitBlit'),
+        var useBitBlit = this.component.properties.useBitBlit,
             gc = useBitBlit ? this.bc : this.gc;
         try {
             gc.cache.save();
@@ -400,7 +400,7 @@ Canvas.prototype = {
     },
 
     finclick: function(e) {
-        var delay = this.component.resolveProperty('doubleClickDelay');
+        var delay = this.component.properties.doubleClickDelay;
         if (delay < 100) {
             dispatchClickEvent.call(this, e);
         } else if (this.doubleClickTimer && Date.now() - this.lastClickTime < delay) {
@@ -497,7 +497,7 @@ Canvas.prototype = {
     },
 
     fincontextmenu: function(e) {
-        var delay = this.component.resolveProperty('doubleClickDelay');
+        var delay = this.component.properties.doubleClickDelay;
 
         if (e.ctrlKey && this.currentKeys.indexOf('CTRL') === -1) {
             this.currentKeys.push('CTRL');
@@ -519,7 +519,7 @@ Canvas.prototype = {
 
     repaint: function() {
         this.dirty = true;
-        if (!paintLoopRunning || this.component.resolveProperty('repaintIntervalRate') === 0) {
+        if (!paintLoopRunning || this.component.properties.repaintIntervalRate === 0) {
             this.paintNow();
         }
     },

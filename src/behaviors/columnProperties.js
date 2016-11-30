@@ -219,6 +219,54 @@ function createColumnProperties() {
         }
     })});
 
+    Object.defineProperty(properties, 'infoProperties', { value: Object.create(properties, {
+        font: {
+            configurable: true,
+            enumerable: true,
+            get: function() {
+                return this.infoFont;
+            },
+            set: function(value) {
+                this.infoFont = value;
+            }
+        },
+        color: {
+            configurable: true,
+            enumerable: true,
+            get: function() {
+                return this.infoColor;
+            },
+            set: function(value) {
+                this.infoColor = value;
+            }
+        },
+        backgroundColor: {
+            configurable: true,
+            enumerable: true,
+            get: function() {
+                return this.infoBackgroundColor;
+            },
+            set: function(value) {
+                this.infoBackgroundColor = value;
+            }
+        },
+        halign: {
+            configurable: true,
+            enumerable: true,
+            get: function() {
+                return this.infoHalign;
+            },
+            set: function(value) {
+                this.infoHalign = value;
+            }
+        },
+        format: {
+            writable: true,
+            enumerable: true,
+            value: 'info'
+        }
+    })});
+
     Object.defineProperty(properties, 'filterProperties', { value: Object.create(properties, {
         font: {
             configurable: true,

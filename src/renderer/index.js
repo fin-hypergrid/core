@@ -187,10 +187,10 @@ var Renderer = Base.extend('Renderer', {
         var scrollTop = this.getScrollTop(),
             scrollLeft = this.getScrollLeft(),
 
-            fixedColumnCount = this.getFixedColumnCount(),
-            fixedRowCount = this.getFixedRowCount(),
+            fixedColumnCount = this.grid.getFixedColumnCount(),
+            fixedRowCount = this.grid.getFixedRowCount(),
 
-            numRows = this.getRowCount(),
+            numRows = this.grid.getRowCount(),
             bounds = this.getBounds(),
             grid = this.grid,
             behavior = grid.behavior,
@@ -237,7 +237,7 @@ var Renderer = Base.extend('Renderer', {
         this.insertionBounds = [];
 
         for (
-            x = 0, c = start, C = this.getColumnCount(), X = bounds.width || grid.canvas.width;
+            x = 0, c = start, C = this.grid.getColumnCount(), X = bounds.width || grid.canvas.width;
             c < C && x <= X;
             c++
         ) {
@@ -275,14 +275,15 @@ var Renderer = Base.extend('Renderer', {
             previousInsertionBoundsCursorValue = Math.round(width / 2);
         }
 
+        // get height of total number of rows in all subgrids that follow the data subgrid
         footerHeight = grid.properties.defaultRowHeight * subgrids.reduce(function(rows, subgrid) {
-                if (scrollableSubgrid) {
-                    rows += subgrid.getRowCount();
-                } else {
-                    scrollableSubgrid = !subgrid.type;
-                }
-                return rows;
-            }, 0);
+            if (scrollableSubgrid) {
+                rows += subgrid.getRowCount();
+            } else {
+                scrollableSubgrid = subgrid.isData;
+            }
+            return rows;
+        }, 0);
 
         for (
             base = r = g = y = 0, G = subgrids.length, Y = bounds.height - footerHeight;
@@ -291,7 +292,7 @@ var Renderer = Base.extend('Renderer', {
         ) {
             subgrid = subgrids[g];
             subrows = subgrid.getRowCount();
-            scrollableSubgrid = !subgrid.type;
+            scrollableSubgrid = subgrid.isData;
             topR = r;
 
             // For each row of each subgrid...
@@ -307,7 +308,6 @@ var Renderer = Base.extend('Renderer', {
                         break; // scrolled beyond last row
                     }
                 }
-
 
                 rowIndex = vy - base;
                 height = Math.ceil(behavior.getRowHeight(rowIndex, subgrid));
@@ -348,6 +348,44 @@ var Renderer = Base.extend('Renderer', {
 
         this.dataWindow = this.grid.newRectangle(firstVX, firstVY, lastVX - firstVX, lastVY - firstVY);
 
+        // Create an "info" column that stretches from column 0 to column n
+        var info = behavior.subgrids.info;
+        if (info) {
+            if (C) {
+                this.visibleColumns.info = {
+                    index: vc.index,
+                    columnIndex: vc.columnIndex,
+                    column: vc.column,
+                    left: this.visibleColumns[0].left,
+                    width: vc.right - this.visibleColumns[0].left,
+                    right: vc.right
+                };
+            }
+            // Pad all info rows sufficiently to reach bottom of canvas
+            // This code will work for a multi-row info subgrid.
+            // (InfoSubgrid currently only supports a single row.)
+            // todo: assumes foot subgrids are empty when info subgrid is not
+            // todo: assumes there is at most one info subgrid
+            var infoRowCount = info.getRowCount();
+            if (infoRowCount) {
+                y = bounds.height - y;
+                if (y > 0) {
+                    Y = Math.floor(y / infoRowCount);
+                    y = y % infoRowCount;
+                    var i = 0, k = 0;
+                    this.visibleRows.forEach(function(vr) {
+                        if (vr.subgrid.isInfo) {
+                            var j = Y + (i++ < y ? 1 : 0);
+                            vr.top += k;
+                            vr.height += j;
+                            vr.bottom += vr.top + vr.height;
+                            k += j;
+                        }
+                    });
+                }
+            }
+        }
+
         // Resize CellEvent pool
         var pool = this.cellEventPool,
             previousLength = pool.length,
@@ -364,11 +402,22 @@ var Renderer = Base.extend('Renderer', {
     },
 
     /**
-     * Keep in place! Used by fin-canvas.
+     * CAUTION: Keep in place! Used by {@link Canvas}.
+     * @memberOf Renderer.prototype
+     * @returns {Object} The current grid properties object.
+     */
+    get properties() {
+        return this.grid.properties;
+    },
+
+    /**
+     * Previously used by fin-canvas.
      * @memberOf Renderer.prototype
      * @returns {Object} a property value at a key, delegates to the grid
+     * @deprecated
      */
     resolveProperty: function(key) {
+        this.deprecated('resolveProperty', 'The .resolveProperty(key) method is deprecated as of v1.2.10 in favor of the .grid.properties object dereferenced with [key]. (Will be removed in a future release.)');
         return this.grid.properties[key];
     },
 
@@ -416,7 +465,7 @@ var Renderer = Base.extend('Renderer', {
      * @returns {number[]} Rows we just rendered.
      */
     getVisibleRows: function() {
-        warn('getVisibleRows', 'The getVisibleRows() method has been deprecated as of v1.2.0 and will be removed in a future version. Previously returned the this.visibleRows array but because this.visibleRows is no longer a simple array of integers but is now an array of objects, it now returns an array mapped to this.visibleRows[*].rowIndex. Note however that this mapping is not equivalent to what this method previously returned because while each object\'s .rowIndex property is still adjusted for scrolling within the data subgrid, the index is now local to (zero-based within) each subgrid');
+        this.deprecated('getVisibleRows', 'The getVisibleRows() method has been deprecated as of v1.2.0. (Will be removed in a future version.) Previously returned the this.visibleRows array but because this.visibleRows is no longer a simple array of integers but is now an array of objects, it now returns an array mapped to this.visibleRows[*].rowIndex. Note however that this mapping is not equivalent to what this method previously returned because while each object\'s .rowIndex property is still adjusted for scrolling within the data subgrid, the index is now local to (zero-based within) each subgrid');
         return this.visibleRows.map(function(vr) { return vr.rowIndex; });
     },
 
@@ -433,7 +482,7 @@ var Renderer = Base.extend('Renderer', {
      * @returns {number} Columns we just rendered.
      */
     getVisibleColumns: function() {
-        warn('visibleColumns', 'The getVisibleColumns() method has been deprecated as of v1.2.0 and will be removed in a future version. Previously returned the this.visibleColumns but because this.visibleColumns is no longer a simple array of integers but is now an array of objects, it now returns an array mapped to the equivalent visibleColumns[*].columnIndex.');
+        this.deprecated('visibleColumns', 'The getVisibleColumns() method has been deprecated as of v1.2.0. (Will be removed in a future version.) Previously returned the this.visibleColumns but because this.visibleColumns is no longer a simple array of integers but is now an array of objects, it now returns an array mapped to the equivalent visibleColumns[*].columnIndex.');
         return this.visibleColumns.map(function(vc) { return vc.columnIndex; });
     },
 
@@ -463,7 +512,7 @@ var Renderer = Base.extend('Renderer', {
      */
     getColumnFromPixelX: function(pixelX) {
         var width = 0,
-            fixedColumnCount = this.getFixedColumnCount(),
+            fixedColumnCount = this.grid.getFixedColumnCount(),
             scrollLeft = this.grid.getHScrollValue(),
             visibleColumns = this.visibleColumns;
 
@@ -676,12 +725,12 @@ var Renderer = Base.extend('Renderer', {
     },
 
     getColumnEdges: function() {
-        warn('columnEdges', 'The getColumnEdges() mehtod has been deprecated as of version 1.2.0 in favor of visibleColumns[*].top and will be removed in a future version. Note however that columnEdges had one additional element (representing the right edge of the last visible column) which visibleColumns lacks. Instead you can reference visibleColumns[*].bottom.');
+        this.deprecated('columnEdges', 'The getColumnEdges() mehtod has been deprecated as of version 1.2.0 in favor of visibleColumns[*].top. (Will be removed in a future version.) Note however that columnEdges had one additional element (representing the right edge of the last visible column) which visibleColumns lacks. Instead you can reference visibleColumns[*].bottom.');
         return this.visibleColumns.map(function(vc) { return vc.left; }).concat([this.visibleColumns[this.visibleColumns.length - 1].right]);
     },
 
     getRowEdges: function() {
-        warn('rowEdges', 'The getRowEdges() method has been deprecated as of version 1.2.0 in favor of visibleRows[*].top and will be removed in a future version. Note however that rowEdges had one additional element (representing the bottom edge of the last visible row) which visibleRows lacks. Instead you can reference visibleRows[*].bottom.');
+        this.deprecated('rowEdges', 'The getRowEdges() method has been deprecated as of version 1.2.0 in favor of visibleRows[*].top. (Will be removed in a future version.) Note however that rowEdges had one additional element (representing the bottom edge of the last visible row) which visibleRows lacks. Instead you can reference visibleRows[*].bottom.');
         return this.visibleRows.map(function(vr) { return vr.top; }).concat([this.visibleRows[this.visibleRows.length - 1].bottom]);
     },
 
@@ -690,7 +739,7 @@ var Renderer = Base.extend('Renderer', {
      * @returns {boolean} The last col was rendered (is visible)
      */
     isLastColumnVisible: function() {
-        var lastColumnIndex = this.getColumnCount() - 1;
+        var lastColumnIndex = this.grid.getColumnCount() - 1;
         return !!this.visibleColumns.find(function(vc) { return vc.columnIndex === lastColumnIndex; });
     },
 
@@ -767,46 +816,6 @@ var Renderer = Base.extend('Renderer', {
      */
     getPageDownRow: function() {
         return this.dataWindow.corner.y - this.grid.properties.fixedRowCount + 1;
-    },
-
-    /**
-     * @memberOf Renderer.prototype
-     * @returns {number} The number of columns.
-     */
-    getColumnCount: function() {
-        return this.grid.getColumnCount();
-    },
-
-    /**
-     * @memberOf Renderer.prototype
-     * @returns {number} The number of rows.
-     */
-    getRowCount: function() {
-        return this.grid.getRowCount();
-    },
-
-    /**
-     * @memberOf Renderer.prototype
-     * @returns {number} The number of fixed columns.
-     */
-    getFixedColumnCount: function() {
-        return this.grid.getFixedColumnCount();
-    },
-
-    /**
-     * @memberOf Renderer.prototype
-     * @returns {number} The number of fixed rows.
-     */
-    getFixedRowCount: function() {
-        return this.grid.getFixedRowCount();
-    },
-
-    /**
-     * @memberOf Renderer.prototype
-     * @returns {number} The number of header rows.
-     */
-    getHeaderRowCount: function() {
-        return this.grid.getHeaderRowCount();
     },
 
     renderErrorCell: function(err, gc, vc, vr) {
@@ -944,6 +953,7 @@ var Renderer = Base.extend('Renderer', {
         config.isDataRow = isDataRow;
         config.isHeaderRow = isHeaderRow;
         config.isFilterRow = isFilterRow;
+        config.isInfoRow = cellEvent.isInfoRow;
         config.isUserDataArea = isUserDataArea;
         config.isColumnHovered = cellEvent.isColumnHovered;
         config.isRowHovered = cellEvent.isRowHovered;
@@ -1022,14 +1032,6 @@ function resetNumberColumnWidth(gc, behavior) {
     columnProperties.preferredWidth = images.checked.width + padding + gc.getTextWidth(rowCount);
     if (columnProperties.width === undefined) {
         columnProperties.width = columnProperties.preferredWidth;
-    }
-}
-
-var warnings = {};
-function warn(name, message) {
-    if (!warnings[name]) {
-        warnings[name] = true;
-        console.warn(message);
     }
 }
 

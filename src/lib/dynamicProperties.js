@@ -11,6 +11,16 @@ var dynamicProperties = {
             this.cache.gridRenderer = rendererName;
             this.grid.renderer.setGridRenderer(rendererName);
         }
+    },
+
+    noDataMessage: {
+        get: function() {
+            return this.cache.noDataMessage;
+        },
+        set: function(message) {
+            this.cache.noDataMessage = message;
+            this.grid.setInfo(message);
+        }
     }
 };
 

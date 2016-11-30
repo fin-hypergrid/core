@@ -2,6 +2,8 @@
 
 var rectangular = require('rectangular');
 
+var deprecated = require('./deprecated');
+
 // Variation of rectangular.Point but with writable x and y:
 function WritablePoint() {}
 WritablePoint.prototype = rectangular.Point.prototype;
@@ -42,6 +44,8 @@ var prototype = Object.defineProperties({}, {
                 // cp already set to basic props
             } else if (this.isFilterRow) {
                 cp = cp.filterProperties;
+            } else if (this.isInfoRow) {
+                cp = cp.infoProperties;
             } else { // unselected header, summary, etc., all have save look as unselected header
                 cp = cp.columnHeader;
             }
@@ -64,6 +68,8 @@ var prototype = Object.defineProperties({}, {
 
     // special methods for use by renderer which reuses cellEvent object for performance reasons
     reset: { value: function(visibleColumn, visibleRow) {
+        this.disabled = false;
+
         this.visibleColumn = visibleColumn;
         this.visibleRow = visibleRow;
 
@@ -88,7 +94,7 @@ var prototype = Object.defineProperties({}, {
     isColumnVisible: { get: function() { return !!this.visibleColumn; } },
     isCellVisible:   { get: function() { return this.isRowVisible && this.isColumnVisible; } },
 
-    isDataRow:    { get: function() { return !this.visibleRow.subgrid.type; } },
+    isDataRow:    { get: function() { return this.visibleRow.subgrid.isData; } },
     isDataColumn: { get: function() { return this.gridCell.x >= 0; } },
     isDataCell:   { get: function() { return this.isDataRow && this.isDataColumn; } },
 
@@ -109,15 +115,17 @@ var prototype = Object.defineProperties({}, {
 
     isHierarchyColumn: { get: function() { return this.gridCell.x === 0 && this.grid.properties.showTreeColumn && this.dataModel.isDrillDown(this.dataCell.x); } },
 
-    isHeaderRow:    { get: function() { return this.visibleRow.subgrid.type === 'header'; } },
+    isInfoRow:      { get: function() { return this.visibleRow.subgrid.isInfo; } },
+
+    isHeaderRow:    { get: function() { return this.visibleRow.subgrid.isHeader; } },
     isHeaderHandle: { get: function() { return this.isHeaderRow && this.isHandleColumn; } },
     isHeaderCell:   { get: function() { return this.isHeaderRow && this.isDataColumn; } },
 
-    isFilterRow:    { get: function() { return this.visibleRow.subgrid.type === 'filter'; } },
+    isFilterRow:    { get: function() { return this.visibleRow.subgrid.isFilter; } },
     isFilterHandle: { get: function() { return this.isFilterRow && this.isHandleColumn; } },
     isFilterCell:   { get: function() { return this.isFilterRow && this.isDataColumn; } },
 
-    isSummaryRow:    { get: function() { return this.visibleRow.subgrid.type === 'summary'; } },
+    isSummaryRow:    { get: function() { return this.visibleRow.subgrid.isSummary; } },
     isSummaryHandle: { get: function() { return this.isSummaryRow && this.isHandleColumn; } },
     isSummaryCell:   { get: function() { return this.isSummaryRow && this.isDataColumn; } },
 
@@ -127,28 +135,24 @@ var prototype = Object.defineProperties({}, {
 
     isBottomTotalsRow:    { get: function() { return this.visibleRow.subgrid === this.behavior.subgrids.bottomTotals; } },
     isBottomTotalsHandle: { get: function() { return this.isBottomTotalsRow && this.isHandleColumn; } },
-    isBottomTotalsCell:   { get: function() { return this.isBottomTotalsRow && this.isDataColumn; } }
+    isBottomTotalsCell:   { get: function() { return this.isBottomTotalsRow && this.isDataColumn; } },
+
+    $$CLASS_NAME: { value: 'CellEvent' },
+    deprecated: { value: deprecated },
+
+    isGridRow: { get: function() {
+        this.deprecated('isGridRow', '.isGridRow is deprecated as of v1.2.10 in favor of .isDataRow. (Will be removed in a future release.)');
+        return this.isDataRow;
+    } },
+    isGridColumn: { get: function() {
+        this.deprecated('isGridColumn', '.isGridColumn is deprecated as of v1.2.10 in favor of .isDataColumn. (Will be removed in a future release.)');
+        return this.isDataColumn;
+    } },
+    isGridCell: { get: function() {
+        this.deprecated('isGridCell', '.isGridCell is deprecated as of v1.2.10 in favor of .isDataCell. (Will be removed in a future release.)');
+        return this.isDataCell;
+    } }
 });
-
-var deprecatedDescriptors = {
-    isGridRow:    { get: function() { return deprecated.call(this, 'isGridRow', 'isDataRow'); } },
-    isGridColumn: { get: function() { return deprecated.call(this, 'isGridColumn', 'isDataColumn'); } },
-    isGridCell:   { get: function() { return deprecated.call(this, 'isGridCell', 'isDataCell'); } }
-};
-
-var warn = {};
-
-function deprecated(propName, inFavorOf) {
-    if (!warn[propName]) {
-        console.warn(propName + ' is deprecated as of v1.3.0 in favor of ' + inFavorOf + ' and will be removed in a future release.');
-        warn[propName] = true;
-    }
-    return this[inFavorOf];
-}
-
-prototype = Object.defineProperties(prototype, deprecatedDescriptors);
-Object.defineProperties(require('../defaults'), deprecatedDescriptors);
-deprecatedDescriptors = undefined; // trash
 
 /**
  * @classdesc `CellEvent` is a very low-level object that needs to be super-efficient. JavaScript objects are well known to be light weight in general, but at this level we need to be careful.

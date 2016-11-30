@@ -1,30 +1,42 @@
 'use strict';
 
 function bundleRows(resetCellEvents) {
-    var bundle, rowBundles = [],
-        gridProps = this.grid.properties,
-        gridPrefillColor = gridProps.backgroundColor,
-        rowPropsList = gridProps.rowProperties,
-        visibleColumns = this.visibleColumns,
+    var gridProps = this.grid.properties,
+        vc, visibleColumns = this.visibleColumns,
         vr, visibleRows = this.visibleRows,
-        c, C = visibleColumns.length, c0 = gridProps.showRowNumbers ? -1 : 0,
+        c, C = visibleColumns.length, c0 = gridProps.showRowNumbers ? -1 : 0, Cn = C - 1,
         r, R = visibleRows.length,
-        rowPrefillColors = Array(R),
-        p, pool, rowProperties, backgroundColor;
+        p, pool;
 
     if (resetCellEvents) {
         pool = this.cellEventPool;
         for (p = 0, r = 0; r < R; r++) {
+            vr = visibleRows[r];
             for (c = c0; c < C; c++, p++) {
-                // reset pool members to reflect coordinates of cells in newly shaped grid
-                pool[p].reset(visibleColumns[c], visibleRows[r]);
+                vc = visibleColumns[c];
+                if (!vr.subgrid.isInfo || c < 0) {
+                    // reset pool member to reflect coordinates of cell in newly shaped grid
+                    pool[p].reset(vc, vr);
+                } else if (c === Cn) {
+                    // reset pool member with coordinates of stretched cell
+                    pool[p].reset(visibleColumns.info, vr);
+                } else if (c >= 0) {
+                    // disable pool member for cells that are under stretched cell
+                    pool[p].disabled = true;
+                }
             }
         }
     }
 
+    var bundle, rowBundles = [],
+        gridPrefillColor = gridProps.backgroundColor,
+        rowPropsList = gridProps.rowProperties,
+        rowPrefillColors = Array(R),
+        rowProperties, backgroundColor;
+
     for (r = 0; r < R; r++) {
         vr = visibleRows[r]; // first cell in row r
-        rowProperties = !vr.subgrid.type && rowPropsList && rowPropsList[vr.rowIndex % rowPropsList.length];
+        rowProperties = vr.subgrid.isData && rowPropsList && rowPropsList[vr.rowIndex % rowPropsList.length];
         backgroundColor = rowPrefillColors[r] = rowProperties && rowProperties.backgroundColor || gridPrefillColor;
         if (bundle && bundle.backgroundColor === backgroundColor) {
             bundle.bottom = vr.bottom;

@@ -3,7 +3,7 @@
 function HeaderRow(grid) {
     this.grid = grid;
     this.behavior = grid.behavior;
-    this.dataRow = {}; // for meta data (__HEIGHT)
+    this.dataRow = {}; // for meta data (__ROW_HEIGHT)
 }
 
 HeaderRow.prototype = {

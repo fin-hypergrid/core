@@ -4,8 +4,6 @@
 
 var Behavior = require('../behaviors/Behavior');
 
-var warned = {};
-
 module.exports = {
     /**
      * @memberOf Hypergrid#
@@ -171,12 +169,8 @@ module.exports = {
     fireSyntheticDoubleClickEvent: function(cellEvent) {
         if (!this.abortEditing()) { return; }
 
-        if (
-            this.behavior.cellDoubleClicked !== Behavior.prototype.cellDoubleClicked &&
-            !warned['fin-double-click']
-        ) {
-            warned['fin-double-click'] = true;
-            console.warn('behavior.cellDoubleClicked(gridCell, cellEvent) has been deprecated as of v1.2.6 in favor of handling in a \'fin-double-click\' event (event.detail.gridCell, event.primitiveEvent) and will be removed in a future release.');
+        if (this.behavior.cellDoubleClicked !== Behavior.prototype.cellDoubleClicked) {
+            this.deprecated('fin-double-click', 'behavior.cellDoubleClicked(gridCell, cellEvent) has been deprecated as of v1.2.6 in favor of handling in a \'fin-double-click\' event (event.detail.gridCell, event.primitiveEvent) and will be removed in a future release.');
         }
         // to deprecate, remove above warning + warned + following line + abstract implementation in Behavior.js
         this.behavior.cellDoubleClicked(cellEvent.gridCell, cellEvent);

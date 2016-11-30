@@ -18,8 +18,10 @@ SummaryRow.prototype = {
 
     type: 'summary',
 
+    hasOwnData: true,
+
     getRowCount: function() {
-        return this.getData().length;
+        return this.behavior.dataModel.getRowCount() && this.getData().length;
     },
 
     getData: function() {
@@ -27,7 +29,7 @@ SummaryRow.prototype = {
     },
 
     setData: function(data, schema) {
-        this.data = schema ? [] : data; // if there's a schema, means new data rows have arrived
+        this.data = data;
     },
 
     getValue: function(x, y) {

@@ -23,8 +23,6 @@ var noExportProperties = [
     'treeColumnPropertiesColumnSelection',
 ];
 
-var warned = {};
-
 /**
  * @constructor
  * @abstract
@@ -114,6 +112,7 @@ var Behavior = Base.extend('Behavior', {
             HeaderSubgrid,
             FilterSubgrid,
             [SummarySubgrid, { name: 'topTotals' }],
+            require('../dataModels/InfoSubgrid'),
             this.dataModel,
             [SummarySubgrid, { name: 'bottomTotals' }]
         ];
@@ -289,10 +288,7 @@ var Behavior = Base.extend('Behavior', {
     setState: function(memento) {
 
         if (memento.rowHeights) {
-            if (!warned.rowHeights) {
-                warned.rowHeights = true;
-                console.warn('rowHeights, the hash of row heights you provided to setState method, is no longer supported as of v1.2.0 and will be ignored. Instead use individual calls to setRowHeight(y, height, dataModel) for each row height you wish to set, where y is local zero-based row index within dataModel. The dataModel arg is optional and defaults to this.dataModel; specify to set row heights in other data models, such as header row, filter cell row, individual summary rows, etc.');
-            }
+            this.deprecated('rowHeights', 'rowHeights, the hash of row heights you provided to setState method, is no longer supported as of v1.2.0 and will be ignored. Instead use individual calls to setRowHeight(y, height, dataModel) for each row height you wish to set, where y is local zero-based row index within dataModel. The dataModel arg is optional and defaults to this.dataModel; specify to set row heights in other data models, such as header row, filter cell row, individual summary rows, etc.');
         }
 
         //we don't want to clobber the column properties completely
@@ -692,7 +688,7 @@ var Behavior = Base.extend('Behavior', {
      * @returns {number} The row height in pixels.
      */
     getDefaultRowHeight: function() {
-        return this.deprecated('getDefaultRowHeight', 'grid.properties.defaultRowHeight', '1.2.0');
+        return this.deprecated('getDefaultRowHeight()', 'grid.properties.defaultRowHeight', '1.2.0');
     },
 
     /**
@@ -1102,7 +1098,7 @@ var Behavior = Base.extend('Behavior', {
         var result = 0;
 
         this.subgrids.find(function(subgrid) {
-            if (!subgrid.type) {
+            if (subgrid.isData) {
                 return true; // stop
             }
             result += subgrid.getRowCount();
@@ -1371,6 +1367,16 @@ var Behavior = Base.extend('Behavior', {
        this.dataModel.getIndexedData();
     },
 
+    setInfo: function(messages) {
+        if (this.subgrids.info) {
+            this.subgrids.info.setData(
+                messages instanceof Array ? messages : [messages],
+                this.dataModel.schema
+            );
+            this.grid.behavior.changed();
+        }
+    },
+
     /**
      * An array where each element represents a subgrid to be rendered in the hypergrid.
      *
@@ -1391,7 +1397,14 @@ var Behavior = Base.extend('Behavior', {
         this._subgrids = subgrids = subgrids.map(enlivenSubgrids, this);
 
         subgrids.forEach(function(subgrid) {
-            subgrids[subgrid.name || subgrid.type || 'data'] = subgrid;
+            // undefined type is data
+            subgrid.type = subgrid.type || 'data';
+
+            // make dictionary entry
+            subgrids[subgrid.name || subgrid.type] = subgrid;
+
+            // make isType boolean
+            subgrid['is' + subgrid.type[0].toUpperCase() + subgrid.type.substr(1)] = true;
         });
 
         this.shapeChanged();

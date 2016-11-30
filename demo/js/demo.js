@@ -1097,7 +1097,7 @@ window.onload = function() {
         });
 
         console.log('visible rows = ' + grid.renderer.visibleRows.map(function(vr){
-            return (vr.subgrid.type || 'data')[0] + vr.rowIndex;
+            return vr.subgrid.type[0] + vr.rowIndex;
         }));
         console.log('visible columns = ' + grid.renderer.visibleColumns.map(function(vc){
             return vc.columnIndex;

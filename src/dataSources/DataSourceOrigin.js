@@ -13,7 +13,8 @@ var DataSourceOrigin = DataSourceBase.extend('DataSourceOrigin',  {
      */
     initialize: function(data, schema) {
         delete this.dataSource; // added by DataSourceBase#initialize but we don't want here
-        this.setData.call(this, data, schema || []);
+        this._schema = [];
+        this.setData.call(this, data, schema);
     },
 
     /**
@@ -322,6 +323,8 @@ function setData(data, schema) {
 
     if (schema) {
         this.setSchema(schema);
+    } else if (this.data.length && !this.schema.length) {
+        this.setSchema([]);
     }
 }
 

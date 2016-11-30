@@ -7,8 +7,6 @@ var overrider = require('overrider');
 var deprecated = require('../lib/deprecated');
 var HypergridError = require('../lib/error');
 
-var warned = {};
-
 /** @summary Create a new `Column` object.
  * @see {@link module:Cell} is mixed into Column.prototype.
  * @constructor
@@ -80,12 +78,13 @@ function Column(behavior, options) {
 
 Column.prototype = {
     constructor: Column.prototype.constructor,
+    $$CLASS_NAME: 'Column',
+    deprecated: deprecated,
 
     HypergridError: HypergridError,
 
     mixIn: overrider.mixIn,
 
-    deprecated: deprecated,
     set: function(options) {
         return this.deprecated('set(options)', 'setProperties(options)', '1.2.0', arguments);
     },
@@ -303,13 +302,10 @@ Column.prototype = {
      */
     setProperties: function(properties, preserve) {
         if (!preserve) {
-            if (!warned.setProperties) {
-                warned.setProperties = true;
-                console.warn('setProperties(properties) has been deprecated in favor of properties (setter) as of v1.2.0 and will be removed in a future version. This advice only pertains to usages of setProperties when called with a single parameter. When called with a truthy second parameter, use the new addProperties(properties) call instead.');
-            }
+            this.deprecated('setProperties', 'setProperties(properties) has been deprecated in favor of properties (setter) as of v1.2.0. (Will be removed in a future version.) This advice only pertains to usages of setProperties when called with a single parameter. When called with a truthy second parameter, use the new addProperties(properties) call instead.');
             this.properties = properties;
         } else {
-            this.deprecated('setProperties(properties, preserve)', 'addProperties(properties)', '1.2.0', arguments, 'This warning pertains to setProperties only when preserve is truthy. When preserve is faulty, use the new properties setter.');
+            this.deprecated('setPropertiesPreserve', 'setProperties(properties, preserve)', 'addProperties(properties)', '1.2.0', arguments, 'This warning pertains to setProperties only when preserve is truthy. When preserve is faulty, use the new properties setter.');
         }
     },
 
@@ -339,7 +335,8 @@ Column.prototype = {
      * @returns {undefined|CellEditor} Falsy value means either no declared cell editor _or_ instantiation aborted by falsy return return from fireRequestCellEdit.
      */
     getCellEditorAt: function(event) {
-        var columnIndex = this.index,
+        var self = this,
+            columnIndex = this.index,
             rowIndex = event.gridCell.y,
             editorName = event.getCellProperty('editor'),
             options = Object.defineProperties(event, {
@@ -352,10 +349,7 @@ Column.prototype = {
                 },
                 editPoint: {
                     get: function() {
-                        if (!warned.editPoint) {
-                            warned.editPoint = true;
-                            console.warn('The .editPoint property has been deprecated as of v1.2.0 in favor of .gridCell. It may be removed in a future release.');
-                        }
+                        self.deprecated('editPoint', 'The .editPoint property has been deprecated as of v1.2.0 in favor of .gridCell. It may be removed in a future release.');
                         return this.gridCell;
                     }
                 }
