@@ -31,7 +31,7 @@
 </head>
 <body>
     <label title="grid.properties.enableContinuousRepaint = true vs. false">
-        <input type="checkbox" onclick="grid.properties.enableContinuousRepaint=this.checked">
+        <input type="checkbox" onclick="enableContinuousRepaint=this.checked">
         Continuous repaint
     </label>
     <div class="radio-group">
@@ -39,35 +39,35 @@
         <label title="setGridRenderer('by-cells');
 ——————————————————
 This is the partial renderer. Relatively non-performant compared to some of the other grid renderers due to having to draw all cell background rects. That said, when the cell backgrounds are all opaque, this can serve as an alternative to clipping.">
-            <input type="radio" name="renderer" onclick="grid.renderer.setGridRenderer('by-cells')">
+            <input type="radio" name="renderer" onclick="setGridRenderer('by-cells')">
             cells (partial)
         </label>
 
         <label title="setGridRenderer('by-columns-discrete');
 ——————————————————
 Renders each column with its own background rect, and then its cells. If the colors of the column backgrounds are all opaque, this can serve as an alternative to clipping.">
-            <input type="radio" name="renderer" onclick="grid.renderer.setGridRenderer('by-columns-discrete')">
+            <input type="radio" name="renderer" onclick="setGridRenderer('by-columns-discrete')">
             columns (discrete)
         </label>
 
         <label title="setGridRenderer('by-columns');
 ——————————————————
 Renders all cells over consolidated column backgrounds, if any. (These column backgrounds are however unsuitable as a clipping alternative because they are all drawn before any of the cells are drawn.)">
-            <input type="radio" name="renderer" onclick="grid.renderer.setGridRenderer('by-columns')">
+            <input type="radio" name="renderer" onclick="setGridRenderer('by-columns')">
             columns (consolidated)
         </label>
 
         <label title="setGridRenderer('by-columns-and-rows');
 ——————————————————
 Renders all cells over consolidated row backgrounds, if any; otherwise over consolidated column backgrounds, if any. (Such column backgrounds are however unsuitable as a clipping alternative because they are all drawn before any of the cells are drawn.)">
-            <input type="radio" name="renderer" onclick="grid.renderer.setGridRenderer('by-columns-and-rows')" checked>
+            <input type="radio" name="renderer" onclick="setGridRenderer('by-columns-and-rows')" checked>
             columns (consolidated rows)
         </label>
 
         <label title="setGridRenderer('by-rows');
 ——————————————————
 Renders all cells over consolidated row backgrounds, if any. Unsuitable as a clipping alternative. Caveat: This renderer turned out to be the least performant of all (for unclear reasons -- possibly due to poor optimization).">
-            <input type="radio" name="renderer" onclick="grid.renderer.setGridRenderer('by-rows')">
+            <input type="radio" name="renderer" onclick="setGridRenderer('by-rows')">
             rows (consolidated)
         </label>
     </div>
@@ -105,10 +105,21 @@ Renders all cells over consolidated row backgrounds, if any. Unsuitable as a cli
             <em>after</em> partial char
         </label>
     </div>
-    <label title="Adds a rowProperties array to grid.properties that defines 3 grid background rows alternating with 3 light green rows.">
-        <input type="checkbox" onclick="if(this.checked)grid.addProperties(alternatingThreeGreenRows);else deleteProps(grid.properties,alternatingThreeGreenRows);grid.renderer.resetAllGridRenderers()">
-        Grid row properties
-    </label>
+    <div class="radio-group">
+        Grid row properties:
+        <label title="Removes rowProperties array from grid.properties entirely.)">
+            <input type="radio" name="striped-rows" onclick="rowProps(null)" checked>
+            none
+        </label>
+        <label title="Adds a rowProperties array to grid.properties that defines 3 white rows alternating with 3 light green rows. (Row rects are NOT drawn for those first 3 row rects when and only when the grid background is also white.)">
+            <input type="radio" name="striped-rows" onclick="rowProps({ backgroundColor: 'white' })">
+            3 white + 3 green
+        </label>
+        <label title="Adds a rowProperties array to grid.properties that defines 3 grid background rows alternating with 3 light green rows. (Row rects are NOT drawn for those first 3 undefined rows.)">
+            <input type="radio" name="striped-rows" onclick="rowProps(undefined)">
+            3 undefined + 3 green
+        </label>
+    </div>
     <label title="Column properties defines a light blue background color BUT inherit's grid's rowProperties array.">
         <input type="checkbox" onclick="columnProps(this.checked, [2,3], columnColorUnderAlternateColors)">
         Columns 2-3 <em>under</em> alternating rows
@@ -150,19 +161,19 @@ Renders all cells over consolidated row backgrounds, if any. Unsuitable as a cli
     <div class="radio-group">
         grid color:
         <label title="grid.properties.backgroundColor='white'">
-            <input type="radio" name="gridbg" onclick="grid.properties.backgroundColor='white'" checked>
+            <input type="radio" name="gridbg" onclick="setBackgroundColor('white')" checked>
             white
         </label>
         <label title="grid.properties.backgroundColor='transparent'">
-            <input type="radio" name="gridbg" onclick="grid.properties.backgroundColor='transparent'">
+            <input type="radio" name="gridbg" onclick="setBackgroundColor('transparent')">
             transparent
         </label>
         <label title="grid.properties.backgroundColor='rgb(128,128,255)'">
-            <input type="radio" name="gridbg" onclick="grid.properties.backgroundColor='rgb(128,128,255)'">
+            <input type="radio" name="gridbg" onclick="setBackgroundColor('rgb(128,128,255)')">
             blue
         </label>
         <label title="grid.properties.backgroundColor='rgba(128,128,255,.5)">
-            <input type="radio" name="gridbg" onclick="grid.properties.backgroundColor='rgba(128,128,255,.5)';">
+            <input type="radio" name="gridbg" onclick="setBackgroundColor('rgba(128,128,255,.5)')">
             translucent blue
         </label>
     </div>
@@ -205,12 +216,35 @@ grid.addProperties({
 //    gridLinesV: false,
 //    enableContinuousRepaint: true
 });
+var logBundlesAfterRender, rowBundles, columnBundles;
+grid.addEventListener('fin-grid-rendered', function(e) {
+    if (logBundlesAfterRender) {
+        logBundlesAfterRender = false;
+        var bundlesChanged;
+        if (columnBundles !== grid.renderer.columnBundles.length) {
+            columnBundles = grid.renderer.columnBundles.length;
+            bundlesChanged = true;
+        }
+        if (rowBundles !== grid.renderer.rowBundles.length) {
+            rowBundles = grid.renderer.rowBundles.length;
+            bundlesChanged = true;
+        }
+        if (bundlesChanged) {
+            console.log(
+                grid.renderer.columnBundles.length + ' column bundles + ' +
+                grid.renderer.rowBundles.length + ' row bundles.'
+            );
+        }
+    }
+});
 
 var alternatingThreeGreenRows = {
+        // When same as grid background (which default is white), next 3 lines do NOT generate a bundle.
+        // Alternatively, these lines could be `undefined` or `{...}` with no `backgroundColor` member to avoid generating bundles in any case (regardless of current background color).
         rowProperties: [
-            undefined,
-            undefined,
-            undefined,
+            undefined, // these three rows mutated by `rowProps` function
+            undefined, // these three rows mutated by `rowProps` function
+            undefined, // these three rows mutated by `rowProps` function
             { color: '#116611', backgroundColor: '#e8ffe8' },
             { color: '#116611', backgroundColor: '#e8ffe8' },
             { color: '#116611', backgroundColor: '#e8ffe8' }
@@ -232,12 +266,32 @@ var alternatingThreeGreenRows = {
         ]
     };
 
+function setGridRenderer(rendererName) {
+    grid.renderer.setGridRenderer(rendererName);
+    logBundlesToConsole();
+}
+
+function rebundle() {
+    grid.renderer.paintCells.reset = true; // or: `grid.renderer.resetAllGridRenderers();`
+    logBundlesToConsole();
+}
+
+function logBundlesToConsole() {
+    logBundlesAfterRender = true;
+}
+
+function setBackgroundColor(backgroundColor) {
+    grid.properties.backgroundColor = backgroundColor;
+    rebundle();
+}
+
 function altColumnProps(checked, props) {
     grid.renderer.visibleColumns.forEach(function(column, i) {
         if (i & 1) {
             columnProps(checked, [i, i], props);
         }
     }, this);
+    rebundle();
 }
 
 function columnProps(checked, columnIndexes, props) {
@@ -251,6 +305,7 @@ function columnProps(checked, columnIndexes, props) {
     if (!checked) {
         grid.behavior.changed();
     }
+    logBundlesToConsole();
 }
 
 function deleteProps(object, props) {
@@ -259,6 +314,19 @@ function deleteProps(object, props) {
             delete object[key];
         }
     }
+}
+
+function rowProps(rowProps) {
+    if (rowProps === null) {
+        deleteProps(grid.properties, alternatingThreeGreenRows); // remove `rowProperties` array from grid props
+    } else {
+        grid.addProperties(alternatingThreeGreenRows); // add `rowProperties` array to grid props
+        alternatingThreeGreenRows.rowProperties[0] =
+            alternatingThreeGreenRows.rowProperties[1] =
+                alternatingThreeGreenRows.rowProperties[2] = rowProps; // change definition of first three rows
+    }
+    grid.renderer.resetAllGridRenderers();
+    logBundlesToConsole();
 }
 
 function mangle(s) {
