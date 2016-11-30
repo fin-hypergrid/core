@@ -1,24 +1,37 @@
 'use strict';
 
 function bundleColumns(resetCellEvents) {
-    var bundle, columnBundles = [],
-        gridProps = this.grid.properties,
-        gridPrefillColor = gridProps.backgroundColor,
+    var gridProps = this.grid.properties,
         vc, visibleColumns = this.visibleColumns,
-        visibleRows = this.visibleRows,
-        c, C = visibleColumns.length, c0 = gridProps.showRowNumbers ? -1 : 0,
+        vr, visibleRows = this.visibleRows,
+        c, C = visibleColumns.length, c0 = gridProps.showRowNumbers ? -1 : 0, Cn = C - 1,
         r, R = visibleRows.length,
-        p, pool, backgroundColor;
+        p, pool;
 
     if (resetCellEvents) {
         pool = this.cellEventPool;
         for (p = 0, c = c0; c < C; c++) {
+            vc = visibleColumns[c];
             for (r = 0; r < R; r++, p++) {
-                // reset pool members to reflect coordinates of cells in newly shaped grid
-                pool[p].reset(visibleColumns[c], visibleRows[r]);
+                vr = visibleRows[r];
+                if (!vr.subgrid.isInfo || c < 0) {
+                    // reset pool member to reflect coordinates of cell in newly shaped grid
+                    pool[p].reset(vc, vr);
+                } else if (c === Cn) {
+                    // reset pool member with coordinates of stretched cell
+                    pool[p].reset(visibleColumns.info, vr);
+                } else {
+                    // disable pool member for cells that are under stretched cell
+                    pool[p].disabled = true;
+                }
             }
         }
     }
+
+    var bundle,
+        columnBundles = [],
+        gridPrefillColor = gridProps.backgroundColor,
+        backgroundColor;
 
     for (c = c0; c < C; c++) {
         vc = visibleColumns[c];

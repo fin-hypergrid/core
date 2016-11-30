@@ -71,6 +71,8 @@ function paintCellsByColumnsAndRows(gc) {
         }
     }
 
+    this.paintGridlines(gc);
+
     // gc.clipSave(clipToGrid, 0, 0, viewWidth, viewHeight);
 
     // For each column...
@@ -88,14 +90,16 @@ function paintCellsByColumnsAndRows(gc) {
 
         // For each row of each subgrid (of each column)...
         for (preferredWidth = r = 0; r < R; r++, p++) {
-            if (rowPrefillColors) {
-                prefillColor = rowPrefillColors[r];
-            }
+            if (!pool[p].disabled) {
+                if (rowPrefillColors) {
+                    prefillColor = rowPrefillColors[r];
+                }
 
-            try {
-                preferredWidth = Math.max(preferredWidth, this._paintCell(gc, pool[p], prefillColor));
-            } catch (e) {
-                this.renderErrorCell(e, gc, vc, pool[p].visibleRow);
+                try {
+                    preferredWidth = Math.max(preferredWidth, this._paintCell(gc, pool[p], prefillColor));
+                } catch (e) {
+                    this.renderErrorCell(e, gc, vc, pool[p].visibleRow);
+                }
             }
         }
 
@@ -106,7 +110,7 @@ function paintCellsByColumnsAndRows(gc) {
 
     // gc.clipRestore(clipToGrid);
 
-    this.paintGridlines(gc);
+    // this.paintGridlines(gc);
 }
 
 paintCellsByColumnsAndRows.key = 'by-columns-and-rows';

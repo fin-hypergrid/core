@@ -112,6 +112,7 @@ var Behavior = Base.extend('Behavior', {
             HeaderSubgrid,
             FilterSubgrid,
             [SummarySubgrid, { name: 'topTotals' }],
+            require('../dataModels/InfoSubgrid'),
             this.dataModel,
             [SummarySubgrid, { name: 'bottomTotals' }]
         ];
@@ -1097,7 +1098,7 @@ var Behavior = Base.extend('Behavior', {
         var result = 0;
 
         this.subgrids.find(function(subgrid) {
-            if (!subgrid.type) {
+            if (subgrid.isData) {
                 return true; // stop
             }
             result += subgrid.getRowCount();
@@ -1386,7 +1387,14 @@ var Behavior = Base.extend('Behavior', {
         this._subgrids = subgrids = subgrids.map(enlivenSubgrids, this);
 
         subgrids.forEach(function(subgrid) {
-            subgrids[subgrid.name || subgrid.type || 'data'] = subgrid;
+            // undefined type is data
+            subgrid.type = subgrid.type || 'data';
+
+            // make dictionary entry
+            subgrids[subgrid.name || subgrid.type] = subgrid;
+
+            // make isType boolean
+            subgrid['is' + subgrid.type[0].toUpperCase() + subgrid.type.substr(1)] = true;
         });
 
         this.shapeChanged();

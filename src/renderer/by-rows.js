@@ -53,12 +53,14 @@ function paintCellsByRows(gc) {
         bundleRows.call(this, true);
     }
 
+    rowPrefillColors = this.rowPrefillColors;
+
     for (r = rowBundles.length; r--;) {
         rowBundle = rowBundles[r];
         gc.clearFill(0, rowBundle.top, viewWidth, rowBundle.bottom - rowBundle.top + 1, rowBundle.backgroundColor);
     }
 
-    rowPrefillColors = this.rowPrefillColors;
+    this.paintGridlines(gc);
 
     // gc.clipSave(clipToGrid, 0, 0, viewWidth, viewHeight);
 
@@ -95,8 +97,6 @@ function paintCellsByRows(gc) {
     for (c = c0; c < C; c++) {
         visibleColumns[c].column.properties.preferredWidth = Math.round(preferredWidth[c]);
     }
-
-    this.paintGridlines(gc);
 }
 
 paintCellsByRows.key = 'by-rows';

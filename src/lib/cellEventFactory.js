@@ -44,6 +44,8 @@ var prototype = Object.defineProperties({}, {
                 // cp already set to basic props
             } else if (this.isFilterRow) {
                 cp = cp.filterProperties;
+            } else if (this.isInfoRow) {
+                cp = cp.infoProperties;
             } else { // unselected header, summary, etc., all have save look as unselected header
                 cp = cp.columnHeader;
             }
@@ -66,6 +68,8 @@ var prototype = Object.defineProperties({}, {
 
     // special methods for use by renderer which reuses cellEvent object for performance reasons
     reset: { value: function(visibleColumn, visibleRow) {
+        this.disabled = false;
+
         this.visibleColumn = visibleColumn;
         this.visibleRow = visibleRow;
 
@@ -90,7 +94,7 @@ var prototype = Object.defineProperties({}, {
     isColumnVisible: { get: function() { return !!this.visibleColumn; } },
     isCellVisible:   { get: function() { return this.isRowVisible && this.isColumnVisible; } },
 
-    isDataRow:    { get: function() { return !this.visibleRow.subgrid.type; } },
+    isDataRow:    { get: function() { return this.visibleRow.subgrid.isData; } },
     isDataColumn: { get: function() { return this.gridCell.x >= 0; } },
     isDataCell:   { get: function() { return this.isDataRow && this.isDataColumn; } },
 
@@ -111,15 +115,17 @@ var prototype = Object.defineProperties({}, {
 
     isHierarchyColumn: { get: function() { return this.gridCell.x === 0 && this.grid.properties.showTreeColumn && this.dataModel.isDrillDown(this.dataCell.x); } },
 
-    isHeaderRow:    { get: function() { return this.visibleRow.subgrid.type === 'header'; } },
+    isInfoRow:      { get: function() { return this.visibleRow.subgrid.isInfo; } },
+
+    isHeaderRow:    { get: function() { return this.visibleRow.subgrid.isHeader; } },
     isHeaderHandle: { get: function() { return this.isHeaderRow && this.isHandleColumn; } },
     isHeaderCell:   { get: function() { return this.isHeaderRow && this.isDataColumn; } },
 
-    isFilterRow:    { get: function() { return this.visibleRow.subgrid.type === 'filter'; } },
+    isFilterRow:    { get: function() { return this.visibleRow.subgrid.isFilter; } },
     isFilterHandle: { get: function() { return this.isFilterRow && this.isHandleColumn; } },
     isFilterCell:   { get: function() { return this.isFilterRow && this.isDataColumn; } },
 
-    isSummaryRow:    { get: function() { return this.visibleRow.subgrid.type === 'summary'; } },
+    isSummaryRow:    { get: function() { return this.visibleRow.subgrid.isSummary; } },
     isSummaryHandle: { get: function() { return this.isSummaryRow && this.isHandleColumn; } },
     isSummaryCell:   { get: function() { return this.isSummaryRow && this.isDataColumn; } },
 

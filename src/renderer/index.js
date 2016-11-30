@@ -275,14 +275,15 @@ var Renderer = Base.extend('Renderer', {
             previousInsertionBoundsCursorValue = Math.round(width / 2);
         }
 
+        // get height of total number of rows in all subgrids that follow the data subgrid
         footerHeight = grid.properties.defaultRowHeight * subgrids.reduce(function(rows, subgrid) {
-                if (scrollableSubgrid) {
-                    rows += subgrid.getRowCount();
-                } else {
-                    scrollableSubgrid = !subgrid.type;
-                }
-                return rows;
-            }, 0);
+            if (scrollableSubgrid) {
+                rows += subgrid.getRowCount();
+            } else {
+                scrollableSubgrid = subgrid.isData;
+            }
+            return rows;
+        }, 0);
 
         for (
             base = r = g = y = 0, G = subgrids.length, Y = bounds.height - footerHeight;
@@ -291,7 +292,7 @@ var Renderer = Base.extend('Renderer', {
         ) {
             subgrid = subgrids[g];
             subrows = subgrid.getRowCount();
-            scrollableSubgrid = !subgrid.type;
+            scrollableSubgrid = subgrid.isData;
             topR = r;
 
             // For each row of each subgrid...
@@ -307,7 +308,6 @@ var Renderer = Base.extend('Renderer', {
                         break; // scrolled beyond last row
                     }
                 }
-
 
                 rowIndex = vy - base;
                 height = Math.ceil(behavior.getRowHeight(rowIndex, subgrid));
@@ -347,6 +347,44 @@ var Renderer = Base.extend('Renderer', {
         this.viewHeight = Y;
 
         this.dataWindow = this.grid.newRectangle(firstVX, firstVY, lastVX - firstVX, lastVY - firstVY);
+
+        // Create an "info" column that stretches from column 0 to column n
+        var info = behavior.subgrids.info;
+        if (info) {
+            if (C) {
+                this.visibleColumns.info = {
+                    index: vc.index,
+                    columnIndex: vc.columnIndex,
+                    column: vc.column,
+                    left: this.visibleColumns[0].left,
+                    width: vc.right - this.visibleColumns[0].left,
+                    right: vc.right
+                };
+            }
+            // Pad all info rows sufficiently to reach bottom of canvas
+            // This code will work for a multi-row info subgrid.
+            // (InfoSubgrid currently only supports a single row.)
+            // todo: assumes foot subgrids are empty when info subgrid is not
+            // todo: assumes there is at most one info subgrid
+            var infoRowCount = info.getRowCount();
+            if (infoRowCount) {
+                y = bounds.height - y;
+                if (y > 0) {
+                    Y = Math.floor(y / infoRowCount);
+                    y = y % infoRowCount;
+                    var i = 0, k = 0;
+                    this.visibleRows.forEach(function(vr) {
+                        if (vr.subgrid.isInfo) {
+                            var j = Y + (i++ < y ? 1 : 0);
+                            vr.top += k;
+                            vr.height += j;
+                            vr.bottom += j;
+                            k += j;
+                        }
+                    });
+                }
+            }
+        }
 
         // Resize CellEvent pool
         var pool = this.cellEventPool,
@@ -915,6 +953,7 @@ var Renderer = Base.extend('Renderer', {
         config.isDataRow = isDataRow;
         config.isHeaderRow = isHeaderRow;
         config.isFilterRow = isFilterRow;
+        config.isInfoRow = cellEvent.isInfoRow;
         config.isUserDataArea = isUserDataArea;
         config.isColumnHovered = cellEvent.isColumnHovered;
         config.isRowHovered = cellEvent.isRowHovered;

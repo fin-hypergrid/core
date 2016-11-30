@@ -148,7 +148,7 @@ Renders all cells over consolidated row backgrounds, if any. Unsuitable as a cli
         </label>
     </div>
     <div class="radio-group">
-        body color:
+        Body color:
         <label title="document.body.style.backgroundColor='white'">
             <input type="radio" name="bodybg" onclick="document.body.style.backgroundColor='white'" checked>
             white
@@ -159,7 +159,7 @@ Renders all cells over consolidated row backgrounds, if any. Unsuitable as a cli
         </label>
     </div>
     <div class="radio-group">
-        grid color:
+        Grid color:
         <label title="grid.properties.backgroundColor='white'">
             <input type="radio" name="gridbg" onclick="setBackgroundColor('white')" checked>
             white
@@ -181,6 +181,17 @@ Renders all cells over consolidated row backgrounds, if any. Unsuitable as a cli
         <input type="checkbox" onclick="document.querySelector('#behind').style.visibility=this.checked?'visible':'hidden'">
         Behind-the-grid content
     </label>
+    <div class="radio-group">
+        Data rows:
+        <label title="grid.properties.backgroundColor='white'">
+            <input type="radio" name="gridbg" onclick="grid.setData([]);" >
+            0
+        </label>
+        <label title="grid.properties.backgroundColor='transparent'">
+            <input type="radio" name="gridbg" onclick="grid.setData(data);" checked>
+            <span id="row-count"></span>
+        </label>
+    </div>
 
     <div id="behind"></div>
 
@@ -203,6 +214,7 @@ for(var i=0; i<256-4; ++i) {
     data.push(row);
 }
 grid.setData(data);
+document.getElementById('row-count').innerHTML = data.length;
 grid.addProperties({
     backgroundColor: 'white',
     foregroundSelectionFont: '13px Tahoma, Geneva, sans-serif',
