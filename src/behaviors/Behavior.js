@@ -1367,6 +1367,16 @@ var Behavior = Base.extend('Behavior', {
        this.dataModel.getIndexedData();
     },
 
+    setInfo: function(messages) {
+        if (this.subgrids.info) {
+            this.subgrids.info.setData(
+                messages instanceof Array ? messages : [messages],
+                this.dataModel.schema
+            );
+            this.grid.behavior.changed();
+        }
+    },
+
     /**
      * An array where each element represents a subgrid to be rendered in the hypergrid.
      *

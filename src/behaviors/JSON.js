@@ -183,10 +183,12 @@ var JSON = Behavior.extend('behaviors.JSON', {
         options = options || {};
         var behavior = this,
             grid = this.grid,
-            schema = this.unwrap(options.schema) || []; // *always* define a new schema on reset
+            schema = this.unwrap(options.schema); // *always* define a new schema on reset
 
         this.subgrids.forEach(function(dataModel) {
-            dataModel.setData(dataRows, schema);
+            if (!dataModel.hasOwnData) {
+                dataModel.setData(dataRows, schema);
+            }
         });
 
         if (grid.cellEditor) {
@@ -210,15 +212,14 @@ var JSON = Behavior.extend('behaviors.JSON', {
      */
     updateData: function(dataRows, options){
         options = options || {};
+
         if (!(Array.isArray(dataRows) || typeof dataRows === 'function')) {
             options = dataRows;
             dataRows = options && options.data;
         }
-        dataRows = this.unwrap(dataRows);
-        this.dataModel.setData(
-            dataRows,
-            this.unwrap(options.schema) // undefined will be ignored
-        );
+
+        this.dataModel.setData(this.unwrap(dataRows));
+
         this.reindex();
     },
 

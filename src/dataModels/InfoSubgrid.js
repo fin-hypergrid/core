@@ -3,7 +3,7 @@
 function InfoSubgrid(grid) {
     this.grid = grid;
     this.behavior = grid.behavior;
-    this.dataRow = {}; // for meta data (__HEIGHT)
+    this.data = [];
 }
 
 InfoSubgrid.prototype = {
@@ -11,24 +11,39 @@ InfoSubgrid.prototype = {
 
     type: 'info',
 
-    setData: function(data, schema) {
-        var dataRow = this.dataRow = { __ROW_HEIGHT: 40 },
-            msg = this.grid.properties.noDataMessage;
-        schema.forEach(function(columnSchema) {
-            dataRow[columnSchema.name] = msg;
-        });
+    hasOwnData: true,
+
+    /**
+     * Populates each row data object with all columns set to given row message, growing/shrinking `data` to match `messages`'s length.
+     * @param {string[]} messages
+     * @param {Array} schema
+     * @memberOf InfoSubgrid#
+     */
+    setData: function(messages, schema) {
+        var data = this.data, key;
+        if (schema) {
+            data.length = messages.length;
+            messages.forEach(function(message, i) {
+                var dataRow = data[i] = data[i] || {};
+                schema.forEach(function(columnSchema) {
+                    key = columnSchema.name;
+                    dataRow[key] = message;
+                });
+            });
+            this.key = key;
+        }
     },
 
     getRowCount: function() {
-        return this.behavior.dataModel.getRowCount() ? 0 : 1;
+        return this.behavior.dataModel.getRowCount() ? 0 : this.data.length;
     },
 
     getValue: function(x, y) {
-        return this.grid.properties.noDataMessage;
+        return this.data[y][this.key];
     },
 
     getRow: function(y) {
-        return this.dataRow;
+        return this.data[y];
     }
 };
 

@@ -378,7 +378,7 @@ var Renderer = Base.extend('Renderer', {
                             var j = Y + (i++ < y ? 1 : 0);
                             vr.top += k;
                             vr.height += j;
-                            vr.bottom += j;
+                            vr.bottom += vr.top + vr.height;
                             k += j;
                         }
                     });

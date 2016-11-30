@@ -565,9 +565,8 @@ var Hypergrid = Base.extend('Hypergrid', {
      * @desc Amend properties for this hypergrid only.
      * @param {object} moreProperties - A simple properties hash.
      */
-    addProperties: function(moreProperties) {
-        var properties = this.properties;
-        addDeepProperties(properties, moreProperties);
+    addProperties: function(properties) {
+        Object.assign(this.properties, properties);
         this.refreshProperties();
     },
 
@@ -741,7 +740,12 @@ var Hypergrid = Base.extend('Hypergrid', {
             this.setBehavior({ pipeline: this.options.pipeline });
         }
         this.behavior.setData(dataRows, options);
+        this.setInfo(this.properties.noDataMessage);
         this.behavior.changed();
+    },
+
+    setInfo: function(messages) {
+        this.behavior.setInfo(messages);
     },
 
     /**
@@ -2275,44 +2279,6 @@ function findOrCreateContainer(boundingRect) {
     }
 
     return div;
-}
-
-
-/**
- * @summary Update deep properties with new values.
- * @desc This function is a recursive property setter which updates a deep property in a destination object with the value of a congruent property in a source object.
- *
- * > Terminology: A deep property is a "terminal node" (primitive value) nested at some depth (i.e., depth > 1) inside a complex object (an object containing nested objects). A congruent property is a property in another object with the same name and at the same level of nesting.
- *
- * This function is simple and elegant. I recommend you study the code, which nonetheless implies all of the following:
- *
- * * If the deep property is _not_ found in `destination`, it will be created.
- * * If the deep property is found in `destination` _and_ is a primitive type, it will be modified (overwritten with the value from `source`).
- * * If the deep property is found in `destination` _but_ is not a primitive type (i.e., is a nested object), it will _also_ be overwritten with the (primitive) value from `source`.
- * * If the nested object the deep property inhabits in `source` is not found in `destination`, it will be created.
- * * If the nested object the deep property inhabits in `source` is found in `destination` but is not in fact an object (i.e., it is a primitive value), it will be overwritten with a reference to that object.
- * * If the primitive value is `undefined`, the destination property is deleted.
- * * `source` may contain multiple properties to update.
- *
- * That one rule is simply this: If both the source _and_ the destination properties are objects, then recurse; else overwrite the destination property with the source property.
- *
- * > Caveat: This is _not_ equivalent to a deep extend function. While both a deep extend and this function will recurse over a complex object, they are fundamentally different: A deep extend clones the nested objects as it finds them; this function merely updates them (or creates them where they don't exist).
- *
- * @param {object} destination - An object to update with new or modified property values
- * @param {object} source - A congruent object continaly (only) the new or modified property values.
- * @returns {object} Always returns `destination`.
- */
-function addDeepProperties(destination, source) {
-    _(source).each(function(property, key) {
-        if (typeof destination[key] === 'object' && typeof property === 'object') {
-            addDeepProperties(destination[key], property);
-        } else if (property === undefined) {
-            delete destination[key];
-        } else {
-            destination[key] = property;
-        }
-    });
-    return destination;
 }
 
 function headerFormatter(value, config) {
