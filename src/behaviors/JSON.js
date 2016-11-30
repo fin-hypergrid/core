@@ -186,7 +186,7 @@ var JSON = Behavior.extend('behaviors.JSON', {
             schema = this.unwrap(options.schema); // *always* define a new schema on reset
 
         this.subgrids.forEach(function(dataModel) {
-            if (!dataModel.hasOwnData) {
+            if (dataModel.setData && !dataModel.hasOwnData) {
                 dataModel.setData(dataRows, schema);
             }
         });

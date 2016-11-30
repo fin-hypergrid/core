@@ -47,6 +47,8 @@ function paintCellsByColumns(gc) {
 
     gc.clearRect(0, 0, this.bounds.width, this.bounds.height);
 
+    if (!C || !R) { return; }
+
     if (gc.alpha(gridPrefillColor) > 0) {
         gc.cache.fillStyle = gridPrefillColor;
         gc.fillRect(0, 0, viewWidth, viewHeight);

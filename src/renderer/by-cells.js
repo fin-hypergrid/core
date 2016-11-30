@@ -46,6 +46,8 @@ function paintCells(gc) {
         // viewWidth = C ? visibleColumns[cLast].right : 0,
         viewHeight = R ? visibleRows[R - 1].bottom : 0;
 
+    if (!C || !R) { return; }
+
     if (paintCells.reset) {
         this.resetAllGridRenderers();
         paintCellsByColumnsAndRows.call(this, gc);

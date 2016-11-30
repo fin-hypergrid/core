@@ -11,13 +11,6 @@ HeaderRow.prototype = {
 
     type: 'header',
 
-    setData: function(data, schema) {
-        var dataRow = this.dataRow = {};
-        schema.forEach(function(columnSchema) {
-            dataRow[columnSchema.name] = columnSchema.header;
-        });
-    },
-
     getRowCount: function() {
         return this.grid.isShowHeaderRow() ? 1 : 0;
     },
