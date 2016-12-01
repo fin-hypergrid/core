@@ -5,17 +5,20 @@
     <style>
         .hypergrid-container { width:1580px; height:1050px; }
         body { margin: 5px }
-        body > label, .radio-group {
+        #controls > * {
             display: inline-block;
             background-color: beige;
-            margin: 0 .5em 7px 5px;
-            padding: .15em .5em .15em .35em;
+            margin: 0 .5em 7px 0;
+            padding: .25em .5em .25em .35em;
             border: 1px solid tan;
             font-family: sans-serif;
             font-size: 10pt;
             user-select: none;
         }
-        input[type=checkbox] { outline:0 }
+        .nowrap {
+            white-space: nowrap;
+        }
+        input[type=checkbox] { outline: 0 }
         div#behind {
             position: absolute;
             visibility: hidden;
@@ -27,9 +30,14 @@
             border: 8px solid black;
             background-color: orange;
         }
-</style>
+    </style>
 </head>
 <body>
+<div id="controls">
+    <label id="controller" title="Uncheck to hide other controls.">
+        <input type="checkbox" onchange="this.parentElement.parentElement.classList.toggle('nowrap')" checked>
+        Wrap controls
+    </label>
     <label title="grid.properties.enableContinuousRepaint = true vs. false">
         <input type="checkbox" onclick="grid.properties.enableContinuousRepaint=this.checked">
         Continuous repaint
@@ -192,6 +200,7 @@ Renders all cells over consolidated row backgrounds, if any. Unsuitable as a cli
             <span id="row-count"></span>
         </label>
     </div>
+</div>
 
     <div id="behind"></div>
 
