@@ -184,11 +184,11 @@ Renders all cells over consolidated row backgrounds, if any. Unsuitable as a cli
     <div class="radio-group">
         Data rows:
         <label title="grid.properties.backgroundColor='white'">
-            <input type="radio" name="datarows" onclick="grid.updateData([]);" >
+            <input type="radio" name="datarows" onclick="grid.setData([]);" >
             0
         </label>
         <label title="grid.properties.backgroundColor='transparent'">
-            <input type="radio" name="datarows" onclick="grid.updateData(data);" checked>
+            <input type="radio" name="datarows" onclick="grid.setData(data);" checked>
             <span id="row-count"></span>
         </label>
     </div>

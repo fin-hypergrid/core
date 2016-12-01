@@ -758,12 +758,8 @@ var Hypergrid = Base.extend('Hypergrid', {
      * @param {object} [options]
      */
     updateData: function(dataRows, options){
-        if (!this.behavior){
-            this.setData(dataRows, options);
-        } else {
-            this.behavior.updateData(dataRows, options);
-            this.behavior.changed();
-        }
+        this.deprecated('updateData(dataRows, options)', 'setData(dataRows, options)', 'v1.2.10', arguments,
+            'To update data without changing column definitions, call setData _without a schema._');
     },
 
     /**
