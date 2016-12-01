@@ -1,6 +1,13 @@
 'use strict';
 
-function SummaryRow(grid, options) {
+/**
+ * @implements dataModelAPI
+ * @param {Hypergrid} grid
+ * @param {object} [options]
+ * @param {string} [options.name]
+ * @constructor
+ */
+function SummarySubgrid(grid, options) {
     this.behavior = grid.behavior;
 
     /**
@@ -13,8 +20,8 @@ function SummaryRow(grid, options) {
     }
 }
 
-SummaryRow.prototype = {
-    constructor: SummaryRow.prototype.constructor,
+SummarySubgrid.prototype = {
+    constructor: SummarySubgrid.prototype.constructor,
 
     type: 'summary',
 
@@ -45,4 +52,4 @@ SummaryRow.prototype = {
     }
 };
 
-module.exports = SummaryRow;
+module.exports = SummarySubgrid;

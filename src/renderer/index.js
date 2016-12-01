@@ -38,7 +38,7 @@ var visibleColumnPropertiesDescriptor = {
 /** @typedef {object} visibleRowDescriptor
  * @property {number} index - A back reference to the element's array index in {@link Renderer#visibleRows}.
  * @property {number} rowIndex - Local vertical row coordinate within the subgrid to which the row belongs, adjusted for scrolling.
- * @property {DataModel} subgrid - A reference to the subgrid to which the row belongs.
+ * @property {dataModelAPI} subgrid - A reference to the subgrid to which the row belongs.
  * @property {number} top - Pixel coordinate of the top edge of this row, rounded to nearest integer.
  * @property {number} bottom - Pixel coordinate of the bottom edge of this row, rounded to nearest integer.
  * @property {number} height - Height of this row in pixels, rounded to nearest integer.

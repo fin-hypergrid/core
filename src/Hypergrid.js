@@ -22,7 +22,10 @@ var CellRenderers = require('./cellRenderers');
 var CellEditors = require('./cellEditors');
 var BehaviorJSON = require('./behaviors/JSON');
 
-/**s
+var EDGE_STYLES = ['top', 'bottom', 'left', 'right'],
+    RECT_STYLES = EDGE_STYLES.concat(['width', 'height', 'position']);
+
+/**
  * @constructor
  * @param {string|Element} [container] - CSS selector or Element
  * @param {object} [options]
@@ -36,23 +39,34 @@ var BehaviorJSON = require('./behaviors/JSON');
  * * A function returning a schema array. Called at filter reset time with behavior as context.
  * * Omit to generate a basic schema from `this.behavior.columns`.
  * @param {Behavior} [options.Behavior=JSON] - A grid behavior (descendant of Behavior "class").
+ *
  * @param {pluginSpec|pluginSpec[]} [options.plugins]
- * @param {DataModels[]} [options.subgrids]
- * @param {string} [options.localization=Hypergrid.localization]
+ *
+ * @param {subgridSpec[]} [options.subgrids]
+ *
  * @param {string|Element} [options.container] - CSS selector or Element
+ *
+ * @param {string} [options.localization=Hypergrid.localization]
  * @param {string|string[]} [options.localization.locale=Hypergrid.localization.locale] - The default locale to use when an explicit `locale` is omitted from localizer constructor calls. Passed to Intl.NumberFomrat` and `Intl.DateFomrat`. See {@ https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl#Locale_identification_and_negotiation|Locale identification and negotiation} for more information.
- * @param {string} [options.localization.numberOptions=Hypergrid.localization.numberOptions] - Options passed to `Intl.NumberFomrat` for creating the basic "number" localizer.
+ * @param {string} [options.localization.numberOptions=Hypergrid.localization.numberOptions] - Options passed to `Intl.NumberFormat` for creating the basic "number" localizer.
  * @param {string} [options.localization.dateOptions=Hypergrid.localization.dateOptions] - Options passed to `Intl.DateFomrat` for creating the basic "date" localizer.
+ *
  * @param {object} [options.schema]
- * @param {object} [options.margin] - optional canvas margins
- * @param {string} [options.margin.top=0]
- * @param {string} [options.margin.right=0]
- * @param {string} [options.margin.bottom=0]
- * @param {string} [options.margin.left=0]
- * @param {object} [options.boundingRect] - optional grid container argument
- * @param {string} [options.boundingRect.height=300]
- * @param {string} [options.boundingRect.width=300]
- * @param {string} [options.boundingRect.postion=relative]
+ *
+ * @param {object} [options.margin] - Optional canvas "margins" applied to containing div as .left, .top, .right, .bottom. (Default values actually derive from 'grid' stylesheet's `.hypergrid-container` rule.)
+ * @param {string} [options.margin.top='0px']
+ * @param {string} [options.margin.right='0px']
+ * @param {string} [options.margin.bottom='0px']
+ * @param {string} [options.margin.left='0px']
+ *
+ * @param {object} [options.boundingRect] - Optional grid container size & position. (Default values actually derive from 'grid' stylesheet's `.hypergrid-container > div:first-child` rule.)
+ * @param {string} [options.boundingRect.height='500px']
+ * @param {string} [options.boundingRect.width='auto']
+ * @param {string} [options.boundingRect.left='auto']
+ * @param {string} [options.boundingRect.top='auto']
+ * @param {string} [options.boundingRect.right='auto']
+ * @param {string} [options.boundingRect.bottom='auto']
+ * @param {string} [options.boundingRect.position='relative']
  */
 var Hypergrid = Base.extend('Hypergrid', {
     initialize: function(container, options) {
@@ -115,7 +129,7 @@ var Hypergrid = Base.extend('Hypergrid', {
          * For the dictionary of _shared_ plugins, see {@link Hypergrid.plugins|plugins} (a property of the constructor).
          * @example
          * var instancePlugins = myGrid.plugins;
-         * var instancePlugins = this.plugins // internal use
+         * var instancePlugins = this.plugins; // internal use
          * var myInstancePlugin = myGrid.plugins.myInstancePlugin;
          * @type {object}
          * @memberOf Hypergrid#
@@ -343,8 +357,9 @@ var Hypergrid = Base.extend('Hypergrid', {
      *
      * Plugins may have both `preinstall` _and_ `install` methods, in which case both will be called. However, note that in any case, `install` methods on object API plugins are ignored.
      *
-     * @this {Hypergrid|Hypergrid.prototype}
-     * @param {pluginSpec|pluginSpec[]} [plugins] - The plugins to install. This call is a no-op if omitted.
+     * @this {Hypergrid}
+     * @param {pluginSpec|pluginSpec[]} [plugins] - The plugins to install. If omitted, the call is a no-op.
+     * @memberOf Hypergrid#
      */
     installPlugins: function(plugins) {
         var shared = this === Hypergrid.prototype; // Do shared ("preinstalled") plugins (if any)
@@ -356,7 +371,7 @@ var Hypergrid = Base.extend('Hypergrid', {
         }
 
         plugins.forEach(function(plugin) {
-            var name, args, hash, BoundConstructor;
+            var name, args, hash;
 
             if (!plugin) {
                 return; // ignore falsy plugin spec
@@ -403,9 +418,7 @@ var Hypergrid = Base.extend('Hypergrid', {
                 hash = this.plugins;
                 if (typeof plugin === 'function') {
                     // Install "object API" by instantiating
-                    args.unshift(null); // context for the `bind` call below
-                    BoundConstructor = plugin.bind.apply(plugin, args);
-                    plugin = new BoundConstructor;
+                    plugin = this.createApply(plugin, args);
                 } else if (plugin.install) {
                     // Install "simple API" by calling its `install` method
                     plugin.install.apply(plugin, args);
@@ -433,6 +446,7 @@ var Hypergrid = Base.extend('Hypergrid', {
      * * `key` - name of the plugin to be uninstalled (_i.e.,_ key in `plugins`)
      * * `plugins` - the plugins hash (a.k.a. `grid.plugins`)
      * @param {string|stirng[]} [pluginNames] If provided, limit uninstall to the named plugin (string) or plugins (string[]).
+     * @memberOf Hypergrid#
      */
     uninstallPlugins: function(pluginNames) {
         if (!pluginNames) {
@@ -482,11 +496,11 @@ var Hypergrid = Base.extend('Hypergrid', {
     },
 
     isRowResizeable: function() {
-        return this.properties.rowResize;
+        return this.deprecated('isRowResizeable()', 'properties.rowResize', 'v1.2.10');
     },
 
     isCheckboxOnlyRowSelections: function() {
-        return this.properties.checkboxOnlyRowSelections;
+        return this.deprecated('isCheckboxOnlyRowSelections()', 'properties.checkboxOnlyRowSelections', 'v1.2.10');
     },
 
     /**
@@ -576,7 +590,7 @@ var Hypergrid = Base.extend('Hypergrid', {
      * @see [Memento pattern](http://en.wikipedia.org/wiki/Memento_pattern)
      */
     getPrivateState: function() {
-        return this.deprecate('getPrivateState()', 'properties', '1.2.0');
+        return this.deprecated('getPrivateState()', 'properties', '1.2.0');
     },
 
     /**
@@ -852,7 +866,7 @@ var Hypergrid = Base.extend('Hypergrid', {
      * @returns {boolean} In HiDPI mode (has an attribute as such).
      */
     useHiDPI: function() {
-        return this.properties.useHiDPI !== false;
+        return this.deprecated('useHiDPI()', 'properties.useHiDPI', 'v1.2.10');
     },
 
     /**
@@ -908,28 +922,22 @@ var Hypergrid = Base.extend('Hypergrid', {
      * @private
      */
     initCanvas: function() {
-        if (this.divCanvas) {
-            return;
+        if (!this.divCanvas) {
+            var divCanvas = document.createElement('div');
+
+            setStyles(divCanvas, this.options.margin, EDGE_STYLES);
+
+            this.div.appendChild(divCanvas);
+
+            var canvas = new Canvas(divCanvas, this.renderer, this.options.canvas);
+            canvas.canvas.classList.add('hypergrid');
+            canvas.resize();
+
+            this.divCanvas = divCanvas;
+            this.canvas = canvas;
+
+            this.delegateCanvasEvents();
         }
-
-        var margin = this.options.margin || {},
-            divCanvas = this.divCanvas = document.createElement('div'),
-            style = divCanvas.style;
-
-        style.position = 'absolute';
-        style.top = margin.top || 0;
-        style.right = margin.right || 0;
-        style.bottom = margin.bottom || 0;
-        style.left = margin.left || 0;
-
-        this.div.appendChild(divCanvas);
-
-        this.canvas = undefined;
-        this.canvas = new Canvas(divCanvas, this.renderer, this.options.canvas);
-        this.canvas.canvas.classList.add('hypergrid');
-        this.canvas.resize();
-
-        this.delegateCanvasEvents();
     },
 
     convertViewPointToDataPoint: function(unscrolled) {
@@ -1743,7 +1751,7 @@ var Hypergrid = Base.extend('Hypergrid', {
      * > There used to be a bug in Chrome that caused severe slow down on bit blit of large images, so this HiDPI needed to be optional.
      */
     toggleHiDPI: function() {
-        if (this.useHiDPI()) {
+        if (this.properties.useHiDPI) {
             this.removeAttribute('hidpi');
         } else {
             this.setAttribute('hidpi', null);
@@ -1753,22 +1761,21 @@ var Hypergrid = Base.extend('Hypergrid', {
 
     /**
      * @memberOf Hypergrid#
-     * @returns {number} Te HiDPI ratio.
+     * @returns {number} The HiDPI ratio.
      */
     getHiDPI: function(ctx) {
-        if (window.devicePixelRatio && this.useHiDPI()) {
-            var devicePixelRatio = window.devicePixelRatio || 1;
-            var backingStoreRatio = ctx.webkitBackingStorePixelRatio ||
+        if (window.devicePixelRatio && this.properties.useHiDPI) {
+            var devicePixelRatio = window.devicePixelRatio || 1,
+                backingStoreRatio = ctx.webkitBackingStorePixelRatio ||
                 ctx.mozBackingStorePixelRatio ||
                 ctx.msBackingStorePixelRatio ||
                 ctx.oBackingStorePixelRatio ||
-                ctx.backingStorePixelRatio || 1;
-
-            var ratio = devicePixelRatio / backingStoreRatio;
-            return ratio;
+                ctx.backingStorePixelRatio || 1,
+                result = devicePixelRatio / backingStoreRatio;
         } else {
-            return 1;
+            result = 1;
         }
+        return result;
     },
 
     /**
@@ -2011,10 +2018,6 @@ var Hypergrid = Base.extend('Hypergrid', {
         return mouseDown.x < 0 || mouseDown.y < headerRowCount;
     },
 
-    isHeaderWrapping: function() {
-        return this.properties.headerTextWrapping;
-    },
-
     _getBoundsOfCell: function(x, y) {
         return this.deprecated('_getBoundsOfCell()', 'getBoundsOfCell()', '1.2.0', arguments);
     },
@@ -2038,30 +2041,30 @@ var Hypergrid = Base.extend('Hypergrid', {
     },
 
     isShowRowNumbers: function() {
-        return this.properties.showRowNumbers;
+        return this.deprecated('isShowRowNumbers()', 'properties.showRowNumbers', 'v1.2.10');
     },
     isEditable: function() {
-        return this.properties.editable === true;
+        return this.deprecated('isEditable()', 'properties.editable', 'v1.2.10');
     },
 
     /**
-     * @todo row refac: deprecate in favor of CellEvent.isDataRow
      * @param {integerRowIndex|sectionPoint} rn
      * @returns {boolean}
+     * @memberOf Hypergrid#
      */
-    isGridRow: function(rn) {
-        return rn >= 0 || rn.y >= 0;
+    isGridRow: function(y) {
+        return new this.beahvior.CellEvent(0, y).isDataRow;
     },
 
     isShowHeaderRow: function() {
-        return this.properties.showHeaderRow;
+        return this.deprecated('isShowHeaderRow()', 'properties.showHeaderRow', 'v1.2.10');
     },
     getHeaderRowCount: function() {
         return this.behavior.getHeaderRowCount();
     },
 
     isShowFilterRow: function() {
-        return this.properties.showFilterRow;
+        return this.deprecated('isShowFilterRow()', 'properties.showFilterRow', 'v1.2.10');
     },
 
     hasHierarchyColumn: function() {
@@ -2100,7 +2103,7 @@ var Hypergrid = Base.extend('Hypergrid', {
         sm.selectRow(Math.min(y1, y2), Math.max(y1, y2));
     },
     isRowNumberAutosizing: function() {
-        return this.properties.rowNumberAutosizing;
+        return this.deprecated('isRowNumberAutosizing()', 'properties.rowNumberAutosizing', 'v1.2.10');
     },
     lookupFeature: function(key) {
         return this.behavior.lookupFeature(key);
@@ -2110,8 +2113,7 @@ var Hypergrid = Base.extend('Hypergrid', {
     },
 
     isColumnAutosizing: function() {
-        this.deprecated('isColumnAutosizing', 'Property .isColumnAutosizing has been deprecated as of v1.2.2 in favor of .properties.columnAutosizing === true. (Will be removed in a future version.) Note however that as of v1.2.2 grid.properties.columnAutosizing no longer has the global meaning it had previously and should no longer be referred to directly. Refer to each column\'s `columnAutosizing` property instead.');
-        return this.properties.columnAutosizing === true;
+        return this.deprecated('isColumnAutosizing()', 'columnAutosizing', 'v1.2.2', arguments, 'Note however that as of v1.2.2 columnAutosizing grid property no longer has the global meaning it had previously and should no longer be referred to directly. Refer to each column\'s `columnAutosizing` property instead.');
     },
 
     newPoint: function(x, y) {
@@ -2201,6 +2203,7 @@ var Hypergrid = Base.extend('Hypergrid', {
      * * When `options` defined, first of:
      *   * mix-in: default preset members + `options` members
      *   * `options` verbatim when default preset undefined
+     * @memberOf Hypergrid#
      */
     setDialogOptions: function(dialogName, options) {
         if (typeof dialogName === 'object') {
@@ -2224,6 +2227,7 @@ var Hypergrid = Base.extend('Hypergrid', {
      * Options objects are remembered for subsequent use. Alternatively, they can be preset by calling {@link Hypergrid#setDialogOptions|setDialogOptions}.
      * @param {string} dialogName
      * @param {object} [options] - If omitted, use the options object previously given here (or to {@link Hypergrid#setDialogOptions|setDialogOptions}), if any. In any case, the resultant options object, if any, is mixed into the default options object, if there is one.
+     * @memberOf Hypergrid#
      */
     openDialog: function(dialogName, options) {
         if (!this.abortEditing()) { return; }
@@ -2263,19 +2267,22 @@ function findOrCreateContainer(boundingRect) {
 
     if (!used) {
         div = document.createElement('div');
-
-        if (boundingRect) {
-            ['width', 'height', 'position', 'top', 'bottom', 'left', 'right'].forEach(function(style) {
-                if (boundingRect[style]) {
-                    div.style[style] = boundingRect[style];
-                }
-            });
-        }
-
+        setStyles(div, boundingRect, RECT_STYLES);
         document.body.appendChild(div);
     }
 
     return div;
+}
+
+function setStyles(el, style, keys) {
+    if (style) {
+        var elStyle = el.style;
+        keys.forEach(function(key) {
+            if (style[key] !== undefined) {
+                elStyle[key] = style[key];
+            }
+        });
+    }
 }
 
 function headerFormatter(value, config) {
@@ -2298,6 +2305,9 @@ function headerFormatter(value, config) {
 }
 
 /**
+ * @name plugins
+ * @memberOf Hypergrid
+ * @type {object}
  * @summary Hash of references to shared plug-ins.
  * @desc Dictionary of shared (pre-installed) plug-ins. Used internally, primarily to avoid reinstallations. See examples for how to reference (albeit there is normally no need to reference plugins directly).
  *
@@ -2314,19 +2324,19 @@ function headerFormatter(value, config) {
  * @example
  * var allSharedPlugins = Hypergrid.plugins;
  * var mySharedPlugin = Hypergrid.plugins.mySharedPlugin;
- * @type {object}
  */
 Hypergrid.plugins = {};
 
 /**
+ * @name localization
+ * @memberOf Hypergrid
+ * @type {object}
  * @summary Shared localization defaults for all grid instances.
  * @desc These property values are overridden by those supplied in the `Hypergrid` constructor's `options.localization`.
  * @property {string|string[]} [locale] - The default locale to use when an explicit `locale` is omitted from localizer constructor calls. Passed to Intl.NumberFormat` and `Intl.DateFormat`. See {@ https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl#Locale_identification_and_negotiation|Locale identification and negotiation} for more information. Omitting will use the runtime's local language and region.
  * @property {object} [numberOptions] - Options passed to `Intl.NumberFormat` for creating the basic "number" localizer.
  * @property {object} [dateOptions] - Options passed to `Intl.DateFormat` for creating the basic "date" localizer.
- * @type {object}
  */
-
 Hypergrid.localization = {
     locale: 'en-US',
     numberOptions: { maximumFractionDigits: 0 }

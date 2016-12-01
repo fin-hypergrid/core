@@ -43,4 +43,24 @@ Base.prototype.unwrap = function(value) {
 Base.prototype.mixIn = require('overrider').mixIn;
 
 
+/**
+ * @method
+ * @summary Instantiate an object with discrete + variable args.
+ * @desc The discrete args are passed first, followed by the variable args.
+ * @param {function} Constructor
+ * @param {Array} variableArgArray
+ * @param {...*} discreteArgs
+ * @returns {object} Object of type `Constructor` newly constructor using the arguments in `arrayOfArgs`.
+ */
+Base.prototype.createApply = function(Constructor, variableArgArray, discreteArgs) {
+    var discreteArgArray = Array.prototype.slice.call(arguments, 2),
+        args = [null] // null is context for `bind` call below
+            .concat(discreteArgArray) // discrete arguments
+            .concat(variableArgArray), // variable arguments
+        BoundConstructor = Constructor.bind.apply(Constructor, args);
+
+    return new BoundConstructor;
+};
+
+
 module.exports = Base;

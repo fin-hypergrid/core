@@ -2,6 +2,13 @@
     position: relative;
     height: 500px;
 }
+.hypergrid-container > div:first-child {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+}
 .hypergrid-textfield {
     position: absolute;
     font-size: 12px;

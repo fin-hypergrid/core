@@ -5,7 +5,7 @@
 /**
  * Methods for programmatic drill-down manipulation.
  *
- * Intended to be mixed into Hypergrid's in-memory data model object (./src/dataModels/JSON.js) using the included {@link drillDown.mixInTo}
+ * Intended to be mixed into Hypergrid's in-memory data model object ({@link dataModels.JSON}) using the included {@link drillDown.mixInTo}
  * _Do not use directly._
  *
  * For example, you can mix it into the data model prototype like this:

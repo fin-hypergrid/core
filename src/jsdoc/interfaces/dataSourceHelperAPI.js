@@ -12,7 +12,7 @@
  * @method
  * @name dataSourceHelperAPI#test
  * @summary Tests data row for inclusion/exclusion from the grid display.
- * @desc Implementation of this method is required.
+ * @desc Implementation of this method is required only for filter data sources.
  * @param {object} dataRow
  * @returns {boolean} Truthy value means row "passes" the test, _i.e.,_ passes through the filter and should be included in the grid display.
  */
