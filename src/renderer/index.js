@@ -214,7 +214,7 @@ var Renderer = Base.extend('Renderer', {
             subrows, // rows in subgrid g
             base, // sum of rows for all subgrids so far
             subgrids = behavior.subgrids,
-            subgrid,
+            subgrid, infoSubgrid, infoRowCount,
             rowIndex,
             scrollableSubgrid,
             footerHeight,
@@ -349,23 +349,19 @@ var Renderer = Base.extend('Renderer', {
 
         this.dataWindow = this.grid.newRectangle(firstVX, firstVY, lastVX - firstVX, lastVY - firstVY);
 
-        // Create an "info" column that stretches from column 0 to column n
-        var info = behavior.subgrids.info;
-        if (info) {
-            if (C) {
-                this.visibleColumns.info = {
-                    index: vc.index,
-                    columnIndex: vc.columnIndex,
-                    column: vc.column,
-                    left: this.visibleColumns[0].left,
-                    width: vc.right - this.visibleColumns[0].left,
-                    right: vc.right
-                };
-            }
-            // Pad all info rows sufficiently to reach bottom of canvas
-            // todo: assumes there is at most one info subgrid
-            var infoRowCount = info.getRowCount();
-            if (infoRowCount) {
+        if (C && (infoSubgrid = behavior.subgrids.info)) {
+            // Create an "info" column that stretches from column 0 to column n
+            this.visibleColumns.info = {
+                index: vc.index,
+                columnIndex: vc.columnIndex,
+                column: vc.column,
+                left: this.visibleColumns[0].left,
+                width: vc.right - this.visibleColumns[0].left,
+                right: vc.right
+            };
+
+            // Pad all info rows equally to fill to bottom of canvas
+            if (infoSubgrid.pad && (infoRowCount = infoSubgrid.getRowCount())) {
                 y = bounds.height - y;
                 if (y > 0) {
                     Y = Math.floor(y / infoRowCount);

@@ -1401,7 +1401,8 @@ var Behavior = Base.extend('Behavior', {
             subgrid.type = subgrid.type || 'data';
 
             // make dictionary entry
-            subgrids[subgrid.name || subgrid.type] = subgrid;
+            var key = subgrid.name || subgrid.type;
+            subgrids[key] = subgrids[key] || subgrid; // only save first with this key
 
             // make isType boolean
             subgrid['is' + subgrid.type[0].toUpperCase() + subgrid.type.substr(1)] = true;
