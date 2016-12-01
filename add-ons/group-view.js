@@ -196,7 +196,7 @@ GroupView.prototype = {
 
 /**
  * Force `EmptyCell` renderer on parent rows.
- * @this {DataModel} - bound above
+ * @this {dataModelAPI} - bound above
  * @param {function} defaultGetCell - bound above
  * @param {object} config
  * @param {string} rendererName

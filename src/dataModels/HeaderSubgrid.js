@@ -1,18 +1,33 @@
 'use strict';
 
-function HeaderRow(grid) {
+/**
+ * @implements dataModelAPI
+ * @param {Hypergrid} grid
+ * @param {object} [options]
+ * @param {string} [options.name]
+ * @constructor
+ */
+function HeaderSubgrid(grid, options) {
     this.grid = grid;
     this.behavior = grid.behavior;
-    this.dataRow = {}; // for meta data (__ROW_HEIGHT)
+
+    /**
+     * @type {dataRowObject}
+     */
+    this.dataRow = {}; // for meta data (__HEIGHT)
+
+    if (options && options.name) {
+        this.name = options.name;
+    }
 }
 
-HeaderRow.prototype = {
-    constructor: HeaderRow.prototype.constructor,
+HeaderSubgrid.prototype = {
+    constructor: HeaderSubgrid.prototype.constructor,
 
     type: 'header',
 
     getRowCount: function() {
-        return this.grid.isShowHeaderRow() ? 1 : 0;
+        return this.grid.properties.showHeaderRow ? 1 : 0;
     },
 
     getValue: function(x, y) {
@@ -31,4 +46,4 @@ HeaderRow.prototype = {
     }
 };
 
-module.exports = HeaderRow;
+module.exports = HeaderSubgrid;

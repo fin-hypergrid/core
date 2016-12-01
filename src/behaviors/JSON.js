@@ -66,6 +66,7 @@ var JSON = Behavior.extend('behaviors.JSON', {
      * @param key
      * @todo move columnEnum code from core to demo
      * @returns {string}
+     * @memberOf behaviors.JSON.prototype
      */
     columnEnumKey: function(key) {
         return key.replace(REGEX_CAMEL_CASE, '$1_$2').toUpperCase();
@@ -137,6 +138,7 @@ var JSON = Behavior.extend('behaviors.JSON', {
      * @param {string} [whichStash]
      * @param {object} [options] - Takes first argument position when `DataSources` omitted.
      * @param {boolean} [options.apply=true] Apply data transformations to the new data.
+     * @memberOf behaviors.JSON.prototype
      */
     unstashPipeline: function(stash, options) {
         if (typeof stash === 'object') {

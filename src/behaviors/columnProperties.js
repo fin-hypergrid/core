@@ -8,6 +8,7 @@ var FIELD = 'columnProperties.field is deprecated as of v1.1.0 in favor of colum
 /**
  * @this {Column}
  * @returns {object}
+ * @memberOf Column#
  */
 function createColumnProperties() {
     var column = this,

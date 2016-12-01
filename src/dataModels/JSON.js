@@ -45,6 +45,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
     /**
      * Override to use a different origin.
      * @type(DataSourceBase}
+     * @memberOf dataModels.JSON.prototype
      */
     DataSourceOrigin: DataSourceOrigin,
 
@@ -97,6 +98,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
     /**
      * @deprecated As of v1.0.7, reference the `dataSource` property instead.
      * @returns {*}
+     * @memberOf dataModels.JSON.prototype
      */
     getDataSource: function() {
         return this.deprecated('getDataSource()', 'dataSource', '1.0.7');
@@ -107,7 +109,8 @@ var JSON = DataModel.extend('dataModels.JSON', {
     },
 
     /**
-     * @deprecated As of v1.1.0, use getIndexedData
+     * @deprecated As of v1.1.0, use `getIndexedData()` instead.
+     * @memberOf dataModels.JSON.prototype
      */
     getFilteredData: function() {
         return this.deprecated('getFilteredData()', 'getIndexedData()', '1.2.0', arguments);
@@ -141,7 +144,8 @@ var JSON = DataModel.extend('dataModels.JSON', {
 
     /**
      * @param {number} y - Data row coordinate.
-     * @returns {*}
+     * @returns {nunber} Row index in raw data array after dereferencing all data source indexing.
+     * @memberOf dataModels.JSON.prototype
      */
     getDataIndex: function(y) {
         return this.dataSource.getDataIndex(y);
@@ -327,6 +331,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
      * Find the last data source in the pipeline of specified type.
      * @param {string} type
      * @returns {DataSourceBase}
+     * @memberOf dataModels.JSON.prototype
      */
     findDataSourceByType: function(type) {
         var dataSource;
@@ -347,6 +352,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
      * @returns {number|object} One of:
      * `type` specified - The number of updated data sources of the specified type.
      * `type` omitted - Hash containing the number of updated data sources by type.
+     * @memberOf dataModels.JSON.prototype
      */
     updateDataSources: function(type) {
         var results = {},
@@ -425,7 +431,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
     },
 
     /**
-     * @deprecated
+     * @deprecated As pf v1.1.0, use `this.grid.behavior.setTopTotals()` instead.
      * @summary Set the top total row(s).
      * @param {dataRowObject[]} totalRows - Array of 0 or more rows containing summary data. Omit to set to empty array.
      * @memberOf dataModels.JSON.prototype
@@ -435,7 +441,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
     },
 
     /**
-     * @deprecated
+     * @deprecated As pf v1.1.0, use `this.grid.behavior.getTopTotals()` instead.
      * @summary Get the top total row(s).
      * @returns {dataRowObject[]}
      * @memberOf dataModels.JSON.prototype
@@ -455,18 +461,18 @@ var JSON = DataModel.extend('dataModels.JSON', {
     },
 
     /**
-     * @deprecated
      * @summary Get the bottom total row(s).
+     * @deprecated As pf v1.1.0, use `this.grid.behavior.getBottomTotals()` instead.
      * @returns {dataRowObject[]}
      * @memberOf dataModels.JSON.prototype
      */
     getBottomTotals: function() {
-        return this.deprecated('getBottomTotals(rows)', 'grid.behavior.getBottomTotals(rows)', '1.1.0', arguments);
+        return this.deprecated('getBottomTotals()', 'grid.behavior.getBottomTotals()', '1.1.0');
     },
 
     /**
      * @memberOf dataModels.JSON.prototype
-     * @returns {object[]}
+     * @returns {Column[]}
      */
     getActiveColumns: function() {
         return this.grid.behavior.columns.filter(function(column) {
@@ -475,8 +481,9 @@ var JSON = DataModel.extend('dataModels.JSON', {
     },
 
     /**
+     * @memberOf dataModels.JSON.prototype
      * @deprecated As of v1.0.6, use `this.getActiveColumns` instead.
-     * @returns {*}
+     * @returns {Column[]}
      */
     getVisibleColumns: function() {
         return this.deprecated('getVisibleColumns()', 'getActiveColumns()', '1.0.6', arguments);
@@ -622,6 +629,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
      * * A filter object - Turns the data source *ON*.
      * * `undefined` or `null` - Turns the data source *OFF.*
      * * A helper API. Turns the data source *ON*.
+     * @memberOf dataModels.JSON.prototype
      */
     registerHelperAPI: function(dataSourceType, helper) {
         this.api[dataSourceType] = helper = helper || nullDataSourceHelperAPI;
@@ -770,6 +778,8 @@ function reselectGridRowsBackedBySelectedDataRows() {
  * * When `property` is a hash and `value` is given: Unexpected; throws an error.
  *
  * @returns {propObject}
+ *
+ * @memberOf dataModels.JSON~
  */
 function propPrep(dataModel, columnIndex, propName, value) {
     var invalid,
@@ -829,6 +839,7 @@ function propPrep(dataModel, columnIndex, propName, value) {
  * @param {string} propName
  * @this DataSourceOrigin#
  * @returns {Array}
+ * @memberOf dataModels.JSON~
  */
 function getSchemaPropArr(propName, deprecatedMethodName) {
     this.deprecated(deprecatedMethodName, deprecatedMethodName + '() has been deprecated as of v1.2.0 and will be removed in a future release. Constructs like ' + deprecatedMethodName + '()[i] should be changed to schema[i]. (This deprecated method now returns a new array derived from schema.)');
@@ -838,6 +849,8 @@ function getSchemaPropArr(propName, deprecatedMethodName) {
 }
 
 /**
+ * Synonym of {@link JSON.prototype.reindex}.
+ * @name applyAnalytics
  * @deprecated
  * @memberOf dataModels.JSON.prototype
  */

@@ -7,7 +7,6 @@ var Point = require('rectangular').Point;
 var Base = require('../Base');
 var Column = require('./Column');
 var cellEventFactory = require('./../lib/cellEventFactory');
-var dataModels = require('../dataModels');
 var dialogs = require('../dialogs');
 
 var noExportProperties = [
@@ -34,12 +33,12 @@ var Behavior = Base.extend('Behavior', {
      * @param {Hypergrid} grid
      * @param {object} [options] - _(See {@link behaviors.JSON#setData} for additional options.)_
      * @param {DataModels[]} [options.subgrids]
-     * @memberOf Behavior.prototype
+     * @memberOf Behavior#
      */
     initialize: function(grid, options) {
         /**
          * @type {Hypergrid}
-         * @memberOf Behavior.prototype
+         * @memberOf Behavior#
          */
         this.grid = grid;
 
@@ -52,7 +51,7 @@ var Behavior = Base.extend('Behavior', {
     /**
      * @desc create the feature chain - this is the [chain of responsibility](http://c2.com/cgi/wiki?ChainOfResponsibilityPattern) pattern.
      * @param {Hypergrid} grid
-     * @memberOf Behavior.prototype
+     * @memberOf Behavior#
      */
     initializeFeatureChain: function(grid) {
         var self = this;
@@ -61,7 +60,7 @@ var Behavior = Base.extend('Behavior', {
          * @summary Hash of feature class names.
          * @desc Built here but otherwise not in use.
          * @type {object}
-         * @memberOf Behavior.prototype
+         * @memberOf Behavior#
          */
         this.featureMap = {};
 
@@ -75,7 +74,7 @@ var Behavior = Base.extend('Behavior', {
                  * @summary Controller chain of command.
                  * @desc Each feature is linked to the next feature.
                  * @type {Feature}
-                 * @memberOf Behavior.prototype
+                 * @memberOf Behavior#
                  */
                 self.featureChain = newFeature;
             }
@@ -92,8 +91,8 @@ var Behavior = Base.extend('Behavior', {
             this.dataModel.reset();
         } else {
             /**
-             * @type {DataModel}
-             * @memberOf Behavior.prototype
+             * @type {dataModelAPI}
+             * @memberOf Behavior#
              */
             this.dataModel = this.getNewDataModel(options);
         }
@@ -109,14 +108,9 @@ var Behavior = Base.extend('Behavior', {
         /**
          * Ordered list of subgrids to render.
          * @type {subgridSpec[]}
+         * @memberOf Hypergrid#
          */
-        this.subgrids = options.subgrids || [
-            dataModels.HeaderSubgrid,
-            dataModels.FilterSubgrid,
-            [dataModels.SummarySubgrid, { name: 'topTotals' }],
-            this.dataModel,
-            [dataModels.SummarySubgrid, { name: 'bottomTotals' }]
-        ];
+        this.subgrids = options.subgrids || this.defaultSubgridSpecs;
     },
 
     get renderedColumnCount() {
@@ -130,13 +124,13 @@ var Behavior = Base.extend('Behavior', {
     clearColumns: function() {
         /**
          * @type {Column[]}
-         * @memberOf Behavior.prototype
+         * @memberOf Behavior#
          */
         this.columns = [];
 
         /**
          * @type {Column[]}
-         * @memberOf Behavior.prototype
+         * @memberOf Behavior#
          */
         this.allColumns = [];
 
@@ -154,6 +148,7 @@ var Behavior = Base.extend('Behavior', {
      * The "grid index" given a "data index" (or column object)
      * @param {Column|number} columnOrIndex
      * @returns {undefined|number} The grid index of the column or undefined if column not in grid.
+     * @memberOf Hypergrid#
      */
     getActiveColumnIndex: function(columnOrIndex) {
         var index = columnOrIndex instanceof Column ? columnOrIndex.index : columnOrIndex;
@@ -208,6 +203,7 @@ var Behavior = Base.extend('Behavior', {
     /**
      * @param {Column|number} columnOrIndex - The column or active column index.
      * @param width
+     * @memberOf Hypergrid#
      */
     setColumnWidth: function(columnOrIndex, width) {
         var column = columnOrIndex >= -2 ? this.getActiveColumn(columnOrIndex) : columnOrIndex;
@@ -226,16 +222,15 @@ var Behavior = Base.extend('Behavior', {
     },
 
     /**
-     * @deprecated
-     * @memberOf Behavior.prototype
+     * @memberOf Behavior#
      */
-    applyAnalytics: function() {
+    reindex: function() {
         this.dataModel.reindex();
         this.shapeChanged();
     },
 
     /**
-     * @memberOf Behavior.prototype
+     * @memberOf Behavior#
      * @desc utility function to empty an object of its members
      * @param {object} obj - the object to empty
      * @param {boolean} [exportProps]
@@ -258,7 +253,7 @@ var Behavior = Base.extend('Behavior', {
     },
 
     /**
-     * @memberOf Behavior.prototype
+     * @memberOf Behavior#
      * @desc getter for a [Memento](http://c2.com/cgi/wiki?MementoPattern) Object
      * @returns {object}
      */
@@ -273,7 +268,7 @@ var Behavior = Base.extend('Behavior', {
         return copy;
     },
     /**
-     * @memberOf Behavior.prototype
+     * @memberOf Behavior#
      * @desc clear all table state
      */
     clearState: function() {
@@ -281,7 +276,7 @@ var Behavior = Base.extend('Behavior', {
     },
 
     /**
-     * @memberOf Behavior.prototype
+     * @memberOf Behavior#
      * @desc Restore this table to a previous state.
      * See the [memento pattern](http://c2.com/cgi/wiki?MementoPattern).
      * @param {Object} memento - an encapsulated representation of table state
@@ -339,7 +334,7 @@ var Behavior = Base.extend('Behavior', {
     },
 
     /**
-     * @memberOf Behavior.prototype
+     * @memberOf Behavior#
      * @desc Rebuild the column order indexes
      * @param {Array} columnIndexes - list of column indexes
      * @param {Boolean} [silent=false] - whether to trigger column changed event
@@ -377,7 +372,7 @@ var Behavior = Base.extend('Behavior', {
      *
      * _Promoted left one arg position when `isActiveColumnIndexes` omitted + one position when `referenceIndex` omitted._
      *
-     * @memberOf Behavior.prototype
+     * @memberOf Behavior#
      */
     showColumns: function(isActiveColumnIndexes, columnIndexes, referenceIndex, allowDuplicateColumns) {
         // Promote args when isActiveColumnIndexes omitted
@@ -440,7 +435,7 @@ var Behavior = Base.extend('Behavior', {
      * * **Array of column indexes** - Adds multiple consecutive columns at insertion point.
      *
      * _This required parameter is promoted left one arg position when `isActiveColumnIndexes` omitted._
-     * @memberOf Behavior.prototype
+     * @memberOf Behavior#
      */
     hideColumns: function(isActiveColumnIndexes, columnIndexes) {
         var args = Array.prototype.slice.call(arguments); // Convert to array so we can add an argument (element)
@@ -449,7 +444,7 @@ var Behavior = Base.extend('Behavior', {
     },
 
     /**
-     * @memberOf Behavior.prototype
+     * @memberOf Behavior#
      * @desc fetch the value for a property key
      * @returns {*} The value of the given property.
      * @param {string} key - a property name
@@ -460,7 +455,7 @@ var Behavior = Base.extend('Behavior', {
     },
 
     /**
-     * @memberOf Behavior.prototype
+     * @memberOf Behavior#
      * @desc A specific cell was clicked; you've been notified.
      * @param {Object} event - all event information
      * @return {boolean} Clicked in a drill-down column.
@@ -473,7 +468,7 @@ var Behavior = Base.extend('Behavior', {
     },
 
     /**
-     * @memberOf Behavior.prototype
+     * @memberOf Behavior#
      * @desc A specific cell was le double-clicked; you've been notified.
      * @param {Point} cell - point of cell coordinates
      * @param {Object} event - all event information
@@ -489,7 +484,7 @@ var Behavior = Base.extend('Behavior', {
     /**
      * @param {CellEvent|number} xOrCellEvent - Grid column coordinate.
      * @param {number} [y] - Grid row coordinate. Omit if `xOrCellEvent` is a CellEvent.
-     * @memberOf Behavior.prototype
+     * @memberOf Behavior#
      */
     getValue: function(xOrCellEvent, y) {
         switch (arguments.length) {
@@ -506,7 +501,7 @@ var Behavior = Base.extend('Behavior', {
     },
 
     /**
-     * @memberOf Behavior.prototype
+     * @memberOf Behavior#
      * @desc update the data at point x, y with value
      * @return The data.
      * @param {CellEvent|number} xOrCellEvent - Grid column coordinate.
@@ -537,7 +532,7 @@ var Behavior = Base.extend('Behavior', {
      * @param {CellEvent|number} xOrCellEvent - Data x coordinate.
      * @param {number} [y] - Grid row coordinate. _Omit when `xOrCellEvent` is a `CellEvent`._
      * @returns {undefined|object} The "own" properties of the cell at x,y in the grid. If the cell does not own a properties object, returns `undefined`.
-     * @memberOf Behavior.prototype
+     * @memberOf Behavior#
      */
     getCellOwnProperties: function(xOrCellEvent, y) {
         switch (arguments.length) {
@@ -558,7 +553,7 @@ var Behavior = Base.extend('Behavior', {
      * @param {CellEvent|number} xOrCellEvent - Data x coordinate.
      * @param {number} [y] - Grid row coordinate. _Omit when `xOrCellEvent` is a `CellEvent`._
      * @return {object} The properties of the cell at x,y in the grid.
-     * @memberOf Behavior.prototype
+     * @memberOf Behavior#
      */
     getCellProperties: function(xOrCellEvent, y) {
         switch (arguments.length) {
@@ -578,7 +573,7 @@ var Behavior = Base.extend('Behavior', {
      * @param {number} [y] - Grid row coordinate._ Omit when `xOrCellEvent` is a `CellEvent`._
      * @param {string} key - Name of property to get. _When `y` omitted, this param promoted to 2nd arg._
      * @return {object} The specified property for the cell at x,y in the grid.
-     * @memberOf Behavior.prototype
+     * @memberOf Behavior#
      */
     getCellProperty: function(xOrCellEvent, y, key) {
         switch (arguments.length) {
@@ -592,7 +587,7 @@ var Behavior = Base.extend('Behavior', {
     },
 
     /**
-     * @memberOf Behavior.prototype
+     * @memberOf Behavior#
      * @desc update the data at point x, y with value
      * @param {CellEvent|number} xOrCellEvent - Data x coordinate.
      * @param {number} [y] - Grid row coordinate. _Omit when `xOrCellEvent` is a `CellEvent`._
@@ -609,7 +604,7 @@ var Behavior = Base.extend('Behavior', {
     },
 
     /**
-     * @memberOf Behavior.prototype
+     * @memberOf Behavior#
      * @desc update the data at point x, y with value
      * @param {CellEvent|number} xOrCellEvent - Data x coordinate.
      * @param {number} [y] - Grid row coordinate. _Omit when `xOrCellEvent` is a `CellEvent`._
@@ -632,7 +627,7 @@ var Behavior = Base.extend('Behavior', {
      * @param {number} [y] - Grid row coordinate. _Omit when `xOrCellEvent` is a `CellEvent`._
      * @param {string} key - Name of property to get. _When `y` omitted, this param promoted to 2nd arg._
      * @param value
-     * @memberOf Behavior.prototype
+     * @memberOf Behavior#
      */
     setCellProperty: function(xOrCellEvent, y, key, value) {
         switch (arguments.length) {
@@ -645,23 +640,12 @@ var Behavior = Base.extend('Behavior', {
         }
     },
 
-    /**
-     * @summary Gets the number of rows in the hypergrid.
-     * @dsc Defined as the sum of all rows from all subgrids.
-     * @memberOf Behavior.prototype
-     */
-    getRowCount: function() {
-        return this.subgrids.reduce(function(sum, subgrid) {
-            return sum + subgrid.getRowCount();
-        }, 0);
-    },
-
     getUnfilteredRowCount: function() {
         return this.deprecated('getUnfilteredRowCount()', null, '1.2.0', arguments, 'No longer supported');
     },
 
     /**
-     * @memberOf Behavior.prototype
+     * @memberOf Behavior#
      * @return {number} The height in pixels of the fixed rows area  of the hypergrid.
      */
     getFixedRowsHeight: function() {
@@ -674,9 +658,9 @@ var Behavior = Base.extend('Behavior', {
     },
 
     /**
-     * @memberOf Behavior.prototype
+     * @memberOf Behavior#
      * @param {number} rowIndex - Data row coordinate local to datsModel.
-     * @param {DataModel} [dataModel=this.dataModel]
+     * @param {dataModelAPI} [dataModel=this.dataModel]
      */
     getRowHeight: function(rowIndex, dataModel) {
         var rowData = (dataModel || this.dataModel).getRow(rowIndex);
@@ -684,7 +668,7 @@ var Behavior = Base.extend('Behavior', {
     },
 
     /**
-     * @memberOf Behavior.prototype
+     * @memberOf Behavior#
      * @desc The value is lazily initialized and comes from the properties mechanism for '`defaultRowHeight`', which should be ~20px.
      * @returns {number} The row height in pixels.
      */
@@ -693,11 +677,11 @@ var Behavior = Base.extend('Behavior', {
     },
 
     /**
-     * @memberOf Behavior.prototype
+     * @memberOf Behavior#
      * @desc set the pixel height of a specific row
      * @param {number} rowIndex - Data row coordinate local to datsModel.
      * @param {number} height - pixel height
-     * @param {DataModel} [dataModel=this.dataModel]
+     * @param {dataModelAPI} [dataModel=this.dataModel]
      */
     setRowHeight: function(rowIndex, height, dataModel) {
         var rowData = (dataModel || this.dataModel).getRow(rowIndex);
@@ -708,7 +692,7 @@ var Behavior = Base.extend('Behavior', {
     },
 
     /**
-     * @memberOf Behavior.prototype
+     * @memberOf Behavior#
      * @desc This will allow 'floating' fixed rows.
      * @return {number} The maximum height of the fixed rows area in the hypergrid.
      */
@@ -717,7 +701,7 @@ var Behavior = Base.extend('Behavior', {
     },
 
     /**
-     * @memberOf Behavior.prototype
+     * @memberOf Behavior#
      * @return {number} The width of the fixed column area in the hypergrid.
      */
     getFixedColumnsWidth: function() {
@@ -730,7 +714,7 @@ var Behavior = Base.extend('Behavior', {
     },
 
     /**
-     * @memberOf Behavior.prototype
+     * @memberOf Behavior#
      * @desc This exists to support "floating" columns.
      * @return {number} The total width of the fixed columns area.
      */
@@ -739,7 +723,7 @@ var Behavior = Base.extend('Behavior', {
     },
 
     /**
-     * @memberOf Behavior.prototype
+     * @memberOf Behavior#
      * @desc Set the scroll position in vertical dimension and notify listeners.
      * @param {number} y - the new y value
      */
@@ -749,7 +733,7 @@ var Behavior = Base.extend('Behavior', {
     },
 
     /**
-     * @memberOf Behavior.prototype
+     * @memberOf Behavior#
      * @desc Set the scroll position in horizontal dimension and notify listeners.
      * @param {number} x - the new x value
      */
@@ -759,7 +743,7 @@ var Behavior = Base.extend('Behavior', {
     },
 
     /**
-     * @memberOf Behavior.prototype
+     * @memberOf Behavior#
      * @desc The fixed row area has been clicked, massage the details and call the real function.
      * @param {Hypergrid} grid
      * @param {Object} mouse - event details
@@ -772,7 +756,7 @@ var Behavior = Base.extend('Behavior', {
     },
 
     /**
-     * @memberOf Behavior.prototype
+     * @memberOf Behavior#
      * @desc The fixed column area has been clicked, massage the details and call the real function.
      * @param {Hypergrid} grid
      * @param {Object} mouse - event details
@@ -791,7 +775,7 @@ var Behavior = Base.extend('Behavior', {
     },
 
     /**
-     * @memberOf Behavior.prototype
+     * @memberOf Behavior#
      * @desc delegate setting the cursor up the feature chain of responsibility
      * @param {Hypergrid} grid
      */
@@ -801,7 +785,7 @@ var Behavior = Base.extend('Behavior', {
     },
 
     /**
-     * @memberOf Behavior.prototype
+     * @memberOf Behavior#
      * @desc delegate handling mouse move to the feature chain of responsibility
      * @param {Hypergrid} grid
      * @param {Object} event - the event details
@@ -814,7 +798,7 @@ var Behavior = Base.extend('Behavior', {
     },
 
     /**
-     * @memberOf Behavior.prototype
+     * @memberOf Behavior#
      * @desc delegate handling tap to the feature chain of responsibility
      * @param {Hypergrid} grid
      * @param {Object} event - the event details
@@ -827,7 +811,7 @@ var Behavior = Base.extend('Behavior', {
     },
 
     /**
-     * @memberOf Behavior.prototype
+     * @memberOf Behavior#
      * @desc delegate handling tap to the feature chain of responsibility
      * @param {Hypergrid} grid
      * @param {Object} event - the event details
@@ -841,7 +825,7 @@ var Behavior = Base.extend('Behavior', {
     },
 
     /**
-     * @memberOf Behavior.prototype
+     * @memberOf Behavior#
      * @desc delegate handling wheel moved to the feature chain of responsibility
      * @param {Hypergrid} grid
      * @param {Object} event - the event details
@@ -854,7 +838,7 @@ var Behavior = Base.extend('Behavior', {
     },
 
     /**
-     * @memberOf Behavior.prototype
+     * @memberOf Behavior#
      * @desc delegate handling mouse up to the feature chain of responsibility
      * @param {Hypergrid} grid
      * @param {Object} event - the event details
@@ -867,7 +851,7 @@ var Behavior = Base.extend('Behavior', {
     },
 
     /**
-     * @memberOf Behavior.prototype
+     * @memberOf Behavior#
      * @desc delegate handling mouse drag to the feature chain of responsibility
      * @param {Hypergrid} grid
      * @param {Object} event - the event details
@@ -880,7 +864,7 @@ var Behavior = Base.extend('Behavior', {
     },
 
     /**
-     * @memberOf Behavior.prototype
+     * @memberOf Behavior#
      * @desc delegate handling key down to the feature chain of responsibility
      * @param {Hypergrid} grid
      * @param {Object} event - the event details
@@ -893,7 +877,7 @@ var Behavior = Base.extend('Behavior', {
     },
 
     /**
-     * @memberOf Behavior.prototype
+     * @memberOf Behavior#
      * @desc delegate handling key up to the feature chain of responsibility
      * @param {Hypergrid} grid
      * @param {Object} event - the event details
@@ -906,7 +890,7 @@ var Behavior = Base.extend('Behavior', {
     },
 
     /**
-     * @memberOf Behavior.prototype
+     * @memberOf Behavior#
      * @desc delegate handling double click to the feature chain of responsibility
      * @param {Hypergrid} grid
      * @param {Object} event - the event details
@@ -919,7 +903,7 @@ var Behavior = Base.extend('Behavior', {
     },
 
     /**
-     * @memberOf Behavior.prototype
+     * @memberOf Behavior#
      * @desc delegate handling double click to the feature chain of responsibility
      * @param {Hypergrid} grid
      * @param {string[]} [options] - Forwarded to dialog constructor.
@@ -929,7 +913,7 @@ var Behavior = Base.extend('Behavior', {
     },
 
     /**
-     * @memberOf Behavior.prototype
+     * @memberOf Behavior#
      * @desc delegate handling mouse down to the feature chain of responsibility
      * @param {Hypergrid} grid
      * @param {Object} event - the event details
@@ -942,7 +926,7 @@ var Behavior = Base.extend('Behavior', {
     },
 
     /**
-     * @memberOf Behavior.prototype
+     * @memberOf Behavior#
      * @desc delegate handling mouse exit to the feature chain of responsibility
      * @param {Hypergrid} grid
      * @param {Object} event - the event details
@@ -955,25 +939,25 @@ var Behavior = Base.extend('Behavior', {
     },
 
     /**
-     * @memberOf Behavior.prototype
+     * @memberOf Behavior#
      * @desc I've been notified that the behavior has changed.
      */
     changed: function() { this.grid.behaviorChanged(); },
 
     /**
-     * @memberOf Behavior.prototype
+     * @memberOf Behavior#
      * @desc The dimensions of the grid data have changed. You've been notified.
      */
     shapeChanged: function() { this.grid.behaviorShapeChanged(); },
 
     /**
-     * @memberOf Behavior.prototype
+     * @memberOf Behavior#
      * @desc The dimensions of the grid data have changed. You've been notified.
      */
     stateChanged: function() { this.grid.behaviorStateChanged(); },
 
     /**
-     * @memberOf Behavior.prototype
+     * @memberOf Behavior#
      * @return {boolean} Can re-order columns.
      */
     isColumnReorderable: function() {
@@ -983,7 +967,7 @@ var Behavior = Base.extend('Behavior', {
     /**
      * @param {index} x - Data x coordinate.
      * @return {Object} The properties for a specific column.
-     * @memberOf Behavior.prototype
+     * @memberOf Behavior#
      */
     getColumnProperties: function(x) {
         var column = this.getColumn(x);
@@ -993,7 +977,7 @@ var Behavior = Base.extend('Behavior', {
     /**
      * @param {index} x - Data x coordinate.
      * @return {Object} The properties for a specific column.
-     * @memberOf Behavior.prototype
+     * @memberOf Behavior#
      */
     setColumnProperties: function(x, properties) {
         var column = this.getColumn(x);
@@ -1008,6 +992,7 @@ var Behavior = Base.extend('Behavior', {
     /**
      * Clears all cell properties of given column or of all columns.
      * @param {number} [x] - Omit for all columns.
+     * @memberOf Behavior#
      */
     clearAllCellProperties: function(x) {
         if (x === undefined) {
@@ -1024,7 +1009,7 @@ var Behavior = Base.extend('Behavior', {
     },
 
     /**
-     * @memberOf Behavior.prototype
+     * @memberOf Behavior#
      * @return {string[]} All the currently hidden column header labels.
      */
     getHiddenColumnDescriptors: function() {
@@ -1046,7 +1031,7 @@ var Behavior = Base.extend('Behavior', {
     },
 
     /**
-     * @memberOf Behavior.prototype
+     * @memberOf Behavior#
      * @return {integer} The number of fixed columns.
      */
     getFixedColumnCount: function() {
@@ -1054,7 +1039,7 @@ var Behavior = Base.extend('Behavior', {
     },
 
     /**
-     * @memberOf Behavior.prototype
+     * @memberOf Behavior#
      * @desc set the number of fixed columns
      * @param {number} n - the integer count of how many columns to be fixed
      */
@@ -1063,7 +1048,7 @@ var Behavior = Base.extend('Behavior', {
     },
 
     /**
-     * @memberOf Behavior.prototype
+     * @memberOf Behavior#
      * @return {integer} The number of fixed rows.
      */
     getFixedRowCount: function() {
@@ -1074,7 +1059,7 @@ var Behavior = Base.extend('Behavior', {
     },
 
     /**
-     * @memberOf Behavior.prototype
+     * @memberOf Behavior#
      * @desc Set the number of fixed rows, which includes (top to bottom order):
      * 1. The header rows
      *    1. The header labels row (optional)
@@ -1091,31 +1076,13 @@ var Behavior = Base.extend('Behavior', {
     },
 
     /**
-     * @summary Gets the number of "header rows".
-     * @desc Defined as the sum of all rows of all subgrids before the (first) data subgrid.
-     * @memberOf behaviors.JSON.prototype
-     */
-    getHeaderRowCount: function() {
-        var result = 0;
-
-        this.subgrids.find(function(subgrid) {
-            if (subgrid.isData) {
-                return true; // stop
-            }
-            result += subgrid.getRowCount();
-        });
-
-        return result;
-    },
-
-    /**
-     * @memberOf Behavior.prototype
+     * @memberOf Behavior#
      * @desc a dnd column has just been dropped, we've been notified
      */
     endDragColumnNotification: function() {},
 
     /**
-     * @memberOf Behavior.prototype
+     * @memberOf Behavior#
      * @return {null} the cursor at a specific x,y coordinate
      * @param {number} x - the x coordinate
      * @param {number} y - the y coordinate
@@ -1126,7 +1093,7 @@ var Behavior = Base.extend('Behavior', {
 
     /**
      * Number of _visible_ columns.
-     * @memberOf Behavior.prototype
+     * @memberOf Behavior#
      * @return {number} The total number of columns.
      */
     getActiveColumnCount: function() {
@@ -1144,13 +1111,13 @@ var Behavior = Base.extend('Behavior', {
      * * `'right'`
      *
      * Cascades to grid.
-     * @memberOf Behavior.prototype
+     * @memberOf Behavior#
      * @desc Quietly set the horizontal scroll position.
      * @param {number} x - The new position in pixels.
      */
     setScrollPositionX: function(x) {
         /**
-         * @memberOf Behavior.prototype
+         * @memberOf Behavior#
          * @type {number}
          */
         this.scrollPositionX = x;
@@ -1161,13 +1128,13 @@ var Behavior = Base.extend('Behavior', {
     },
 
     /**
-     * @memberOf Behavior.prototype
+     * @memberOf Behavior#
      * @desc Quietly set the vertical scroll position.
      * @param {number} y - The new position in pixels.
      */
     setScrollPositionY: function(y) {
         /**
-         * @memberOf Behavior.prototype
+         * @memberOf Behavior#
          * @type {number}
          */
         this.scrollPositionY = y;
@@ -1178,7 +1145,7 @@ var Behavior = Base.extend('Behavior', {
     },
 
     /**
-     * @memberOf Behavior.prototype
+     * @memberOf Behavior#
      * @return {cellEditor} The cell editor for the cell at the given coordinates.
      * @param {CellEvent} editPoint - The grid cell coordinates.
      */
@@ -1191,7 +1158,7 @@ var Behavior = Base.extend('Behavior', {
     },
 
     /**
-     * @memberOf Behavior.prototype
+     * @memberOf Behavior#
      * @return {boolean} `true` if we should highlight on hover
      * @param {boolean} isColumnHovered - the column is hovered or not
      * @param {boolean} isRowHovered - the row is hovered or not
@@ -1201,7 +1168,7 @@ var Behavior = Base.extend('Behavior', {
     },
 
     /**
-     * @memberOf Behavior.prototype
+     * @memberOf Behavior#
      * @desc this function is a hook and is called just before the painting of a cell occurs
      * @param {window.fin.rectangular.Point} cell
      */
@@ -1210,7 +1177,7 @@ var Behavior = Base.extend('Behavior', {
     },
 
     /**
-     * @memberOf Behavior.prototype
+     * @memberOf Behavior#
      * @desc this function is a hook and is called just before the painting of a fixed row cell occurs
      * @param {window.fin.rectangular.Point} cell
      */
@@ -1219,7 +1186,7 @@ var Behavior = Base.extend('Behavior', {
     },
 
     /**
-     * @memberOf Behavior.prototype
+     * @memberOf Behavior#
      * @desc this function is a hook and is called just before the painting of a fixed column cell occurs
      * @param {window.fin.rectangular.Point} cell
      */
@@ -1228,7 +1195,7 @@ var Behavior = Base.extend('Behavior', {
     },
 
     /**
-     * @memberOf Behavior.prototype
+     * @memberOf Behavior#
      * @desc this function is a hook and is called just before the painting of a top left cell occurs
      * @param {window.fin.rectangular.Point} cell
      */
@@ -1237,7 +1204,7 @@ var Behavior = Base.extend('Behavior', {
     },
 
     /**
-     * @memberOf Behavior.prototype
+     * @memberOf Behavior#
      * @desc swap src and tar columns
      * @param {number} src - column index
      * @param {number} tar - column index
@@ -1255,7 +1222,7 @@ var Behavior = Base.extend('Behavior', {
     },
 
     /**
-     * @memberOf Behavior.prototype
+     * @memberOf Behavior#
      * @return {object} The object at y index.
      * @param {number} y - the row index of interest
      */
@@ -1305,7 +1272,7 @@ var Behavior = Base.extend('Behavior', {
      * @summary _Getter_
      * @method
      * @returns {dataSourceHelperAPI} The grid's currently assigned filter.
-     * @memberOf Behavior.prototype
+     * @memberOf Behavior#
      */
     get filter() {
         return this.dataModel.filter;
@@ -1317,7 +1284,7 @@ var Behavior = Base.extend('Behavior', {
      * @param {dataSourceHelperAPI|undefined|null} filter - One of:
      * * A filter object, turning filter *ON*.
      * * If `undefined` or `null`, the null filter is reassigned to the grid, turning filtering *OFF*.
-     * @memberOf Behavior.prototype
+     * @memberOf Behavior#
      */
     set filter(filter) {
         this.dataModel.filter = filter;
@@ -1366,120 +1333,22 @@ var Behavior = Base.extend('Behavior', {
     },
     getIndexedData: function() {
        this.dataModel.getIndexedData();
-    },
-
-    setInfo: function(messages) {
-        if (this.subgrids.info) {
-            this.subgrids.info.setData(
-                messages instanceof Array ? messages : [messages],
-                this.dataModel.schema
-            );
-            this.grid.behavior.changed();
-        }
-    },
-
-    /**
-     * An array where each element represents a subgrid to be rendered in the hypergrid.
-     *
-     * The list should always include at least one "data" subgrid, typically {@link Behavior#dataModel|dataModel}.
-     * It may also include zero or more other types of subgrids such as header, filter, and summary subgrids.
-     *
-     * This object also serves as a dictionary of subgrids where each dictionary key is one of:
-     * * **`subgrid.name`** (for those that have a defined name, which is presumed to be unique)
-     * * **`subgrid.type`** (not unique, so if you plan on having multiple, name them!)
-     * * **`'data'`** for the one and only data subgrid (which is unnamed and untyped)
-     *
-     * The setter:
-     * * "Enlivens" any constructors
-     * * Reconstructs the dictionary
-     * * Calls {@link Behavior#shapeChanged|shpaeChanged()}.
-     *
-     * @param {subgridSpec[]} subgrids
-     *
-     * @type {DataModel[]}
-     * @memberOf Behavior.prototype
-     */
-    set subgrids(subgrids) {
-        this._subgrids = subgrids = subgrids.map(enlivenSubgrids, this);
-
-        // create the dictionary from the array elements
-        subgrids.forEach(function(subgrid) {
-            // undefined type is data
-            subgrid.type = subgrid.type || 'data';
-
-            // make dictionary entry
-            var key = subgrid.name || subgrid.type;
-            subgrids[key] = subgrids[key] || subgrid; // only save first with this key
-
-            // make isType boolean
-            subgrid['is' + subgrid.type[0].toUpperCase() + subgrid.type.substr(1)] = true;
-        });
-
-        this.shapeChanged();
-    },
-    get subgrids() {
-        return this._subgrids;
     }
 });
 
-/**
- * Maps a `subgridSpec` to a data model.
- * @param {DataModel|Array|function|undefined|null} [subgridSpec] - One of:
- * * **{@link DataModel}** - Mapped to self (passed through as is).
- * * **`Array`** - Mapped to newly instantiated data model: First element is assumed to be a {@link DataModel} constructor to be called with `new` keyword and `this.grid` as first arg and remaining elements as additional args.
- * * **`function`** - Assumed to be a data model constructor. Mapped to newly instantiated data model: The constructor is called with `new` keyword and `this.grid` as only arg.
- * * **`undefined`** - Mapped to the behavior's already-instantiated data model (`this.dataModel`).
- * @returns {DataModel}
- */
-function enlivenSubgrids(subgridSpec) {
-    var result, Constructor, variableArgArray;
-    if (typeof subgridSpec === undefined) {
-        result = this.dataModel;
-    } else if (subgridSpec instanceof Array && subgridSpec.length) {
-        Constructor = derefSubgridRef.call(this, subgridSpec[0]);
-        variableArgArray = subgridSpec.slice(1);
-        result = this.createApply(Constructor, variableArgArray, this.grid);
-    } else if (typeof subgridSpec === 'object') {
-        result = subgridSpec;
-    } else {
-        Constructor = derefSubgridRef.call(this, subgridSpec);
-        result = new Constructor(this.grid);
-    }
-    return result;
-}
-
-function derefSubgridRef(subgridRef) {
-    var Constructor;
-    switch (typeof subgridRef) {
-        case 'string':
-            Constructor = dataModels[subgridRef];
-            break;
-        case 'function':
-            Constructor = subgridRef;
-            break;
-        default:
-            throw new this.HypergridError('Expected subgrid ref to be registered name or constructor, but found ' + typeof subgridSpec + '.');
-    }
-    return Constructor;
-}
+// synonyms
 
 /**
- * @memberOf Behavior.prototype
+ * Synonym of {@link Behavior#reindex}.
+ * @name applyAnalytics
+ * @deprecated
+ * @memberOf Behavior#
  */
-Behavior.prototype.reindex = Behavior.prototype.applyAnalytics;
+Behavior.prototype.applyAnalytics = Behavior.prototype.reindex;
+
+
+// mix-ins
+Behavior.prototype.mixIn(require('./subgrids'));
+
 
 module.exports = Behavior;
-
-/** @typedef {undefined|string|DataModel} subgridRef
- * @desc One of:
- * * **`undefined`** - The behavior's data model (already instantiated).
- * * **`string`** - The name of a registered data model (to be instantiated).
- * * **{@link DataModel}** - A specific data model object (to be instantiated).
- */
-/** @typedef {subgridRef|Array} subgridSpec
- * @desc One of:
- * * **{@link subgridRef}**
- * * **`Array`**:
- *   * first element is a {@link subgridRef}
- *   * remaining elements to be passed to the data model constructor
- */

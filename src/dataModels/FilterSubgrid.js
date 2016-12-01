@@ -1,18 +1,33 @@
 'use strict';
 
-function FilterRow(grid) {
+/**
+ * @implements dataModelAPI
+ * @param {Hypergrid} grid
+ * @param {object} [options]
+ * @param {string} [options.name]
+ * @constructor
+ */
+function FilterSubgrid(grid, options) {
     this.grid = grid;
     this.behavior = grid.behavior;
+
+    /**
+     * @type {dataRowObject}
+     */
     this.dataRow = {}; // for meta data (__HEIGHT)
+
+    if (options && options.name) {
+        this.name = options.name;
+    }
 }
 
-FilterRow.prototype = {
-    constructor: FilterRow.prototype.constructor,
+FilterSubgrid.prototype = {
+    constructor: FilterSubgrid.prototype.constructor,
 
     type: 'filter',
 
     getRowCount: function() {
-        return this.grid.isShowFilterRow() ? 1 : 0;
+        return this.grid.properties.showFilterRow ? 1 : 0;
     },
 
     getValue: function(x, y) {
@@ -28,4 +43,4 @@ FilterRow.prototype = {
     }
 };
 
-module.exports = FilterRow;
+module.exports = FilterSubgrid;
