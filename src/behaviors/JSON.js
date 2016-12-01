@@ -177,14 +177,17 @@ var JSON = Behavior.extend('behaviors.JSON', {
         }
 
         if (!Array.isArray(dataRows)) {
-            throw 'Data is not an array';
+            throw 'Expected data to be an array (of data row objects).';
         }
 
         options = options || {};
-        var behavior = this,
-            grid = this.grid,
-            schema = this.unwrap(options.schema); // *always* define a new schema on reset
 
+        var grid = this.grid,
+            schema = this.unwrap(options.schema), // *always* define a new schema on reset
+            schemaChanged = schema || !this.subgrids.data.schema.length, // schema will change if a new schema was provided OR data model has an empty schema now, which triggers schema generation on setData below
+            reindex = options.apply === undefined || options.apply; // defaults to true
+
+        // Inform interested data models of data.
         this.subgrids.forEach(function(dataModel) {
             if (dataModel.setData && !dataModel.hasOwnData) {
                 dataModel.setData(dataRows, schema);
@@ -195,32 +198,27 @@ var JSON = Behavior.extend('behaviors.JSON', {
             grid.cellEditor.cancelEditing();
         }
 
-        if (options.apply === undefined || options.apply) {
+        if (reindex) {
             this.reindex();
         }
 
-        this.createColumns();
-        setTimeout(function() { behavior.autosizeAllColumns(); }, 100); // after app has had a chance to re/set individual column's `columnAutosizing`
+        if (schemaChanged) {
+            this.createColumns();
+        }
+
         grid.allowEvents(this.dataModel.getRowCount() > 0);
     },
 
     /**
      * @summary Rebinds the data without reshaping it.
+     * @desc See {@link behaviors.JSON#setData|setData}'s parameter descriptions.
      * @param dataRows
      * @param options
      * @memberOf behaviors.JSON.prototype
      */
-    updateData: function(dataRows, options){
-        options = options || {};
-
-        if (!(Array.isArray(dataRows) || typeof dataRows === 'function')) {
-            options = dataRows;
-            dataRows = options && options.data;
-        }
-
-        this.dataModel.setData(this.unwrap(dataRows));
-
-        this.reindex();
+    updateData: function(dataRows, options) {
+        this.deprecated('updateData(dataRows, options)', 'setData(dataRows, options)', 'v1.2.10', arguments,
+            'To update data without changing column definitions, call setData _without a schema._');
     },
 
     /**

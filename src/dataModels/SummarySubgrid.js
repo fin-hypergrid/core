@@ -18,7 +18,7 @@ SummaryRow.prototype = {
 
     type: 'summary',
 
-    hasOwnData: true,
+    hasOwnData: true, // do not call setData implicitly
 
     getRowCount: function() {
         return this.behavior.dataModel.getRowCount() && this.getData().length;

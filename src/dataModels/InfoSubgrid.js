@@ -11,7 +11,9 @@ InfoSubgrid.prototype = {
 
     type: 'info',
 
-    hasOwnData: true,
+    hasOwnData: true, // do not call setData implicitly
+
+    pad: true, // row(s) should be padded to fill to bottom of grid viewport
 
     /**
      * Populates each row data object with all columns set to given row message, growing/shrinking `data` to match `messages`'s length.
