@@ -1,11 +1,7 @@
-/**
- * @summary API of cell renderer object constructors, plus some access methods.
- * @module cellRenderers
- */
-
 'use strict';
 
 /**
+ * @classdesc API of cell renderer object constructors, plus some access methods.
  * @param {boolean} [privateRegistry=false] - This instance will use a private registry.
  * @constructor
  */

@@ -6,6 +6,7 @@ var overrider = require('overrider');
 
 var deprecated = require('../lib/deprecated');
 var HypergridError = require('../lib/error');
+var images = require('../../images/index');
 
 /** @summary Create a new `Column` object.
  * @see {@link module:Cell} is mixed into Column.prototype.
@@ -63,7 +64,7 @@ function Column(behavior, options) {
 
     switch (index) {
         case -1:
-            this.properties.minimumColumnWidth = 16;
+            this.properties.minimumColumnWidth = images.unchecked ? images.unchecked.width + 3 : 0;
             break;
         case -2:
             break;
@@ -99,10 +100,11 @@ Column.prototype = {
 
     /**
      * @summary Name of this column from the `fields` array.
-     * @returns {string}
+     * @returns {string|undefined} Returns `undefined` if the column is not in the schema (such as for handle column).
      */
     get name() { // read-only (no setter)
-        return this.dataModel.schema[this._index].name;
+        var columnSchema = this.dataModel.schema[this._index];
+        return columnSchema && columnSchema.name;
     },
 
     /**

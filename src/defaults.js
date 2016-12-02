@@ -302,21 +302,6 @@ var defaults = {
      */
     hScrollbarClassPrefix: '',
 
-    //these used to be in the constants element
-
-    /**
-     * @default
-     * @type {string}
-     * @memberOf module:defaults
-     */
-    fixedRowAlign: 'center',
-
-    /**
-     * @default
-     * @type {string}
-     * @memberOf module:defaults
-     */
-    fixedColAlign: 'center',
     /**
      * @default
      * @type {string}
@@ -340,13 +325,63 @@ var defaults = {
      * Padding to left and right of cell icons.
      *
      * Overrides {@link module:defaults.cellPadding|cellPadding}:
-     * * Left icon + `iconPadding` overrides left `cellPdding`.
-     * * Right icon + `iconPadding` overrides right `cellPaddin`.
+     * * Left icon + `iconPadding` overrides left {@link module:defaults.cellPddingg|cellPddingg}.
+     * * Right icon + `iconPadding` overrides right {@link module:defaults.cellPddingg|cellPddingg}.
+     * @see {@link module:defaults.leftIcon|leftIcon}
+     * @see {@link module:defaults.centerIcon|centerIcon}
+     * @see {@link module:defaults.rightIcon|rightIcon}
      * @default
      * @type {number}
      * @memberOf module:defaults
      */
     iconPadding: 3,
+
+    /**
+     * @summary Name of image to appear at right of cell.
+     * Must be a key from {@link module:images|images}.
+     * @desc Used by {@link SimpleCell} cell renderer.
+     * @see {@link module:defaults.centerIcon|centerIcon}
+     * @see {@link module:defaults.rightIcon|rightIcon}
+     * @see {@link module:defaults.iconPadding|iconPadding}
+     * @default
+     * @type {string}
+     * @memberOf module:defaults
+     */
+    leftIcon: undefined,
+
+    /**
+     * @summary Name of image to appear at right of cell.
+     * Must be a key from {@link module:images|images}.
+     * @desc Used by {@link SimpleCell} cell renderer.
+     * @see {@link module:defaults.leftIcon|leftIcon}
+     * @see {@link module:defaults.rightIcon|rightIcon}
+     * @see {@link module:defaults.iconPadding|iconPadding}
+     * @default
+     * @type {string}
+     * @memberOf module:defaults
+     */
+    centerIcon: undefined,
+
+    /**
+     * @summary Name of image to appear at right of cell.
+     * Must be a key from {@link module:images|images}.
+     * @desc Used by {@link SimpleCell} cell renderer.
+     * @see {@link module:defaults.leftIcon|leftIcon}
+     * @see {@link module:defaults.centerIcon|centerIcon}
+     * @see {@link module:defaults.iconPadding|iconPadding}
+     * @default
+     * @type {string}
+     * @memberOf module:defaults
+     */
+    rightIcon: undefined,
+
+    /**
+     * Set to `true` to render `0` and `false`. Otherwise these value appear as blank cells.
+     * @default
+     * @type {boolean}
+     * @memberOf module:defaults
+     */
+    renderFalsy: false,
 
     /**
      * @default

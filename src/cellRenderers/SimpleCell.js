@@ -38,49 +38,33 @@ var SimpleCell = CellRenderer.extend('SimpleCell', {
 
         // setting gc properties are expensive, let's not do it needlessly
 
-        if (config.isHandleColumn) {
-            if (config.isDataRow) {
-                // row handle for a data row
-                val = [images.checkbox(config.isRowSelected), val, null];
-            } else if (config.isHeaderRow) {
-                // row handle for header row: gets "master" checkbox
-                val = [images.checkbox(config.allRowsSelected), '', null];
-            } else if (config.isFilterRow) {
-                // row handle for filter row: gets filter icon
-                val = [images.filter(false), '', null];
-            } else {
-                // row handles for "summary" or other rows: empty
-                val = '';
-            }
-        } else if (config.isFilterRow) {
-            val = [null, val, images.filter(val.length)];
-        }
-
         if (val && val.constructor === Array) {
             leftIcon = val[0];
             rightIcon = val[2];
-            val = val[1];
-            if (val && typeof val === 'object') {
-                if (val.constructor.name === 'HTMLImageElement') { // must be an image
-                    centerIcon = val;
-                    val = null;
-                }
+            val = config.exec(val[1]);
+            if (val && val.naturalWidth !== undefined) { // must be an image (much faster than instanceof HTMLImageElement)
+                centerIcon = val;
+                val = null;
             }
-            if (leftIcon && leftIcon.nodeName !== 'IMG') {
-                leftIcon = null;
-            }
-            if (rightIcon && (rightIcon.nodeName !== 'IMG' || width < 1.75 * height)) {
-                rightIcon = null;
-            }
-            if (centerIcon && centerIcon.nodeName !== 'IMG') {
-                centerIcon = null;
-            }
+        } else if (config.isFilterRow) {
+            rightIcon = images[config.isHandleColumn || !val.length ? 'filter-off' : 'filter-on'];
+            config.renderFalsy = false;
+        } else if (!config.isHandleColumn) {
+            leftIcon = images[config.leftIcon];
+            rightIcon = images[config.rightIcon];
+        } else if (config.isDataRow) {
+            leftIcon = images[config.leftIcon != undefined ? config.leftIcon : config.isRowSelected ? 'checked' : 'unchecked']; // eslint-disable-line eqeqeq
+        } else if (config.isHeaderRow) {
+            leftIcon = images[config.leftIcon != undefined ? config.leftIcon : config.allRowsSelected ? 'checked' : 'unchecked']; // eslint-disable-line eqeqeq
+        } else {
+            // row handles for "summary" or other subgrids' rows: empty
+            val = '';
         }
 
-        if (val) {
-            // Note: vf == 0 is fastest equivalent of vf === 0 || vf === false which excludes NaN, null, undefined
-            val = val || val == 0 ? val : ''; // eslint-disable-line eqeqeq
+        // Note: vf == 0 is fastest equivalent of vf === 0 || vf === false which excludes NaN, null, undefined
+        var renderValue = val || config.renderFalsy && val == 0; // eslint-disable-line eqeqeq
 
+        if (renderValue) {
             val = config.formatValue(val, config);
 
             textFont = config.isSelected ? config.foregroundSelectionFont : config.font;
@@ -88,6 +72,8 @@ var SimpleCell = CellRenderer.extend('SimpleCell', {
             textColor = gc.cache.strokeStyle = config.isSelected
                 ? config.foregroundSelectionColor
                 : config.color;
+        } else {
+            val = '';
         }
 
         same = same &&
@@ -150,14 +136,14 @@ var SimpleCell = CellRenderer.extend('SimpleCell', {
         leftPadding = leftIcon ? iconPadding + leftIcon.width + iconPadding : config.cellPadding;
         rightPadding = rightIcon ? iconPadding + rightIcon.width + iconPadding : config.cellPadding;
 
-        if (val) {
+        if (renderValue) {
             // draw text
             gc.cache.fillStyle = textColor;
             gc.cache.font = textFont;
             valWidth = config.isHeaderRow && config.headerTextWrapping
                 ? renderMultiLineText(gc, config, val, leftPadding, rightPadding)
                 : renderSingleLineText(gc, config, val, leftPadding, rightPadding);
-        } else if (centerIcon) {
+        } else if ((centerIcon = images[config.centerIcon])) {
             // Measure & draw center icon
             iyoffset = Math.round((height - centerIcon.height) / 2);
             ixoffset = Math.round((width - centerIcon.width) / 2);

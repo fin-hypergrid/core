@@ -627,16 +627,18 @@ var Behavior = Base.extend('Behavior', {
      * @param {number} [y] - Grid row coordinate. _Omit when `xOrCellEvent` is a `CellEvent`._
      * @param {string} key - Name of property to get. _When `y` omitted, this param promoted to 2nd arg._
      * @param value
+     * @parsam {dataModelAPI} [dataModel=this.subgrids.data] - For use only when `xOrCellEvent` is _not_ a `CellEvent`: Provide a subgrid.
      * @memberOf Behavior#
      */
-    setCellProperty: function(xOrCellEvent, y, key, value) {
+    setCellProperty: function(xOrCellEvent, y, key, value, dataModel) {
         switch (arguments.length) {
             case 3:
                 return xOrCellEvent.column // xOrCellEvent is cellEvent
                     .setCellProperty(xOrCellEvent.dataCell.y, y, key, xOrCellEvent.visibleRow.subgrid); // y omitted so y here is actually key and key is actually value
             case 4:
+            case 5:
                 return this.getColumn(xOrCellEvent) // xOrCellEvent is x
-                    .setCellProperty(y, key, value);
+                    .setCellProperty(y, key, value, dataModel);
         }
     },
 
