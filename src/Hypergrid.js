@@ -929,7 +929,6 @@ var Hypergrid = Base.extend('Hypergrid', {
 
             var canvas = new Canvas(divCanvas, this.renderer, this.options.canvas);
             canvas.canvas.classList.add('hypergrid');
-            canvas.resize();
 
             this.divCanvas = divCanvas;
             this.canvas = canvas;
