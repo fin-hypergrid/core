@@ -37,10 +37,10 @@ module.exports = {
      * The list should always include at least one "data" subgrid, typically {@link Behavior#dataModel|dataModel}.
      * It may also include zero or more other types of subgrids such as header, filter, and summary subgrids.
      *
-     * This object also serves as a dictionary of subgrids where each dictionary key is one of:
+     * This object also sports a dictionary of subgrids in `lookup` property where each dictionary key is one of:
      * * **`subgrid.name`** (for those that have a defined name, which is presumed to be unique)
      * * **`subgrid.type`** (not unique, so if you plan on having multiple, name them!)
-     * * **`'data'`** for the (one and only) data subgrid (which is unnamed and untyped)
+     * * **`'data'`** for the (one and only) data subgrid when unnamed (note that data subgrids have no `type`)
      *
      * The setter:
      * * "Enlivens" any constructors (see {@link Behavior~createSubgrid|createSubgrid} for details.
@@ -54,16 +54,21 @@ module.exports = {
      * @memberOf Behavior#
      */
     set subgrids(subgridSpecs) {
-        var subgrids = this._subgrids = subgridSpecs.map(createSubgrid, this);
+        var subgrids = this._subgrids;
+
+        if (!subgrids) {
+            subgrids = this._subgrids = subgridSpecs.map(createSubgrid, this);
+            subgrids.lookup = {};
+        }
 
         // create the dictionary from the array elements
         subgrids.forEach(function(subgrid) {
             // undefined type is data
             subgrid.type = subgrid.type || 'data';
 
-            // make dictionary entry
+            // make dictionary lookup entry
             var key = subgrid.name || subgrid.type;
-            subgrids[key] = subgrids[key] || subgrid; // only save first with this key
+            subgrids.lookup[key] = subgrids.lookup[key] || subgrid; // only save first with this key
 
             // make isType boolean
             subgrid['is' + subgrid.type[0].toUpperCase() + subgrid.type.substr(1)] = true;
@@ -105,8 +110,8 @@ module.exports = {
     },
 
     setInfo: function(messages) {
-        if (this.subgrids.info) {
-            this.subgrids.info.setData(
+        if (this.subgrids.lookup.info) {
+            this.subgrids.lookup.info.setData(
                 messages instanceof Array ? messages : [messages],
                 this.dataModel.schema
             );

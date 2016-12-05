@@ -192,16 +192,6 @@ Column.prototype = {
         }
     },
 
-    getCellRenderer: function(config, cellEvent) {
-        config.untranslatedX = cellEvent.gridCell.x;
-        config.y = cellEvent.gridCell.y;
-
-        config.x = this.index;
-        config.normalizedY = cellEvent.dataCell.y;
-
-        return this.dataModel.getCell(config, config.renderer);
-    },
-
     checkColumnAutosizing: function(force) {
         var properties = this.properties,
             width, preferredWidth, autoSized;

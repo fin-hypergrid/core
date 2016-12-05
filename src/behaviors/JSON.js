@@ -186,7 +186,7 @@ var JSON = Behavior.extend('behaviors.JSON', {
 
         var grid = this.grid,
             schema = this.unwrap(options.schema), // *always* define a new schema on reset
-            schemaChanged = schema || !this.subgrids.data.schema.length, // schema will change if a new schema was provided OR data model has an empty schema now, which triggers schema generation on setData below
+            schemaChanged = schema || !this.subgrids.lookup.data.schema.length, // schema will change if a new schema was provided OR data model has an empty schema now, which triggers schema generation on setData below
             reindex = options.apply === undefined || options.apply; // defaults to true
 
         // Inform interested data models of data.

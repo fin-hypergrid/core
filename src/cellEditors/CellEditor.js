@@ -309,7 +309,9 @@ var CellEditor = Base.extend('CellEditor', {
                 msg += '\n\nAdditional information about this error: ' + error;
             }
 
-            alert(msg); // eslint-disable-line no-alert
+            setTimeout(function() { // allow animation to complete
+                alert(msg); // eslint-disable-line no-alert
+            });
         }
     },
 

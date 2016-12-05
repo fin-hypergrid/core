@@ -11,6 +11,8 @@ InfoSubgrid.prototype = {
 
     type: 'info',
 
+    format: 'info', // override column format
+
     hasOwnData: true, // do not call setData implicitly
 
     pad: true, // row(s) should be padded to fill to bottom of grid viewport

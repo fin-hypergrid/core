@@ -264,7 +264,15 @@ Canvas.prototype = {
 
         this.bounds = new rectangular.Rectangle(0, 0, this.width, this.height);
         this.component.setBounds(this.bounds);
+        this.resizeNotification();
         this.paintNow();
+    },
+
+    resizeNotification: function() {
+        this.dispatchNewEvent(undefined, 'fin-canvas-resized', {
+            width: this.width,
+            height: this.height
+        });
     },
 
     getBounds: function() {
@@ -296,12 +304,14 @@ Canvas.prototype = {
         }
     },
 
-    dispatchNewEvent: function(event, name, detail) {
-        detail = {
+    dispatchNewEvent: function(primitiveEvent, name, detail) {
+        var event = {
             detail: detail || {}
         };
-        detail.detail.primitiveEvent = event;
-        return this.canvas.dispatchEvent(new CustomEvent(name, detail));
+        if (primitiveEvent) {
+            event.detail.primitiveEvent = primitiveEvent;
+        }
+        return this.canvas.dispatchEvent(new CustomEvent(name, event));
     },
 
     dispatchNewMouseKeysEvent: function(event, name, detail) {

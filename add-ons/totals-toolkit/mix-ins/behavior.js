@@ -18,8 +18,8 @@ module.exports = {
     setTotalsValue: function(x, y, value, areas) {
         if (!areas) {
             areas = [];
-            if (this.subgrids.topTotals) { areas.push('top'); }
-            if (this.subgrids.bottomTotal) { areas.push('bottom'); }
+            if (this.subgrids.lookup.topTotals) { areas.push('top'); }
+            if (this.subgrids.lookup.bottomTotal) { areas.push('bottom'); }
         } else if (!Array.isArray(areas)) {
             areas = [areas];
         }

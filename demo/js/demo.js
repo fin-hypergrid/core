@@ -425,9 +425,9 @@ window.onload = function() {
     //all formatting and rendering per cell can be overridden in here
     dataModel.getCell = function(config, rendererName) {
         if (config.isUserDataArea) {
-            var n, hex;
-            var x = config.x;
-            var y = config.y;
+            var n, hex, travel,
+                colIndex = config.dataCell.x,
+                rowIndex = config.dataCell.y;
 
             if (treeViewing) {
                 n = config.dataRow.__DEPTH;
@@ -435,15 +435,13 @@ window.onload = function() {
                 config.backgroundColor = '#' + hex + hex + hex;
                 config.color = n ? 'black' : 'white';
             } else {
-                var travel;
-
                 if (styleRowsFromData) {
-                    n = behavior.getColumn(idx.TOTAL_NUMBER_OF_PETS_OWNED).getValue(y);
+                    n = behavior.getColumn(idx.TOTAL_NUMBER_OF_PETS_OWNED).getValue(rowIndex);
                     hex = (155 + 10 * (n % 11)).toString(16);
                     config.backgroundColor = '#' + hex + hex + hex;
                 }
 
-                switch (x) {
+                switch (colIndex) {
                     case idx.LAST_NAME:
                         config.color = config.value != null && (config.value + '')[0] === 'S' ? 'red' : '#191919';
                         // eslint-disable-line no-fallthrough
@@ -456,7 +454,7 @@ window.onload = function() {
                         }
                 }
 
-                switch (x) {
+                switch (colIndex) {
                     case idx.LAST_NAME:
                         config.link = true;
                         break;
@@ -487,7 +485,7 @@ window.onload = function() {
                 }
 
                 //Testing
-                if (x === idx.TOTAL_NUMBER_OF_PETS_OWNED) {
+                if (colIndex === idx.TOTAL_NUMBER_OF_PETS_OWNED) {
                     /*
                      * Be sure to adjust the data set to the appropriate type and shape in widedata.js
                      */
@@ -994,7 +992,7 @@ window.onload = function() {
 
         grid.setState(state);
 
-        grid.setRowHeight(0, 40, behavior.subgrids.header);
+        grid.setRowHeight(0, 40, behavior.subgrids.lookup.header);
 
         // decorate "Height" cell in 17th row
         var rowIndex = 17 - 1;
@@ -1062,6 +1060,7 @@ window.onload = function() {
         });
 
         behavior.setColumnProperties(idx.TOTAL_NUMBER_OF_PETS_OWNED, {
+            renderFalsy: true,
             halign: 'center',
             format: 'number'
         });

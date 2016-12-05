@@ -186,6 +186,10 @@ module.exports = {
        return dispatchEvent.call(this, 'fin-grid-rendered', { source: this });
     },
 
+    fireSyntheticGridResizedEvent: function(e) {
+        return dispatchEvent.call(this, 'fin-grid-resized', e);
+    },
+
     /**
      * @memberOf Hypergrid#
      * @desc Synthesize and fire a scroll event.
@@ -250,9 +254,10 @@ module.exports = {
             );
         }
 
-        this.canvas.resizeNotification = function() {
+        this.addEventListener('fin-canvas-resized', function(e) {
             self.resized();
-        };
+            self.fireSyntheticGridResizedEvent(e);
+        });
 
         this.addEventListener('fin-canvas-mousemove', function(e) {
             if (self.properties.readOnly) {
@@ -485,6 +490,7 @@ function dispatchEvent(eventName, cancelable, event, primitiveEvent) {
     if (typeof cancelable !== 'boolean') {
         primitiveEvent = event; // propmote primitiveEvent to 3rd position
         event = cancelable; // promote event to 2nd position
+        cancelable = false; // default when omitted
     }
 
     if (!event.detail) {

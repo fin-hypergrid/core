@@ -15,8 +15,8 @@ var Button = CellRenderer.extend('Button', {
      */
     paint: function(gc, config) {
         var val = config.value,
-            c = config.x,
-            r = config.y,
+            c = config.dataCell.x,
+            r = config.gridCell.y,
             bounds = config.bounds,
             x = bounds.x + 1,
             y = bounds.y + 1,

@@ -33,10 +33,12 @@ if (typeof Array.prototype.findIndex !== 'function') {
     };
 }
 
-// Simple version of fill that takes JUST ONE arg.
+// Simpler version of: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/fill#Polyfill
 if (typeof Array.prototype.fill !== 'function') {
-    Array.prototype.fill = function(value) {
-        for (var i = this.length; --i;) {
+    Array.prototype.fill = function(value, start, end) {
+        start = start === undefined ? 0 : start < 0 ? this.length + start : start;
+        end = end === undefined ? this.length : end < 0 ? this.length + end : end;
+        for (var i = start || 0; i < end; ++i) {
             this[i] = value;
         }
         return this;
