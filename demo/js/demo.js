@@ -770,41 +770,46 @@ window.onload = function() {
      * @return {boolean} Not handled.
      */
     function handleCursorKey(e) {
-        var detail = e.detail;
-        var key = String.fromCharCode(detail.key).toUpperCase();
-        if (detail.ctrl) {
-            if (detail.shift) {
-                switch (key) {
-                    case 'A': grid.selectToViewportCell(0, 0); break;
-                    case 'S': grid.selectToFinalCell(); break;
-                    case 'D': grid.selectToFinalCellOfCurrentRow(); break;
-                    case 'F': grid.selectToFirstCellOfCurrentRow(); break;
-                    default: return true;
-                }
-            } else {
-                switch (key) {
-                    case 'A': grid.selectViewportCell(0, 0); break;
-                    case 'S': grid.selectFinalCell(); break;
-                    case 'D': grid.selectFinalCellOfCurrentRow(); break;
-                    case 'F': grid.selectFirstCellOfCurrentRow(); break;
-                    default: return true;
-                }
-            }
-            // break: switch statement handled it
-            return false;
-        } else {
+        var detail = e.detail,
+            key = String.fromCharCode(detail.key).toUpperCase(),
+            result = false; // means event handled herein
+
+        if (detail.input instanceof detail.grid.cellEditors.editors.filterbox) {
+            // (alternatively: detail.input.$$CLASS_NAME === 'FilterBox')
+            // don't move selection if editing filter cell
+        } else if (!detail.ctrl) {
             var dir = detail.shift ? -1 : +1;
             switch (key) {
-                case '\t': grid.moveSingleSelect(dir, 0); break; // move LEFT one cell
+                case '\t':
+                    grid.moveSingleSelect(dir, 0); // move LEFT or RIGHT one cell
+                    detail.primitiveEvent.preventDefault();  // prevent TAB from moving focus off the canvas element
+                    break;
                 case '\r':
-                case '\n': grid.moveSingleSelect(0, dir); break; // move UP one cell
-                default: return true;
+                case '\n':
+                    grid.moveSingleSelect(0, dir); // move UP or DOWN one cell
+                    break;
+                default:
+                    result = true;
             }
-            // break: switch statement handled it
-            detail.primitiveEvent.preventDefault();  // prevent TAB from moving focus off the canvas element
-            return false;
+        } else if (detail.shift) {
+            switch (key) {
+                case 'A': grid.selectToViewportCell(0, 0); break;
+                case 'S': grid.selectToFinalCell(); break;
+                case 'D': grid.selectToFinalCellOfCurrentRow(); break;
+                case 'F': grid.selectToFirstCellOfCurrentRow(); break;
+                default: result = true;
+            }
+        } else {
+            switch (key) {
+                case 'A': grid.selectViewportCell(0, 0); break;
+                case 'S': grid.selectFinalCell(); break;
+                case 'D': grid.selectFinalCellOfCurrentRow(); break;
+                case 'F': grid.selectFirstCellOfCurrentRow(); break;
+                default: result = true;
+            }
         }
-        return true;
+
+        return result;
     }
 
     grid.addEventListener('fin-keydown', handleCursorKey);
@@ -978,8 +983,8 @@ window.onload = function() {
             columnAutosizing: false,
             headerTextWrapping: true,
 
-            filteringMode: 'onCommit', // vs. 'immediate' for every key press
-            //filterDefaultColumnFilterOperator: '<>',
+            // filteringMode: 'immediate', // 'immediate' for every key press vs. 'onCommit' to wait till RETURN
+            // filterDefaultColumnFilterOperator: '<>',
             cellSelection: true,
             columnSelection: true,
             rowSelection: true,

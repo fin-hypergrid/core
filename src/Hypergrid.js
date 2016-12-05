@@ -618,11 +618,9 @@ var Hypergrid = Base.extend('Hypergrid', {
      * @memberOf Hypergrid#
      */
     getMouseDown: function() {
-        var last = this.mouseDown.length - 1;
-        if (last < 0) {
-            return null;
+        if (this.mouseDown.length) {
+            return this.mouseDown[this.mouseDown.length - 1];
         }
-        return this.mouseDown[last];
     },
 
     /**
@@ -630,7 +628,7 @@ var Hypergrid = Base.extend('Hypergrid', {
      * @desc Remove the last item from the mouse down stack.
      */
     popMouseDown: function() {
-        if (this.mouseDown.length !== 0) {
+        if (this.mouseDown.length) {
             this.mouseDown.length = this.mouseDown.length - 1;
         }
     },
@@ -1075,7 +1073,7 @@ var Hypergrid = Base.extend('Hypergrid', {
             event.isDataColumn &&
             event.getCellProperty(event.isDataRow ? 'editable' : 'filterable')
         ) {
-            this.setMouseDown(event.gridCell);
+            this.setMouseDown(new Point(event.gridCell.x, event.dataCell.y));
             this.setDragExtent(new Point(0, 0));
 
             cellEditor = this.getCellEditorAt(event);
@@ -1468,19 +1466,19 @@ var Hypergrid = Base.extend('Hypergrid', {
     },
 
     scrollValueChangedNotification: function() {
+        if (
+            this.hScrollValue !== this.sbPrevHScrollValue ||
+            this.vScrollValue !== this.sbPrevVScrollValue
+        ) {
+            this.sbPrevHScrollValue = this.hScrollValue;
+            this.sbPrevVScrollValue = this.vScrollValue;
 
-        if (this.hScrollValue === this.sbPrevHScrollValue && this.vScrollValue === this.sbPrevVScrollValue) {
-            return;
+            if (this.cellEditor) {
+                this.cellEditor.scrollValueChangedNotification();
+            }
+
+            this.computeCellsBounds();
         }
-
-        this.sbPrevHScrollValue = this.hScrollValue;
-        this.sbPrevVScrollValue = this.vScrollValue;
-
-        if (this.cellEditor) {
-            this.cellEditor.scrollValueChangedNotification();
-        }
-
-        this.computeCellsBounds();
     },
 
     /**
