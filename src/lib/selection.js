@@ -389,12 +389,11 @@ module.exports = {
     },
 
     selectViewportCell: function(x, y) {
-        var headerRowCount = this.getHeaderRowCount(),
-            realX = this.renderer.visibleColumns[x].ColumnIndex, // todo refac
-            realY = this.renderer.visibleRows[y].rowIndex; // todo refac
+        x = this.renderer.visibleColumns[x].ColumnIndex; // todo refac
+        y = this.renderer.visibleRows[y].rowIndex; // todo refac
         this.clearSelections();
-        this.select(realX, realY + headerRowCount, 0, 0);
-        this.setMouseDown(this.newPoint(realX, realY + headerRowCount)); // todo refac
+        this.select(x, y, 0, 0);
+        this.setMouseDown(this.newPoint(x, y)); // todo refac
         this.setDragExtent(this.newPoint(0, 0));
         this.repaint();
     },

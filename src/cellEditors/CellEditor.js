@@ -87,7 +87,7 @@ var CellEditor = Base.extend('CellEditor', {
 
     // If you override this method, be sure to call it as a final step (or call stopPropagation yourself).
     onmousedown: function(event) {
-        event.stopPropagation(); // Catch mouseodwn here before it gets to the document listener defined in Hypergrid().
+        event.stopPropagation(); // Catch mousedown here before it gets to the document listener defined in Hypergrid().
     },
 
     localizer: Localization.prototype.null,
@@ -144,16 +144,7 @@ var CellEditor = Base.extend('CellEditor', {
      * @desc move the editor to the current editor point
      */
     moveEditor: function() {
-        var cellBounds = this.event.bounds;
-
-        //hack to accommodate bootstrap margin issues...
-        var xOffset =
-            this.grid.div.getBoundingClientRect().left -
-            this.grid.divCanvas.getBoundingClientRect().left;
-
-        cellBounds.x -= xOffset;
-
-        this.setBounds(cellBounds);
+        this.setBounds(this.event.bounds);
     },
 
     beginEditing: function() {
@@ -242,8 +233,6 @@ var CellEditor = Base.extend('CellEditor', {
             this.grid.cellEditor = null;
             this.el.remove();
         } else if (feedback >= 0) { // never true when `feedback` undefined
-            var point = this.event.gridCell;
-            this.grid.selectViewportCell(point.x, point.y - this.grid.getHeaderRowCount());
             this.errorEffectBegin(++this.errors % feedback === 0 && error);
         } else { // invalid but no feedback
             this.cancelEditing();

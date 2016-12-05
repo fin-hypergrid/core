@@ -195,10 +195,10 @@ var Renderer = Base.extend('Renderer', {
             grid = this.grid,
             behavior = grid.behavior,
             editorCellEvent = grid.cellEditor && grid.cellEditor.event,
-            dx = editorCellEvent && editorCellEvent.gridCell.x,
-            dy = editorCellEvent && editorCellEvent.dataCell.y,
-            vcEd,
-            vrEd,
+
+            vcEd, xEd,
+            vrEd, yEd,
+            sgEd, isSubgridEd,
 
             insertionBoundsCursor = 0,
             previousInsertionBoundsCursorValue = 0,
@@ -225,6 +225,12 @@ var Renderer = Base.extend('Renderer', {
             firstVY, lastVY,
             topR,
             xSpaced, widthSpaced, heightSpaced; // adjusted for cell spacing
+
+        if (editorCellEvent) {
+            xEd = editorCellEvent.gridCell.x;
+            yEd = editorCellEvent.dataCell.y;
+            sgEd = editorCellEvent.subgrid;
+        }
 
         this.scrollHeight = 0;
 
@@ -264,7 +270,7 @@ var Renderer = Base.extend('Renderer', {
                 width: widthSpaced,
                 right: xSpaced + widthSpaced
             };
-            if (dx === vx) {
+            if (xEd === vx) {
                 vcEd = vc;
             }
 
@@ -294,6 +300,7 @@ var Renderer = Base.extend('Renderer', {
             subgrid = subgrids[g];
             subrows = subgrid.getRowCount();
             scrollableSubgrid = subgrid.isData;
+            isSubgridEd = (sgEd === subgrid);
             topR = r;
 
             // For each row of each subgrid...
@@ -322,11 +329,13 @@ var Renderer = Base.extend('Renderer', {
                     height: heightSpaced,
                     bottom: y + heightSpaced
                 };
+
                 if (scrollableSubgrid) {
                     this.visibleRowsByDataRowIndex[vy - base] = vr;
-                    if (dy === rowIndex) {
-                        vrEd = vr;
-                    }
+                }
+
+                if (isSubgridEd && yEd === rowIndex) {
+                    vrEd = vr;
                 }
 
                 y += height;

@@ -158,7 +158,6 @@ var FilterBox = ComboBox.extend('FilterBox', {
 
             if (this.grid.properties.filteringMode === 'immediate') {
                 this.saveEditorValue(this.getEditorValue());
-                this.moveEditor();
             }
         }
     },
