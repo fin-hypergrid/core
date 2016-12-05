@@ -2284,7 +2284,8 @@ function setStyles(el, style, keys) {
 }
 
 function headerFormatter(value, config) {
-    var sortString = this.behavior.dataModel.getSortImageForColumn(config.x);
+    var colIndex = config.dataCell.x,
+        sortString = this.behavior.dataModel.getSortImageForColumn(colIndex);
 
     if (sortString) {
         var groups = value.lastIndexOf(this.behavior.groupHeaderDelimiter) + 1;

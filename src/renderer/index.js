@@ -281,7 +281,7 @@ var Renderer = Base.extend('Renderer', {
             previousInsertionBoundsCursorValue = Math.round(width / 2);
         }
 
-        // get height of total number of rows in all subgrids that follow the data subgrid
+        // get height of total number of rows in all subgrids following the data subgrid
         footerHeight = grid.properties.defaultRowHeight *
             subgrids.reduce(function(rows, subgrid) {
                 if (scrollableSubgrid) {
@@ -358,7 +358,7 @@ var Renderer = Base.extend('Renderer', {
 
         this.dataWindow = this.grid.newRectangle(firstVX, firstVY, lastVX - firstVX, lastVY - firstVY);
 
-        if (C && (infoSubgrid = behavior.subgrids.info)) {
+        if (C && (infoSubgrid = behavior.subgrids.lookup.info)) {
             // Create an "info" column that stretches from column 0 to column n
             this.visibleColumns.info = {
                 index: vc.index,
@@ -877,10 +877,7 @@ var Renderer = Base.extend('Renderer', {
         var grid = this.grid,
             selectionModel = grid.selectionModel,
             behavior = grid.behavior,
-            x = cellEvent.gridCell.x,
-            // y = cellEvent.gridCell.y,
-            // c = cellEvent.dataCell.x,
-            r = cellEvent.dataCell.y,
+            subgrid = cellEvent.subgrid,
 
             isHandleColumn = cellEvent.isHandleColumn,
             isHierarchyColumn = cellEvent.isHierarchyColumn,
@@ -895,9 +892,13 @@ var Renderer = Base.extend('Renderer', {
 
             isRowHandleOrHierarchyColumn = isHandleColumn || isHierarchyColumn,
             isUserDataArea = !isRowHandleOrHierarchyColumn && isDataRow,
-            isRealData = !cellEvent.subgrid.isInfo, // selectable/hoverable
+            isRealData = !subgrid.isInfo, // selectable/hoverable
 
             config = Object.create(cellEvent.properties), // cell props || specific column props object (wrapped)
+            x = (config.gridCell = cellEvent.gridCell).x,
+            r = (config.dataCell = cellEvent.dataCell).y,
+
+            format,
             isSelected;
 
         if (isHandleColumn) {
@@ -908,16 +909,20 @@ var Renderer = Base.extend('Renderer', {
             config.halign = 'left';
         } else if (isDataRow) {
             isSelected = isCellSelected || isRowSelected || isColumnSelected;
+            format = config.format;
 
             // Iff we have a defined rowProperties array, apply it to config, treating it as a repeating pattern, keyed to row index.
             // Note that Object.assign will ignore undefined.
             var row = cellEvent.columnProperties.rowProperties;
             Object.assign(config, row && row[cellEvent.dataCell.y % row.length]);
-        } else if (isFilterRow) {
-            isSelected = false;
-        } else if (isRealData) {
-            isSelected = isColumnSelected ||
-                selectionModel.isCellSelectedInColumn(x); // header or summary or other non-meta
+        } else {
+            format = subgrid.format || config.format; // subgrid format can override column format
+            if (isFilterRow) {
+                isSelected = false;
+            } else if (isRealData) {
+                isSelected = isColumnSelected ||
+                    selectionModel.isCellSelectedInColumn(x); // header or summary or other non-meta
+            }
         }
 
         // Set cell contents:
@@ -961,7 +966,7 @@ var Renderer = Base.extend('Renderer', {
         // This call's dataModel.getCell which developer can override to:
         // * mutate the (writable) properties of `config`
         // * mutate cell renderer choice (instance of which is returned)
-        var cellRenderer = behavior.getCellRenderer(config, cellEvent);
+        var cellRenderer = behavior.dataModel.getCell(config, config.renderer);
 
         if (!(config.value && config.value.constructor === Array)) { // fastest array determination
             config.value = config.exec(config.value);
@@ -977,7 +982,7 @@ var Renderer = Base.extend('Renderer', {
         //allow the renderer to identify itself if it's a button
         config.buttonCells = this.buttonCells;
 
-        config.formatValue = grid.getFormatter(config.isDataColumn && config.format);
+        config.formatValue = grid.getFormatter(format);
 
         // Following supports partial render (when `paint` aborts before setting `minWidth`)
         config.snapshot = cellEvent.snapshot;

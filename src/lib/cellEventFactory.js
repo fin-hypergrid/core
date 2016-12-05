@@ -129,11 +129,11 @@ var prototype = Object.defineProperties({}, {
     isSummaryHandle: { get: function() { return this.isSummaryRow && this.isHandleColumn; } },
     isSummaryCell:   { get: function() { return this.isSummaryRow && this.isDataColumn; } },
 
-    isTopTotalsRow:    { get: function() { return this.visibleRow.subgrid === this.behavior.subgrids.topTotals; } },
+    isTopTotalsRow:    { get: function() { return this.visibleRow.subgrid === this.behavior.subgrids.lookup.topTotals; } },
     isTopTotalsHandle: { get: function() { return this.isTopTotalsRow && this.isHandleColumn; } },
     isTopTotalsCell:   { get: function() { return this.isTopTotalsRow && this.isDataColumn; } },
 
-    isBottomTotalsRow:    { get: function() { return this.visibleRow.subgrid === this.behavior.subgrids.bottomTotals; } },
+    isBottomTotalsRow:    { get: function() { return this.visibleRow.subgrid === this.behavior.subgrids.lookup.bottomTotals; } },
     isBottomTotalsHandle: { get: function() { return this.isBottomTotalsRow && this.isHandleColumn; } },
     isBottomTotalsCell:   { get: function() { return this.isBottomTotalsRow && this.isDataColumn; } },
 

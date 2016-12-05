@@ -211,9 +211,6 @@ var Behavior = Base.extend('Behavior', {
         this.stateChanged();
     },
 
-    getCellRenderer: function(config, cellEvent) {
-        return cellEvent.column.getCellRenderer(config, cellEvent);
-    },
     getCellProvider: function(name) {
         return this.deprecated('getCellProvider()', 'grid.cellRenderers', '1.0.6', arguments);
     },
@@ -627,7 +624,7 @@ var Behavior = Base.extend('Behavior', {
      * @param {number} [y] - Grid row coordinate. _Omit when `xOrCellEvent` is a `CellEvent`._
      * @param {string} key - Name of property to get. _When `y` omitted, this param promoted to 2nd arg._
      * @param value
-     * @parsam {dataModelAPI} [dataModel=this.subgrids.data] - For use only when `xOrCellEvent` is _not_ a `CellEvent`: Provide a subgrid.
+     * @parsam {dataModelAPI} [dataModel=this.subgrids.lookup.data] - For use only when `xOrCellEvent` is _not_ a `CellEvent`: Provide a subgrid.
      * @memberOf Behavior#
      */
     setCellProperty: function(xOrCellEvent, y, key, value, dataModel) {

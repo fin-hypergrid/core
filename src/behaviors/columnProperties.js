@@ -212,11 +212,6 @@ function createColumnProperties() {
             set: function(value) {
                 this.columnHeaderHalign = value;
             }
-        },
-        format: {
-            writable: true,
-            enumerable: true,
-            value: 'header'
         }
     })});
 

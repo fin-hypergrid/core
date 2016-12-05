@@ -217,7 +217,7 @@ function setHeaders(headers) {
         return Math.max(column.header.split(delimiter).length, max);
     }, 0);
 
-    var headerDataModel = this.grid.behavior.subgrids.header,
+    var headerDataModel = this.grid.behavior.subgrids.lookup.header,
         headerRowHeight = levels * 4 / 3 * this.grid.properties.defaultRowHeight;
     this.grid.setRowHeight(0, headerRowHeight, headerDataModel);
 
@@ -267,12 +267,13 @@ function isColumnReorderable() {
  * @memberOf groupedHeader
  */
 function paintHeaderGroups(gc, config) {
-    var paint = this.super.paint;
+    var paint = this.super.paint,
+        colIndex = config.dataCell.x;
 
     var values = config.value.split(this.delimiter), // each group header including column header
         groupCount = values.length - 1; // group header levels above column header
 
-    if (groupCount === 0 || config.x === 0) { // no group headers OR first column
+    if (groupCount === 0 || colIndex === 0) { // no group headers OR first column
         this.groups = []; // start out with no groups defined
     }
 

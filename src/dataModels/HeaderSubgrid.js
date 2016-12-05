@@ -26,6 +26,8 @@ HeaderSubgrid.prototype = {
 
     type: 'header',
 
+    format: 'header', // override column format
+
     getRowCount: function() {
         return this.grid.properties.showHeaderRow ? 1 : 0;
     },

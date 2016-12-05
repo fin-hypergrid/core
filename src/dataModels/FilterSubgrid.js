@@ -26,6 +26,8 @@ FilterSubgrid.prototype = {
 
     type: 'filter',
 
+    format: 'filter', // override column format
+
     getRowCount: function() {
         return this.grid.properties.showFilterRow ? 1 : 0;
     },
