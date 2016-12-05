@@ -61,7 +61,7 @@ var cell = {
     getCellOwnProperties: function(rowIndex, dataModel) {
         var rowData;
         return (
-            this.index >= 0 && // no cell props on row handle cells
+            // this.index >= 0 && // no cell props on row handle cells
             (rowData = (dataModel || this.dataModel).getRow(rowIndex)) && // no cell props on non-existent rows
             rowData.__META && rowData.__META[this.name] ||
             null // null means not previously created
@@ -119,7 +119,7 @@ function getCellPropertiesObject(rowIndex, dataModel) {
 function newCellPropertiesObject(rowIndex, dataModel) {
     var rowData = (dataModel || this.dataModel).getRow(rowIndex),
         metaData = rowData.__META = rowData.__META || {};
-    return (metaData[this.name] = Object.create(this.properties));
+    return (metaData[this.name] = Object.create(this._index >= 0 ? this.properties : this.properties.rowHeader));
 }
 
 module.exports = cell;

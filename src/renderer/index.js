@@ -954,12 +954,8 @@ var Renderer = Base.extend('Renderer', {
         // * mutate cell renderer choice (instance of which is returned)
         var cellRenderer = behavior.getCellRenderer(config, cellEvent);
 
-        if (!isHandleColumn && config.value) {
-            if (config.value.constructor === Array) {
-                config.value[1] = config.exec(config.value[1]);
-            } else {
-                config.value = config.exec(config.value);
-            }
+        if (!(config.value && config.value.constructor === Array)) { // fastest array determination
+            config.value = config.exec(config.value);
         }
 
         // Overwrite possibly mutated cell properties, if requested to do so by `getCell` override
@@ -1006,10 +1002,14 @@ function resetNumberColumnWidth(gc, behavior) {
     var rowCount = behavior.dataModel.getRowCount(),
         columnProperties = behavior.getColumnProperties(-1),
         cellProperties = columnProperties.rowHeader,
-        padding = 2 * columnProperties.cellPadding;
+        padding = 2 * columnProperties.cellPadding,
+        iconWidth = columnProperties.preferredWidth = Math.max(
+            images.checked ? images.checked.width : 0,
+            images.unchecked ? images.unchecked.width : 0
+        );
 
     gc.cache.font = cellProperties.font;
-    columnProperties.preferredWidth = images.checked.width + padding + gc.getTextWidth(rowCount);
+    columnProperties.preferredWidth = iconWidth + padding + gc.getTextWidth(rowCount);
     if (columnProperties.width === undefined) {
         columnProperties.width = columnProperties.preferredWidth;
     }

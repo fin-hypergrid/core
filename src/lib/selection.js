@@ -66,7 +66,7 @@ module.exports = {
      * @desc Clear all the selections.
      */
     clearSelections: function() {
-        var dontClearRows = this.isCheckboxOnlyRowSelections();
+        var dontClearRows = this.properties.checkboxOnlyRowSelections;
         this.selectionModel.clear(dontClearRows);
         this.clearMouseDown();
     },
@@ -76,7 +76,7 @@ module.exports = {
      * @desc Clear the most recent selection.
      */
     clearMostRecentSelection: function() {
-        var dontClearRows = this.isCheckboxOnlyRowSelections();
+        var dontClearRows = this.properties.checkboxOnlyRowSelections;
         this.selectionModel.clearMostRecentSelection(dontClearRows);
     },
 
@@ -302,7 +302,7 @@ module.exports = {
     },
 
     selectCell: function(x, y, silent) {
-        var dontClearRows = this.isCheckboxOnlyRowSelections();
+        var dontClearRows = this.properties.checkboxOnlyRowSelections;
         this.selectionModel.clear(dontClearRows);
         this.selectionModel.select(x, y, 0, 0, silent);
     },
@@ -366,7 +366,7 @@ module.exports = {
     },
 
     singleSelect: function() {
-        var isCheckboxOnlyRowSelections = this.isCheckboxOnlyRowSelections(),
+        var isCheckboxOnlyRowSelections = this.properties.checkboxOnlyRowSelections,
             isSingleRowSelectionMode = this.isSingleRowSelectionMode(),
             hasCTRL = false,
             result;
@@ -488,7 +488,7 @@ module.exports = {
     },
 
     selectRowsFromCells: function() {
-        if (!this.isCheckboxOnlyRowSelections()) {
+        if (!this.properties.checkboxOnlyRowSelections) {
             var last,
                 hasCTRL = this.mouseDownState.primitiveEvent.detail.primitiveEvent.ctrlKey;
 

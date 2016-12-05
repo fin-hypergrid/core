@@ -1,7 +1,3 @@
-/**
- * @module cellEditors
- */
-
 'use strict';
 
 /**
@@ -48,7 +44,7 @@ CellEditors.prototype = {
      *
      * @returns {CellEditor} A newly registered constructor extended from {@link CellEditor}.
      *
-     * @memberOf module:cellEditors
+     * @memberOf CellEditors#
      */
     add: function(name, Constructor) {
         if (typeof name === 'function') {
@@ -67,7 +63,7 @@ CellEditors.prototype = {
      * @param {string} synonymName
      * @param {string} existingName
      * @returns {CellEditor} The previously registered constructor this new synonym points to.
-     * @memberOf CellEditors.prototype
+     * @memberOf CellEditors#
      */
     addSynonym: function(synonymName, existingName) {
         var cellEditor = this.get(existingName);
@@ -77,7 +73,7 @@ CellEditors.prototype = {
     /**
      * @param {string} name - Name of a registered editor.
      * @returns {CellEditor} A registered constructor extended from {@link CellEditor}.
-     * @memberOf CellEditors.prototype
+     * @memberOf CellEditors#
      */
     get: function(name) {
         return this.editors[name && name.toLowerCase()];
@@ -89,7 +85,7 @@ CellEditors.prototype = {
      * @returns {CellEditor} New instance of the named cell editor.
      * @param {string} name - Name of a registered editor.
      * @param {string} [options] - Properties to add to the instantiated editor primarily for mustache's use.
-     * @memberOf CellEditors.prototype
+     * @memberOf CellEditors#
      */
     create: function(name, options) {
         var cellEditor,
@@ -108,7 +104,7 @@ CellEditors.prototype = {
     /**
      * The cell editor registry containing all the "preregistered" cell editor constructors.
      * @private
-     * @memberOf CellEditors.prototype
+     * @memberOf CellEditors#
      */
     editors: {}
 };

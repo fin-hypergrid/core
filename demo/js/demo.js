@@ -452,7 +452,7 @@ window.onload = function() {
                     case idx.RESIDENCE_STATE:
                         //we are a dropdown, lets provide a visual queue
                         if (config.editable) {
-                            config.value = [null, config.value, upDown];
+                            config.value = [null, config.value, upDown]; // or: config.rightIcon = 'up-down'
                         }
                 }
 
@@ -463,7 +463,7 @@ window.onload = function() {
 
                     case idx.BIRTH_DATE:
                         if (config.editable) {
-                            config.value = [null, config.value, calendar];
+                            config.rightIcon = 'calendar';
                         }
                         break;
 
