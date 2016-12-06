@@ -389,11 +389,12 @@ module.exports = {
     },
 
     selectViewportCell: function(x, y) {
-        x = this.renderer.visibleColumns[x].ColumnIndex; // todo refac
-        y = this.renderer.visibleRows[y].rowIndex; // todo refac
+        var headerRowCount = this.getHeaderRowCount();
+        x = this.renderer.visibleColumns[x].columnIndex;
+        y = this.renderer.visibleRows[y + headerRowCount].rowIndex;
         this.clearSelections();
         this.select(x, y, 0, 0);
-        this.setMouseDown(this.newPoint(x, y)); // todo refac
+        this.setMouseDown(this.newPoint(x, y));
         this.setDragExtent(this.newPoint(0, 0));
         this.repaint();
     },
@@ -402,12 +403,12 @@ module.exports = {
         var selections = this.getSelections();
         if (selections && selections.length) {
             var headerRowCount = this.getHeaderRowCount(),
-                realX = this.renderer.visibleColumns[x].columnIndex, // todo refac
-                realY = this.renderer.visibleRows[y].rowIndex + headerRowCount, // todo refac
                 selection = selections[0],
                 origin = selection.origin;
-            this.setDragExtent(this.newPoint(realX - origin.x, realY - origin.y));
-            this.select(origin.x, origin.y, realX - origin.x, realY - origin.y);
+            x = this.renderer.visibleColumns[x].columnIndex;
+            y = this.renderer.visibleRows[y + headerRowCount].rowIndex;
+            this.setDragExtent(this.newPoint(x - origin.x, y - origin.y));
+            this.select(origin.x, origin.y, x - origin.x, y - origin.y);
             this.repaint();
         }
     },
