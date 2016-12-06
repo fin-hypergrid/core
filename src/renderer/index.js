@@ -190,7 +190,6 @@ var Renderer = Base.extend('Renderer', {
             fixedColumnCount = this.grid.getFixedColumnCount(),
             fixedRowCount = this.grid.getFixedRowCount(),
 
-            numRows = this.grid.getRowCount(),
             bounds = this.getBounds(),
             grid = this.grid,
             behavior = grid.behavior,
@@ -304,7 +303,7 @@ var Renderer = Base.extend('Renderer', {
             topR = r;
 
             // For each row of each subgrid...
-            for (R = Math.min(numRows, r + subrows); r < R && y < Y; r++) {
+            for (R = r + subrows; r < R && y < Y; r++) {
                 vy = r;
                 if (scrollableSubgrid && r >= fixedRowCount) {
                     vy += scrollTop;
@@ -318,7 +317,7 @@ var Renderer = Base.extend('Renderer', {
                 }
 
                 rowIndex = vy - base;
-                height = Math.ceil(behavior.getRowHeight(rowIndex, subgrid));
+                height = behavior.getRowHeight(rowIndex, subgrid);
 
                 heightSpaced = height - lineWidth;
                 this.visibleRows[r] = vr = {
@@ -1027,8 +1026,11 @@ function resetNumberColumnWidth(gc, behavior) {
             images.unchecked ? images.unchecked.width : 0
         );
 
-    gc.cache.font = cellProperties.font;
+    gc.cache.font = cellProperties.foregroundSelectionFont.indexOf('bold ') >= 0
+        ? cellProperties.foregroundSelectionFont : cellProperties.font;
+
     columnProperties.preferredWidth = iconWidth + padding + gc.getTextWidth(rowCount);
+
     if (columnProperties.width === undefined) {
         columnProperties.width = columnProperties.preferredWidth;
     }

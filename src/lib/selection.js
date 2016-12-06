@@ -467,8 +467,7 @@ module.exports = {
     },
 
     selectFinalCell: function() {
-        this.selectCell(this.getColumnCount() - 1, this.getRowCount() - 1);
-        this.scrollBy(this.getColumnCount(), this.getRowCount());
+        this.selectCellAndScrollToMakeVisible(this.getColumnCount() - 1, this.getRowCount() - 1);
         this.repaint();
     },
 

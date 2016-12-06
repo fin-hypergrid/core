@@ -64,9 +64,12 @@ function Column(behavior, options) {
 
     switch (index) {
         case -1:
-            this.properties.minimumColumnWidth = images.unchecked ? images.unchecked.width + 3 : 0;
+            // Width of icon + 3-pixel spacer (checked and unchecked should be same width)
+            this.properties.minimumColumnWidth = (images.unchecked && images.unchecked.width)
+                ?  images.unchecked.width + 3 : 0;
             break;
         case -2:
+            // This case avoids the "out of range" error.
             break;
         default:
             if (index < 0) {

@@ -1227,8 +1227,8 @@ var Hypergrid = Base.extend('Hypergrid', {
     },
 
     selectCellAndScrollToMakeVisible: function(c, r) {
-        this.selectCell(c, r, true);
         this.scrollToMakeVisible(c, r);
+        this.selectCell(c, r, true);
     },
 
     /**
@@ -1508,7 +1508,6 @@ var Hypergrid = Base.extend('Hypergrid', {
      */
     synchronizeScrollingBoundaries: function() {
         var numFixedColumns = this.getFixedColumnCount();
-        var numFixedRows = this.getFixedRowCount();
 
         var numColumns = this.getColumnCount();
         var numRows = this.getRowCount();
@@ -1530,7 +1529,7 @@ var Hypergrid = Base.extend('Hypergrid', {
             lastPageColumnCount--;
         }
 
-        var scrollableHeight = bounds.height - this.behavior.getFixedRowsMaxHeight();
+        var scrollableHeight = this.renderer.getVisibleScrollHeight();
         for (
             var rowsHeight = 0, lastPageRowCount = 0;
             lastPageRowCount < numRows && rowsHeight < scrollableHeight;
@@ -1549,7 +1548,7 @@ var Hypergrid = Base.extend('Hypergrid', {
             this.setHScrollValue(Math.min(this.getHScrollValue(), hMax));
         }
         if (this.sbVScroller) {
-            var vMax = Math.max(0, numRows - numFixedRows - lastPageRowCount);
+            var vMax = Math.max(0, numRows - this.properties.fixedRowCount - lastPageRowCount);
             this.setVScrollbarValues(vMax);
             this.setVScrollValue(Math.min(this.getVScrollValue(), vMax));
         }
@@ -1662,7 +1661,7 @@ var Hypergrid = Base.extend('Hypergrid', {
 
     /**
      * @memberOf Hypergrid#
-     * @returns {number} The number of fixed rows.
+     * @returns {number} The number of rows.
      */
     getRowCount: function() {
         return this.behavior.getRowCount();
@@ -1692,7 +1691,7 @@ var Hypergrid = Base.extend('Hypergrid', {
      * @memberOf Hypergrid#
      * @summary The top left area has been clicked on
      * @desc Delegates to the behavior.
-     * @param {event} event - The event details.
+     * @param {event} mouse - The event details.
      */
     topLeftClicked: function(mouse) {
         this.behavior.topLeftClicked(this, mouse);
@@ -2056,6 +2055,11 @@ var Hypergrid = Base.extend('Hypergrid', {
     isShowHeaderRow: function() {
         return this.deprecated('isShowHeaderRow()', 'properties.showHeaderRow', 'v1.2.10');
     },
+
+    /**
+     * @returns {number} The total number of rows of all subgrids preceding the data subgrid.
+     * @memberOf Hypergrid#
+     */
     getHeaderRowCount: function() {
         return this.behavior.getHeaderRowCount();
     },

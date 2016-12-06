@@ -492,6 +492,14 @@ var Behavior = Base.extend('Behavior', {
         }
     },
 
+    /**
+     * @summary Gets the number of rows in the data subgrid.
+     * @memberOf Behavior.prototype
+     */
+    getRowCount: function() {
+        return this.dataModel.getRowCount();
+    },
+
     getUnfilteredValue: function(x, y) {
         var column = this.getActiveColumn(x);
         return column && column.getUnfilteredValue(y);
@@ -644,16 +652,28 @@ var Behavior = Base.extend('Behavior', {
     },
 
     /**
+     * @summary The total height of the "fixed rows."
+     * @desc The total height of all (non-scrollable) rows preceding the (scrollable) data subgrid.
      * @memberOf Behavior#
-     * @return {number} The height in pixels of the fixed rows area  of the hypergrid.
+     * @return {number} The height in pixels of the fixed rows area of the hypergrid, the total height of:
+     * 1. All rows of all subgrids preceding the data subgrid.
+     * 2. The first `fixedRowCount` rows of the data subgrid.
      */
     getFixedRowsHeight: function() {
-        var count = this.getFixedRowCount();
-        var total = 0;
-        for (var i = 0; i < count; i++) {
-            total += this.getRowHeight(i);
+        var dataModel, isData, r, R,
+            subgrids = this.subgrids,
+            height = 0;
+
+        for (var i = 0; i < subgrids.length && !isData; ++i) {
+            dataModel = subgrids[i];
+            isData = dataModel.isData;
+            R = isData ? this.grid.properties.fixedRowCount : dataModel.getRowCount();
+            for (r = 0; r < R; ++r) {
+                height += this.getRowHeight(r, dataModel);
+            }
         }
-        return total;
+
+        return height;
     },
 
     /**
@@ -685,18 +705,9 @@ var Behavior = Base.extend('Behavior', {
     setRowHeight: function(rowIndex, height, dataModel) {
         var rowData = (dataModel || this.dataModel).getRow(rowIndex);
         if (rowData) {
-            rowData.__ROW_HEIGHT = Math.max(5, height);
+            rowData.__ROW_HEIGHT = Math.max(5, Math.ceil(height));
             this.stateChanged();
         }
-    },
-
-    /**
-     * @memberOf Behavior#
-     * @desc This will allow 'floating' fixed rows.
-     * @return {number} The maximum height of the fixed rows area in the hypergrid.
-     */
-    getFixedRowsMaxHeight: function() {
-        return this.getFixedRowsHeight();
     },
 
     /**
@@ -1031,7 +1042,7 @@ var Behavior = Base.extend('Behavior', {
 
     /**
      * @memberOf Behavior#
-     * @return {integer} The number of fixed columns.
+     * @return {number} The number of fixed columns.
      */
     getFixedColumnCount: function() {
         return this.grid.properties.fixedColumnCount;
@@ -1047,8 +1058,12 @@ var Behavior = Base.extend('Behavior', {
     },
 
     /**
+     * @summary The number of "fixed rows."
+     * @desc The number of (non-scrollable) rows preceding the (scrollable) data subgrid.
      * @memberOf Behavior#
-     * @return {integer} The number of fixed rows.
+     * @return {number} The sum of:
+     * 1. All rows of all subgrids preceding the data subgrid.
+     * 2. The first `fixedRowCount` rows of the data subgrid.
      */
     getFixedRowCount: function() {
         return (
