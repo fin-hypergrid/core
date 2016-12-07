@@ -13,6 +13,7 @@
     <script>
         var grid = new fin.Hypergrid();
         grid.setData(window.people1);
+        // This is module is for EXAMPLE purposes only
         grid.installPlugins([[fin.Hypergrid.Hypersorter, {Column: fin.Hypergrid.behaviors.Column}]]);
         grid.sorter = grid.plugins.hypersorter;
         grid.setPipeline([window.fin.Hypergrid.analytics.DataSourceSorterComposite]);

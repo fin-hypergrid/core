@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" >
+</head>
+<body>
+    <div id="json-example" style="position:relative;"></div>
+
+
+    <script src="build/fin-hypergrid.js"></script>
+    <script src="data/sampledata.js"></script>
+    <script src="build/add-ons/hyper-filter.js"></script>
+    <script src="build/add-ons/hyper-sorter.js"></script>
+    <script src="http://joneit.github.io/datasaur-indexed/build/datasaur-indexed.js"></script>
+    <script src="http://joneit.github.io/datasaur-filter/build/datasaur-filter.js"></script>
+
+    <script>
+        var Hypergrid = window.fin.Hypergrid,
+            plugins = [
+                Hypergrid.Hyperfilter,
+                [Hypergrid.Hypersorter, {Column: fin.Hypergrid.behaviors.Column}]
+            ],
+            gridOptions = {
+                data: window.people1,
+                plugins: plugins,
+                pipeline: [
+                    window.datasaur.filter,
+                    window.fin.Hypergrid.analytics.DataSourceSorterComposite
+                ]
+            },
+            grid = window.g = new Hypergrid(document.querySelector('div#json-example'), gridOptions);
+
+        // These modules are for EXAMPLE purposes only
+        grid.filter = grid.plugins.hyperfilter.create();
+        grid.sorter = grid.plugins.hypersorter;
+        grid.addProperties({
+            showRowNumbers: false,
+            showFilterRow: true
+        });
+    </script>
+</body>
+</html>

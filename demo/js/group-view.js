@@ -23,6 +23,7 @@ window.onload = function() {
         [Hypergrid.GroupView, options] // object API instantiation with one arg; `$$CLASS_NAME` defined so ref saved in `grid.plugins.groupView`
     ]);
 
+    // These modules are for EXAMPLE purposes only
     grid.sorter = grid.plugins.hypersorter;
     grid.filter = grid.plugins.hyperfilter.create();
 
