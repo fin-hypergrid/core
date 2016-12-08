@@ -1028,6 +1028,29 @@ var Renderer = Base.extend('Renderer', {
         return isRealData ? config.minWidth : 0;
     },
 
+    /**
+     * @param {number|CellEvent} xOrCellEvent
+     * @param {number} [y]
+     * @param {dataModelAPI} [dataModel=this.grid.behavior.dataModel]
+     */
+    resetCellPropertiesCache: function(xOrCellEvent, y, dataModel) {
+        if (typeof xOrCellEvent === 'object') {
+            // xOrCellEvent is a cell event object
+            dataModel = y;
+            y = xOrCellEvent.visibleRow.rowIndex;
+            xOrCellEvent = xOrCellEvent.column.index;
+        }
+        dataModel = dataModel || this.grid.behavior.dataModel;
+        var cellEvent = this.cellEventPool.find(function(cellEvent) {
+            return cellEvent.subgrid === dataModel &&
+                cellEvent.column.index === xOrCellEvent &&
+                    cellEvent.visibleRow.rowIndex === y;
+        });
+        if (cellEvent) {
+            cellEvent._cellOwnProperties = undefined;
+        }
+    },
+
     isViewableButton: function(c, r) {
         var key = c + ',' + r;
         return this.buttonCells[key] === true;

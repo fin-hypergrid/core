@@ -920,13 +920,35 @@ var defaults = {
     },
 
 
-    /** Display cell font with under-score line drawn over it.
-     * > Implementation of links right now is not automatic; you must attach a 'fin-click' listener to the hypergrid object, etc.
+    /** @summary Display cell font with underline.
+     * @desc Implementation of links right now is not automatic; you must attach a 'fin-click' listener to the hypergrid object, etc.
      * @type {boolean}
      * @default
      * @memberOf module:defaults
      */
     link: false,
+
+    /** @summary Underline link on hover only.
+     * @type {boolean}
+     * @default
+     * @memberOf module:defaults
+     */
+    linkOnHover: false,
+
+    /** @summary Color for link.
+     * @desc Falsy means defer to foreground color.
+     * @type {string}
+     * @default
+     * @memberOf module:defaults
+     */
+    linkColor: 'blue',
+
+    /** @summary Color link on hover only.
+     * @type {boolean}
+     * @default
+     * @memberOf module:defaults
+     */
+    linkColorOnHover: false,
 
     /** Display cell font with strike-through line drawn over it.
      * @type {boolean}

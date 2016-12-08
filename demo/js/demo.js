@@ -40,6 +40,14 @@ window.onload = function() {
                 { name: 'hoverRowHighlight.enabled', label: 'row' },
                 { name: 'hoverColumnHighlight.enabled', label: 'column' }
             ]
+        },
+        {
+            label: 'Link style',
+            ctrls: [
+                { name: 'linkOnHover', label: 'on hover' },
+                { name: 'linkColor', type: 'text', label: 'color' },
+                { name: 'linkColorOnHover', label: 'color on hover' }
+            ]
         }, {
             label: 'Cell editing',
             ctrls: [
@@ -108,7 +116,7 @@ window.onload = function() {
             includeFilter: true
         }],
         Hypergrid.Hyperfilter,
-        [Hypergrid.Hypersorter, {Column: fin.Hypergrid.behaviors.Column}]
+        [Hypergrid.Hypersorter, {Column: Hypergrid.behaviors.Column}]
     ];
 
     // restore previous "opinionated" headerify behavior
@@ -182,7 +190,7 @@ window.onload = function() {
     // These modules are for EXAMPLE purposes only
     grid.setPipeline([
         window.datasaur.filter,
-        window.fin.Hypergrid.analytics.DataSourceSorterComposite
+        Hypergrid.analytics.DataSourceSorterComposite
     ]);
     setGlobalSorter();
     resetGlobalFilter(people1);
@@ -226,7 +234,7 @@ window.onload = function() {
     window.vent = false;
 
     //functions for showing the grouping/rollup capabilities
-    var rollups = window.fin.Hypergrid.analytics.util.aggregations,
+    var rollups = Hypergrid.analytics.util.aggregations,
         aggregates = {
             totalPets: rollups.sum(2),
             averagePets: rollups.avg(2),
@@ -1155,7 +1163,7 @@ window.onload = function() {
 
             switch (type) {
                 case 'text':
-                    input.value = ctrl.value || '';
+                    input.value = ctrl.value || globalProperty(ctrl.name) || '';
                     input.style.width = '25px';
                     input.style.marginLeft = '4px';
                     input.style.marginRight = '4px';
@@ -1165,7 +1173,7 @@ window.onload = function() {
                 case 'radio':
                     input.checked = 'checked' in ctrl
                         ? ctrl.checked
-                        : resolveGridProperty(ctrl.name);
+                        : globalProperty(ctrl.name);
                     referenceElement = null; // label goes before input
                     break;
             }
@@ -1188,10 +1196,21 @@ window.onload = function() {
         ctrlGroups.appendChild(container);
     }
 
-    function resolveGridProperty(key) {
+    function globalProperty(key) {
         var keys = key.split('.');
-        var prop = grid.properties;
-        while (keys.length) { prop = prop[keys.shift()]; }
+        var prop;
+
+        if (keys[0] === 'filterOptions') {
+            keys.shift();
+            prop = filterOptions;
+        } else {
+            prop = Hypergrid.properties;
+        }
+
+        while (keys.length) {
+            prop = prop[keys.shift()];
+        }
+
         return prop;
     }
 

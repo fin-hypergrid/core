@@ -626,7 +626,13 @@ var Behavior = Base.extend('Behavior', {
     /**
      * @summary Set a specific cell property.
      * @desc If there is no cell properties object, defers to column properties object.
-     * @param {CellEvent|number} xOrCellEvent - Data x coordinate.
+     *
+     * NOTE: For performance reasons, renderer's cell event objects cache their respective cell properties objects. This method accepts a `CellEvent` overload. Whenever possible, use the `CellEvent` from the renderer's cell event pool. Doing so will reset the cell properties object cache.
+     *
+     * If you use some other `CellEvent`, the renderer's `CellEvent` properties cache will not be automatically reset until the whole cell event pool is reset on the next call to {@link Renderer#computeCellBoundaries}. If necessary, you can "manually" reset it by calling {@link Renderer#resetCellPropertiesCache|resetCellPropertiesCache(yourCellEvent)} which searches the cell event pool for one with matching coordinates and resets the cache.
+     *
+     * The raw coordinates overload calls the `resetCellPropertiesCache(x, y)` overload for you.
+     * @param {CellEvent|number} xOrCellEvent - `CellEvent` or data x coordinate.
      * @param {number} [y] - Grid row coordinate. _Omit when `xOrCellEvent` is a `CellEvent`._
      * @param {string} key - Name of property to get. _When `y` omitted, this param promoted to 2nd arg._
      * @param value
@@ -634,15 +640,19 @@ var Behavior = Base.extend('Behavior', {
      * @memberOf Behavior#
      */
     setCellProperty: function(xOrCellEvent, y, key, value, dataModel) {
+        var cellOwnProperties;
         switch (arguments.length) {
             case 3:
-                return xOrCellEvent.column // xOrCellEvent is cellEvent
-                    .setCellProperty(xOrCellEvent.dataCell.y, y, key, xOrCellEvent.visibleRow.subgrid); // y omitted so y here is actually key and key is actually value
+                // xOrCellEvent is cellEvent, y is key, key is value
+                cellOwnProperties = xOrCellEvent.setCellProperty(y, key);
+                break;
             case 4:
             case 5:
-                return this.getColumn(xOrCellEvent) // xOrCellEvent is x
+                cellOwnProperties = this.getColumn(xOrCellEvent) // xOrCellEvent is x
                     .setCellProperty(y, key, value, dataModel);
+                this.grid.renderer.resetCellPropertiesCache(xOrCellEvent, y, dataModel);
         }
+        return cellOwnProperties;
     },
 
     getUnfilteredRowCount: function() {

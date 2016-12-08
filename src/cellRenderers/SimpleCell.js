@@ -255,13 +255,8 @@ function renderSingleLineText(gc, config, val, leftPadding, rightPadding) {
     var x = config.bounds.x,
         y = config.bounds.y,
         width = config.bounds.width,
-        height = config.bounds.height,
         halignOffset = leftPadding,
-        valignOffset = config.voffset,
         halign = config.halign,
-        isCellHovered = config.isCellHovered,
-        isLink = config.link,
-        fontMetrics = gc.getTextHeight(config.font),
         minWidth,
         metrics;
 
@@ -294,29 +289,37 @@ function renderSingleLineText(gc, config, val, leftPadding, rightPadding) {
         }
     }
 
-    halignOffset = Math.max(leftPadding, halignOffset);
-    valignOffset += Math.ceil(height / 2);
-
     if (val !== null) {
+        x += Math.max(leftPadding, halignOffset);
+        y += Math.ceil(config.bounds.height / 2);
+
+        if (config.isUserDataArea) {
+            if (config.link) {
+                if (config.isCellHovered || !config.linkOnHover) {
+                    if (config.linkColor) {
+                        gc.cache.strokeStyle = config.linkColor;
+                    }
+                    gc.beginPath();
+                    underline(config, gc, val, x, y, 1);
+                    gc.stroke();
+                    gc.closePath();
+                }
+                if (config.linkColor && (config.isCellHovered || !config.linkColorOnHover)) {
+                    gc.cache.fillStyle = config.linkColor;
+                }
+            }
+
+            if (config.strikeThrough === true) {
+                gc.beginPath();
+                strikeThrough(config, gc, val, x, y, 1);
+                gc.stroke();
+                gc.closePath();
+            }
+        }
+
         gc.cache.textAlign = 'left';
         gc.cache.textBaseline = 'middle';
-        gc.fillText(val, x + halignOffset, y + valignOffset);
-
-        if (isCellHovered) {
-            gc.beginPath();
-            if (isLink) {
-                underline(config, gc, val, x + halignOffset, y + valignOffset + Math.floor(fontMetrics.height / 2), 1);
-                gc.stroke();
-            }
-            gc.closePath();
-        }
-
-        if (config.strikeThrough === true) {
-            gc.beginPath();
-            strikeThrough(config, gc, val, x + halignOffset, y + valignOffset + Math.floor(fontMetrics.height / 2), 1);
-            gc.stroke();
-            gc.closePath();
-        }
+        gc.fillText(val, x, y);
     }
 
     return minWidth;
@@ -328,70 +331,72 @@ function findLines(gc, config, words, width) {
         return words;
     }
 
-    // starting with just the first word…
+    // starting with just the first word...
     var stillFits, line = [words.shift()];
     while (
-        // so lone as line still fits within current column…
+        // so lone as line still fits within current column...
     (stillFits = gc.getTextWidth(line.join(' ')) < width)
-    // …AND there are more words available…
+    // ...AND there are more words available...
     && words.length
         ) {
-        // …add another word to end of line and retest
+        // ...add another word to end of line and retest
         line.push(words.shift());
     }
 
     if (
-        !stillFits // if line is now too long…
-        && line.length > 1 // …AND is multiple words…
+        !stillFits // if line is now too long...
+        && line.length > 1 // ...AND is multiple words...
     ) {
-        words.unshift(line.pop()); // …back off by (i.e., remove) one word
+        words.unshift(line.pop()); // ...back off by (i.e., remove) one word
     }
 
     line = [line.join(' ')];
 
-    if (words.length) { // if there's anything left…
-        line = line.concat(findLines(gc, config, words, width)); // …break it up as well
+    if (words.length) { // if there's anything left...
+        line = line.concat(findLines(gc, config, words, width)); // ...break it up as well
     }
 
     return line;
 }
 
 function strikeThrough(config, gc, text, x, y, thickness) {
-    var fontMetrics = gc.getTextHeight(config.font);
-    var width = gc.getTextWidth(text);
-    y -= fontMetrics.height * 0.4;
+    var textWidth = gc.getTextWidth(text);
 
     switch (gc.cache.textAlign) {
         case 'center':
-            x -= width / 2;
+            x -= textWidth / 2;
             break;
         case 'right':
-            x -= width;
+            x -= textWidth;
             break;
     }
 
-    //gc.beginPath();
+    y += 0.5;
+
     gc.cache.lineWidth = thickness;
-    gc.moveTo(x + 0.5, y + 0.5);
-    gc.lineTo(x + width + 0.5, y + 0.5);
+    gc.moveTo(x - 1, y);
+    gc.lineTo(x + textWidth + 1, y);
 }
 
 function underline(config, gc, text, x, y, thickness) {
-    var width = gc.getTextWidth(text);
+    var textHeight = gc.getTextHeight(config.font).height,
+        textWidth = gc.getTextWidth(text);
 
     switch (gc.cache.textAlign) {
         case 'center':
-            x -= width / 2;
+            x -= textWidth / 2;
             break;
         case 'right':
-            x -= width;
+            x -= textWidth;
             break;
     }
 
+    y += textHeight / 2;
+
     //gc.beginPath();
     gc.cache.lineWidth = thickness;
-    gc.moveTo(x + 0.5, y + 0.5);
-    gc.lineTo(x + width + 0.5, y + 0.5);
+    gc.moveTo(x, y);
+    gc.lineTo(x + textWidth, y);
 }
 
 function layerColors(gc, colors, x, y, width, height, foundationColor) {

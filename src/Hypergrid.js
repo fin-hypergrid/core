@@ -2347,5 +2347,7 @@ Hypergrid.localization = {
 Hypergrid.prototype.mixIn(require('./lib/events'));
 Hypergrid.prototype.mixIn(require('./lib/selection'));
 
+Hypergrid.properties = globalProperties;
+
 
 module.exports = Hypergrid;

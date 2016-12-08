@@ -3,22 +3,7 @@
 var deprecated = require('./deprecated');
 var WritablePoint = require('./WritablePoint');
 
-var writableValueDescriptor = {
-    writable: true,
-    value: undefined
-};
-
-var resetProps = {
-    // getter caches
-    _columnProperties: writableValueDescriptor,
-    _cellOwnProperties: writableValueDescriptor,
-    _bounds: writableValueDescriptor,
-
-    // Following supports cell renderers' "partial render" capability:
-    snapshot: writableValueDescriptor,
-    minWidth: writableValueDescriptor,
-    disabled: writableValueDescriptor
-};
+var writableDescriptor = { writable: true };
 
 // The nullSubgrid is for CellEvents representing clicks below last row.
 // var nullSubgrid = {};
@@ -65,7 +50,7 @@ var prototype = Object.defineProperties({}, {
         }
         return cp;
     } },
-    cellOwnProperties: { get: function() {
+    cellOwnProperties: { get: function() { // do not use for get/set prop because may return null; instead use  .getCellProperty('prop') or .properties.prop (preferred) to get and setCellProperty('prop', value) to set
         if (this._cellOwnProperties === undefined) {
             this._cellOwnProperties = this.column.getCellOwnProperties(this.dataCell.y, this.visibleRow.subgrid);
         }
@@ -74,13 +59,24 @@ var prototype = Object.defineProperties({}, {
     properties: { get: function() {
         return this.cellOwnProperties || this.columnProperties;
     } },
-    // getCellProperty: { value: function(propName) {
-    //     return this.properties[propName];
-    // } },
+    getCellProperty: { value: function(key) { // included for completeness but .properties[key] is preferred
+        return this.properties[key];
+    } },
+    setCellProperty: { value: function(key, value) { // do not use .cellOwnProperties[key] = value because object may be null (this method creates object as needed)
+        this._cellOwnProperties = this.column.setCellProperty(this.dataCell.y, key, value, this.visibleRow.subgrid);
+    } },
 
     // special methods for use by renderer which reuses cellEvent object for performance reasons
     reset: { value: function(visibleColumn, visibleRow) {
-        Object.defineProperties(this, resetProps);
+        // getter caches
+        this._columnProperties = undefined;
+        this._cellOwnProperties = undefined;
+        this._bounds = undefined;
+
+        // partial render support
+        this.snapshot = undefined;
+        this.minWidth = undefined;
+        this.disabled = undefined;
 
         this.visibleColumn = visibleColumn;
         this.visibleRow = visibleRow;
@@ -202,18 +198,14 @@ function factory(grid) {
              * @type {visibleColumnDescriptor}
              * @memberOf CellEvent#
              */
-            visibleColumn: {
-                writable: true // Allow to be overwritten by `reset`.
-            },
+            visibleColumn: writableDescriptor,
 
             /**
              * @name visibleRow
              * @type {visibleRowDescriptor}
              * @memberOf CellEvent#
              */
-            visibleRow: {
-                writable: true // Allow to be overwritten by `reset`.
-            },
+            visibleRow: writableDescriptor,
 
             /**
              * @name gridCell
@@ -231,7 +223,19 @@ function factory(grid) {
              */
             dataCell: {
                 value: new WritablePoint
-            }
+            },
+
+            column: writableDescriptor,
+
+            // getter caches
+            _columnProperties: writableDescriptor,
+            _cellOwnProperties: writableDescriptor,
+            _bounds: writableDescriptor,
+
+            // Following supports cell renderers' "partial render" capability:
+            snapshot: writableDescriptor,
+            minWidth: writableDescriptor,
+            disabled: writableDescriptor
         });
 
         if (arguments.length) {
