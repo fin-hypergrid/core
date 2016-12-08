@@ -318,38 +318,25 @@ Column.prototype = {
     },
 
     /**
-     * This method determines the proposed cell editor name from the render properties. The algorithm is:
-     * 1. `editor` render property (cell editor name)
-     * 2. `format` render property (localizer name)
+     * @summary Get a new cell editor.
+     * @desc The cell editor to use must be registered with the key in the cell's `editor` property.
      *
-     * Note that "render property" means in each case the first defined property found on the cell, column, or grid.
+     * The cell's `format` property is mixed into the provided cellEvent for possible overriding by developer's override of {@link DataModel.prototype.getCellEditorAt} before being used by {@link CellEditor} to parse and format the cell value.
      *
-     * @param {number} y - The grid row index.
-     * @param {object} options - Will be decorated with `format` and `column`.
-     * @param {CellEvent} options.editPoint
-     * @returns {undefined|CellEditor} Falsy value means either no declared cell editor _or_ instantiation aborted by falsy return return from fireRequestCellEdit.
+     * @param {CellEvent} cellEvent
+     *
+     * @returns {undefined|CellEditor} Falsy value means either no declared cell editor _or_ instantiation aborted by falsy return from `fireRequestCellEdit`.
      */
-    getCellEditorAt: function(event) {
-        var self = this,
-            columnIndex = this.index,
-            rowIndex = event.gridCell.y,
-            editorName = event.getCellProperty('editor'),
-            options = Object.defineProperties(event, {
-                format: {
-                    // `options.fomrat` is a copy of the cell's `format` property which is:
-                    // 1. Subject to adjustment by the `getCellEditorAt` override.
-                    // 2. Then used by the cell editor to reference the predefined localizer.
-                    writable: true,
-                    value: event.getCellProperty('format')
-                },
-                editPoint: {
-                    get: function() {
-                        self.deprecated('editPoint', 'The .editPoint property has been deprecated as of v1.2.0 in favor of .gridCell. It may be removed in a future release.');
-                        return this.gridCell;
-                    }
-                }
-            }),
-            cellEditor = this.dataModel.getCellEditorAt(columnIndex, rowIndex, editorName, options);
+    getCellEditorAt: function(cellEvent) {
+        var columnIndex = this.index,
+            rowIndex = cellEvent.gridCell.y,
+            cellProps = cellEvent.properties,
+            editorName = cellProps.editor,
+            cellEditor;
+
+        cellEvent.format = cellProps.format;
+
+        cellEditor = this.dataModel.getCellEditorAt(columnIndex, rowIndex, editorName, cellEvent);
 
         if (cellEditor && !cellEditor.grid) {
             // cell editor returned but not fully instantiated (aborted by falsy return from fireRequestCellEdit)

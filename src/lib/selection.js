@@ -297,10 +297,6 @@ module.exports = {
         return rects;
     },
 
-    moveSingleSelect: function(x, y) {
-        this.behavior.moveSingleSelect(this, x, y);
-    },
-
     selectCell: function(x, y, silent) {
         var dontClearRows = this.properties.checkboxOnlyRowSelections;
         this.selectionModel.clear(dontClearRows);
@@ -371,7 +367,7 @@ module.exports = {
             hasCTRL = false,
             result;
 
-        if (this.mouseDownState){
+        if (this.mouseDownState) {
             //triggered programmatically
             hasCTRL = this.mouseDownState.primitiveEvent.detail.primitiveEvent.ctrlKey;
         }
@@ -547,6 +543,142 @@ module.exports = {
     isSingleRowSelectionMode: function() {
         return this.properties.singleRowSelectionMode;
     },
+
+    /**
+     * @summary Move cell selection by offset.
+     * @desc Replace the most recent selection with a single cell selection that is moved (offsetX,offsetY) from the previous selection extent.
+     * @param {number} offsetX - x offset
+     * @param {number} offsetY - y offset
+     * @memberOf Hypergrid#
+     */
+    moveSingleSelect: function(offsetX, offsetY) {
+        var mouseCorner = this.getMouseDown().plus(this.getDragExtent());
+        this.moveToSingleSelect(
+            mouseCorner.x + offsetX,
+            mouseCorner.y + offsetY
+        );
+    },
+
+    /**
+     * @summary Move cell selection by offset.
+     * @desc Replace the most recent selection with a single cell selection that is moved (offsetX,offsetY) from the previous selection extent.
+     * @param {number} newX - x coordinate to start at
+     * @param {number} newY - y coordinate to start at
+     * @memberOf Hypergrid#
+     */
+    moveToSingleSelect: function(newX, newY) {
+        var maxColumns = this.getColumnCount() - 1,
+            maxRows = this.getRowCount() - 1,
+
+            maxViewableColumns = this.getVisibleColumnsCount() - 1,
+            maxViewableRows = this.getVisibleRowsCount() - 1;
+
+        if (!this.properties.scrollingEnabled) {
+            maxColumns = Math.min(maxColumns, maxViewableColumns);
+            maxRows = Math.min(maxRows, maxViewableRows);
+        }
+
+        newX = Math.min(maxColumns, Math.max(0, newX));
+        newY = Math.min(maxRows, Math.max(0, newY));
+
+        this.clearSelections();
+        this.select(newX, newY, 0, 0);
+        this.setMouseDown(this.newPoint(newX, newY));
+        this.setDragExtent(this.newPoint(0, 0));
+
+        this.selectCellAndScrollToMakeVisible(newX, newY);
+
+        this.repaint();
+    },
+
+    /** @summary Extend cell selection by offset.
+     * @desc Augment the most recent selection extent by (offsetX,offsetY) and scroll if necessary.
+     * @param {number} offsetX - x coordinate to start at
+     * @param {number} offsetY - y coordinate to start at
+     * @memberOf Hypergrid#
+     */
+    extendSelect: function(offsetX, offsetY) {
+        var maxColumns = this.getColumnCount() - 1,
+            maxRows = this.getRowCount() - 1,
+
+            maxViewableColumns = this.renderer.visibleColumns.length - 1,
+            maxViewableRows = this.renderer.visibleRows.length - 1,
+
+            origin = this.getMouseDown(),
+            extent = this.getDragExtent(),
+
+            newX = extent.x + offsetX,
+            newY = extent.y + offsetY;
+
+        if (!this.properties.scrollingEnabled) {
+            maxColumns = Math.min(maxColumns, maxViewableColumns);
+            maxRows = Math.min(maxRows, maxViewableRows);
+        }
+
+        newX = Math.min(maxColumns - origin.x, Math.max(-origin.x, newX));
+        newY = Math.min(maxRows - origin.y, Math.max(-origin.y, newY));
+
+        this.clearMostRecentSelection();
+        this.select(origin.x, origin.y, newX, newY);
+
+        this.setDragExtent(this.newPoint(newX, newY));
+
+        var colScrolled = this.insureModelColIsVisible(newX + origin.x, offsetX),
+            rowScrolled = this.insureModelRowIsVisible(newY + origin.y, offsetY);
+
+        this.repaint();
+
+        return colScrolled || rowScrolled;
+    },
+
+    /**
+     * @summary Update the a `cellEvent` to reflect new coordinates.
+     * @desc The `cellEvent` object is only updated if the target cell would be visible, in which case the last selection is also moved to the new position.
+     * @param {CellEvent} cellEvent
+     * @param {number} gridX - The column index.
+     * @param {number} dataY - The row index within the given subgrid.
+     * @param {dataModelAPI} [subgrid=this.behavior.subgrids.data]
+     * @returns {boolean} If target cell is visible.
+     * @memberOf Hypergrid#
+     */
+    resetEditPoint: function(cellEvent, gridX, dataY, subgrid) {
+        var vc, vr, visible;
+
+        visible = (vc = this.renderer.getVisibleColumn(gridX)) &&
+            (vr = this.renderer.getVisibleRow(dataY, subgrid));
+
+        if (visible) {
+            cellEvent.reset(vc, vr);
+            this.moveToSingleSelect(gridX, cellEvent.gridCell.y);
+        }
+
+        return visible;
+    },
+
+    /**
+     * @summary Update the a `cellEvent` to reflect coordinate offsets.
+     * @desc The `cellEvent` object is only updated if the target cell would be visible, in which case the last selection is also moved to the new position.
+     * @param {CellEvent} cellEvent
+     * @param {number} offsetGridX - The column index offset.
+     * @param {number} offsetDataY - The row index offset within the given subgrid.
+     * @param {dataModelAPI} [subgrid=this.behavior.subgrids.data]
+     * @returns {boolean} If target cell is visible.
+     * @memberOf Hypergrid#
+     */
+    offsetEditPoint: function(cellEvent, offsetGridX, offsetDataY, subgrid) {
+        var x = cellEvent.gridCell.x + offsetGridX,
+            y = cellEvent.dataCell.y + offsetDataY;
+        return this.resetEditPoint(cellEvent, x, y, subgrid);
+    },
+
+    /**
+     * @returns {undefined|CellEvent}
+     * @memberOf Hypergrid#
+     */
+    getGridCellFromLastSelection: function() {
+        var sel = this.selectionModel.getLastSelection();
+        return sel && new this.behavior.CellEvent(sel.origin.x, sel.origin.y, true);
+    }
 };
 
 function normalizeRect(rect) {

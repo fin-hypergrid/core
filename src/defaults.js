@@ -129,6 +129,13 @@ var defaults = {
      */
     columnHeaderHalign: 'center',
 
+    /**
+     * @default
+     * @type {string}
+     * @memberOf module:defaults
+     */
+    columnHeaderRenderer: 'SimpleCell',
+
 
     /********** SECTION: INFO COLORS **********/
 
@@ -252,6 +259,13 @@ var defaults = {
      * @memberOf module:defaults
      */
     filterHalign: 'center',
+
+    /**
+     * @default
+     * @type {string}
+     * @memberOf module:defaults
+     */
+    filterRenderer: 'SimpleCell',
 
     /**
      * @default
@@ -475,10 +489,107 @@ var defaults = {
 
     /**
      * @default ['alt', 'esc']
-     * @type {string}
+     * @type {string[]}
      * @memberOf module:defaults
      */
     editorActivationKeys: ['alt', 'esc'],
+
+    /**
+     * @summary Mappings for cell navigation keys.
+     * @desc Cell navigation is handled in the {@link CellSelection} "feature". This property gives you control over which keypresses the built-in mechanism will respond to.
+     *
+     * (If this built-in cell selection logic is insufficient for your needs, you can also listen for the various "fin-key" events and carry out more complex operations in your listeners.)
+     *
+     * The keypress names used here are defined in Canvas.js. Note that all keypresses actually have two names, a normal name and a shifted name. The latter name is used when either **shift** is depressed.
+     *
+     * The built-in nav keypresses are as follows:
+     * * **`UP`** _(up-arrow key)_ - Replace all selections with a single cell, one row up from the last selection.
+     * * **`DOWN`** _(down-arrow key)_ - Replace all selections with a single cell, one row down from the last selection.
+     * * **`LEFT`** _(left-arrow key)_ - Replace all selections with a single cell, one column to the left of the last selection.
+     * * **`RIGHT`** _(right-arrow key)_ - Replace all selections with a single cell, one column to the right of the last selection.
+     * * **`UPSHIFT`** _(shift + up-arrow)_ - Extend the last selection up one row.
+     * * **`DOWNSHIFT`** _(shift + down-arrow)_ - Extend the last selection down one row.
+     * * **`LEFTSHIFT`** _(shift + left-arrow)_ - Extend the last selection left one column.
+     * * **`RIGHTSHIFT`** _(shift + right-arrow)_ - Extend the last selection right one column.
+     *
+     * To alter these or add other mappings see the examples below.
+     *
+     * A note regarding the other meta keys (**trl**, **option**, and **command**): Although these meta keys can be detected, they do not modify the key names as **shift** does. This is because they are more for system use and generally (with the possibly exception fo **ctrl**) should not be depended upon, as system functions will take priority and your app will never see these key presses.
+     *
+     * A special accommodation has been made to the {@link module:defaults.editOnKeydown|editOnKeydown} property:
+     * * If `editOnKeydown` truthy AND mapped character is an actual (non-white-space) character (as opposed to say **tab** or **return**), then navigation requires **ctrl** key to distinguish between nav and data.
+     * * If `editOnKeydown` falsy, the **ctrl** key is ignored.
+     *
+     * So in the last example, if `editOnKeydown` is ON, then `a` (without **ctrl**) would start editing the cell and **ctrl** + `a` would move the selection one column to the left.
+     *
+     * @example
+     * // To void the above build-ins:
+     * navKeyMap: {
+     *     UP: undefined,
+     *     UPSHIFT: undefined,
+     *     DOWN: undefined,
+     *     ...
+     * }
+     *
+     * @example
+     * // To map alternative nav keypresses to RETURN and TAB (default mapping):
+     * navKeyMap: {
+     *     RETURN: 'DOWN',
+     *     RETURNSHIFT: 'UP',
+     *     TAB: 'RIGHT',
+     *     TABSHIFT: 'LEFT'
+     * }
+     *
+     * @example
+     * // To map alternative nav keypresses to a/w/d/s and extend select to A/W/D/S:
+     * navKeyMap: {
+     *     a: 'LEFT', A: 'LEFTSHIFT',
+     *     w: 'UP', W: 'UPSHIFT',
+     *     s: 'DOWN', S: 'DOWNSHIFT',
+     *     d: 'RIGHT', D: 'RIGHTSHIFT'
+     * }
+     *
+     * @default
+     * @type {object|undefined}
+     * @memberOf module:defaults
+     */
+    navKeyMap: {
+        RETURN: 'DOWN',
+        RETURNSHIFT: 'UP',
+        TAB: 'RIGHT',
+        TABSHIFT: 'LEFT'
+    },
+
+    /** @summary Validation failure feedback.
+     * @desc Validation occurs on {@link CellEditor#stopEditing}, normally called on commit (`TAB`, `ENTER`, or any other keys listed in `navKeyMap`).
+     *
+     * On successful validation, the value is saved back to the data source and the editor is closed.
+     *
+     * On validation failure, feedback is shown to the user in the form of an "error effect" possibly followed by an "end effect" containing a detailed explanation.
+     *
+     * The error effect to use is named in `feedbackEffect
+     *
+     * The value of this property is the number of times to show the "error effect" on validation failure before showing the detailed explanation.
+     *
+     * `feedback` may be set to one of:
+     * * **`undefined`** - Do not show the error effect or the alert. Just discard the value and close the editor (as if `ESC` had been typed).
+     * * **`0`** - Just shows the error feedback effect (see the {@link CellEditor#errorEffect|errorEffect} property).
+     * * **`1`** - Shows the error feedback effect followed by the detailed explanation.
+     * * `2` or more:
+     *   1. Shows the error feedback effect
+     *   2. On every `feedback` tries, shows the detailed explanation.
+     * @default
+     * @type {number|undefined}
+     * @memberOf module:defaults
+     */
+    feedbackCount: 3,
+
+    /**
+     * @default
+     * @type {{name:string,options:object}|string}
+     * @memberOf module:defaults
+     */
+    feedbackEffect: 'shaker',
 
     /**
      * @default

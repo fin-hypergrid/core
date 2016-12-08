@@ -552,11 +552,23 @@ var Renderer = Base.extend('Renderer', {
     /**
      * @memberOf Renderer.prototype
      * @summary Determines if a column is visible.
-     * @param {number} colIndex - the column index*
-     * @returns {boolean} The given column is fully visible.
+     * @param {number} colIndex - the column index
+     * @returns {boolean} The given column is visible.
      */
     isColumnVisible: function(columnIndex) {
-        return !!this.visibleColumns.find(function(vc) { return vc.columnIndex === columnIndex; });
+        return !!this.getVisibleColumn(columnIndex);
+    },
+
+    /**
+     * @memberOf Renderer.prototype
+     * @summary Find a visible column object.
+     * @param {number} columnIndex - The grid column index.
+     * @returns {object|undefined} The given column if visible or `undefined` if not.
+     */
+    getVisibleColumn: function(columnIndex) {
+        return this.visibleColumns.find(function(vc) {
+            return vc.columnIndex === columnIndex;
+        });
     },
 
     /**
@@ -572,11 +584,25 @@ var Renderer = Base.extend('Renderer', {
     /**
      * @memberOf Renderer.prototype
      * @summary Determines visibility of a row.
-     * @param {number} y - The physical (unscrolled) grid row index.
-     * @returns {boolean} The given row is fully visible.
+     * @param {number} rowIndex - The data row index.
+     * @returns {boolean} The given row is visible.
      */
-    isRowVisible: function(y) {
-        return !!this.visibleRows[y];
+    isRowVisible: function(rowIndex) {
+        return !!this.getVisibleRow(rowIndex);
+    },
+
+    /**
+     * @memberOf Renderer.prototype
+     * @summary Find a visible row object.
+     * @param {number} rowIndex - The row index within the given subgrid.
+     * @param {dataModelAPI} [subgrid=this.behavior.subgrids.data]
+     * @returns {object|undefined} The given row if visible or `undefined` if not.
+     */
+    getVisibleRow: function(rowIndex, subgrid) {
+        subgrid = subgrid || this.grid.behavior.subgrids.lookup.data;
+        return this.visibleRows.find(function(vr) {
+            return vr.subgrid === subgrid && vr.rowIndex === rowIndex;
+        });
     },
 
     /**

@@ -1,12 +1,24 @@
 'use strict';
 
-var rectangular = require('rectangular');
-
 var deprecated = require('./deprecated');
+var WritablePoint = require('./WritablePoint');
 
-// Variation of rectangular.Point but with writable x and y:
-function WritablePoint() {}
-WritablePoint.prototype = rectangular.Point.prototype;
+var writableValueDescriptor = {
+    writable: true,
+    value: undefined
+};
+
+var resetProps = {
+    // getter caches
+    _columnProperties: writableValueDescriptor,
+    _cellOwnProperties: writableValueDescriptor,
+    _bounds: writableValueDescriptor,
+
+    // Following supports cell renderers' "partial render" capability:
+    snapshot: writableValueDescriptor,
+    minWidth: writableValueDescriptor,
+    disabled: writableValueDescriptor
+};
 
 // The nullSubgrid is for CellEvents representing clicks below last row.
 // var nullSubgrid = {};
@@ -18,11 +30,11 @@ var prototype = Object.defineProperties({}, {
     },
 
     row: {
-        get: function() { return this.visibleRow.subgrid.getRow(this.dataCell.y); },
+        get: function() { return this.visibleRow.subgrid.getRow(this.dataCell.y); }
     },
 
     formattedValue: {
-        get: function() { return this.grid.formatValue(this.getCellProperty('format'), this.value); }
+        get: function() { return this.grid.formatValue(this.properties.format, this.value); }
     },
 
     bounds: { get: function() {
@@ -62,29 +74,24 @@ var prototype = Object.defineProperties({}, {
     properties: { get: function() {
         return this.cellOwnProperties || this.columnProperties;
     } },
-    getCellProperty: { value: function(propName) {
-        return this.properties[propName];
-    } },
+    // getCellProperty: { value: function(propName) {
+    //     return this.properties[propName];
+    // } },
 
     // special methods for use by renderer which reuses cellEvent object for performance reasons
     reset: { value: function(visibleColumn, visibleRow) {
-        this.disabled = false;
+        Object.defineProperties(this, resetProps);
 
         this.visibleColumn = visibleColumn;
         this.visibleRow = visibleRow;
 
-        this.column = visibleColumn.column;
+        this.column = visibleColumn.column; // enumerable so will be copied to cell renderer object
 
         this.gridCell.x = visibleColumn.columnIndex;
         this.gridCell.y = visibleRow.index;
 
         this.dataCell.x = this.column && this.column.index;
         this.dataCell.y = visibleRow.rowIndex;
-
-        this._columnProperties = this._cellOwnProperties = this._bounds = undefined;
-
-        // Following supports cell renderers' partial render capability:
-        this.snapshot = this.minWidth = undefined;
     } },
 
     subgrid: { get: function() { return this.visibleRow.subgrid; } },
@@ -151,7 +158,7 @@ var prototype = Object.defineProperties({}, {
     isGridCell: { get: function() {
         this.deprecated('isGridCell', '.isGridCell is deprecated as of v1.2.10 in favor of .isDataCell. (Will be removed in a future release.)');
         return this.isDataCell;
-    } }
+    } },
 });
 
 /**
@@ -184,9 +191,10 @@ function factory(grid) {
      * Omit params to defer `reset`.
      * @param {number} [x] - grid cell coordinate (adjusted for horizontal scrolling after fixed columns).
      * @param {number} [y] - grid cell coordinate, adjusted (adjusted for vertical scrolling if data subgrid)
+     * @param {boolean} [isDataRow=false]
      * @constructor
      */
-    function CellEvent(x, y) {
+    function CellEvent(x, y, isDataRow) {
         // remaining instance vars are non-enumerable so `CellEditor` constructor won't mix them in (for mustache use).
         Object.defineProperties(this, {
             /**
@@ -228,10 +236,10 @@ function factory(grid) {
 
         if (arguments.length) {
             this.reset(
-                this.grid.renderer.visibleColumns.find(function(vc) {
-                    return vc.columnIndex === x;
-                }),
-                this.grid.renderer.visibleRows[y]
+                this.grid.renderer.visibleColumns.find(function(vc) { return vc.columnIndex === x; }),
+                isDataRow
+                    ? this.grid.renderer.visibleRows.find(function(vr) { return vr.rowIndex === y; })
+                    : this.grid.renderer.visibleRows[y]
             );
         }
     }

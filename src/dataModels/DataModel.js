@@ -40,22 +40,28 @@ var DataModel = Base.extend('DataModel', {
      * Overriding this method with a null function (that always returns `undefined`) will have the effect of making all cells uneditable.
      *
      * @param {number} columnIndex - Absolute column index. I.e., the position of the column in the data source's original `fields` array, as echoed in `behavior.allColumns[]`.
+     *
      * @param {number} rowIndex - Row index of the data row in the currently filtered and sorted list of rows, regardless of vertical scroll position, offset by the number of header rows (all the rows above the first data row including the filter row). I.e., after subtracting out the number of header rows, this is the position of the data row in the `index` array of the data source (i.e., the last data source pipeline).
+     *
      * @param {string} declaredEditorName - The proposed cell editor name (from the render properties).
-     * @param {object} options - Properties to copy to the new cell editor primarily for mustache's use. Additionally, always includes the following:
-     * @param {string} options.format - The value of the `format` render prop. May be `undefined`.
-     * @param {object} options.column - For convenience, the column object in `behavior.allColumns[]` to which `columnIndex` refers.
-     * @param {Point} options.editPoint - Deprecated; use `options.gridCell`.
-     * @param {Point} options.gridCell - The grid coordinates of the cell to edit.
-     * @param {number} options.gridCell.x - The horizontal model coordinate of the cell to edit. This is the grid coordinate regardless of horizontal scroll position. I.e., the position of the column in the ordered list of selected columns (`behavior.columns[]`). (This is the coordinate required by {@link Hypergrid#editAt|editAt}.)
-     * @param {number} options.gridCell.y - Same as `rowIndex`.
+     *
+     * @param {CellEvent} cellEvent - All enumerable properties of this object will be copied to the new cell editor object for two purposes:
+     * * Used in cell editor logic.
+     * * For access from the cell editor's HTML template (via mustache).
+     *
+     * {@link CellEditor} requires both of the following:
+     * * **`format`** - The cell's `format` render prop (name of localizer to use to format the editor preload and parse the edited value). May be `undefined` (no formatting or parsing). Added by calling {@link Column#getCellEditorAt|getCellEditorAt} method. Developer's override is free to alter this property.
+     * * _CellEvent props_ - `column` ({@link Column} object) is the only enumerable property of the native `CellEvent` object. Read-only.
+     * * _Custom props_ - Developer's override of this method may add additional properties, for both purposes listed above.
+     *
+     * Note that the `editPoint` property previously available to cell editors has been deprecated in favor of options.gridCell. `editPoint` will still work for the time being but with a deprecation warning in the console to use `cellEvent.gridCell` instead.
      *
      * @returns {undefined|CellEditor} An object instantiated from the registered cell editor constructor named in `declaredEditorName`. A falsy return means the cell is not editable because the `declaredEditorName` was not registered.
      *
      * @memberOf DataModel.prototype
      */
-    getCellEditorAt: function(columnIndex, rowIndex, declaredEditorName, options) {
-        return this.grid.cellEditors.create(declaredEditorName, options);
+    getCellEditorAt: function(columnIndex, rowIndex, declaredEditorName, cellEvent) {
+        return this.grid.cellEditors.create(declaredEditorName, cellEvent);
     }
 
 });

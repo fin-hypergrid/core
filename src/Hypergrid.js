@@ -1070,9 +1070,9 @@ var Hypergrid = Base.extend('Hypergrid', {
 
         if (
             event.isDataColumn &&
-            event.getCellProperty(event.isDataRow ? 'editable' : 'filterable')
+            event.properties[event.isDataRow ? 'editable' : 'filterable']
         ) {
-            this.setMouseDown(new Point(event.gridCell.x, event.dataCell.y));
+            this.setMouseDown(new Point(event.gridCell.x, event.gridCell.y));
             this.setDragExtent(new Point(0, 0));
 
             cellEditor = this.getCellEditorAt(event);
@@ -1103,7 +1103,6 @@ var Hypergrid = Base.extend('Hypergrid', {
     },
 
     /**
-     * @todo refac and move to CellEvent
      * @memberOf Hypergrid#
      * @param {number} c - The column index in question.
      * @param {number} rn - The grid row index in question.
@@ -1122,7 +1121,7 @@ var Hypergrid = Base.extend('Hypergrid', {
      */
     insureModelColIsVisible: function(colIndex, offsetX) {
         var maxCols = this.getColumnCount() - 1, // -1 excludes partially visible columns
-            indexToCheck = colIndex + (offsetX > 0),
+            indexToCheck = colIndex + Math.sign(offsetX),
             visible = !this.isColumnVisible(indexToCheck) || colIndex === maxCols;
 
         if (visible) {
@@ -1142,7 +1141,7 @@ var Hypergrid = Base.extend('Hypergrid', {
      */
     insureModelRowIsVisible: function(rowIndex, offsetY) {
         var maxRows = this.getRowCount() - 1, // -1 excludes partially visible rows
-            indexToCheck = rowIndex + (offsetY > 0),
+            indexToCheck = rowIndex + Math.sign(offsetY),
             visible = !this.isDataRowVisible(indexToCheck) || rowIndex === maxRows;
 
         if (visible) {

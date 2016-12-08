@@ -563,8 +563,7 @@ var Behavior = Base.extend('Behavior', {
     getCellProperties: function(xOrCellEvent, y) {
         switch (arguments.length) {
             case 1:
-                return xOrCellEvent.column // xOrCellEvent is cellEvent
-                    .getCellProperties(xOrCellEvent.dataCell.y, xOrCellEvent.visibleRow.subgrid);
+                return xOrCellEvent.properties; // xOrCellEvent is cellEvent
             case 2:
                 return this.getColumn(xOrCellEvent) // xOrCellEvent is x
                     .getCellProperties(y);
@@ -583,8 +582,7 @@ var Behavior = Base.extend('Behavior', {
     getCellProperty: function(xOrCellEvent, y, key) {
         switch (arguments.length) {
             case 2:
-                return xOrCellEvent.column // xOrCellEvent is cellEvent
-                    .getCellProperty(xOrCellEvent.dataCell.y, y, xOrCellEvent.visibleRow.subgrid); // y omitted so y here is actually key
+                return xOrCellEvent.properties[y]; // xOrCellEvent is cellEvent and y omitted so y here is actually key
             case 3:
                 return this.getColumn(xOrCellEvent) // xOrCellEvent is x
                     .getCellProperty(y, key);
@@ -775,13 +773,6 @@ var Behavior = Base.extend('Behavior', {
         var translatedPoint = new Point(mouse.gridCell.x, this.getScrollPositionY() + mouse.gridCell.y - this.getFixedRowCount());
         mouse.gridCell = translatedPoint;
         this.fixedColumnClicked(grid, mouse);
-    },
-
-    moveSingleSelect: function(grid, x, y) {
-        if (this.featureChain) {
-            this.featureChain.moveSingleSelect(grid, x, y);
-            this.setCursor(grid);
-        }
     },
 
     /**

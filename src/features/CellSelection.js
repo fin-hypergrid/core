@@ -84,7 +84,7 @@ var CellSelection = Feature.extend('CellSelection', {
             this.lastDragCell = grid.newPoint(event.gridCell.x, event.dataCell.y);
             this.checkDragScroll(grid, this.currentDrag);
             this.handleMouseDragCellSelection(grid, this.lastDragCell, event.primitiveEvent.detail.keys);
-        } else  if (this.next) {
+        } else if (this.next) {
             this.next.handleMouseDrag(grid, event);
         }
     },
@@ -95,8 +95,19 @@ var CellSelection = Feature.extend('CellSelection', {
      * @param {Object} event - the event details
      */
     handleKeyDown: function(grid, event) {
-        var handler;
-        if ((handler = this['handle' + event.detail.char])) {
+        var char = event.detail.char,
+            navKeyMap = grid.properties.navKeyMap || {},
+            mappedChar = char in navKeyMap ? navKeyMap[char] : char,
+            handlerName = 'handle' + mappedChar,
+            cellEvent = grid.getGridCellFromLastSelection(),
+            qualified = cellEvent && (
+                char.length > 1 || // is it a meta character (non-printable, white-space)?
+                !cellEvent.properties.editOnKeydown || // normal char. is edit-on-keydown OFF?
+                event.detail.ctrl // normal char, edit-on-keydown ON. is CTRL key down?
+            ),
+            handler = qualified && this[handlerName];
+
+        if (handler) {
             handler.call(this, grid, event.detail);
         } else if (this.next) {
             this.next.handleKeyDown(grid, event);
@@ -386,41 +397,9 @@ var CellSelection = Feature.extend('CellSelection', {
      * @param {number} offsetY - y coordinate to start at
      */
     moveShiftSelect: function(grid, offsetX, offsetY) {
-
-        var maxColumns = grid.getColumnCount() - 1,
-            maxRows = grid.getRowCount() - 1,
-
-            maxViewableColumns = grid.renderer.visibleColumns.length - 1,
-            maxViewableRows = grid.renderer.visibleRows.length - 1,
-
-            origin = grid.getMouseDown(),
-            extent = grid.getDragExtent(),
-
-            newX = extent.x + offsetX,
-            newY = extent.y + offsetY;
-
-        if (!grid.properties.scrollingEnabled) {
-            maxColumns = Math.min(maxColumns, maxViewableColumns);
-            maxRows = Math.min(maxRows, maxViewableRows);
-        }
-
-        newX = Math.min(maxColumns - origin.x, Math.max(-origin.x, newX));
-        newY = Math.min(maxRows - origin.y, Math.max(-origin.y, newY));
-
-        grid.clearMostRecentSelection();
-        grid.select(origin.x, origin.y, newX, newY);
-
-        grid.setDragExtent(grid.newPoint(newX, newY));
-
-        if (grid.insureModelColIsVisible(newX + origin.x, offsetX)) {
+        if (grid.extendSelect(offsetX, offsetY)) {
             this.pingAutoScroll();
         }
-        if (grid.insureModelRowIsVisible(newY + origin.y, offsetY)) {
-            this.pingAutoScroll();
-        }
-
-        grid.repaint();
-
     },
 
     /**
@@ -431,41 +410,7 @@ var CellSelection = Feature.extend('CellSelection', {
      * @param {number} offsetY - y coordinate to start at
      */
     moveSingleSelect: function(grid, offsetX, offsetY) {
-        var mouseCorner = grid.getMouseDown().plus(grid.getDragExtent()),
-
-            newX = mouseCorner.x + offsetX,
-            newY = mouseCorner.y + offsetY,
-
-            maxColumns = grid.getColumnCount() - 1,
-            maxRows = grid.getRowCount() - 1,
-
-            maxViewableColumns = grid.getVisibleColumnsCount() - 1,
-            maxViewableRows = grid.getVisibleRowsCount() - 1;
-
-        if (!grid.properties.scrollingEnabled) {
-            maxColumns = Math.min(maxColumns, maxViewableColumns);
-            maxRows = Math.min(maxRows, maxViewableRows);
-        }
-
-        newX = Math.min(maxColumns, Math.max(0, newX));
-        newY = Math.min(maxRows, Math.max(0, newY));
-
-        grid.clearSelections();
-        grid.select(newX, newY, 0, 0);
-        grid.setMouseDown(grid.newPoint(newX, newY));
-        grid.setDragExtent(grid.newPoint(0, 0));
-
-        grid.selectCellAndScrollToMakeVisible(newX, newY);
-
-        // if (grid.insureModelColIsVisible(newX, offsetX)) {
-        //     this.pingAutoScroll();
-        // }
-        // if (grid.insureModelRowIsVisible(newY, offsetY)) {
-        //     this.pingAutoScroll();
-        // }
-
-        grid.repaint();
-
+        grid.moveSingleSelect(offsetX, offsetY);
     }
 
 });
