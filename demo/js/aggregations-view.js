@@ -32,7 +32,7 @@ window.onload = function() {
             [Hypergrid.AggregationsView, options] // object API instantiation with one arg; `$$CLASS_NAME` defined so ref saved in `grid.plugins.aggregationsView`
         ]
     });
-
+    // These modules are for EXAMPLE purposes only
     grid.filter = grid.plugins.hyperfilter.create();
     grid.sorter = grid.plugins.hypersorter;
 

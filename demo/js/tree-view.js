@@ -17,6 +17,7 @@ window.onload = function() {
     grid = new Hypergrid('div#tree-example');
     grid.setData(treeData);
 
+    // These modules are for EXAMPLE purposes only
     grid.installPlugins([
         Hypergrid.drillDown, // simple API install (plain object with `install` method) but no `name` defined so no ref is saved
         Hypergrid.rowById, // ditto

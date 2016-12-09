@@ -18,6 +18,7 @@ window.onload = function() {
     // Add a blank column.
     treeData.forEach(function(dataRow) { dataRow.name = ''; });
 
+    // These modules are for EXAMPLE purposes only
     grid = new Hypergrid('div#tree-example', { data: treeData, plugins: [
         Hypergrid.drillDown, // simple API install (plain object with `install` method) but no `name` defined so no ref is saved
         Hypergrid.rowById, // ditto

@@ -179,6 +179,7 @@ window.onload = function() {
         buttons = document.getElementById('buttons');
 
     // Install the sorter and Filter APIs (optional).
+    // These modules are for EXAMPLE purposes only
     grid.setPipeline([
         window.datasaur.filter,
         window.fin.Hypergrid.analytics.DataSourceSorterComposite
