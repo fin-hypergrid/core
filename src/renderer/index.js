@@ -534,15 +534,20 @@ var Renderer = Base.extend('Renderer', {
             vcs = this.visibleColumns,
             firstColumn = vcs[this.grid.properties.showRowNumbers ? -1 : 0],
             inFirstColumn = x < firstColumn.right,
-            vc = inFirstColumn ? firstColumn : vcs.find(function(vc) { return x < vc.right; }) || vcs[vcs.length - 1],
-            vr = vrs.find(function(vr) { return y < vr.bottom; }) || vrs[vrs.length - 1],
-            mousePoint = this.grid.newPoint(x - vc.left, y - vr.top),
-            cellEvent = new this.grid.behavior.CellEvent(vc.columnIndex, vr.index);
+            vc = inFirstColumn ? firstColumn : vcs.find(function(vc) { return x < vc.right; }),
+            vr = vrs.find(function(vr) { return y < vr.bottom; }),
+            result = null;
 
-        // cellEvent.visibleColumn = vc;
-        // cellEvent.visibleRow = vr;
+        if (vr && vc) {
+            var mousePoint = this.grid.newPoint(x - vc.left, y - vr.top),
+                cellEvent = new this.grid.behavior.CellEvent(vc.columnIndex, vr.index);
 
-        return Object.defineProperty(cellEvent, 'mousePoint', { value: mousePoint });
+            // cellEvent.visibleColumn = vc;
+            // cellEvent.visibleRow = vr;
+
+            result = Object.defineProperty(cellEvent, 'mousePoint', {value: mousePoint});
+        }
+        return result;
     },
 
     /**
