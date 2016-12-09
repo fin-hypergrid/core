@@ -16,13 +16,12 @@
 
     <script>
         var Hypergrid = window.fin.Hypergrid,
-            plugins = [
-                Hypergrid.Hyperfilter,
-                [Hypergrid.Hypersorter, {Column: fin.Hypergrid.behaviors.Column}]
-            ],
             gridOptions = {
                 data: window.people1,
-                plugins: plugins,
+                plugins: [
+                    Hypergrid.Hyperfilter,
+                    [Hypergrid.Hypersorter, {Column: fin.Hypergrid.behaviors.Column}]
+                ],
                 pipeline: [
                     window.datasaur.filter,
                     window.fin.Hypergrid.analytics.DataSourceSorterComposite
