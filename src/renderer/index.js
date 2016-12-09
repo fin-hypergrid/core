@@ -535,7 +535,8 @@ var Renderer = Base.extend('Renderer', {
             firstColumn = vcs[this.grid.properties.showRowNumbers ? -1 : 0],
             inFirstColumn = x < firstColumn.right,
             vc = inFirstColumn ? firstColumn : vcs.find(function(vc) { return x < vc.right; }),
-            vr = vrs.find(function(vr) { return y < vr.bottom; });
+            vr = vrs.find(function(vr) { return y < vr.bottom; }),
+            result = null;
 
         if (vr && vc) {
             var mousePoint = this.grid.newPoint(x - vc.left, y - vr.top),
@@ -544,9 +545,9 @@ var Renderer = Base.extend('Renderer', {
             // cellEvent.visibleColumn = vc;
             // cellEvent.visibleRow = vr;
 
-            return Object.defineProperty(cellEvent, 'mousePoint', {value: mousePoint});
+            result = Object.defineProperty(cellEvent, 'mousePoint', {value: mousePoint});
         }
-        return null;
+        return result;
     },
 
     /**

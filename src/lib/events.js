@@ -241,7 +241,7 @@ module.exports = {
     delegateCanvasEvents: function() {
         var self = this;
 
-        function handleMouseEvent(e, fn) {
+        function handleMouseEvent(e, cb) {
             var primitiveEvent = self.getGridCellFromMousePoint(e.detail.mouse),
                 decoratedEvent;
 
@@ -256,9 +256,8 @@ module.exports = {
                         writable: true
                     }
                 );
-
+                cb.call(self, decoratedEvent);
             }
-           if (decoratedEvent) {fn(decoratedEvent);}
         }
 
         this.addEventListener('fin-canvas-resized', function(e) {
@@ -270,7 +269,7 @@ module.exports = {
             if (self.properties.readOnly) {
                 return;
             }
-            handleMouseEvent(e, self.delegateMouseMove.bind(self));
+            handleMouseEvent(e, self.delegateMouseMove);
         });
 
         this.addEventListener('fin-canvas-mousedown', function(e) {
@@ -288,7 +287,7 @@ module.exports = {
                 this.delegateMouseDown(mouseEvent);
                 this.fireSyntheticMouseDownEvent(mouseEvent);
                 this.repaint();
-            }.bind(self));
+            });
         });
 
         this.addEventListener('fin-canvas-click', function(e) {
@@ -299,7 +298,7 @@ module.exports = {
                 mouseEvent.keys = e.detail.keys; // todo: this was in fin-tap but wasn't here
                 this.fireSyntheticClickEvent(mouseEvent);
                 this.delegateClick(mouseEvent);
-            }.bind(self));
+            });
         });
 
         this.addEventListener('fin-canvas-mouseup', function(e) {
@@ -320,7 +319,7 @@ module.exports = {
                 }
                 this.mouseDownState = null;
                 this.fireSyntheticMouseUpEvent(mouseEvent);
-            }.bind(self));
+            });
         });
 
         this.addEventListener('fin-canvas-dblclick', function(e) {
@@ -330,7 +329,7 @@ module.exports = {
             handleMouseEvent(e, function(mouseEvent) {
                 this.fireSyntheticDoubleClickEvent(mouseEvent, e);
                 this.delegateDoubleClick(mouseEvent);
-            }.bind(self));
+            });
         });
 
         this.addEventListener('fin-canvas-drag', function(e) {
@@ -338,7 +337,7 @@ module.exports = {
                 return;
             }
             self.dragging = true;
-            handleMouseEvent(e, self.delegateMouseDrag.bind(self));
+            handleMouseEvent(e, self.delegateMouseDrag);
         });
 
         this.addEventListener('fin-canvas-keydown', function(e) {
@@ -358,18 +357,18 @@ module.exports = {
         });
 
         this.addEventListener('fin-canvas-wheelmoved', function(e) {
-            handleMouseEvent(e, self.delegateWheelMoved.bind(self));
+            handleMouseEvent(e, self.delegateWheelMoved);
         });
 
         this.addEventListener('fin-canvas-mouseout', function(e) {
             if (self.properties.readOnly) {
                 return;
             }
-            handleMouseEvent(e, self.delegateMouseExit.bind(self));
+            handleMouseEvent(e, self.delegateMouseExit);
         });
 
         this.addEventListener('fin-canvas-context-menu', function(e) {
-            handleMouseEvent(e, self.delegateContextMenu.bind(self));
+            handleMouseEvent(e, self.delegateContextMenu);
         });
 
         //Register a listener for the copy event so we can copy our selected region to the pastebuffer if conditions are right.
