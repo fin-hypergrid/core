@@ -628,9 +628,11 @@ var Hypergrid = Base.extend('Hypergrid', {
      * @desc Remove the last item from the mouse down stack.
      */
     popMouseDown: function() {
+        var result;
         if (this.mouseDown.length) {
-            this.mouseDown.length = this.mouseDown.length - 1;
+            result = this.mouseDown.pop();
         }
+        return result;
     },
 
     /**
@@ -1056,7 +1058,7 @@ var Hypergrid = Base.extend('Hypergrid', {
     /**
      * @memberOf Hypergrid#
      * @summary Open the cell-editor for the cell at the given coordinates.
-     * @param {Point} editPoint - The grid cell coordinate mixed with the data row coordinate.
+     * @param {CellEvent} event - Coordinates of "edit point" (gridCell.x, dataCell.y).
      * @return {undefined|CellEditor} The cellEditor determined from the cell's render properties, which may be modified by logic added by overriding {@link DataModel#getCellEditorAt|getCellEditorAt}.
      */
     editAt: function(event) {
@@ -1070,15 +1072,10 @@ var Hypergrid = Base.extend('Hypergrid', {
 
         if (
             event.isDataColumn &&
-            event.properties[event.isDataRow ? 'editable' : 'filterable']
+            event.properties[event.isDataRow ? 'editable' : 'filterable'] &&
+            (cellEditor = this.getCellEditorAt(event))
         ) {
-            this.setMouseDown(new Point(event.gridCell.x, event.gridCell.y));
-            this.setDragExtent(new Point(0, 0));
-
-            cellEditor = this.getCellEditorAt(event);
-            if (cellEditor) {
-                cellEditor.beginEditing();
-            }
+            cellEditor.beginEditing();
         }
 
         return cellEditor;

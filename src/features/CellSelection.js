@@ -311,7 +311,7 @@ var CellSelection = Feature.extend('CellSelection', {
         event.primitiveEvent.preventDefault();
 
         var count = this.getAutoScrollAcceleration();
-        this.moveSingleSelect(grid, 0, count);
+        grid.moveSingleSelect(0, count);
     },
 
     /**
@@ -324,7 +324,7 @@ var CellSelection = Feature.extend('CellSelection', {
         event.primitiveEvent.preventDefault();
 
         var count = this.getAutoScrollAcceleration();
-        this.moveSingleSelect(grid, 0, -count);
+        grid.moveSingleSelect(0, -count);
     },
 
     /**
@@ -333,7 +333,7 @@ var CellSelection = Feature.extend('CellSelection', {
      * @param {Object} event - the event details
      */
     handleLEFT: function(grid) {
-        this.moveSingleSelect(grid, -1, 0);
+        grid.moveSingleSelect(-1, 0);
     },
 
     /**
@@ -342,7 +342,7 @@ var CellSelection = Feature.extend('CellSelection', {
      * @param {Object} event - the event details
      */
     handleRIGHT: function(grid) {
-        this.moveSingleSelect(grid, 1, 0);
+        grid.moveSingleSelect(1, 0);
     },
 
     /**
@@ -400,17 +400,6 @@ var CellSelection = Feature.extend('CellSelection', {
         if (grid.extendSelect(offsetX, offsetY)) {
             this.pingAutoScroll();
         }
-    },
-
-    /**
-     * @memberOf CellSelection.prototype
-     * @desc Replace the most recent selection with a single cell selection that is moved (offsetX,offsetY) from the previous selection extent.
-     * @param {Hypergrid} grid
-     * @param {number} offsetX - x coordinate to start at
-     * @param {number} offsetY - y coordinate to start at
-     */
-    moveSingleSelect: function(grid, offsetX, offsetY) {
-        grid.moveSingleSelect(offsetX, offsetY);
     }
 
 });

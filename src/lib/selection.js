@@ -632,7 +632,7 @@ module.exports = {
     },
 
     /**
-     * @summary Update the a `cellEvent` to reflect new coordinates.
+     * @summary Update the given `cellEvent` with the new coordinates.
      * @desc The `cellEvent` object is only updated if the target cell would be visible, in which case the last selection is also moved to the new position.
      * @param {CellEvent} cellEvent
      * @param {number} gridX - The column index.
@@ -642,21 +642,13 @@ module.exports = {
      * @memberOf Hypergrid#
      */
     resetEditPoint: function(cellEvent, gridX, dataY, subgrid) {
-        var vc, vr, visible;
-
-        visible = (vc = this.renderer.getVisibleColumn(gridX)) &&
-            (vr = this.renderer.getVisibleRow(dataY, subgrid));
-
-        if (visible) {
-            cellEvent.reset(vc, vr);
-            this.moveToSingleSelect(gridX, cellEvent.gridCell.y);
-        }
-
+        var visible = cellEvent.resetGridXDataY(gridX, dataY, subgrid);
+        if (visible) { this.moveToSingleSelect(gridX, cellEvent.gridCell.y); }
         return visible;
     },
 
     /**
-     * @summary Update the a `cellEvent` to reflect coordinate offsets.
+     * @summary Update the given `cellEvent` with the given coordinate offsets.
      * @desc The `cellEvent` object is only updated if the target cell would be visible, in which case the last selection is also moved to the new position.
      * @param {CellEvent} cellEvent
      * @param {number} offsetGridX - The column index offset.
@@ -676,8 +668,15 @@ module.exports = {
      * @memberOf Hypergrid#
      */
     getGridCellFromLastSelection: function() {
-        var sel = this.selectionModel.getLastSelection();
-        return sel && new this.behavior.CellEvent(sel.origin.x, sel.origin.y, true);
+        var cellEvent,
+            sel = this.selectionModel.getLastSelection();
+
+        if (sel) {
+            cellEvent = new this.behavior.CellEvent;
+            cellEvent.resetGridXDataY(sel.origin.x, sel.origin.y);
+        }
+
+        return cellEvent;
     }
 };
 

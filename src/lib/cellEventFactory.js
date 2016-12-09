@@ -4,6 +4,7 @@ var deprecated = require('./deprecated');
 var WritablePoint = require('./WritablePoint');
 
 var writableDescriptor = { writable: true };
+var eumerableDescriptor = { writable: true, enumerable: true };
 
 // The nullSubgrid is for CellEvents representing clicks below last row.
 // var nullSubgrid = {};
@@ -88,6 +89,50 @@ var prototype = Object.defineProperties({}, {
 
         this.dataCell.x = this.column && this.column.index;
         this.dataCell.y = visibleRow.rowIndex;
+    } },
+
+    /**
+     * Set up this `CellEvent` instance to point to the cell at the given grid coordinates.
+     * @desc If the requested cell is not be visible (due to being scrolled out of view or outside the bounds of the rendered grid), the instance is not reset.
+     * @param {number} gridX - Horizontal grid cell coordinate (adjusted for horizontal scrolling after fixed columns).
+     * @param {number} gridY - Vertical grid cell coordinate, adjusted (adjusted for vertical scrolling if data subgrid)
+     * @returns {boolean} Visibility.
+     * @memberOf CellEvent#
+     */
+    resetGridXY: { value: function(gridX, gridY) {
+        var vr, vc, visible = (vc = this.renderer.getVisibleColumn(gridX)) && (vr = this.renderer.getVisibleRow(gridY));
+        if (visible) { this.reset(vc, vr); }
+        return visible;
+    } },
+
+    /**
+     * @summary Set up this `CellEvent` instance to point to the cell at the given data coordinates.
+     * @desc If the requested cell is not be visible (due to being scrolled out of view), the instance is not reset.
+     * @param {number} dataX - Horizontal data cell coordinate.
+     * @param {number} dataY - Vertical data cell coordinate.
+     * @param {dataModelAPI} [subgrid=this.behavior.subgrids.data]
+     * @returns {boolean} Visibility.
+     * @memberOf CellEvent#
+     */
+    resetDataXY: { value: function(dataX, dataY, subgrid) {
+        var vr, vc, visible = (vc = this.renderer.getVisibleDataColumn(dataX)) && (vr = this.renderer.getVisibleDataRow(dataY, subgrid));
+        if (visible) { this.reset(vc, vr); }
+        return visible;
+    } },
+
+    /**
+     * Set up this `CellEvent` instance to point to the cell at the given grid column and data row coordinates.
+     * @desc If the requested cell is not be visible (due to being scrolled out of view or outside the bounds of the rendered grid), the instance is not reset.
+     * @param {number} gridX - Horizontal grid cell coordinate (adjusted for horizontal scrolling after fixed columns).
+     * @param {number} dataY - Vertical data cell coordinate.
+     * @param {dataModelAPI} [subgrid=this.behavior.subgrids.data]
+     * @returns {boolean} Visibility.
+     * @memberOf CellEvent#
+     */
+    resetGridXDataY: { value: function(gridX, dataY, subgrid) {
+        var vr, vc, visible = (vc = this.renderer.getVisibleColumn(gridX)) && (vr = this.renderer.getVisibleDataRow(dataY, subgrid));
+        if (visible) { this.reset(vc, vr); }
+        return visible && this;
     } },
 
     subgrid: { get: function() { return this.visibleRow.subgrid; } },
@@ -184,13 +229,14 @@ function factory(grid) {
      * * Excludes `this.gridCell`, `this.dataCell`, `this.visibleRow.subgrid` defined by constructor (as non-enumerable).
      * * Any additional (enumerable) members mixed in by application's `getCellEditorAt` override.
      *
-     * Omit params to defer `reset`.
-     * @param {number} [x] - grid cell coordinate (adjusted for horizontal scrolling after fixed columns).
-     * @param {number} [y] - grid cell coordinate, adjusted (adjusted for vertical scrolling if data subgrid)
-     * @param {boolean} [isDataRow=false]
+     * Omit params to defer call to {CellEvent#resetGridXY}.
+     * (See also {@link CellEvent#resetDataXY} which accepts `dataX`, `dataY`.)
+     *
+     * @param {number} [gridX] - grid cell coordinate (adjusted for horizontal scrolling after fixed columns).
+     * @param {number} [gridY] - grid cell coordinate, adjusted (adjusted for vertical scrolling if data subgrid)
      * @constructor
      */
-    function CellEvent(x, y, isDataRow) {
+    function CellEvent(gridX, gridY) {
         // remaining instance vars are non-enumerable so `CellEditor` constructor won't mix them in (for mustache use).
         Object.defineProperties(this, {
             /**
@@ -225,7 +271,8 @@ function factory(grid) {
                 value: new WritablePoint
             },
 
-            column: writableDescriptor,
+            // column is enumerable so it will be copied to cell event on CellEvent.prototype.initialize.
+            column: eumerableDescriptor,
 
             // getter caches
             _columnProperties: writableDescriptor,
@@ -239,12 +286,7 @@ function factory(grid) {
         });
 
         if (arguments.length) {
-            this.reset(
-                this.grid.renderer.visibleColumns.find(function(vc) { return vc.columnIndex === x; }),
-                isDataRow
-                    ? this.grid.renderer.visibleRows.find(function(vr) { return vr.rowIndex === y; })
-                    : this.grid.renderer.visibleRows[y]
-            );
+            this.resetGridXY(gridX, gridY);
         }
     }
 
