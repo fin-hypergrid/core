@@ -86,6 +86,68 @@ module.exports = {
         }, this);
     },
 
+    /**
+     *
+     * @param {string} eventName
+     * @param {boolean} [options.cancelable=false]
+     * @param {cellEvent} [options.cellEvent]
+     * @param {CustomEvent} [options.primitiveEvent]
+     * @param {object} [options.detail]
+     * @param {boolean} [options.mouseEvent=false]
+     * @returns {undefined|CustomEvent}
+     * @memberOf Hypergrid#
+     * @notes
+     *  CustomEvent.detail||cellEvent.primitiveEvent
+     */
+    dispatchEvent: function(eventName, options) {
+        options = options || {};
+        var canvasEvent,
+            payload = {},
+            detail = options.detail || {},
+            cancelable = options.cancelable || false,
+            cellEvent = options.cellEvent || {},
+            primitiveEvent = options.primitiveEvent,
+            isMouseEvent = options.isMouseEvent,
+            details = [
+                'gridCell',
+                'dataCell',
+                'mousePoint',
+                'keys',
+                'row'
+            ];
+
+        payload.detail = detail;
+        payload.detail.primitiveEvent = payload.detail.primitiveEvent || primitiveEvent;
+        //Silly backwards compatibility
+        if (isMouseEvent){
+            payload.detail.primitiveEvent = cellEvent;
+        }
+
+        if (!payload.detail.grid) {
+            payload.detail.grid = this;
+        }
+        detail = payload.detail;
+
+        details.forEach(function(key) {
+            if (key in cellEvent && !(key in detail)) {
+                detail[key] = cellEvent[key];
+            }
+        });
+
+        detail.time = Date.now();
+
+        if (cancelable) {
+            payload.cancelable = true;
+        }
+
+        canvasEvent = new CustomEvent(eventName, payload);
+        this.canvas.dispatchEvent(canvasEvent);
+
+        if (cancelable) {
+            return canvasEvent;
+        }
+    },
+
     allowEvents: function(allow){
         if ((this.allowEventHandlers = !!allow)){
             this.behavior.featureChain.attachChain();
@@ -102,41 +164,63 @@ module.exports = {
      * @param {string[]} keys
      */
     fireSyntheticColumnSortEvent: function(c, keys) {
-        return dispatchEvent.call(this, 'fin-column-sort', {
-            column: c,
-            keys: keys
+        return this.dispatchEvent('fin-column-sort', {
+            detail: {
+                column: c,
+                keys: keys
+
+            }
         });
     },
 
-    fireSyntheticEditorKeyUpEvent: function(inputControl, keyEvent) {
-        return dispatchEvent.call(this, 'fin-editor-keyup', {
-            input: inputControl,
-            keyEvent: keyEvent,
-            char: this.canvas.getCharMap()[keyEvent.keyCode][keyEvent.shiftKey ? 1 : 0]
+    fireSyntheticEditorKeyUpEvent: function(keyEvent, inputControl) {
+        return this.dispatchEvent('fin-editor-keyup', {
+            detail: {
+                input: inputControl,
+                keyEvent: keyEvent,
+                char: this.canvas.getCharMap()[keyEvent.keyCode][keyEvent.shiftKey ? 1 : 0]
+            },
+            primitiveEvent: keyEvent
+        });
+    },
+    fireSyntheticEditorKeyDownEvent: function(keyEvent, inputControl, cancelable, additional) {
+        var detail = {
+                input: inputControl,
+                keyEvent: keyEvent,
+                char: this.canvas.getCharMap()[keyEvent.keyCode][keyEvent.shiftKey ? 1 : 0]
+            };
+
+        if (additional){
+            detail = Object.assign(detail, additional);
+        }
+        return this.dispatchEvent('fin-editor-keydown', {
+            detail: detail,
+            cancelable: cancelable,
+            primitiveEvent: keyEvent
         });
     },
 
-    fireSyntheticEditorKeyDownEvent: function(inputControl, keyEvent) {
-        return dispatchEvent.call(this, 'fin-editor-keydown', {
-            input: inputControl,
-            keyEvent: keyEvent,
-            char: this.canvas.getCharMap()[keyEvent.keyCode][keyEvent.shiftKey ? 1 : 0]
+    fireSyntheticEditorKeyPressEvent: function(keyEvent, inputControl) {
+        return this.dispatchEvent('fin-editor-keypress', {
+            detail: {
+                input: inputControl,
+                keyEvent: keyEvent,
+                char: this.canvas.getCharMap()[keyEvent.keyCode][keyEvent.shiftKey ? 1 : 0]
+            },
+            primitiveEvent: keyEvent
         });
     },
 
-    fireSyntheticEditorKeyPressEvent: function(inputControl, keyEvent) {
-        return dispatchEvent.call(this, 'fin-editor-keypress', {
-            input: inputControl,
-            keyEvent: keyEvent,
-            char: this.canvas.getCharMap()[keyEvent.keyCode][keyEvent.shiftKey ? 1 : 0]
-        });
-    },
-
-    fireSyntheticEditorDataChangeEvent: function(inputControl, oldValue, newValue) {
-        return dispatchEvent.call(this, 'fin-editor-data-change', true, {
-            input: inputControl,
-            oldValue: oldValue,
-            newValue: newValue
+    fireSyntheticEditorDataChangeEvent: function(keyEvent, inputControl, oldValue, newValue) {
+        return this.dispatchEvent('fin-editor-data-change', {
+            cancelable: true,
+            detail: {
+                input: inputControl,
+                oldValue: oldValue,
+                newValue: newValue,
+                keyEvent: keyEvent
+            },
+            primitiveEvent: keyEvent
         });
     },
 
@@ -145,95 +229,143 @@ module.exports = {
      * @desc Synthesize and fire a `fin-row-selection-changed` event.
      */
     fireSyntheticRowSelectionChangedEvent: function() {
-        return dispatchEvent.call(this, 'fin-row-selection-changed', {
-            rows: this.getSelectedRows(),
-            columns: this.getSelectedColumns(),
-            selections: this.selectionModel.getSelections(),
+        return this.dispatchEvent('fin-row-selection-changed', {
+            detail: {
+                rows: this.getSelectedRows(),
+                columns: this.getSelectedColumns(),
+                selections: this.selectionModel.getSelections()
+            }
         });
    },
 
+    fireSyntheticSelectionChangedEvent: function() {
+        return this.dispatchEvent('fin-selection-changed', {
+            detail: {
+                rows: this.getSelectedRows(),
+                columns: this.getSelectedColumns(),
+                selections: this.selectionModel.getSelections()
+            }
+        });
+    },
+
     fireSyntheticColumnSelectionChangedEvent: function() {
-        return dispatchEvent.call(this, 'fin-column-selection-changed', {
-            rows: this.getSelectedRows(),
-            columns: this.getSelectedColumns(),
-            selections: this.selectionModel.getSelections()
+        return this.dispatchEvent('fin-column-selection-changed', {
+            detail: {
+                rows: this.getSelectedRows(),
+                columns: this.getSelectedColumns(),
+                selections: this.selectionModel.getSelections()
+            }
         });
     },
 
     /**
      * @memberOf Hypergrid#
      * @desc Synthesize and fire a `fin-context-menu` event
-     * @param {keyEvent} event - The canvas event.
+     * @param {keyEvent} primitiveEvent - The canvas event.
      */
-    fireSyntheticContextMenuEvent: function(event) {
-        event.rows = this.getSelectedRows();
-        event.columns = this.getSelectedColumns();
-        event.selections = this.selectionModel.getSelections();
-        return dispatchEvent.call(this, 'fin-context-menu', {}, event);
+    fireSyntheticContextMenuEvent: function(primitiveEvent, detail) {
+        detail.rows = this.getSelectedRows();
+        detail.columns = this.getSelectedColumns();
+        detail.selections = this.selectionModel.getSelections(detail);
+        return decorateMouseEvent.call(this, primitiveEvent, detail, function(options) {
+            return this.dispatchEvent('fin-context-menu', options);
+        });
     },
 
-    fireSyntheticMouseUpEvent: function(event) {
-        event.rows = this.getSelectedRows();
-        event.columns = this.getSelectedColumns();
-        event.selections = this.selectionModel.getSelections();
-        return dispatchEvent.call(this, 'fin-mouseup', {}, event);
+    fireSyntheticMouseUpEvent: function(primitiveEvent, detail) {
+        if (this.properties.readOnly) {
+            return;
+        }
+        this.dragging = false;
+        if (this.isScrollingNow()) {
+            this.setScrollingNow(false);
+        }
+        if (this.columnDragAutoScrolling) {
+            this.columnDragAutoScrolling = false;
+        }
+
+        if (this.mouseDownState) {
+            this.fireSyntheticButtonPressedEvent(this.mouseDownState);
+            this.mouseDownState = null;
+        }
+
+        detail.rows = this.getSelectedRows();
+        detail.columns = this.getSelectedColumns();
+        detail.selections = this.selectionModel.getSelections();
+        return decorateMouseEvent.call(this, primitiveEvent, detail, function(options){
+            return this.dispatchEvent('fin-mouseup', options);
+        });
+
     },
 
-    fireSyntheticMouseDownEvent: function(event) {
-        event.rows = this.getSelectedRows();
-        event.columns = this.getSelectedColumns();
-        event.selections = this.selectionModel.getSelections();
-        return dispatchEvent.call(this, 'fin-mousedown', {}, event);
-    },
+    fireSyntheticMouseDownEvent: function(primitiveEvent, detail) {
+        if (this.properties.readOnly) {
+            return;
+        }
+        if (!this.abortEditing()) {
+            event.stopPropagation();
+            return;
+        }
 
-    fireSyntheticMouseMoveEvent: function(event) {
-        return dispatchEvent.call(this, 'fin-mousemove', {}, event);
-    },
+        detail.rows = this.getSelectedRows();
+        detail.columns = this.getSelectedColumns();
+        detail.selections = this.selectionModel.getSelections();
+        return decorateMouseEvent.call(this, primitiveEvent, detail, function(options){
+            return this.dispatchEvent('fin-mousedown', options);
+        });
 
-    fireSyntheticButtonPressedEvent: function(event) {
-        if (this.isViewableButton(event.dataCell.x, event.gridCell.y)) {
-            return dispatchEvent.call(this, 'fin-button-pressed', {}, event);
+    },
+    fireSyntheticButtonPressedEvent: function(cellEvent) {
+        if (this.isViewableButton(cellEvent.dataCell.x, cellEvent.gridCell.y)) {
+            return this.dispatchEvent('fin-button-pressed', { cellEvent: cellEvent });
         }
     },
 
     /**
      * @memberOf Hypergrid#
-     * @desc Synthesize and fire a `fin-column-drag-start` event.
+     * @desc Synthesize and fire a `fin-column-changed-event` event.
      */
     fireSyntheticOnColumnsChangedEvent: function() {
-        return dispatchEvent.call(this, 'fin-column-changed-event', {});
+        return this.dispatchEvent('fin-column-changed-event');
     },
 
     /**
      * @memberOf Hypergrid#
      * @desc Synthesize and fire a `fin-keydown` event.
-     * @param {keyEvent} event - The canvas event.
+     * @param {keyEvent} primitiveEvent - The canvas event.
      */
-    fireSyntheticKeydownEvent: function(keyEvent) {
-        return dispatchEvent.call(this, 'fin-keydown', keyEvent.detail);
+    fireSyntheticKeydownEvent: function(primitiveEvent, detail) {
+        if (this.properties.readOnly) {
+            return;
+        }
+        return this.dispatchEvent('fin-keydown', { primitiveEvent: primitiveEvent, detail: detail });
     },
 
     /**
      * @memberOf Hypergrid#
      * @desc Synthesize and fire a `fin-keyup` event.
-     * @param {keyEvent} event - The canvas event.
+     * @param {keyEvent} primitiveEvent - The canvas event.
      */
-    fireSyntheticKeyupEvent: function(keyEvent) {
-        return dispatchEvent.call(this, 'fin-keyup', keyEvent.detail);
+    fireSyntheticKeyupEvent: function(primitiveEvent, detail) {
+        if (this.properties.readOnly) {
+            return;
+        }
+
+        return this.dispatchEvent('fin-keyup', { primitiveEvent: primitiveEvent, detail: detail });
     },
 
     fireSyntheticFilterAppliedEvent: function() {
-        return dispatchEvent.call(this, 'fin-filter-applied', {});
+        return this.dispatchEvent('fin-filter-applied');
     },
 
     /**
      * @memberOf Hypergrid#
      * @desc Synthesize and fire a `fin-cell-enter` event
      * @param {Point} cell - The pixel location of the cell in which the click event occurred.
-     * @param {MouseEvent} event - The system mouse event.
+     * @param {MouseEvent} primitiveEvent - The system mouse event.
      */
     fireSyntheticOnCellEnterEvent: function(cellEvent) {
-        return dispatchEvent.call(this, 'fin-cell-enter', cellEvent);
+        return this.dispatchEvent('fin-cell-enter', { cellEvent: cellEvent });
     },
 
     /**
@@ -243,34 +375,44 @@ module.exports = {
      * @param {MouseEvent} event - The system mouse event.
      */
     fireSyntheticOnCellExitEvent: function(cellEvent) {
-        return dispatchEvent.call(this, 'fin-cell-exit', cellEvent);
+        return this.dispatchEvent('fin-cell-exit', { cellEvent: cellEvent });
     },
 
     /**
      * @memberOf Hypergrid#
      * @desc Synthesize and fire a `fin-cell-click` event.
      * @param {Point} cell - The pixel location of the cell in which the click event occured.
-     * @param {MouseEvent} event - The system mouse event.
+     * @param {MouseEvent} primitiveEvent - The system mouse event.
      */
-    fireSyntheticClickEvent: function(cellEvent) {
-        return dispatchEvent.call(this, 'fin-click', {}, cellEvent);
+    fireSyntheticClickEvent: function(primitiveEvent, detail) {
+        if (this.properties.readOnly) {
+            return;
+        }
+
+        return decorateMouseEvent.call(this, primitiveEvent, detail, function(options){
+            return this.dispatchEvent('fin-click', options);
+        });
     },
 
     /**
      * @memberOf Hypergrid#
      * @desc Synthesize and fire a `fin-double-click` event.
-     * @param {MouseEvent} event - The system mouse event.
+     * @param {MouseEvent} primitiveEvent - The system mouse event.
      */
-    fireSyntheticDoubleClickEvent: function(cellEvent) {
+    fireSyntheticDoubleClickEvent: function(primitiveEvent, detail) {
+        if (this.properties.readOnly) {
+            return;
+        }
+
         if (!this.abortEditing()) { return; }
 
         if (this.behavior.cellDoubleClicked !== Behavior.prototype.cellDoubleClicked) {
             this.deprecated('fin-double-click', 'behavior.cellDoubleClicked(gridCell, cellEvent) has been deprecated as of v1.2.6 in favor of handling in a \'fin-double-click\' event (event.detail.gridCell, event.primitiveEvent) and will be removed in a future release.');
         }
-        // to deprecate, remove above warning + following line + abstract implementation in Behavior.js
-        this.behavior.cellDoubleClicked(cellEvent.gridCell, cellEvent);
+        return decorateMouseEvent.call(this, primitiveEvent, detail, function(options){
+            return this.dispatchEvent('fin-dblclick', options);
+        });
 
-        return dispatchEvent.call(this, 'fin-double-click', {}, cellEvent);
     },
 
     /**
@@ -278,15 +420,41 @@ module.exports = {
      * @desc Synthesize and fire a rendered event.
      */
     fireSyntheticGridRenderedEvent: function() {
-       return dispatchEvent.call(this, 'fin-grid-rendered', { source: this });
+       return this.dispatchEvent('fin-grid-rendered');
+    },
+
+    fireSyntheticGridFocusEvent: function(primitiveEvent) {
+        return this.dispatchEvent('fin-focus', { primitiveEvent: primitiveEvent });
+    },
+
+    fireSyntheticGridBlurEvent: function(primitiveEvent) {
+        return this.dispatchEvent('fin-blur', { primitiveEvent: primitiveEvent });
+    },
+
+    fireSyntheticGridResizedEvent: function(primitiveEvent, detail) {
+        return this.dispatchEvent('fin-grid-resized', { primitiveEvent: primitiveEvent, detail: detail });
+    },
+
+    fireSyntheticDragStartEvent: function(primitiveEvent, detail) {
+        return this.dispatchEvent('fin-dragstart', { primitiveEvent: primitiveEvent, detail: detail });
+    },
+
+    fireSyntheticDragEndEvent: function(primitiveEvent, detail) {
+        return this.dispatchEvent('fin-dragsend', { primitiveEvent: primitiveEvent, detail: detail });
     },
 
     fireSyntheticTickEvent: function() {
-        return dispatchEvent.call(this, 'fin-tick', { source: this });
+        return this.dispatchEvent('fin-tick');
     },
 
-    fireSyntheticGridResizedEvent: function(e) {
-        return dispatchEvent.call(this, 'fin-grid-resized', e);
+    fireSyntheticMouseMoveEvent: function(primitiveEvent, detail) {
+        if (this.properties.readOnly) {
+            return;
+        }
+
+        return decorateMouseEvent.call(this, primitiveEvent, detail, function(options){
+            return this.dispatchEvent('fin-mousemove', options);
+        });
     },
 
     /**
@@ -297,15 +465,53 @@ module.exports = {
      * @param {number} newValue - The new scroll value.
      */
     fireScrollEvent: function(eventName, oldValue, newValue) {
-        return dispatchEvent.call(this, eventName, {
-            oldValue: oldValue,
-            value: newValue
+        return this.dispatchEvent(eventName, {
+            detail : {
+                oldValue: oldValue,
+                value: newValue
+            }
         });
     },
 
-    fireRequestCellEdit: function(cellEvent, value) {
-        return dispatchEvent.call(this, 'fin-request-cell-edit', true, { value: value }, cellEvent);
+    fireSyntheticWheelMovedEvent: function(primitiveEvent, detail) {
+        if (this.properties.readOnly) {
+            return;
+        }
+
+        return decorateMouseEvent.call(this, primitiveEvent, detail, function(options){
+            return this.dispatchEvent('fin-wheelmoved', options);
+        });
+
     },
+
+    fireRequestCellEdit: function(cellEvent, value) {
+        return this.dispatchEvent('fin-request-cell-edit', { cancelable: true, detail: { value: value }, cellEvent: cellEvent });
+    },
+
+
+    fireSyntheticMouseDrag: function(primitiveEvent, detail) {
+        if (this.properties.readOnly) {
+            return;
+        }
+
+        return decorateMouseEvent.call(this, primitiveEvent, detail, function(options){
+            this.dragging = true;
+            return this.dispatchEvent('fin-mousedrag', options);
+
+        });
+    },
+
+    fireSyntheticMouseOut: function(primitiveEvent, detail) {
+        if (this.properties.readOnly) {
+            return;
+        }
+
+        return decorateMouseEvent.call(this, primitiveEvent, detail, function(options){
+            return this.dispatchEvent('fin-mouseout', options);
+
+        });
+    },
+
 
     /**
      * @memberOf Hypergrid#
@@ -315,11 +521,15 @@ module.exports = {
      * @returns {boolean} Proceed (don't cancel).
      */
     fireBeforeCellEdit: function(cellEvent, oldValue, newValue, control) {
-        return dispatchEvent.call(this, 'fin-before-cell-edit', true, {
-            oldValue: oldValue,
-            newValue: newValue,
-            input: control
-        }, cellEvent);
+        return this.dispatchEvent('fin-before-cell-edit', {
+            detail: {
+                oldValue: oldValue,
+                newValue: newValue,
+                input: control
+            },
+            cellEvent: cellEvent,
+            cancelable: true
+        });
     },
 
     /**
@@ -330,155 +540,78 @@ module.exports = {
      * @param {Object} newValue - The new value.
      */
     fireAfterCellEdit: function(cellEvent, oldValue, newValue, control) {
-        return dispatchEvent.call(this, 'fin-after-cell-edit', {
-            newValue: newValue,
-            oldValue: oldValue,
-            input: control
-        }, cellEvent);
+        return this.dispatchEvent('fin-after-cell-edit', {
+            detail: {
+                oldValue: oldValue,
+                newValue: newValue,
+                input: control
+            },
+            cellEvent: cellEvent
+        });
     },
 
     delegateCanvasEvents: function() {
         var self = this;
 
-        function handleMouseEvent(e, cb) {
-            var primitiveEvent = self.getGridCellFromMousePoint(e.detail.mouse),
-                decoratedEvent;
 
-            if (primitiveEvent) {
-                decoratedEvent = Object.defineProperty(
-                    primitiveEvent,
-                    'primitiveEvent',
-                    {
-                        value: e,
-                        enumerable: false,
-                        configurable: true,
-                        writable: true
-                    }
-                );
-                cb.call(self, decoratedEvent);
-            }
-        }
-
-        this.addInternalEventListener('fin-canvas-resized', function(e) {
-            self.resized();
-            self.fireSyntheticGridResizedEvent(e);
+        this.addInternalEventListener('fin-grid-resized', function(e) {
+            self.resized(e);
         });
 
-        this.addInternalEventListener('fin-canvas-mousemove', function(e) {
-            if (self.properties.readOnly) {
-                return;
-            }
-            handleMouseEvent(e, function(mouseEvent) {
-                this.delegateMouseMove(mouseEvent);
-                this.fireSyntheticMouseMoveEvent(mouseEvent);
-            });
+        this.addInternalEventListener('fin-mousemove', function(e) {
+            self.delegateMouseMove(e.detail.primitiveEvent);
+
         });
 
-        this.addInternalEventListener('fin-canvas-mousedown', function(e) {
-            if (self.properties.readOnly) {
-                return;
-            }
-            if (!self.abortEditing()) {
-                event.stopPropagation();
-                return;
-            }
-
-            handleMouseEvent(e, function(mouseEvent) {
-                mouseEvent.keys = e.detail.keys;
-                this.mouseDownState = mouseEvent;
-                this.delegateMouseDown(mouseEvent);
-                this.fireSyntheticMouseDownEvent(mouseEvent);
-                this.repaint();
-            });
+        this.addInternalEventListener('fin-mousedown', function(e) {
+            e.keys = e.detail.keys;
+            self.mouseDownState = e.detail.cellEvent;
+            self.delegateMouseDown(e.detail.primitiveEvent);
+            self.repaint();
         });
 
-        this.addInternalEventListener('fin-canvas-click', function(e) {
-            if (self.properties.readOnly) {
-                return;
-            }
-            handleMouseEvent(e, function(mouseEvent) {
-                mouseEvent.keys = e.detail.keys; // todo: this was in fin-tap but wasn't here
-                this.fireSyntheticClickEvent(mouseEvent);
-                this.delegateClick(mouseEvent);
-            });
+        // this.addInternalEventListener('fin-canvas-context-menu', function(e.detail.primitiveEvent)) {
+        // });
+        this.addInternalEventListener('fin-click', function(e) {
+            e.keys = e.detail.keys; // todo: this was in fin-tap but wasn't here
+            self.delegateClick(e.detail.primitiveEvent);
         });
 
-        this.addInternalEventListener('fin-canvas-mouseup', function(e) {
-            if (self.properties.readOnly) {
-                return;
-            }
-            self.dragging = false;
-            if (self.isScrollingNow()) {
-                self.setScrollingNow(false);
-            }
-            if (self.columnDragAutoScrolling) {
-                self.columnDragAutoScrolling = false;
-            }
-            handleMouseEvent(e, function(mouseEvent) {
-                this.delegateMouseUp(mouseEvent);
-                if (self.mouseDownState) {
-                    self.fireSyntheticButtonPressedEvent(self.mouseDownState);
-                }
-                this.mouseDownState = null;
-                this.fireSyntheticMouseUpEvent(mouseEvent);
-            });
+        this.addInternalEventListener('fin-mouseup', function(e) {
+            self.delegateMouseUp(e.detail.primitiveEvent);
         });
 
-        this.addInternalEventListener('fin-canvas-dblclick', function(e) {
-            if (self.properties.readOnly) {
-                return;
-            }
-            handleMouseEvent(e, function(mouseEvent) {
-                this.fireSyntheticDoubleClickEvent(mouseEvent, e);
-                this.delegateDoubleClick(mouseEvent);
-            });
+        this.addInternalEventListener('fin-dblclick', function(e) {
+            self.delegateDoubleClick(e.detail.primitiveEvent);
         });
 
-        this.addInternalEventListener('fin-canvas-drag', function(e) {
-            if (self.properties.readOnly) {
-                return;
-            }
-            self.dragging = true;
-            handleMouseEvent(e, self.delegateMouseDrag);
+        this.addInternalEventListener('fin-mousedrag', function(e) {
+             self.delegateMouseDrag(e.detail.primitiveEvent);
         });
 
-        this.addInternalEventListener('fin-canvas-keydown', function(e) {
-            if (self.properties.readOnly) {
-                return;
-            }
-            self.fireSyntheticKeydownEvent(e);
+        this.addInternalEventListener('fin-keydown', function(e) {
             self.delegateKeyDown(e);
         });
 
-        this.addInternalEventListener('fin-canvas-keyup', function(e) {
-            if (self.properties.readOnly) {
-                return;
-            }
-            self.fireSyntheticKeyupEvent(e);
+        this.addInternalEventListener('fin-keyup', function(e) {
             self.delegateKeyUp(e);
         });
 
-        this.addInternalEventListener('fin-canvas-wheelmoved', function(e) {
-            handleMouseEvent(e, self.delegateWheelMoved);
+        this.addInternalEventListener('fin-wheelmoved', function(e) {
+            self.delegateWheelMoved(e);
         });
 
-        this.addInternalEventListener('fin-canvas-mouseout', function(e) {
-            if (self.properties.readOnly) {
-                return;
-            }
-            handleMouseEvent(e, self.delegateMouseExit);
+        this.addInternalEventListener('fin-mouseout', function(e) {
+            self.delegateMouseExit(e.detail.primitiveEvent);
         });
 
-        this.addInternalEventListener('fin-canvas-context-menu', function(e) {
-            handleMouseEvent(e, function(mouseEvent){
-                self.delegateContextMenu(mouseEvent);
-                self.fireSyntheticContextMenuEvent(mouseEvent);
-            });
+        this.addInternalEventListener('fin-context-menu', function(e) {
+            self.delegateContextMenu(e.detail.primitiveEvent);
         });
 
         //Register a listener for the copy event so we can copy our selected region to the pastebuffer if conditions are right.
-        document.body.addEventListener('copy', function(evt) {
-            self.checkClipboardCopy(evt);
+        document.body.addEventListener('copy', function(e) {
+            self.checkClipboardCopy(e);
         });
     },
 
@@ -494,25 +627,25 @@ module.exports = {
     /**
      * @memberOf Hypergrid#
      * @desc Delegate MouseExit to the behavior (model).
-     * @param {Event} event - The pertinent event.
+     * @param {mouseDetails} mouseDetails - An enriched mouse event from the canvas.
      */
-    delegateMouseExit: function(event) {
-        this.behavior.handleMouseExit(this, event);
+    delegateMouseExit: function(mouseDetails) {
+        this.behavior.handleMouseExit(this, mouseDetails);
     },
 
     /**
      * @memberOf Hypergrid#
      * @desc Delegate MouseExit to the behavior (model).
-     * @param {Event} event - The pertinent event.
+     * @param {mouseDetails} mouseDetails - An enriched mouse event from the canvas.
      */
-    delegateContextMenu: function(event) {
-        this.behavior.onContextMenu(this, event);
+    delegateContextMenu: function(mouseDetails) {
+        this.behavior.onContextMenu(this, mouseDetails);
     },
 
     /**
      * @memberOf Hypergrid#
      * @desc Delegate MouseMove to the behavior (model).
-     * @param {mouseDetails} mouseDetails - An enriched mouse event from fin-canvas.
+     * @param {mouseDetails} mouseDetails - An enriched mouse event from the canvas.
      */
     delegateMouseMove: function(mouseDetails) {
         this.behavior.onMouseMove(this, mouseDetails);
@@ -521,7 +654,7 @@ module.exports = {
     /**
      * @memberOf Hypergrid#
      * @desc Delegate mousedown to the behavior (model).
-     * @param {mouseDetails} mouseDetails - An enriched mouse event from fin-canvas.
+     * @param {mouseDetails} mouseDetails - An enriched mouse event from the canvas.
      */
     delegateMouseDown: function(mouseDetails) {
         this.behavior.handleMouseDown(this, mouseDetails);
@@ -530,7 +663,7 @@ module.exports = {
     /**
      * @memberOf Hypergrid#
      * @desc Delegate mouseup to the behavior (model).
-     * @param {mouseDetails} mouseDetails - An enriched mouse event from fin-canvas.
+     * @param {mouseDetails} mouseDetails - An enriched mouse event from the canvas.
      */
     delegateMouseUp: function(mouseDetails) {
         this.behavior.onMouseUp(this, mouseDetails);
@@ -539,7 +672,7 @@ module.exports = {
     /**
      * @memberOf Hypergrid#
      * @desc Delegate click to the behavior (model).
-     * @param {mouseDetails} mouseDetails - An enriched mouse event from fin-canvas.
+     * @param {mouseDetails} mouseDetails - An enriched mouse event from the canvas.
      */
     delegateClick: function(mouseDetails) {
         this.behavior.onClick(this, mouseDetails);
@@ -548,7 +681,7 @@ module.exports = {
     /**
      * @memberOf Hypergrid#
      * @desc Delegate mouseDrag to the behavior (model).
-     * @param {mouseDetails} mouseDetails - An enriched mouse event from fin-canvas.
+     * @param {mouseDetails} mouseDetails - An enriched mouse event from the canvas.
      */
     delegateMouseDrag: function(mouseDetails) {
         this.behavior.onMouseDrag(this, mouseDetails);
@@ -557,7 +690,7 @@ module.exports = {
     /**
      * @memberOf Hypergrid#
      * @desc We've been doubleclicked on. Delegate through the behavior (model).
-     * @param {mouseDetails} mouseDetails - An enriched mouse event from fin-canvas.
+     * @param {mouseDetails} mouseDetails - An enriched mouse event from the canvas.
      */
     delegateDoubleClick: function(mouseDetails) {
         this.behavior.onDoubleClick(this, mouseDetails);
@@ -584,61 +717,32 @@ module.exports = {
     },
 };
 
-var details = [
-    'gridCell',
-    'dataCell',
-    'mousePoint',
-    'keys',
-    'row'
-];
-
 /**
  *
- * @param {string} eventName
- * @param {boolean} [cancelable=false]
- * @param {object} event
- * @param {CellEvent|MouseEvent|KeyboardEvent|object} [primitiveEvent]
- * @returns {undefined|boolean}
+ * @param {object} primitiveEvent
+ * @param {object} detail
+ * @param {function} dispatcher
+ * @returns {undefined|CustomEvent}
  */
-function dispatchEvent(eventName, cancelable, event, primitiveEvent) {
-    var detail, result;
+function decorateMouseEvent(primitiveEvent, detail, dispatcher) {
+    var result = this.getGridCellFromMousePoint(detail.mouse);
 
-    if (typeof cancelable !== 'boolean') {
-        primitiveEvent = event; // propmote primitiveEvent to 3rd position
-        event = cancelable; // promote event to 2nd position
-        cancelable = false; // default when omitted
-    }
+    // No events on the whitespace of the grid unless they're drag events
+    if (!result.fake || detail.dragstart) {
+        var cellEvent = result.point;
 
-    if (!event.detail) {
-        event = { detail: event };
-    }
-
-    detail = event.detail;
-
-    if (!detail.grid) { // CellEvent objects already have a (read-only) `grid` prop
-        detail.grid = this;
-    }
-
-    detail.time = Date.now();
-
-    if (primitiveEvent) {
-        if (!detail.primitiveEvent) {
-            detail.primitiveEvent = primitiveEvent;
-        }
-        details.forEach(function(key) {
-            if (key in primitiveEvent && !(key in detail)) {
-                detail[key] = primitiveEvent[key];
+        //Silly backwards compatibility
+        var decoratedEvent = Object.defineProperty(
+            cellEvent,
+            'primitiveEvent',
+            {
+                value: primitiveEvent,
+                enumerable: false,
+                configurable: true,
+                writable: true
             }
-        });
-    }
-
-    if (cancelable) {
-        event.cancelable = true;
-    }
-
-    result = this.canvas.dispatchEvent(new CustomEvent(eventName, event));
-
-    if (cancelable) {
-        return result;
+        );
+        return dispatcher.call(this, {cellEvent: decoratedEvent, isMouseEvent: true});
     }
 }
+

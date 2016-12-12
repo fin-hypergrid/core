@@ -118,6 +118,25 @@ var Renderer = Base.extend('Renderer', {
         this.insertionBounds = [];
 
         this.cellEventPool = [];
+
+        this.handlers =  {
+            dragStart : 'fireSyntheticDragStartEvent',
+            mouseDrag :'fireSyntheticMouseDrag',
+            dragEnd : 'fireSyntheticDragEndEvent',
+            mouseUp : 'fireSyntheticMouseUpEvent',
+            mouseDown : 'fireSyntheticMouseDownEvent',
+            mouseMove: 'fireSyntheticMouseMoveEvent',
+            mouseOut: 'fireSyntheticMouseOut',
+            wheelMoved: 'fireSyntheticWheelMovedEvent',
+            click: 'fireSyntheticClickEvent',
+            contextMenu : 'fireSyntheticContextMenuEvent',
+            doubleClick : 'fireSyntheticDoubleClickEvent',
+            keyDown : 'fireSyntheticKeydownEvent',
+            keyUp: 'fireSyntheticKeyupEvent',
+            gridFocus : 'fireSyntheticGridFocusEvent',
+            gridBlur : 'fireSyntheticGridBlurEvent',
+            gridResized : 'fireSyntheticGridResizedEvent'
+        };
     },
 
     /**
@@ -136,6 +155,18 @@ var Renderer = Base.extend('Renderer', {
     },
 
     gridRenderers: {},
+
+    /**
+     * @summary Event Forwarding Logic
+     * @desc Allows canvas to launch Hypergrid events
+     * @param eventName - The Hypergrid to launch
+     * @memberOf Renderer.prototype
+     */
+    handle: function(eventName) {
+        var args = Array.prototype.slice.call(arguments, 1);
+        var syntheticHandler = this.handlers[eventName];
+        return this.grid[syntheticHandler].apply(this.grid, args);
+    },
 
     registerGridRenderer: function(gridRenderer, name) {
         this.gridRenderers[name || gridRenderer.key] = gridRenderer;
@@ -502,23 +533,43 @@ var Renderer = Base.extend('Renderer', {
     getGridCellFromMousePoint: function(point) {
         var x = point.x,
             y = point.y,
+            isPseudoRow = false,
+            isPseudoCol = false,
             vrs = this.visibleRows,
             vcs = this.visibleColumns,
             firstColumn = vcs[this.properties.showRowNumbers ? -1 : 0],
             inFirstColumn = x < firstColumn.right,
             vc = inFirstColumn ? firstColumn : vcs.find(function(vc) { return x < vc.right; }),
             vr = vrs.find(function(vr) { return y < vr.bottom; }),
-            result = null;
+            result = {fake: false};
 
-        if (vr && vc) {
-            var mousePoint = this.grid.newPoint(x - vc.left, y - vr.top),
-                cellEvent = new this.grid.behavior.CellEvent(vc.columnIndex, vr.index);
-
-            // cellEvent.visibleColumn = vc;
-            // cellEvent.visibleRow = vr;
-
-            result = Object.defineProperty(cellEvent, 'mousePoint', {value: mousePoint});
+        //default to last row and col
+        if (vr) {
+            isPseudoRow = false;
+        } else {
+            vr = vrs[vrs.length - 1];
+            isPseudoRow = true;
         }
+
+        if (vc) {
+            isPseudoCol = false;
+        } else {
+            vc = vcs[vrs.length - 1];
+            isPseudoCol = true;
+        }
+
+        var mousePoint = this.grid.newPoint(x - vc.left, y - vr.top),
+            cellEvent = new this.grid.behavior.CellEvent(vc.columnIndex, vr.index);
+
+        // cellEvent.visibleColumn = vc;
+        // cellEvent.visibleRow = vr;
+
+        result.point = Object.defineProperty(cellEvent, 'mousePoint', {value: mousePoint});
+
+        if (isPseudoCol || isPseudoRow) {
+            result.fake = true;
+        }
+
         return result;
     },
 

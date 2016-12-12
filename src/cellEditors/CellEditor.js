@@ -77,10 +77,10 @@ var CellEditor = Base.extend('CellEditor', {
                 // prevent TAB from leaving input control
                 e.preventDefault();
             }
-            grid.fireSyntheticEditorKeyDownEvent(self, e);
+            grid.fireSyntheticEditorKeyDownEvent(e, self);
         });
         this.el.addEventListener('keypress', function(e) {
-            grid.fireSyntheticEditorKeyPressEvent(self, e);
+            grid.fireSyntheticEditorKeyPressEvent(e, self);
         });
         this.el.addEventListener('mousedown', function(e) {
             self.onmousedown(e);
@@ -130,7 +130,7 @@ var CellEditor = Base.extend('CellEditor', {
             if (stopped) {
                 // Editing successfully stopped
                 // -> send the event down the feature chain
-                var finEvent = grid.canvas.newEvent(e, 'fin-editor-keydown', {
+                var finEvent = grid.fireSyntheticEditorKeyDownEvent(e, this, true, {
                     alt: e.altKey,
                     ctrl: e.ctrlKey,
                     char: keyChar,
@@ -145,8 +145,7 @@ var CellEditor = Base.extend('CellEditor', {
             }
         }
 
-        this.grid.fireSyntheticEditorKeyUpEvent(this, e);
-
+        this.grid.fireSyntheticEditorKeyUpEvent(e, this);
         return stopped;
     },
 
@@ -261,7 +260,7 @@ var CellEditor = Base.extend('CellEditor', {
             }
         }
 
-        if (!error && this.grid.fireSyntheticEditorDataChangeEvent(this, this.initialValue, value)) {
+        if (!error && this.grid.fireSyntheticEditorDataChangeEvent(null, this, this.initialValue, value)) {
             try {
                 this.saveEditorValue(value);
             } catch (err) {
