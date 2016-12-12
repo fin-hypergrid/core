@@ -14,12 +14,12 @@ var OnHover = Feature.extend('OnHover', {
      */
     handleMouseMove: function(grid, event) {
         var hoverCell = grid.hoverCell;
-        if (!event.gridCell.equals(hoverCell)) {
+        if (!event.detail.gridCell.equals(hoverCell)) {
             if (hoverCell) {
                 this.handleMouseExit(grid, hoverCell);
             }
             this.handleMouseEnter(grid, event);
-            grid.setHoverCell(event);
+            grid.setHoverCell(event.detail);
         } else if (this.next) {
             this.next.handleMouseMove(grid, event);
         }

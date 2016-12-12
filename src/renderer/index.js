@@ -533,23 +533,32 @@ var Renderer = Base.extend('Renderer', {
     getGridCellFromMousePoint: function(point) {
         var x = point.x,
             y = point.y,
+            pseudoRow = false,
+            pseudoCol = false,
             vrs = this.visibleRows,
             vcs = this.visibleColumns,
             firstColumn = vcs[this.properties.showRowNumbers ? -1 : 0],
             inFirstColumn = x < firstColumn.right,
             vc = inFirstColumn ? firstColumn : vcs.find(function(vc) { return x < vc.right; }),
             vr = vrs.find(function(vr) { return y < vr.bottom; }),
-            result = null;
+            result = {fake: false};
 
-        if (vr && vc) {
-            var mousePoint = this.grid.newPoint(x - vc.left, y - vr.top),
-                cellEvent = new this.grid.behavior.CellEvent(vc.columnIndex, vr.index);
+        //default to last row and col
+        pseudoRow = vr ? false : ((vr = vrs[vrs.length - 1]) && true);
+        pseudoCol = vc ? false : ((vc = vcs[vcs.length - 1]) && true);
 
-            // cellEvent.visibleColumn = vc;
-            // cellEvent.visibleRow = vr;
+        var mousePoint = this.grid.newPoint(x - vc.left, y - vr.top),
+            cellEvent = new this.grid.behavior.CellEvent(vc.columnIndex, vr.index);
 
-            result = Object.defineProperty(cellEvent, 'mousePoint', {value: mousePoint});
+        // cellEvent.visibleColumn = vc;
+        // cellEvent.visibleRow = vr;
+
+        result.point = Object.defineProperty(cellEvent, 'mousePoint', {value: mousePoint});
+
+        if (pseudoCol || pseudoRow) {
+            result.fake = true;
         }
+
         return result;
     },
 

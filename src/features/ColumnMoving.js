@@ -119,34 +119,34 @@ var ColumnMoving = Feature.extend('ColumnMoving', {
      */
     handleMouseDrag: function(grid, event) {
 
-        var gridCell = event.gridCell;
+        // Possible to drag past the canvas and hence no cellEvent
+        var gridCell = event.detail.gridCell;
         var x;
         //var y;
 
-        var distance = Math.abs(event.primitiveEvent.detail.dragstart.x - event.primitiveEvent.detail.mouse.x);
+        var distance = Math.abs(event.detail.dragstart.x - event.detail.mouse.x);
 
-        if (distance < 10 || event.isColumnFixed) {
+        if (distance < 10 || event.detail.isColumnFixed) {
             if (this.next) {
                 this.next.handleMouseDrag(grid, event);
             }
             return;
         }
 
-        if (event.isHeaderCell && this.dragArmed && !this.dragging) {
+        if (event.detail.isHeaderCell && this.dragArmed && !this.dragging) {
             this.dragging = true;
             this.dragCol = gridCell.x;
-            this.dragOffset = event.mousePoint.x;
+            this.dragOffset = event.detail.mousePoint.x;
             this.detachChain();
-            x = event.primitiveEvent.detail.mouse.x - this.dragOffset;
-            //y = event.primitiveEvent.detail.mouse.y;
+            x = event.detail.mouse.x - this.dragOffset;
+            //y = event.detail.mouse.y;
             this.createDragColumn(grid, x, this.dragCol);
         } else if (this.next) {
             this.next.handleMouseDrag(grid, event);
         }
 
         if (this.dragging) {
-            x = event.primitiveEvent.detail.mouse.x - this.dragOffset;
-            //y = event.primitiveEvent.detail.mouse.y;
+            x = event.detail.mouse.x - this.dragOffset;
             this.dragColumn(grid, x);
         }
     },
@@ -159,9 +159,9 @@ var ColumnMoving = Feature.extend('ColumnMoving', {
     handleMouseDown: function(grid, event) {
         if (
             grid.behavior.isColumnReorderable() &&
-            !event.isColumnFixed
+            !event.detail.isColumnFixed
         ) {
-            if (event.isHeaderCell) {
+            if (event.detail.isHeaderCell) {
                 this.dragArmed = true;
                 this.cursor = draggingCursorName;
                 grid.clearSelections();
@@ -208,10 +208,10 @@ var ColumnMoving = Feature.extend('ColumnMoving', {
     handleMouseMove: function(grid, event) {
         if (
             grid.behavior.isColumnReorderable() &&
-            !event.isColumnFixed &&
+            !event.detail.isColumnFixed &&
             !this.dragging &&
-            event.isHeaderCell &&
-            event.mousePoint.y < grid.properties.columnGrabMargin
+            event.detail.isHeaderCell &&
+            event.detail.mousePoint.y < grid.properties.columnGrabMargin
         ) {
             this.cursor = canDragCursorName;
         } else {
@@ -222,7 +222,7 @@ var ColumnMoving = Feature.extend('ColumnMoving', {
             this.next.handleMouseMove(grid, event);
         }
 
-        if (event.isHeaderCell && this.dragging) {
+        if (event.detail.isHeaderCell && this.dragging) {
             this.cursor = draggingCursorName; //move';
         }
     },

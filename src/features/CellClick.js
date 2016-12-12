@@ -9,7 +9,7 @@ var Feature = require('./Feature');
 var CellClick = Feature.extend('CellClick', {
 
     handleMouseMove: function(grid, event) {
-        var link = event.properties.link,
+        var link = event.detail.properties.link,
             isActionableLink = link && typeof link !== 'boolean'; // actionable with truthy other than `true`
 
         this.cursor = isActionableLink ? 'pointer' : null;
@@ -25,9 +25,9 @@ var CellClick = Feature.extend('CellClick', {
      * @memberOf CellClick#
      */
     handleClick: function(grid, event) {
-        var consumed = event.isDataCell && (
-            this.openLink(grid, event) !== undefined ||
-            grid.cellClicked(event)
+        var consumed = event.detail.isDataCell && (
+            this.openLink(grid, event.detail) !== undefined ||
+            grid.cellClicked(event.detail)
         );
 
         if (!consumed && this.next) {

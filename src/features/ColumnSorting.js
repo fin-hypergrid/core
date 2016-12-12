@@ -17,11 +17,11 @@ var ColumnSorting = Feature.extend('ColumnSorting', {
     handleDoubleClick: function(grid, event) {
         var columnProperties;
         if (
-            event.isHeaderCell &&
-            (columnProperties = grid.behavior.getColumnProperties(event.gridCell.x)) &&
+            event.detail.isHeaderCell &&
+            (columnProperties = grid.behavior.getColumnProperties(event.detail.gridCell.x)) &&
             !columnProperties.unsortable
         ) {
-            grid.fireSyntheticColumnSortEvent(event.gridCell.x, event.primitiveEvent.detail.keys);
+            grid.fireSyntheticColumnSortEvent(event.detail.gridCell.x, event.detail.keys);
         } else if (this.next) {
             this.next.handleDoubleClick(grid, event);
         }
@@ -35,9 +35,9 @@ var ColumnSorting = Feature.extend('ColumnSorting', {
     handleMouseMove: function(grid, event) {
         var columnProperties;
         if (
-            event.isRowFixed &&
-            event.isHeaderCell &&
-            (columnProperties = grid.behavior.getColumnProperties(event.gridCell.x)) &&
+            event.detail.isRowFixed &&
+            event.detail.isHeaderCell &&
+            (columnProperties = grid.behavior.getColumnProperties(event.detail.gridCell.x)) &&
             !columnProperties.unsortable
         ) {
             this.cursor = 'pointer';
