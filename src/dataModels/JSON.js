@@ -62,6 +62,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
      * @param {object} [options]
      */
     reset: function(options) {
+        options = options || {};
         this.selectedData = [];
 
         /**

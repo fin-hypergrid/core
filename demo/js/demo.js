@@ -220,7 +220,11 @@ window.onload = function() {
         { label: 'Set Data 1 (5000 rows)', onclick: function() { setData(people1); } },
         { label: 'Set Data 2 (10000 rows)', onclick: function() { setData(people2); } },
         { label: 'Set Data 3 (tree data)', onclick: function() { setData(treeData); } },
-        { label: 'Reset Grid', onclick: grid.reset.bind(grid) },
+        { label: 'Reset Grid', onclick: function(){
+            grid.reset.bind(grid);
+            setGlobalSorter();
+            resetGlobalFilter(grid.behavior.dataModel.source.data);
+        } },
         { label: 'Toggle all drill-downs', onclick: toggleAllCtrlGroups }
 
     ].forEach(function(item) {
