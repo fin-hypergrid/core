@@ -296,14 +296,15 @@ window.onload = function() {
         emptyData = !emptyData;
         if (emptyData) {
             //important to set top totals first
-            behavior.setTopTotals([]);
-            setData([]);
-            behavior.setBottomTotals([]);
+            //behavior.setTopTotals([]);
+            grid.setInfo('No Data');
+            grid.setData([]);
+            //behavior.setBottomTotals([]);
         } else {
             //important to set top totals first
-            behavior.setTopTotals(topTotals);
+            //behavior.setTopTotals(topTotals);
             setData(people1);
-            behavior.setBottomTotals(bottomTotals);
+            //behavior.setBottomTotals(bottomTotals);
         }
     }
 
