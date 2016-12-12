@@ -628,9 +628,11 @@ var Hypergrid = Base.extend('Hypergrid', {
      * @desc Remove the last item from the mouse down stack.
      */
     popMouseDown: function() {
+        var result;
         if (this.mouseDown.length) {
-            this.mouseDown.length = this.mouseDown.length - 1;
+            result = this.mouseDown.pop();
         }
+        return result;
     },
 
     /**
@@ -1056,7 +1058,7 @@ var Hypergrid = Base.extend('Hypergrid', {
     /**
      * @memberOf Hypergrid#
      * @summary Open the cell-editor for the cell at the given coordinates.
-     * @param {Point} editPoint - The grid cell coordinate mixed with the data row coordinate.
+     * @param {CellEvent} event - Coordinates of "edit point" (gridCell.x, dataCell.y).
      * @return {undefined|CellEditor} The cellEditor determined from the cell's render properties, which may be modified by logic added by overriding {@link DataModel#getCellEditorAt|getCellEditorAt}.
      */
     editAt: function(event) {
@@ -1070,15 +1072,10 @@ var Hypergrid = Base.extend('Hypergrid', {
 
         if (
             event.isDataColumn &&
-            event.getCellProperty(event.isDataRow ? 'editable' : 'filterable')
+            event.properties[event.isDataRow ? 'editable' : 'filterable'] &&
+            (cellEditor = this.getCellEditorAt(event))
         ) {
-            this.setMouseDown(new Point(event.gridCell.x, event.dataCell.y));
-            this.setDragExtent(new Point(0, 0));
-
-            cellEditor = this.getCellEditorAt(event);
-            if (cellEditor) {
-                cellEditor.beginEditing();
-            }
+            cellEditor.beginEditing();
         }
 
         return cellEditor;
@@ -1103,7 +1100,6 @@ var Hypergrid = Base.extend('Hypergrid', {
     },
 
     /**
-     * @todo refac and move to CellEvent
      * @memberOf Hypergrid#
      * @param {number} c - The column index in question.
      * @param {number} rn - The grid row index in question.
@@ -1122,7 +1118,7 @@ var Hypergrid = Base.extend('Hypergrid', {
      */
     insureModelColIsVisible: function(colIndex, offsetX) {
         var maxCols = this.getColumnCount() - 1, // -1 excludes partially visible columns
-            indexToCheck = colIndex + (offsetX > 0),
+            indexToCheck = colIndex + Math.sign(offsetX),
             visible = !this.isColumnVisible(indexToCheck) || colIndex === maxCols;
 
         if (visible) {
@@ -1142,7 +1138,7 @@ var Hypergrid = Base.extend('Hypergrid', {
      */
     insureModelRowIsVisible: function(rowIndex, offsetY) {
         var maxRows = this.getRowCount() - 1, // -1 excludes partially visible rows
-            indexToCheck = rowIndex + (offsetY > 0),
+            indexToCheck = rowIndex + Math.sign(offsetY),
             visible = !this.isDataRowVisible(indexToCheck) || rowIndex === maxRows;
 
         if (visible) {
@@ -1227,8 +1223,8 @@ var Hypergrid = Base.extend('Hypergrid', {
     },
 
     selectCellAndScrollToMakeVisible: function(c, r) {
-        this.selectCell(c, r, true);
         this.scrollToMakeVisible(c, r);
+        this.selectCell(c, r, true);
     },
 
     /**
@@ -1508,7 +1504,6 @@ var Hypergrid = Base.extend('Hypergrid', {
      */
     synchronizeScrollingBoundaries: function() {
         var numFixedColumns = this.getFixedColumnCount();
-        var numFixedRows = this.getFixedRowCount();
 
         var numColumns = this.getColumnCount();
         var numRows = this.getRowCount();
@@ -1530,7 +1525,7 @@ var Hypergrid = Base.extend('Hypergrid', {
             lastPageColumnCount--;
         }
 
-        var scrollableHeight = bounds.height - this.behavior.getFixedRowsMaxHeight();
+        var scrollableHeight = this.renderer.getVisibleScrollHeight();
         for (
             var rowsHeight = 0, lastPageRowCount = 0;
             lastPageRowCount < numRows && rowsHeight < scrollableHeight;
@@ -1549,7 +1544,7 @@ var Hypergrid = Base.extend('Hypergrid', {
             this.setHScrollValue(Math.min(this.getHScrollValue(), hMax));
         }
         if (this.sbVScroller) {
-            var vMax = Math.max(0, numRows - numFixedRows - lastPageRowCount);
+            var vMax = Math.max(0, numRows - this.properties.fixedRowCount - lastPageRowCount);
             this.setVScrollbarValues(vMax);
             this.setVScrollValue(Math.min(this.getVScrollValue(), vMax));
         }
@@ -1662,7 +1657,7 @@ var Hypergrid = Base.extend('Hypergrid', {
 
     /**
      * @memberOf Hypergrid#
-     * @returns {number} The number of fixed rows.
+     * @returns {number} The number of rows.
      */
     getRowCount: function() {
         return this.behavior.getRowCount();
@@ -1692,7 +1687,7 @@ var Hypergrid = Base.extend('Hypergrid', {
      * @memberOf Hypergrid#
      * @summary The top left area has been clicked on
      * @desc Delegates to the behavior.
-     * @param {event} event - The event details.
+     * @param {event} mouse - The event details.
      */
     topLeftClicked: function(mouse) {
         this.behavior.topLeftClicked(this, mouse);
@@ -2056,6 +2051,11 @@ var Hypergrid = Base.extend('Hypergrid', {
     isShowHeaderRow: function() {
         return this.deprecated('isShowHeaderRow()', 'properties.showHeaderRow', 'v1.2.10');
     },
+
+    /**
+     * @returns {number} The total number of rows of all subgrids preceding the data subgrid.
+     * @memberOf Hypergrid#
+     */
     getHeaderRowCount: function() {
         return this.behavior.getHeaderRowCount();
     },
@@ -2343,6 +2343,8 @@ Hypergrid.localization = {
 
 Hypergrid.prototype.mixIn(require('./lib/events'));
 Hypergrid.prototype.mixIn(require('./lib/selection'));
+
+Hypergrid.properties = globalProperties;
 
 
 module.exports = Hypergrid;

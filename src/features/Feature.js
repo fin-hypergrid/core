@@ -141,6 +141,8 @@ var Feature = Base.extend('Feature', {
     handleKeyDown: function(grid, event) {
         if (this.next) {
             this.next.handleKeyDown(grid, event);
+        } else {
+            return true;
         }
     },
 

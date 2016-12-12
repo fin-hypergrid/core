@@ -190,7 +190,6 @@ var Renderer = Base.extend('Renderer', {
             fixedColumnCount = this.grid.getFixedColumnCount(),
             fixedRowCount = this.grid.getFixedRowCount(),
 
-            numRows = this.grid.getRowCount(),
             bounds = this.getBounds(),
             grid = this.grid,
             behavior = grid.behavior,
@@ -304,7 +303,7 @@ var Renderer = Base.extend('Renderer', {
             topR = r;
 
             // For each row of each subgrid...
-            for (R = Math.min(numRows, r + subrows); r < R && y < Y; r++) {
+            for (R = r + subrows; r < R && y < Y; r++) {
                 vy = r;
                 if (scrollableSubgrid && r >= fixedRowCount) {
                     vy += scrollTop;
@@ -318,7 +317,7 @@ var Renderer = Base.extend('Renderer', {
                 }
 
                 rowIndex = vy - base;
-                height = Math.ceil(behavior.getRowHeight(rowIndex, subgrid));
+                height = behavior.getRowHeight(rowIndex, subgrid);
 
                 heightSpaced = height - lineWidth;
                 this.visibleRows[r] = vr = {
@@ -551,13 +550,55 @@ var Renderer = Base.extend('Renderer', {
     },
 
     /**
+     * @summary Get the visibility of the column matching the provided grid column index.
+     * @desc Requested column may not be visible due to being scrolled out of view.
      * @memberOf Renderer.prototype
      * @summary Determines if a column is visible.
-     * @param {number} colIndex - the column index*
-     * @returns {boolean} The given column is fully visible.
+     * @param {number} columnIndex - the column index
+     * @returns {boolean} The given column is visible.
      */
     isColumnVisible: function(columnIndex) {
-        return !!this.visibleColumns.find(function(vc) { return vc.columnIndex === columnIndex; });
+        return !!this.getVisibleColumn(columnIndex);
+    },
+
+    /**
+     * @summary Get the "visible column" object matching the provided grid column index.
+     * @desc Requested column may not be visible due to being scrolled out of view.
+     * @memberOf Renderer.prototype
+     * @summary Find a visible column object.
+     * @param {number} columnIndex - The grid column index.
+     * @returns {object|undefined} The given column if visible or `undefined` if not.
+     */
+    getVisibleColumn: function(columnIndex) {
+        return this.visibleColumns.find(function(vc) {
+            return vc.columnIndex === columnIndex;
+        });
+    },
+
+    /**
+     * @summary Get the visibility of the column matching the provided data column index.
+     * @desc Requested column may not be visible due to being scrolled out of view or if the column is inactive.
+     * @memberOf Renderer.prototype
+     * @summary Determines if a column is visible.
+     * @param {number} columnIndex - the column index
+     * @returns {boolean} The given column is visible.
+     */
+    isDataColumnVisible: function(columnIndex) {
+        return !!this.getVisibleDataColumn(columnIndex);
+    },
+
+    /**
+     * @summary Get the "visible column" object matching the provided data column index.
+     * @desc Requested column may not be visible due to being scrolled out of view or if the column is inactive.
+     * @memberOf Renderer.prototype
+     * @summary Find a visible column object.
+     * @param {number} columnIndex - The grid column index.
+     * @returns {object|undefined} The given column if visible or `undefined` if not.
+     */
+    getVisibleDataColumn: function(columnIndex) {
+        return this.visibleColumns.find(function(vc) {
+            return vc.column.index === columnIndex;
+        });
     },
 
     /**
@@ -571,13 +612,56 @@ var Renderer = Base.extend('Renderer', {
     },
 
     /**
+     * @summary Get the visibility of the row matching the provided grid row index.
+     * @desc Requested row may not be visible due to being outside the bounds of the rendered grid.
      * @memberOf Renderer.prototype
      * @summary Determines visibility of a row.
-     * @param {number} y - The physical (unscrolled) grid row index.
-     * @returns {boolean} The given row is fully visible.
+     * @param {number} rowIndex - The grid row index.
+     * @returns {boolean} The given row is visible.
      */
-    isRowVisible: function(y) {
-        return !!this.visibleRows[y];
+    isRowVisible: function(rowIndex) {
+        return !!this.visibleRows[rowIndex];
+    },
+
+    /**
+     * @summary Get the "visible row" object matching the provided grid row index.
+     * @desc Requested row may not be visible due to being outside the bounds of the rendered grid.
+     * @memberOf Renderer.prototype
+     * @summary Find a visible row object.
+     * @param {number} rowIndex - The grid row index.
+     * @returns {object|undefined} The given row if visible or `undefined` if not.
+     */
+    getVisibleRow: function(rowIndex) {
+        return this.visibleRows[rowIndex];
+    },
+
+    /**
+     * @summary Get the visibility of the row matching the provided data row index.
+     * @desc Requested row may not be visible due to being scrolled out of view.
+     * @memberOf Renderer.prototype
+     * @summary Determines visibility of a row.
+     * @param {number} rowIndex - The data row index.
+     * @param {dataModelAPI} [subgrid=this.behavior.subgrids.data]
+     * @returns {boolean} The given row is visible.
+     */
+    isDataRowVisible: function(rowIndex, subgrid) {
+        return !!this.getVisibleDataRow(rowIndex, subgrid);
+    },
+
+    /**
+     * @summary Get the "visible row" object matching the provided data row index.
+     * @desc Requested row may not be visible due to being scrolled out of view.
+     * @memberOf Renderer.prototype
+     * @summary Find a visible row object.
+     * @param {number} rowIndex - The data row index within the given subgrid.
+     * @param {dataModelAPI} [subgrid=this.behavior.subgrids.data]
+     * @returns {object|undefined} The given row if visible or `undefined` if not.
+     */
+    getVisibleDataRow: function(rowIndex, subgrid) {
+        subgrid = subgrid || this.grid.behavior.subgrids.lookup.data;
+        return this.visibleRows.find(function(vr) {
+            return vr.subgrid === subgrid && vr.rowIndex === rowIndex;
+        });
     },
 
     /**
@@ -1003,6 +1087,46 @@ var Renderer = Base.extend('Renderer', {
         return isRealData ? config.minWidth : 0;
     },
 
+    /**
+     * @param {number|CellEvent} colIndexOrCellEvent - This is the "data" x coordinate.
+     * @param {number} [rowIndex] - This is the "data" y coordinate.
+     * @param {dataModelAPI} [dataModel=this.grid.behavior.dataModel]
+     * @returns {CellEvent} The matching `CellEvent` object from the renderer's pool. Returns `undefined` if the requested cell is not currently visible (due to being scrolled out of view).
+     */
+    findCell: function(colIndexOrCellEvent, rowIndex, dataModel) {
+        var colIndex;
+
+        if (typeof colIndexOrCellEvent === 'object') {
+            // colIndexOrCellEvent is a cell event object
+            dataModel = rowIndex;
+            rowIndex = colIndexOrCellEvent.visibleRow.rowIndex;
+            colIndex = colIndexOrCellEvent.column.index;
+        } else {
+            colIndex = colIndexOrCellEvent;
+        }
+
+        dataModel = dataModel || this.grid.behavior.dataModel;
+
+        return this.cellEventPool.find(function(cellEvent) {
+            return cellEvent.subgrid === dataModel &&
+                cellEvent.column.index === colIndex &&
+                cellEvent.visibleRow.rowIndex === rowIndex;
+        });
+    },
+
+    /**
+     * Resets the cell properties cache in the matching `CellEvent` object from the renderer's pool. This will insure that a new cell properties object will be known to the renderer. (Normally, the cache is not reset until the pool is updated by the next call to {@link Renderer#computeCellBounds}).
+     * @param {number|CellEvent} xOrCellEvent
+     * @param {number} [y]
+     * @param {dataModelAPI} [dataModel=this.grid.behavior.dataModel]
+     * @returns {CellEvent} The matching `CellEvent` object.
+     */
+    resetCellPropertiesCache: function(xOrCellEvent, y, dataModel) {
+        var cellEvent = this.findCell.apply(this, arguments);
+        if (cellEvent) { cellEvent._cellOwnProperties = undefined; }
+        return cellEvent;
+    },
+
     isViewableButton: function(c, r) {
         var key = c + ',' + r;
         return this.buttonCells[key] === true;
@@ -1027,8 +1151,11 @@ function resetNumberColumnWidth(gc, behavior) {
             images.unchecked ? images.unchecked.width : 0
         );
 
-    gc.cache.font = cellProperties.font;
+    gc.cache.font = cellProperties.foregroundSelectionFont.indexOf('bold ') >= 0
+        ? cellProperties.foregroundSelectionFont : cellProperties.font;
+
     columnProperties.preferredWidth = iconWidth + padding + gc.getTextWidth(rowCount);
+
     if (columnProperties.width === undefined) {
         columnProperties.width = columnProperties.preferredWidth;
     }

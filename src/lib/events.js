@@ -172,7 +172,7 @@ module.exports = {
         if (this.behavior.cellDoubleClicked !== Behavior.prototype.cellDoubleClicked) {
             this.deprecated('fin-double-click', 'behavior.cellDoubleClicked(gridCell, cellEvent) has been deprecated as of v1.2.6 in favor of handling in a \'fin-double-click\' event (event.detail.gridCell, event.primitiveEvent) and will be removed in a future release.');
         }
-        // to deprecate, remove above warning + warned + following line + abstract implementation in Behavior.js
+        // to deprecate, remove above warning + following line + abstract implementation in Behavior.js
         this.behavior.cellDoubleClicked(cellEvent.gridCell, cellEvent);
 
         return dispatchEvent.call(this, 'fin-double-click', {}, cellEvent);

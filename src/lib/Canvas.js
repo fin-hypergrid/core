@@ -304,14 +304,18 @@ Canvas.prototype = {
         }
     },
 
-    dispatchNewEvent: function(primitiveEvent, name, detail) {
+    newEvent: function(primitiveEvent, name, detail) {
         var event = {
             detail: detail || {}
         };
         if (primitiveEvent) {
             event.detail.primitiveEvent = primitiveEvent;
         }
-        return this.canvas.dispatchEvent(new CustomEvent(name, event));
+        return new CustomEvent(name, event);
+    },
+
+    dispatchNewEvent: function(primitiveEvent, name, detail) {
+        return this.canvas.dispatchEvent(this.newEvent(primitiveEvent, name, detail));
     },
 
     dispatchNewMouseKeysEvent: function(event, name, detail) {
@@ -409,8 +413,12 @@ Canvas.prototype = {
         //console.log('dblclick', this.currentKeys);
     },
 
-    getCharMap: function() { //TODO: This is static. Make it a property of the constructor.
+    getCharMap: function() {
         return charMap;
+    },
+
+    getKeyChar: function(e) {
+        return charMap[e.keyCode][e.shiftKey ? 1 : 0];
     },
 
     finkeydown: function(e) {
@@ -418,8 +426,12 @@ Canvas.prototype = {
             return;
         }
 
-        //e.preventDefault();
-        var keyChar = e.shiftKey ? charMap[e.keyCode][1] : charMap[e.keyCode][0];
+        // prevent TAB from moving focus off the canvas element
+        if (e.keyCode === 9) {
+            e.preventDefault();
+        }
+
+        var keyChar = this.getKeyChar(e);
         if (e.repeat) {
             if (this.repeatKey === keyChar) {
                 this.repeatKeyCount++;
@@ -435,7 +447,7 @@ Canvas.prototype = {
         if (this.currentKeys.indexOf(keyChar) === -1) {
             this.currentKeys.push(keyChar);
         }
-        //console.log(keyChar, e.keyCode);
+
         this.dispatchNewEvent(e, 'fin-canvas-keydown', {
             alt: e.altKey,
             ctrl: e.ctrlKey,
@@ -452,11 +464,17 @@ Canvas.prototype = {
     },
 
     finkeyup: function(e) {
-        var keyChar = e.shiftKey ? charMap[e.keyCode][1] : charMap[e.keyCode][0];
-        this.currentKeys.splice(this.currentKeys.indexOf(keyChar), 1);
         if (!this.hasFocus()) {
             return;
         }
+
+        // prevent TAB from moving focus off the canvas element
+        if (e.keyCode === 9) {
+            e.preventDefault();
+        }
+
+        var keyChar = this.getKeyChar(e);
+        this.currentKeys.splice(this.currentKeys.indexOf(keyChar), 1);
         this.repeatKeyCount = 0;
         this.repeatKey = null;
         this.repeatKeyStartTime = 0;

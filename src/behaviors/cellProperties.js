@@ -111,6 +111,7 @@ function getCellPropertiesObject(rowIndex, dataModel) {
 
 /**
  * @todo: For v8 optimization, consider setting the new `__META` object to a "regularly shaped object" (i.e., with all the columns) instead of simply to `{}`. Considerations include how many of these objects are there, how often are they referenced, etc.
+ * @todo: We need a function to reset the prototypes of pre-existing __META members to their respective column properties objects.
  * @this {Column}
  * @param {number} rowIndex - Data row coordinate.
  * @returns {object}

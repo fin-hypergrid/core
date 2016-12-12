@@ -40,6 +40,14 @@ window.onload = function() {
                 { name: 'hoverRowHighlight.enabled', label: 'row' },
                 { name: 'hoverColumnHighlight.enabled', label: 'column' }
             ]
+        },
+        {
+            label: 'Link style',
+            ctrls: [
+                { name: 'linkOnHover', label: 'on hover' },
+                { name: 'linkColor', type: 'text', label: 'color' },
+                { name: 'linkColorOnHover', label: 'color on hover' }
+            ]
         }, {
             label: 'Cell editing',
             ctrls: [
@@ -108,7 +116,7 @@ window.onload = function() {
             includeFilter: true
         }],
         Hypergrid.Hyperfilter,
-        [Hypergrid.Hypersorter, {Column: fin.Hypergrid.behaviors.Column}]
+        [Hypergrid.Hypersorter, {Column: Hypergrid.behaviors.Column}]
     ];
 
     // restore previous "opinionated" headerify behavior
@@ -182,7 +190,7 @@ window.onload = function() {
     // These modules are for EXAMPLE purposes only
     grid.setPipeline([
         window.datasaur.filter,
-        window.fin.Hypergrid.analytics.DataSourceSorterComposite
+        Hypergrid.analytics.DataSourceSorterComposite
     ]);
     setGlobalSorter();
     resetGlobalFilter(people1);
@@ -226,7 +234,7 @@ window.onload = function() {
     window.vent = false;
 
     //functions for showing the grouping/rollup capabilities
-    var rollups = window.fin.Hypergrid.analytics.util.aggregations,
+    var rollups = Hypergrid.analytics.util.aggregations,
         aggregates = {
             totalPets: rollups.sum(2),
             averagePets: rollups.avg(2),
@@ -304,9 +312,6 @@ window.onload = function() {
 
 
     behavior.setFixedRowCount(2);
-
-    var upDown = Hypergrid.images['down-rectangle'];
-    var calendar = Hypergrid.images.calendar;
 
     // CUSTOM CELL RENDERER
     var REGEXP_CSS_HEX6 = /^#(..)(..)(..)$/,
@@ -445,29 +450,7 @@ window.onload = function() {
                 switch (colIndex) {
                     case idx.LAST_NAME:
                         config.color = config.value != null && (config.value + '')[0] === 'S' ? 'red' : '#191919';
-                        // eslint-disable-line no-fallthrough
-                    case idx.FIRST_NAME:
-                    case idx.BIRTH_STATE:
-                    case idx.RESIDENCE_STATE:
-                        //we are a dropdown, lets provide a visual queue
-                        if (config.editable) {
-                            config.value = [null, config.value, upDown]; // or: config.rightIcon = 'up-down'
-                        }
-                }
-
-                switch (colIndex) {
-                    case idx.LAST_NAME:
                         config.link = true;
-                        break;
-
-                    case idx.BIRTH_DATE:
-                        if (config.editable) {
-                            config.rightIcon = 'calendar';
-                        }
-                        break;
-
-                    case idx.EMPLOYED:
-                        rendererName = 'button';
                         break;
 
                     case idx.INCOME:
@@ -667,28 +650,21 @@ window.onload = function() {
         'textfield'
     ];
 
-    var lastEditPoint;
-
-    grid.addEventListener('fin-editor-keyup', function(e) {
-        switch (e.detail.char) {
-            case 'UP': grid.editAt(lastEditPoint.plusXY(0, -1)); break;
-            case 'DOWN': grid.editAt(lastEditPoint.plusXY(0, +1)); break;
-        }
-    });
+    var editorCellEvent;
 
     // Override to assign the the cell editors.
-    dataModel.getCellEditorAt = function(x, y, declaredEditorName, options) {
+    dataModel.getCellEditorAt = function(x, y, declaredEditorName, cellEvent) {
         var editorName = declaredEditorName || editorTypes[x % editorTypes.length];
 
-        lastEditPoint = options.gridCell;
+        editorCellEvent = cellEvent;
 
         switch (x) {
             case idx.BIRTH_STATE:
-                options.textColor = 'red';
+                cellEvent.textColor = 'red';
                 break;
         }
 
-        var cellEditor = grid.cellEditors.create(editorName, options);
+        var cellEditor = grid.cellEditors.create(editorName, cellEvent);
 
         if (cellEditor) {
             switch (x) {
@@ -773,37 +749,22 @@ window.onload = function() {
             key = String.fromCharCode(detail.key).toUpperCase(),
             result = false; // means event handled herein
 
-        if (detail.input instanceof detail.grid.cellEditors.editors.filterbox) {
-            // (alternatively: detail.input.$$CLASS_NAME === 'FilterBox')
-            // don't move selection if editing filter cell
-        } else if (!detail.ctrl) {
-            var dir = detail.shift ? -1 : +1;
-            switch (key) {
-                case '\t':
-                    grid.moveSingleSelect(dir, 0); // move LEFT or RIGHT one cell
-                    detail.primitiveEvent.preventDefault();  // prevent TAB from moving focus off the canvas element
-                    break;
-                case '\r':
-                case '\n':
-                    grid.moveSingleSelect(0, dir); // move UP or DOWN one cell
-                    break;
-                default:
-                    result = true;
-            }
+        if (detail.input instanceof grid.cellEditors.editors.filterbox) { // or: detail.input.$$CLASS_NAME === 'FilterBox'
+            // skip "select" calls if editing a filter cell
         } else if (detail.shift) {
             switch (key) {
-                case 'A': grid.selectToViewportCell(0, 0); break;
-                case 'S': grid.selectToFinalCell(); break;
-                case 'D': grid.selectToFinalCellOfCurrentRow(); break;
-                case 'F': grid.selectToFirstCellOfCurrentRow(); break;
+                case '0': if (grid.stopEditing()) { grid.selectToViewportCell(0, 0); } break;
+                case '9': if (grid.stopEditing()) { grid.selectToFinalCell(); } break;
+                case '8': if (grid.stopEditing()) { grid.selectToFinalCellOfCurrentRow(); } break;
+                case '7': if (grid.stopEditing()) { grid.selectToFirstCellOfCurrentRow(); } break;
                 default: result = true;
             }
         } else {
             switch (key) {
-                case 'A': grid.selectViewportCell(0, 0); break;
-                case 'S': grid.selectFinalCell(); break;
-                case 'D': grid.selectFinalCellOfCurrentRow(); break;
-                case 'F': grid.selectFirstCellOfCurrentRow(); break;
+                case '0': if (grid.stopEditing()) { grid.selectViewportCell(0, 0); } break;
+                case '9': if (grid.stopEditing()) { grid.selectFinalCell(); } break;
+                case '8': if (grid.stopEditing()) { grid.selectFinalCellOfCurrentRow(); } break;
+                case '7': if (grid.stopEditing()) { grid.selectFirstCellOfCurrentRow(); } break;
                 default: result = true;
             }
         }
@@ -814,15 +775,15 @@ window.onload = function() {
     grid.addEventListener('fin-keydown', handleCursorKey);
 
     grid.addEventListener('fin-editor-keydown', function(e) {
-        var detail = e.detail,
-            ke = detail.keyEvent;
-
-        // more detail, please
-        detail.primitiveEvent = ke;
-        detail.key = ke.keyCode;
-        detail.shift = ke.shiftKey;
-
-        handleCursorKey(e);
+        // var detail = e.detail,
+        //     ke = detail.keyEvent;
+        //
+        // // more detail, please
+        // detail.primitiveEvent = ke;
+        // detail.key = ke.keyCode;
+        // detail.shift = ke.shiftKey;
+        //
+        // handleCursorKey(e);
     });
 
 
@@ -1053,6 +1014,7 @@ window.onload = function() {
 
         behavior.setColumnProperties(idx.LAST_NAME, {
             columnHeaderHalign: 'left',
+            rightIcon: 'down-rectangle',
             link: true
         });
 
@@ -1073,6 +1035,7 @@ window.onload = function() {
 
         behavior.setColumnProperties(idx.BIRTH_DATE, {
             format: 'singdate',
+            rightIcon: 'calendar',
             //strikeThrough: true
         });
 
@@ -1083,11 +1046,17 @@ window.onload = function() {
         });
 
         behavior.setColumnProperties(idx.BIRTH_STATE, {
-            editor: 'colortext'
+            editor: 'colortext',
+            rightIcon: 'down-rectangle'
+        });
+
+        behavior.setColumnProperties(idx.RESIDENCE_STATE, {
+            rightIcon: 'down-rectangle'
         });
 
         behavior.setColumnProperties(idx.EMPLOYED, {
             halign: 'right',
+            renderer: 'button',
             backgroundColor: 'white'
         });
 
@@ -1194,7 +1163,7 @@ window.onload = function() {
 
             switch (type) {
                 case 'text':
-                    input.value = ctrl.value || '';
+                    input.value = ctrl.value || globalProperty(ctrl.name) || '';
                     input.style.width = '25px';
                     input.style.marginLeft = '4px';
                     input.style.marginRight = '4px';
@@ -1204,7 +1173,7 @@ window.onload = function() {
                 case 'radio':
                     input.checked = 'checked' in ctrl
                         ? ctrl.checked
-                        : resolveGridProperty(ctrl.name);
+                        : globalProperty(ctrl.name);
                     referenceElement = null; // label goes before input
                     break;
             }
@@ -1227,10 +1196,21 @@ window.onload = function() {
         ctrlGroups.appendChild(container);
     }
 
-    function resolveGridProperty(key) {
+    function globalProperty(key) {
         var keys = key.split('.');
-        var prop = grid.properties;
-        while (keys.length) { prop = prop[keys.shift()]; }
+        var prop;
+
+        if (keys[0] === 'filterOptions') {
+            keys.shift();
+            prop = filterOptions;
+        } else {
+            prop = Hypergrid.properties;
+        }
+
+        while (keys.length) {
+            prop = prop[keys.shift()];
+        }
+
         return prop;
     }
 

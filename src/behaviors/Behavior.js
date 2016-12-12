@@ -492,6 +492,14 @@ var Behavior = Base.extend('Behavior', {
         }
     },
 
+    /**
+     * @summary Gets the number of rows in the data subgrid.
+     * @memberOf Behavior.prototype
+     */
+    getRowCount: function() {
+        return this.dataModel.getRowCount();
+    },
+
     getUnfilteredValue: function(x, y) {
         var column = this.getActiveColumn(x);
         return column && column.getUnfilteredValue(y);
@@ -555,8 +563,7 @@ var Behavior = Base.extend('Behavior', {
     getCellProperties: function(xOrCellEvent, y) {
         switch (arguments.length) {
             case 1:
-                return xOrCellEvent.column // xOrCellEvent is cellEvent
-                    .getCellProperties(xOrCellEvent.dataCell.y, xOrCellEvent.visibleRow.subgrid);
+                return xOrCellEvent.properties; // xOrCellEvent is cellEvent
             case 2:
                 return this.getColumn(xOrCellEvent) // xOrCellEvent is x
                     .getCellProperties(y);
@@ -575,8 +582,7 @@ var Behavior = Base.extend('Behavior', {
     getCellProperty: function(xOrCellEvent, y, key) {
         switch (arguments.length) {
             case 2:
-                return xOrCellEvent.column // xOrCellEvent is cellEvent
-                    .getCellProperty(xOrCellEvent.dataCell.y, y, xOrCellEvent.visibleRow.subgrid); // y omitted so y here is actually key
+                return xOrCellEvent.properties[y]; // xOrCellEvent is cellEvent and y omitted so y here is actually key
             case 3:
                 return this.getColumn(xOrCellEvent) // xOrCellEvent is x
                     .getCellProperty(y, key);
@@ -620,7 +626,13 @@ var Behavior = Base.extend('Behavior', {
     /**
      * @summary Set a specific cell property.
      * @desc If there is no cell properties object, defers to column properties object.
-     * @param {CellEvent|number} xOrCellEvent - Data x coordinate.
+     *
+     * NOTE: For performance reasons, renderer's cell event objects cache their respective cell properties objects. This method accepts a `CellEvent` overload. Whenever possible, use the `CellEvent` from the renderer's cell event pool. Doing so will reset the cell properties object cache.
+     *
+     * If you use some other `CellEvent`, the renderer's `CellEvent` properties cache will not be automatically reset until the whole cell event pool is reset on the next call to {@link Renderer#computeCellBoundaries}. If necessary, you can "manually" reset it by calling {@link Renderer#resetCellPropertiesCache|resetCellPropertiesCache(yourCellEvent)} which searches the cell event pool for one with matching coordinates and resets the cache.
+     *
+     * The raw coordinates overload calls the `resetCellPropertiesCache(x, y)` overload for you.
+     * @param {CellEvent|number} xOrCellEvent - `CellEvent` or data x coordinate.
      * @param {number} [y] - Grid row coordinate. _Omit when `xOrCellEvent` is a `CellEvent`._
      * @param {string} key - Name of property to get. _When `y` omitted, this param promoted to 2nd arg._
      * @param value
@@ -628,15 +640,19 @@ var Behavior = Base.extend('Behavior', {
      * @memberOf Behavior#
      */
     setCellProperty: function(xOrCellEvent, y, key, value, dataModel) {
+        var cellOwnProperties;
         switch (arguments.length) {
             case 3:
-                return xOrCellEvent.column // xOrCellEvent is cellEvent
-                    .setCellProperty(xOrCellEvent.dataCell.y, y, key, xOrCellEvent.visibleRow.subgrid); // y omitted so y here is actually key and key is actually value
+                // xOrCellEvent is cellEvent, y is key, key is value
+                cellOwnProperties = xOrCellEvent.setCellProperty(y, key);
+                break;
             case 4:
             case 5:
-                return this.getColumn(xOrCellEvent) // xOrCellEvent is x
+                cellOwnProperties = this.getColumn(xOrCellEvent) // xOrCellEvent is x
                     .setCellProperty(y, key, value, dataModel);
+                this.grid.renderer.resetCellPropertiesCache(xOrCellEvent, y, dataModel);
         }
+        return cellOwnProperties;
     },
 
     getUnfilteredRowCount: function() {
@@ -644,16 +660,28 @@ var Behavior = Base.extend('Behavior', {
     },
 
     /**
+     * @summary The total height of the "fixed rows."
+     * @desc The total height of all (non-scrollable) rows preceding the (scrollable) data subgrid.
      * @memberOf Behavior#
-     * @return {number} The height in pixels of the fixed rows area  of the hypergrid.
+     * @return {number} The height in pixels of the fixed rows area of the hypergrid, the total height of:
+     * 1. All rows of all subgrids preceding the data subgrid.
+     * 2. The first `fixedRowCount` rows of the data subgrid.
      */
     getFixedRowsHeight: function() {
-        var count = this.getFixedRowCount();
-        var total = 0;
-        for (var i = 0; i < count; i++) {
-            total += this.getRowHeight(i);
+        var dataModel, isData, r, R,
+            subgrids = this.subgrids,
+            height = 0;
+
+        for (var i = 0; i < subgrids.length && !isData; ++i) {
+            dataModel = subgrids[i];
+            isData = dataModel.isData;
+            R = isData ? this.grid.properties.fixedRowCount : dataModel.getRowCount();
+            for (r = 0; r < R; ++r) {
+                height += this.getRowHeight(r, dataModel);
+            }
         }
-        return total;
+
+        return height;
     },
 
     /**
@@ -685,18 +713,9 @@ var Behavior = Base.extend('Behavior', {
     setRowHeight: function(rowIndex, height, dataModel) {
         var rowData = (dataModel || this.dataModel).getRow(rowIndex);
         if (rowData) {
-            rowData.__ROW_HEIGHT = Math.max(5, height);
+            rowData.__ROW_HEIGHT = Math.max(5, Math.ceil(height));
             this.stateChanged();
         }
-    },
-
-    /**
-     * @memberOf Behavior#
-     * @desc This will allow 'floating' fixed rows.
-     * @return {number} The maximum height of the fixed rows area in the hypergrid.
-     */
-    getFixedRowsMaxHeight: function() {
-        return this.getFixedRowsHeight();
     },
 
     /**
@@ -764,13 +783,6 @@ var Behavior = Base.extend('Behavior', {
         var translatedPoint = new Point(mouse.gridCell.x, this.getScrollPositionY() + mouse.gridCell.y - this.getFixedRowCount());
         mouse.gridCell = translatedPoint;
         this.fixedColumnClicked(grid, mouse);
-    },
-
-    moveSingleSelect: function(grid, x, y) {
-        if (this.featureChain) {
-            this.featureChain.moveSingleSelect(grid, x, y);
-            this.setCursor(grid);
-        }
     },
 
     /**
@@ -1031,7 +1043,7 @@ var Behavior = Base.extend('Behavior', {
 
     /**
      * @memberOf Behavior#
-     * @return {integer} The number of fixed columns.
+     * @return {number} The number of fixed columns.
      */
     getFixedColumnCount: function() {
         return this.grid.properties.fixedColumnCount;
@@ -1047,8 +1059,12 @@ var Behavior = Base.extend('Behavior', {
     },
 
     /**
+     * @summary The number of "fixed rows."
+     * @desc The number of (non-scrollable) rows preceding the (scrollable) data subgrid.
      * @memberOf Behavior#
-     * @return {integer} The number of fixed rows.
+     * @return {number} The sum of:
+     * 1. All rows of all subgrids preceding the data subgrid.
+     * 2. The first `fixedRowCount` rows of the data subgrid.
      */
     getFixedRowCount: function() {
         return (

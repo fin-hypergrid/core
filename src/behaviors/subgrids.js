@@ -81,17 +81,6 @@ module.exports = {
     },
 
     /**
-     * @summary Gets the number of rows in the hypergrid.
-     * @dsc Defined as the sum of all rows from all subgrids.
-     * @memberOf Behavior.prototype
-     */
-    getRowCount: function() {
-        return this.subgrids.reduce(function(sum, subgrid) {
-            return sum + subgrid.getRowCount();
-        }, 0);
-    },
-
-    /**
      * @summary Gets the number of "header rows".
      * @desc Defined as the sum of all rows of all subgrids before the (first) data subgrid.
      * @memberOf behaviors.JSON.prototype

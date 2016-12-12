@@ -20,12 +20,8 @@ var CellEditor = Base.extend('CellEditor', {
      * @param {string} [options.format] - Name of a localizer with which to override prototype's `localizer` property.
      */
     initialize: function(grid, options) {
-        // Mix in all enumerable properties for mustache use.
-        for (var key in options) {
-            if (options.hasOwnProperty(key) && this[key] !== null) {
-                this[key] = options[key];
-            }
-        }
+        // Mix in all enumerable properties for mustache use, typically `column` and `format`.
+        Object.assign(this, options);
 
         this.event = options;
 
@@ -75,6 +71,10 @@ var CellEditor = Base.extend('CellEditor', {
         var self = this;
         this.el.addEventListener('keyup', this.keyup.bind(this));
         this.el.addEventListener('keydown', function(e) {
+            if (e.keyCode === 9) {
+                // prevent TAB from leaving input control
+                e.preventDefault();
+            }
             grid.fireSyntheticEditorKeyDownEvent(self, e);
         });
         this.el.addEventListener('keypress', function(e) {
@@ -100,19 +100,61 @@ var CellEditor = Base.extend('CellEditor', {
     },
 
     keyup: function(e) {
-        if (e) {
-            var specialKeyup = this.specialKeyups[e.keyCode];
+        var grid = this.grid,
+            cellProps = this.event.properties,
+            feedbackCount = cellProps.feedbackCount,
+            specialKeyup, stopped, mappedChar, keyChar, qualified;
 
-            if (specialKeyup) {
-                e.preventDefault();
-                if (this[specialKeyup](3)) {
-                    this.grid.repaint();
-                    this.grid.takeFocus();
+        // First perform the special key function as needed
+        if ((specialKeyup = this.specialKeyups[e.keyCode])) {
+            if ((stopped = this[specialKeyup](feedbackCount))) {
+                grid.repaint();
+                grid.takeFocus();
+            }
+        }
+
+        // is this a "nav key" consumed by CellSelection ?
+        keyChar = grid.canvas.getKeyChar(e);
+        mappedChar = grid.properties.navKeyMap[keyChar];
+
+        // and is it qualified (normal chars require CTRL when edit-on-keydown)?
+        qualified = mappedChar && ( // a mapped nav key; and...
+            keyChar.length > 1 || // is it a meta character (non-printable, white-space)?
+            !cellProps.editOnKeydown || // normal char. is edit-on-keydown OFF?
+            e.ctrlKey // normal char, edit-on-keydown ON. is CTRL key down?
+        );
+
+        if (qualified) {
+            // This is a qualified nav key that CellSelection consumes
+            // -> try to stop editing and send it along
+
+            if (!specialKeyup) {
+                // We didn't try to stop editing above so we're still editing
+                // -> try to stop editing
+                if ((stopped = this.stopEditing(feedbackCount))) {
+                    grid.repaint();
+                    grid.takeFocus();
                 }
             }
 
-            this.grid.fireSyntheticEditorKeyUpEvent(this, e);
+            if (stopped) {
+                // Editing successfully stopped
+                // -> send the event down the feature chain
+                var finEvent = grid.canvas.newEvent(e, 'fin-editor-keydown', {
+                    alt: e.altKey,
+                    ctrl: e.ctrlKey,
+                    char: keyChar,
+                    code: e.charCode,
+                    key: e.keyCode,
+                    meta: e.metaKey,
+                    shift: e.shiftKey,
+                    identifier: e.key,
+                });
+                grid.delegateKeyDown(finEvent);
+            }
         }
+
+        this.grid.fireSyntheticEditorKeyUpEvent(this, e);
     },
 
     /**
@@ -199,8 +241,14 @@ var CellEditor = Base.extend('CellEditor', {
      * 1. If `feedback` was omitted, cancels editing, discarding the edited value.
      * 2. If `feedback` was provided, gives the user some feedback (see `feedback`, below).
      *
-     * @param {number} [feedback] What to do on validation failure:
-     * * If omitted, simply cancels editing without saving edited value.
+     * @param {number} [feedback] What to do on validation failure. One of:
+     * * **`undefined`** - Do not show the error effect or the end effect. Just discard the value and close the editor (as if `ESC` had been typed).
+     * * **`0`** - Just shows the error effect (see the {@link CellEditor#errorEffect|errorEffect} property).
+     * * **`1`** - Shows the error feedback effect followed by the detailed explanation.
+     * * `2` or more:
+     *   1. Shows the error feedback effect
+     *   2. On every `feedback` tries, shows the detailed explanation.
+     * * If `undefined` (omitted), simply cancels editing without saving edited value.
      * * If 0, shows the error feedback effect (see the {@link CellEditor#errorEffect|errorEffect} property).
      * * If > 0, shows the error feedback effect _and_ calls the {@link CellEditor#errorEffectEnd|errorEffectEnd} method) every `feedback` call(s) to `stopEditing`.
      * @returns {boolean} Truthy means successful stop. Falsy means syntax error prevented stop. Note that editing is canceled when no feedback requested and successful stop includes (successful) cancel.
@@ -232,7 +280,7 @@ var CellEditor = Base.extend('CellEditor', {
             this.hideEditor();
             this.grid.cellEditor = null;
             this.el.remove();
-        } else if (feedback >= 0) { // never true when `feedback` undefined
+        } else if (feedback >= 0) { // false when `feedback` undefined
             this.errorEffectBegin(++this.errors % feedback === 0 && error);
         } else { // invalid but no feedback
             this.cancelEditing();
@@ -254,27 +302,21 @@ var CellEditor = Base.extend('CellEditor', {
     },
 
     /**
-     * Calls the effect function indicated in the {@link CellEditor#errorEffect|errorEffect} property which triggers a series of CSS transitions.
+     * Calls the effect function indicated in the {@link module:defaults.feedbackEffect|feedbackEffect} property, which triggers a series of CSS transitions.
      * @param {boolean|string|Error} [error] - If defined, call the {@link CellEditor#errorEffectEnd|errorEffectEnd} method at the end of the last effect transition with this error.
      * @memberOf CellEditor.prototype
      */
     errorEffectBegin: function(error) {
-        var options = { callback: error && this.errorEffectEnd.bind(this, error) },
-            effect = this.errorEffect;
+        var spec = this.grid.properties.feedbackEffect, // spec may e a string or an object with name and options props
+            options = Object.assign({}, spec.options), // if spec is a string, spec.options will be undefined
+            effect = effects[spec.name || spec]; // if spec is a string, spec.name will be undefined
 
-        if (typeof effect === 'string') {
-            effect = this.errorEffects[effect];
+        if (error) {
+            options.callback = this.errorEffectEnd.bind(this, error);
         }
 
-        if (typeof effect === 'object') {
-            Object.assign(options, effect.options);
-            effect = effect.effector;
-        }
-
-        if (typeof effect === 'function') {
+        if (effect) {
             effect.call(this, options);
-        } else {
-            throw 'Expected `this.errorEffect` to resolve to an error effect function.';
         }
     },
 
@@ -283,7 +325,7 @@ var CellEditor = Base.extend('CellEditor', {
      * @this {CellEditor}
      * @param {boolean|string|Error} [error]
      */
-    errorEffectEnd: function(error) {
+    errorEffectEnd: function(error, options) {
         if (error) {
             var msg =
                 'Invalid value. To resolve, do one of the following:\n\n' +
@@ -313,29 +355,6 @@ var CellEditor = Base.extend('CellEditor', {
                 alert(msg); // eslint-disable-line no-alert
             });
         }
-    },
-
-    /** @typedef effectObject
-     * @property {effectFunction} effector
-     * @property {object} [options] - An options object with which to call the function.
-     */
-    /**
-     * May be one of:
-     * * **string** - Name of registered error effect.
-     * * **effectFunction** - Reference to an effect function.
-     * * **effectObject** - Reference to an effectObject containing an {@link effectFunction} and an `options` object with which to call the function.
-     * @type {string|effectFunction|effectObject}
-     * @memberOf CellEditor.prototype
-     */
-    errorEffect: 'shaker',
-
-    /**
-     * Hash of registered {@link effectFunction}s or {@link effectObject}s.
-     * @memberOf CellEditor.prototype
-     */
-    errorEffects: {
-        shaker: effects.shaker,
-        glower: effects.glower
     },
 
     /**

@@ -1,12 +1,10 @@
 'use strict';
 
-var rectangular = require('rectangular');
-
 var deprecated = require('./deprecated');
+var WritablePoint = require('./WritablePoint');
 
-// Variation of rectangular.Point but with writable x and y:
-function WritablePoint() {}
-WritablePoint.prototype = rectangular.Point.prototype;
+var writableDescriptor = { writable: true };
+var eumerableDescriptor = { writable: true, enumerable: true };
 
 // The nullSubgrid is for CellEvents representing clicks below last row.
 // var nullSubgrid = {};
@@ -18,11 +16,11 @@ var prototype = Object.defineProperties({}, {
     },
 
     row: {
-        get: function() { return this.visibleRow.subgrid.getRow(this.dataCell.y); },
+        get: function() { return this.visibleRow.subgrid.getRow(this.dataCell.y); }
     },
 
     formattedValue: {
-        get: function() { return this.grid.formatValue(this.getCellProperty('format'), this.value); }
+        get: function() { return this.grid.formatValue(this.properties.format, this.value); }
     },
 
     bounds: { get: function() {
@@ -53,7 +51,7 @@ var prototype = Object.defineProperties({}, {
         }
         return cp;
     } },
-    cellOwnProperties: { get: function() {
+    cellOwnProperties: { get: function() { // do not use for get/set prop because may return null; instead use  .getCellProperty('prop') or .properties.prop (preferred) to get and setCellProperty('prop', value) to set
         if (this._cellOwnProperties === undefined) {
             this._cellOwnProperties = this.column.getCellOwnProperties(this.dataCell.y, this.visibleRow.subgrid);
         }
@@ -62,29 +60,79 @@ var prototype = Object.defineProperties({}, {
     properties: { get: function() {
         return this.cellOwnProperties || this.columnProperties;
     } },
-    getCellProperty: { value: function(propName) {
-        return this.properties[propName];
+    getCellProperty: { value: function(key) { // included for completeness but .properties[key] is preferred
+        return this.properties[key];
+    } },
+    setCellProperty: { value: function(key, value) { // do not use .cellOwnProperties[key] = value because object may be null (this method creates object as needed)
+        this._cellOwnProperties = this.column.setCellProperty(this.dataCell.y, key, value, this.visibleRow.subgrid);
     } },
 
     // special methods for use by renderer which reuses cellEvent object for performance reasons
     reset: { value: function(visibleColumn, visibleRow) {
-        this.disabled = false;
+        // getter caches
+        this._columnProperties = undefined;
+        this._cellOwnProperties = undefined;
+        this._bounds = undefined;
+
+        // partial render support
+        this.snapshot = undefined;
+        this.minWidth = undefined;
+        this.disabled = undefined;
 
         this.visibleColumn = visibleColumn;
         this.visibleRow = visibleRow;
 
-        this.column = visibleColumn.column;
+        this.column = visibleColumn.column; // enumerable so will be copied to cell renderer object
 
         this.gridCell.x = visibleColumn.columnIndex;
         this.gridCell.y = visibleRow.index;
 
         this.dataCell.x = this.column && this.column.index;
         this.dataCell.y = visibleRow.rowIndex;
+    } },
 
-        this._columnProperties = this._cellOwnProperties = this._bounds = undefined;
+    /**
+     * Set up this `CellEvent` instance to point to the cell at the given grid coordinates.
+     * @desc If the requested cell is not be visible (due to being scrolled out of view or outside the bounds of the rendered grid), the instance is not reset.
+     * @param {number} gridX - Horizontal grid cell coordinate (adjusted for horizontal scrolling after fixed columns).
+     * @param {number} gridY - Vertical grid cell coordinate, adjusted (adjusted for vertical scrolling if data subgrid)
+     * @returns {boolean} Visibility.
+     * @memberOf CellEvent#
+     */
+    resetGridXY: { value: function(gridX, gridY) {
+        var vr, vc, visible = (vc = this.renderer.getVisibleColumn(gridX)) && (vr = this.renderer.getVisibleRow(gridY));
+        if (visible) { this.reset(vc, vr); }
+        return visible;
+    } },
 
-        // Following supports cell renderers' partial render capability:
-        this.snapshot = this.minWidth = undefined;
+    /**
+     * @summary Set up this `CellEvent` instance to point to the cell at the given data coordinates.
+     * @desc If the requested cell is not be visible (due to being scrolled out of view), the instance is not reset.
+     * @param {number} dataX - Horizontal data cell coordinate.
+     * @param {number} dataY - Vertical data cell coordinate.
+     * @param {dataModelAPI} [subgrid=this.behavior.subgrids.data]
+     * @returns {boolean} Visibility.
+     * @memberOf CellEvent#
+     */
+    resetDataXY: { value: function(dataX, dataY, subgrid) {
+        var vr, vc, visible = (vc = this.renderer.getVisibleDataColumn(dataX)) && (vr = this.renderer.getVisibleDataRow(dataY, subgrid));
+        if (visible) { this.reset(vc, vr); }
+        return visible;
+    } },
+
+    /**
+     * Set up this `CellEvent` instance to point to the cell at the given grid column and data row coordinates.
+     * @desc If the requested cell is not be visible (due to being scrolled out of view or outside the bounds of the rendered grid), the instance is not reset.
+     * @param {number} gridX - Horizontal grid cell coordinate (adjusted for horizontal scrolling after fixed columns).
+     * @param {number} dataY - Vertical data cell coordinate.
+     * @param {dataModelAPI} [subgrid=this.behavior.subgrids.data]
+     * @returns {boolean} Visibility.
+     * @memberOf CellEvent#
+     */
+    resetGridXDataY: { value: function(gridX, dataY, subgrid) {
+        var vr, vc, visible = (vc = this.renderer.getVisibleColumn(gridX)) && (vr = this.renderer.getVisibleDataRow(dataY, subgrid));
+        if (visible) { this.reset(vc, vr); }
+        return visible && this;
     } },
 
     subgrid: { get: function() { return this.visibleRow.subgrid; } },
@@ -151,7 +199,7 @@ var prototype = Object.defineProperties({}, {
     isGridCell: { get: function() {
         this.deprecated('isGridCell', '.isGridCell is deprecated as of v1.2.10 in favor of .isDataCell. (Will be removed in a future release.)');
         return this.isDataCell;
-    } }
+    } },
 });
 
 /**
@@ -181,12 +229,14 @@ function factory(grid) {
      * * Excludes `this.gridCell`, `this.dataCell`, `this.visibleRow.subgrid` defined by constructor (as non-enumerable).
      * * Any additional (enumerable) members mixed in by application's `getCellEditorAt` override.
      *
-     * Omit params to defer `reset`.
-     * @param {number} [x] - grid cell coordinate (adjusted for horizontal scrolling after fixed columns).
-     * @param {number} [y] - grid cell coordinate, adjusted (adjusted for vertical scrolling if data subgrid)
+     * Omit params to defer call to {CellEvent#resetGridXY}.
+     * (See also {@link CellEvent#resetDataXY} which accepts `dataX`, `dataY`.)
+     *
+     * @param {number} [gridX] - grid cell coordinate (adjusted for horizontal scrolling after fixed columns).
+     * @param {number} [gridY] - grid cell coordinate, adjusted (adjusted for vertical scrolling if data subgrid)
      * @constructor
      */
-    function CellEvent(x, y) {
+    function CellEvent(gridX, gridY) {
         // remaining instance vars are non-enumerable so `CellEditor` constructor won't mix them in (for mustache use).
         Object.defineProperties(this, {
             /**
@@ -194,18 +244,14 @@ function factory(grid) {
              * @type {visibleColumnDescriptor}
              * @memberOf CellEvent#
              */
-            visibleColumn: {
-                writable: true // Allow to be overwritten by `reset`.
-            },
+            visibleColumn: writableDescriptor,
 
             /**
              * @name visibleRow
              * @type {visibleRowDescriptor}
              * @memberOf CellEvent#
              */
-            visibleRow: {
-                writable: true // Allow to be overwritten by `reset`.
-            },
+            visibleRow: writableDescriptor,
 
             /**
              * @name gridCell
@@ -223,16 +269,24 @@ function factory(grid) {
              */
             dataCell: {
                 value: new WritablePoint
-            }
+            },
+
+            // column is enumerable so it will be copied to cell event on CellEvent.prototype.initialize.
+            column: eumerableDescriptor,
+
+            // getter caches
+            _columnProperties: writableDescriptor,
+            _cellOwnProperties: writableDescriptor,
+            _bounds: writableDescriptor,
+
+            // Following supports cell renderers' "partial render" capability:
+            snapshot: writableDescriptor,
+            minWidth: writableDescriptor,
+            disabled: writableDescriptor
         });
 
         if (arguments.length) {
-            this.reset(
-                this.grid.renderer.visibleColumns.find(function(vc) {
-                    return vc.columnIndex === x;
-                }),
-                this.grid.renderer.visibleRows[y]
-            );
+            this.resetGridXY(gridX, gridY);
         }
     }
 

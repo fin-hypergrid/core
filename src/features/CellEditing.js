@@ -42,10 +42,11 @@ var CellEditing = Feature.extend('CellEditing', {
      * @memberOf KeyPaging.prototype
      */
     handleKeyDown: function(grid, event) {
-        var char, isVisibleChar, isDeleteChar, currentCell, editor;
+        var char, isVisibleChar, isDeleteChar, editor, cellEvent;
 
         if (
-            grid.properties.editOnKeydown &&
+            (cellEvent = grid.getGridCellFromLastSelection()) &&
+            cellEvent.properties.editOnKeydown &&
             !grid.cellEditor &&
             (
                 (char = event.detail.char) === 'F2' ||
@@ -53,21 +54,15 @@ var CellEditing = Feature.extend('CellEditing', {
                 (isDeleteChar = char === 'DELETE' || char === 'BACKSPACE')
             )
         ) {
-            currentCell = grid.selectionModel.getLastSelection();
-            if (currentCell) {
-                var pseudoEvent = new grid.behavior.CellEvent(currentCell.origin.x,
-                    currentCell.origin.y + grid.behavior.getHeaderRowCount());
+            editor = grid.onEditorActivate(cellEvent);
 
-                editor = grid.onEditorActivate(pseudoEvent);
-
-                if (editor instanceof CellEditor) {
-                    if (isVisibleChar) {
-                        editor.input.value = char;
-                    } else if (isDeleteChar) {
-                        editor.setEditorValue('');
-                    }
-                    event.detail.primitiveEvent.preventDefault();
+            if (editor instanceof CellEditor) {
+                if (isVisibleChar) {
+                    editor.input.value = char;
+                } else if (isDeleteChar) {
+                    editor.setEditorValue('');
                 }
+                event.detail.primitiveEvent.preventDefault();
             }
         } else if (this.next) {
             this.next.handleKeyDown(grid, event);
