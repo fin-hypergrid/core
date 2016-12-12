@@ -63,7 +63,7 @@ var deprecated = function(methodName, dotProps, since, args, notes) {
         }
         return;
     } else {
-        throw 'Expected simple warning (containing one or more spaces) in 2nd parameter of deprecated() call.';
+        throw 'Expected method name with parentheses in 1st parameter OR simple warning (containing one or more spaces) in 2nd parameter of deprecated() call.';
     }
 
     var formalArgList = argList(methodName);

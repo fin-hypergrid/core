@@ -21,7 +21,17 @@ var dynamicProperties = {
             this.cache.noDataMessage = message;
             this.grid.setInfo(message);
         }
-    }
+    },
+
+    columnIndexes: {
+        get: function() {
+            return this.grid.behavior.columns.map(function(column) { return column.index; });
+        },
+        set: function(columnIndexes) {
+            this.grid.behavior.setColumnOrder(columnIndexes);
+            this.grid.behavior.changed();
+        }
+    },
 };
 
 module.exports = dynamicProperties;

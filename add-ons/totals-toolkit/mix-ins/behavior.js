@@ -82,7 +82,7 @@ module.exports = {
     setTotals: function(key, rows, activeColumnsList) {
         key += 'Totals';
 
-        var totals = this.subgrids[key];
+        var totals = this.subgrids.lookup[key];
 
         if (!totals) {
             throw new this.HypergridError('Expected subgrids.' + key + '.');
@@ -126,7 +126,7 @@ module.exports = {
     getTotals: function(key, activeColumnsList) {
         key += 'Totals';
 
-        var rows = this.subgrids[key];
+        var rows = this.subgrids.lookup[key];
         rows = rows ? rows.getData() : [];
 
         if (activeColumnsList) {

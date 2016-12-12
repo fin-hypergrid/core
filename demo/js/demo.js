@@ -200,7 +200,9 @@ window.onload = function() {
     console.log('Indexes:'); console.dir(idx);
 
     function setData(data, options) {
-        options = options || {schema: getSchema(data)};
+        options = !data.length ? undefined : options || {
+            schema: getSchema(data)
+        };
         grid.setData(data, options);
         resetGlobalFilter(data);
         idx = behavior.columnEnum;
@@ -287,19 +289,27 @@ window.onload = function() {
             ['TEN', 'NINE', '8', 'SEVEN', 'SIX', 'FIVE', 'FOUR', 'THREE', 'TWO', 'ONE']
         ];
 
-    var emptyData = false;
+    var oldData;
     function toggleEmptyData() {
-        emptyData = !emptyData;
-        if (emptyData) {
+        if (!oldData) {
+            oldData = {
+                topTotals: behavior.getTopTotals(),
+                bottomTotals: behavior.getBottomTotals(),
+                data: dataModel.getData(),
+                schema: dataModel.schema,
+                activeColumns: behavior.columns.map(function(column) { return column.index; })
+            };
             //important to set top totals first
             behavior.setTopTotals([]);
             setData([]);
             behavior.setBottomTotals([]);
         } else {
             //important to set top totals first
-            behavior.setTopTotals(topTotals);
-            setData(people1);
-            behavior.setBottomTotals(bottomTotals);
+            behavior.setTopTotals(oldData.topTotals);
+            setData(oldData.data, oldData.schema);
+            behavior.setColumnIndexes(oldData.activeColumns);
+            behavior.setBottomTotals(oldData.bottomTotals);
+            oldData = undefined;
         }
     }
 
