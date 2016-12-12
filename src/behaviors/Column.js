@@ -330,13 +330,18 @@ Column.prototype = {
     getCellEditorAt: function(cellEvent) {
         var columnIndex = this.index,
             rowIndex = cellEvent.gridCell.y,
-            cellProps = cellEvent.properties,
-            editorName = cellProps.editor,
-            cellEditor;
-
-        cellEvent.format = cellProps.format;
-
-        cellEditor = this.dataModel.getCellEditorAt(columnIndex, rowIndex, editorName, cellEvent);
+            editorName = cellEvent.properties.editor,
+            options = Object.create(cellEvent, {
+                format: {
+                    // `options.format` is a copy of the cell's `format` property which is:
+                    // 1. Subject to adjustment by the `getCellEditorAt` override.
+                    // 2. Then used by the cell editor to reference the predefined localizer.
+                    writable: true,
+                    enumerable: true, // so cell editor will copy it to self
+                    value: cellEvent.properties.format
+                }
+            }),
+            cellEditor = this.dataModel.getCellEditorAt(columnIndex, rowIndex, editorName, options);
 
         if (cellEditor && !cellEditor.grid) {
             // cell editor returned but not fully instantiated (aborted by falsy return from fireRequestCellEdit)

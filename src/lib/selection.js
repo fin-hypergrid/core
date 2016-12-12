@@ -632,38 +632,6 @@ module.exports = {
     },
 
     /**
-     * @summary Update the given `cellEvent` with the new coordinates.
-     * @desc The `cellEvent` object is only updated if the target cell would be visible, in which case the last selection is also moved to the new position.
-     * @param {CellEvent} cellEvent
-     * @param {number} gridX - The column index.
-     * @param {number} dataY - The row index within the given subgrid.
-     * @param {dataModelAPI} [subgrid=this.behavior.subgrids.data]
-     * @returns {boolean} If target cell is visible.
-     * @memberOf Hypergrid#
-     */
-    resetEditPoint: function(cellEvent, gridX, dataY, subgrid) {
-        var visible = cellEvent.resetGridXDataY(gridX, dataY, subgrid);
-        if (visible) { this.moveToSingleSelect(gridX, cellEvent.gridCell.y); }
-        return visible;
-    },
-
-    /**
-     * @summary Update the given `cellEvent` with the given coordinate offsets.
-     * @desc The `cellEvent` object is only updated if the target cell would be visible, in which case the last selection is also moved to the new position.
-     * @param {CellEvent} cellEvent
-     * @param {number} offsetGridX - The column index offset.
-     * @param {number} offsetDataY - The row index offset within the given subgrid.
-     * @param {dataModelAPI} [subgrid=this.behavior.subgrids.data]
-     * @returns {boolean} If target cell is visible.
-     * @memberOf Hypergrid#
-     */
-    offsetEditPoint: function(cellEvent, offsetGridX, offsetDataY, subgrid) {
-        var x = cellEvent.gridCell.x + offsetGridX,
-            y = cellEvent.dataCell.y + offsetDataY;
-        return this.resetEditPoint(cellEvent, x, y, subgrid);
-    },
-
-    /**
      * @returns {undefined|CellEvent}
      * @memberOf Hypergrid#
      */

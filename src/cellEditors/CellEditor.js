@@ -21,7 +21,9 @@ var CellEditor = Base.extend('CellEditor', {
      */
     initialize: function(grid, options) {
         // Mix in all enumerable properties for mustache use, typically `column` and `format`.
-        Object.assign(this, options);
+        for (var key in options) {
+            this[key] = options[key];
+        }
 
         this.event = options;
 

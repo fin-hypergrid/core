@@ -135,6 +135,16 @@ var prototype = Object.defineProperties({}, {
         return visible && this;
     } },
 
+    editPoint: {
+        get: function() {
+            throw 'The `.editPoint` property is no longer available as of v1.2.10. Use the following coordinates instead:\n' +
+            '`.gridCell.x` - The active column index. (Adjusted for column scrolling after fixed columns.)\n' +
+            '`.gridCell.y` - The vertical grid coordinate. (Unaffected by row scrolling.)\n' +
+            '`.dataCell.x` - The data model\'s column index. (Unaffected by column scrolling.)\n' +
+            '`.dataCell.y` - The data model\'s row index. (Adjusted for data row scrolling after fixed rows.)\n';
+        }
+    },
+
     subgrid: { get: function() { return this.visibleRow.subgrid; } },
 
     // "Visible" means scrolled into view.
