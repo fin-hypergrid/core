@@ -31,7 +31,7 @@ var paintCellsByColumnsAndRows = require('./by-columns-and-rows');
  * @param {CanvasRenderingContext2D} gc
  * @memberOf Renderer.prototype
  */
-function paintCells(gc) {
+function paintCellsAsNeeded(gc) {
     var grid = this.grid,
         gridProps = grid.properties,
         cellEvent,
@@ -48,10 +48,10 @@ function paintCells(gc) {
 
     if (!C || !R) { return; }
 
-    if (paintCells.reset) {
+    if (paintCellsAsNeeded.reset) {
         this.resetAllGridRenderers();
         paintCellsByColumnsAndRows.call(this, gc);
-        paintCells.reset = false;
+        paintCellsAsNeeded.reset = false;
     }
 
     // gc.clipSave(clipToGrid, 0, 0, viewWidth, viewHeight);
@@ -84,6 +84,8 @@ function paintCells(gc) {
     // gc.clipRestore(clipToGrid);
 }
 
-paintCells.key = 'by-cells';
+paintCellsAsNeeded.key = 'by-cells';
 
-module.exports = paintCells;
+paintCellsAsNeeded.partial = true; // skip painting selectionRegionOverlayColor
+
+module.exports = paintCellsAsNeeded;

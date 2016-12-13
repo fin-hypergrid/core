@@ -744,7 +744,7 @@ var Renderer = Base.extend('Renderer', {
                 width: vcCorner.right - vcOrigin.left,
                 height: vrCorner.bottom - vrOrigin.top
             },
-            selectionRegionOverlayColor: gridProps.selectionRegionOverlayColor,
+            selectionRegionOverlayColor: this.paintCells.partial ? 'transparent' : gridProps.selectionRegionOverlayColor,
             selectionRegionOutlineColor: gridProps.selectionRegionOutlineColor
         };
         this.grid.cellRenderers.get('lastselection').paint(gc, config);

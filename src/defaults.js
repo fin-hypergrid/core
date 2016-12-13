@@ -740,13 +740,16 @@ var defaults = {
     singleRowSelectionMode: true,
 
     /**
+     * @summary Fill color for last selection overlay.
+     * @desc The color should be translucent (or transparent). Note that "Partial" grid renderers (such as the {@link paintCellsAsNeeded} renderer) do not draw overlay because it just gets darker and darker for non-updated cells.
      * @default
      * @type {cssColor}
      * @memberOf module:defaults
      */
-    selectionRegionOverlayColor: 'rgba(0, 0, 48, 0.2)',
+    selectionRegionOverlayColor: 'transparent', // 'rgba(0, 0, 48, 0.2)',
 
     /**
+     * @summary Stroke color for last selection overlay.
      * @default
      * @type {string}
      * @memberOf module:defaults
