@@ -1112,7 +1112,8 @@ var Renderer = Base.extend('Renderer', {
      * @returns {CellEvent} The matching `CellEvent` object from the renderer's pool. Returns `undefined` if the requested cell is not currently visible (due to being scrolled out of view).
      */
     findCell: function(colIndexOrCellEvent, rowIndex, dataModel) {
-        var colIndex;
+        var colIndex, cellEvent,
+            pool = this.cellEventPool;
 
         if (typeof colIndexOrCellEvent === 'object') {
             // colIndexOrCellEvent is a cell event object
@@ -1125,11 +1126,16 @@ var Renderer = Base.extend('Renderer', {
 
         dataModel = dataModel || this.grid.behavior.dataModel;
 
-        return this.cellEventPool.find(function(cellEvent) {
-            return cellEvent.subgrid === dataModel &&
+        for (var p = 0, len = this.visibleColumns.length * this.visibleRows.length; p < len; ++p) {
+            cellEvent = pool[p];
+            if (
+                cellEvent.subgrid === dataModel &&
                 cellEvent.column.index === colIndex &&
-                cellEvent.visibleRow.rowIndex === rowIndex;
-        });
+                cellEvent.visibleRow.rowIndex === rowIndex
+            ) {
+                return cellEvent;
+            }
+        }
     },
 
     /**

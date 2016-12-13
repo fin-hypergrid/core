@@ -492,7 +492,7 @@ var defaults = {
      * @type {string[]}
      * @memberOf module:defaults
      */
-    editorActivationKeys: ['alt', 'esc'],
+    editorActivationKeys: [], // ['alt', 'esc'],
 
     /**
      * @summary Mappings for cell navigation keys.
