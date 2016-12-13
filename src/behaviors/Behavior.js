@@ -284,25 +284,10 @@ var Behavior = Base.extend('Behavior', {
             this.deprecated('rowHeights', 'rowHeights, the hash of row heights you provided to setState method, is no longer supported as of v1.2.0 and will be ignored. Instead use individual calls to setRowHeight(y, height, dataModel) for each row height you wish to set, where y is local zero-based row index within dataModel. The dataModel arg is optional and defaults to this.dataModel; specify to set row heights in other data models, such as header row, filter cell row, individual summary rows, etc.');
         }
 
-        //we don't want to clobber the column properties completely
-        if (!memento.columnIndexes) {
-            var length = this.dataModel.schema.length;
-            memento.columnIndexes = [];
-            for (var i = 0; i < length; i++) {
-                memento.columnIndexes[i] = i;
-            }
-        }
+        this.createColumns();
 
         var state = this.grid.properties;
-        this.createColumns();
-        this._setColumnOrder(memento.columnIndexes);
-
         for (var key in memento) {
-            switch (key) {
-                case 'columnIndexes':
-                case 'columnProperties':
-                    continue;
-            }
             if (memento.hasOwnProperty(key)) {
                 state[key] = memento[key];
             }
@@ -321,13 +306,17 @@ var Behavior = Base.extend('Behavior', {
         }
     },
 
-    _setColumnOrder: function(columnIndexes) {
+    setColumnOrder: function(columnIndexes) {
         if (Array.isArray(columnIndexes)){
             this.columns.length = columnIndexes.length;
             columnIndexes.forEach(function(index, i) {
                 this.columns[i] = this.allColumns[index];
             }, this);
         }
+    },
+
+    _setColumnOrder: function(columnIndexes) {
+        this.deprecated('_setColumnOrder(columnIndexes)', 'setColumnOrder(columnIndexes)', '1.2.10', arguments);
     },
 
     /**
@@ -337,10 +326,7 @@ var Behavior = Base.extend('Behavior', {
      * @param {Boolean} [silent=false] - whether to trigger column changed event
      */
     setColumnIndexes: function(columnIndexes, silent) {
-        var tableState = this.grid.properties;
-        this._setColumnOrder(columnIndexes);
-        tableState.columnIndexes = columnIndexes;
-        this.changed();
+        this.grid.properties.columnIndexes = columnIndexes;
         if (!silent) {
             this.grid.fireSyntheticOnColumnsChangedEvent();
         }

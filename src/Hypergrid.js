@@ -535,31 +535,21 @@ var Hypergrid = Base.extend('Hypergrid', {
      * @param {object} properties - A simple properties hash.
      */
     addGlobalProperties: function(properties) {
-        //we check for existence to avoid race condition in initialization
-        if (!globalProperties) {
-            var self = this;
-            setTimeout(function() {
-                self.addGlobalProperties(properties);
-            }, 10);
-        } else {
-            this._addGlobalProperties(properties);
-        }
-
+        Object.assign(globalProperties, properties);
     },
 
     /**
      * @memberOf Hypergrid#
-     * @desc Amend properties for all hypergrids in this process.
-     * @param {object} properties - A simple properties hash.
-     * @private
+     * @desc Amend properties for this hypergrid only.
+     * @param {object} moreProperties - A simple properties hash.
      */
-    _addGlobalProperties: function(properties) {
-        _(properties).each(function(property, key) {
-            globalProperties[key] = property;
-        });
+    addProperties: function(properties) {
+        Object.assign(this.properties, properties);
+        this.refreshProperties();
     },
 
     /**
+     * @todo deprecate this in favor of making properties dynamic instead (for those that need to be)
      * @memberOf Hypergrid#
      * @desc Utility function to push out properties if we change them.
      * @param {object} properties - An object of various key value pairs.
@@ -572,16 +562,6 @@ var Hypergrid = Base.extend('Hypergrid', {
         this.checkScrollbarVisibility();
         this.behavior.defaultRowHeight = null;
         this.behavior.autosizeAllColumns();
-    },
-
-    /**
-     * @memberOf Hypergrid#
-     * @desc Amend properties for this hypergrid only.
-     * @param {object} moreProperties - A simple properties hash.
-     */
-    addProperties: function(properties) {
-        Object.assign(this.properties, properties);
-        this.refreshProperties();
     },
 
     /**
@@ -747,7 +727,7 @@ var Hypergrid = Base.extend('Hypergrid', {
      */
     setData: function(dataRows, options) {
         if (!this.behavior) {
-            // If we get hear it means:
+            // If we get here it means:
             // 1. `Behavior` option wasn't given to constructor.
             // 2. `setBehavior` wasn't called explicitly.
             // So we call it now to set the default behavior (by not specifying a `Behavior`) with the unused constructor `pipeline` option.
