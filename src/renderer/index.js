@@ -744,7 +744,7 @@ var Renderer = Base.extend('Renderer', {
                 width: vcCorner.right - vcOrigin.left,
                 height: vrCorner.bottom - vrOrigin.top
             },
-            selectionRegionOverlayColor: gridProps.selectionRegionOverlayColor,
+            selectionRegionOverlayColor: this.paintCells.partial ? 'transparent' : gridProps.selectionRegionOverlayColor,
             selectionRegionOutlineColor: gridProps.selectionRegionOutlineColor
         };
         this.grid.cellRenderers.get('lastselection').paint(gc, config);
@@ -962,6 +962,24 @@ var Renderer = Base.extend('Renderer', {
         }
     },
 
+    /**
+     * @summary Render a single cell.
+     * @desc IMPORTANT NOTE: Do not change the line below with the comment "SEE IMPORTANT NOTE ABOVE" without careful performance testing. Building the config object from cell properties object produced much slower rendering times. The original line was:
+     * ```javascript
+     *     config = Object.create(cellEvent.columnProperties),
+     * ```
+     * Cell properties object came into play when `cellEvent.properties` getter which returns cell properties object when there is one (else it returns column properties object). The reason seemed to be that doing so caused optimization to fail on the cell renderer function. The work-around was to always build the `config` object from the column properties object, and then _copy_ the "own" cell properties onto it. The current line is:
+     * ```javascript
+     *     config = Object.assign(Object.create(cellEvent.columnProperties), cellEvent.cellOwnProperties),
+     * ```
+     * We kept the cell properties object prototype in place (extended from column properties) for other logic.
+     * @param {CanvasRenderingContext2D} gc
+     * @param {CellEvent} cellEvent
+     * @param {string} [prefillColor] If omitted, this is a partial renderer; all other renderers must provide this.
+     * @returns {number} Preferred width of renndered cell.
+     * @private
+     * @memberOf Renderer
+     */
     _paintCell: function(gc, cellEvent, prefillColor) {
         var grid = this.grid,
             selectionModel = grid.selectionModel,
@@ -983,7 +1001,7 @@ var Renderer = Base.extend('Renderer', {
             isUserDataArea = !isRowHandleOrHierarchyColumn && isDataRow,
             isRealData = !subgrid.isInfo, // selectable/hoverable
 
-            config = Object.create(cellEvent.properties), // cell props || specific column props object (wrapped)
+            config = Object.assign(Object.create(cellEvent.columnProperties), cellEvent.cellOwnProperties), // SEE IMPORTANT NOTE ABOVE
             x = (config.gridCell = cellEvent.gridCell).x,
             r = (config.dataCell = cellEvent.dataCell).y,
 
@@ -1073,9 +1091,9 @@ var Renderer = Base.extend('Renderer', {
 
         config.formatValue = grid.getFormatter(format);
 
-        // Following supports partial render (when `paint` aborts before setting `minWidth`)
+        // Following supports partial render>
         config.snapshot = cellEvent.snapshot;
-        config.minWidth = cellEvent.minWidth;
+        config.minWidth = cellEvent.minWidth; // in case `paint` aborts before setting `minWidth`
 
         // Render the cell
         cellRenderer.paint(gc, config);
@@ -1089,12 +1107,13 @@ var Renderer = Base.extend('Renderer', {
 
     /**
      * @param {number|CellEvent} colIndexOrCellEvent - This is the "data" x coordinate.
-     * @param {number} [rowIndex] - This is the "data" y coordinate.
-     * @param {dataModelAPI} [dataModel=this.grid.behavior.dataModel]
+     * @param {number} [rowIndex] - This is the "data" y coordinate. Omit if `colIndexOrCellEvent` is a `CellEvent`.
+     * @param {dataModelAPI} [dataModel=this.grid.behavior.dataModel] Omit if `colIndexOrCellEvent` is a `CellEvent`.
      * @returns {CellEvent} The matching `CellEvent` object from the renderer's pool. Returns `undefined` if the requested cell is not currently visible (due to being scrolled out of view).
      */
     findCell: function(colIndexOrCellEvent, rowIndex, dataModel) {
-        var colIndex;
+        var colIndex, cellEvent,
+            pool = this.cellEventPool;
 
         if (typeof colIndexOrCellEvent === 'object') {
             // colIndexOrCellEvent is a cell event object
@@ -1107,11 +1126,16 @@ var Renderer = Base.extend('Renderer', {
 
         dataModel = dataModel || this.grid.behavior.dataModel;
 
-        return this.cellEventPool.find(function(cellEvent) {
-            return cellEvent.subgrid === dataModel &&
+        for (var p = 0, len = this.visibleColumns.length * this.visibleRows.length; p < len; ++p) {
+            cellEvent = pool[p];
+            if (
+                cellEvent.subgrid === dataModel &&
                 cellEvent.column.index === colIndex &&
-                cellEvent.visibleRow.rowIndex === rowIndex;
-        });
+                cellEvent.visibleRow.rowIndex === rowIndex
+            ) {
+                return cellEvent;
+            }
+        }
     },
 
     /**
@@ -1125,6 +1149,12 @@ var Renderer = Base.extend('Renderer', {
         var cellEvent = this.findCell.apply(this, arguments);
         if (cellEvent) { cellEvent._cellOwnProperties = undefined; }
         return cellEvent;
+    },
+
+    resetAllCellPropertiesCaches: function() {
+        this.cellEventPool.forEach(function(cellEvent) {
+            cellEvent._cellOwnProperties = undefined;
+        });
     },
 
     isViewableButton: function(c, r) {

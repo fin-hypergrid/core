@@ -188,6 +188,8 @@ var Behavior = Base.extend('Behavior', {
     },
 
     createColumns: function() {
+        this.clearColumns();
+        this.clearAllCellProperties();
         //concrete implementation here
     },
 
@@ -992,16 +994,20 @@ var Behavior = Base.extend('Behavior', {
      * @memberOf Behavior#
      */
     clearAllCellProperties: function(x) {
-        if (x === undefined) {
-            // todo: More efficient might be to undefine `dataModel.getData(*).__META`.
-            for (var i = this.allColumns.length - 1; i >= 0; --i) {
-                this.getColumn(i).clearAllCellProperties();
-            }
-        } else {
-            var column = this.getColumn(i);
+        if (x !== undefined) {
+            var column = this.getColumn(x);
             if (column) {
                 column.clearAllCellProperties();
             }
+        } else if (this.subgrids) {
+            this.subgrids.forEach(function(dataModel) {
+                for (var i = dataModel.getRowCount(); i--;) {
+                    delete dataModel.getRow(i).__META;
+                    // todo: test if optimizer wants following instead
+                    // dataRow = dataModel.getRow(i);
+                    // if (dataRow.__META !== undefined) { dataRow.__META = undefined; }
+                }
+            });
         }
     },
 

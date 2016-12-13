@@ -43,8 +43,8 @@ module.exports = {
      * * **`'data'`** for the (one and only) data subgrid when unnamed (note that data subgrids have no `type`)
      *
      * The setter:
-     * * "Enlivens" any constructors (see {@link Behavior~createSubgrid|createSubgrid} for details.
-     * * Reconstructs the dictionary
+     * * "Enlivens" any constructors (see {@link Behavior~createSubgrid|createSubgrid} for details).
+     * * Reconstructs the dictionary.
      * * Calls {@link Behavior#shapeChanged|shapeChanged()}.
      *
      * @param {subgridSpec[]} subgridSpecs
@@ -54,12 +54,9 @@ module.exports = {
      * @memberOf Behavior#
      */
     set subgrids(subgridSpecs) {
-        var subgrids = this._subgrids;
+        var subgrids = this._subgrids = subgridSpecs.map(createSubgrid, this);
 
-        if (!subgrids) {
-            subgrids = this._subgrids = subgridSpecs.map(createSubgrid, this);
-            subgrids.lookup = {};
-        }
+        subgrids.lookup = {};
 
         // create the dictionary from the array elements
         subgrids.forEach(function(subgrid) {
