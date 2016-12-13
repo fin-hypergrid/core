@@ -962,6 +962,24 @@ var Renderer = Base.extend('Renderer', {
         }
     },
 
+    /**
+     * @summary Render a single cell.
+     * @desc IMPORTANT NOTE: Do not change the line below with the comment "SEE IMPORTANT NOTE ABOVE" without careful performance testing. Building the config object from cell properties object produced much slower rendering times. The original line was:
+     * ```javascript
+     *     config = Object.create(cellEvent.columnProperties),
+     * ```
+     * Cell properties object came into play when `cellEvent.properties` getter which returns cell properties object when there is one (else it returns column properties object). The reason seemed to be that doing so caused optimization to fail on the cell renderer function. The work-around was to always build the `config` object from the column properties object, and then _copy_ the "own" cell properties onto it. The current line is:
+     * ```javascript
+     *     config = Object.assign(Object.create(cellEvent.columnProperties), cellEvent.cellOwnProperties),
+     * ```
+     * We kept the cell properties object prototype in place (extended from column properties) for other logic.
+     * @param {CanvasRenderingContext2D} gc
+     * @param {CellEvent} cellEvent
+     * @param {string} [prefillColor] If omitted, this is a partial renderer; all other renderers must provide this.
+     * @returns {number} Preferred width of renndered cell.
+     * @private
+     * @memberOf Renderer
+     */
     _paintCell: function(gc, cellEvent, prefillColor) {
         var grid = this.grid,
             selectionModel = grid.selectionModel,
@@ -983,7 +1001,7 @@ var Renderer = Base.extend('Renderer', {
             isUserDataArea = !isRowHandleOrHierarchyColumn && isDataRow,
             isRealData = !subgrid.isInfo, // selectable/hoverable
 
-            config = Object.create(cellEvent.properties), // cell props || specific column props object (wrapped)
+            config = Object.assign(Object.create(cellEvent.columnProperties), cellEvent.cellOwnProperties), // SEE IMPORTANT NOTE ABOVE
             x = (config.gridCell = cellEvent.gridCell).x,
             r = (config.dataCell = cellEvent.dataCell).y,
 
