@@ -2012,6 +2012,16 @@ var Hypergrid = Base.extend('Hypergrid', {
         this.behavior.setColumnProperties(x, properties);
     },
 
+    /**
+     * Clears all cell properties of given column or of all columns.
+     * @param {number} [x] - Omit for all columns.
+     * @memberOf Behavior#
+     */
+    clearAllCellProperties: function(x) {
+        this.behavior.clearAllCellProperties(x);
+        this.renderer.resetAllCellPropertiesCaches();
+    },
+
     isShowRowNumbers: function() {
         return this.deprecated('isShowRowNumbers()', 'properties.showRowNumbers', 'v1.2.10');
     },

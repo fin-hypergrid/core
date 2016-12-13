@@ -45,11 +45,9 @@ var JSON = Behavior.extend('behaviors.JSON', {
     ],
 
     createColumns: function() {
-        var schema = this.dataModel.schema;
+        Behavior.prototype.createColumns.call(this);
 
-        this.clearColumns();
-
-        schema.forEach(function(columnSchema, index) {
+        this.dataModel.schema.forEach(function(columnSchema, index) {
             this.addColumn({
                 index: index,
                 header: columnSchema.header,

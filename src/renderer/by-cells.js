@@ -59,7 +59,6 @@ function paintCells(gc) {
     // For each column...
     for (p = 0, c = c0; c < C; c++) {
         cellEvent = pool[p]; // first cell in column c
-        this._cellOwnProperties = undefined;
         vc = cellEvent.visibleColumn;
 
         // Optionally clip to visible portion of column to prevent text from overflowing to right.
@@ -69,7 +68,6 @@ function paintCells(gc) {
         // For each row of each subgrid (of each column)...
         for (preferredWidth = r = 0; r < R; r++, p++) {
             cellEvent = pool[p]; // next cell down the column (redundant for first cell in column)
-            this._cellOwnProperties = undefined;
 
             try {
                 preferredWidth = Math.max(preferredWidth, this._paintCell(gc, pool[p]));

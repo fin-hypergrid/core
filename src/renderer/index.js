@@ -1073,9 +1073,9 @@ var Renderer = Base.extend('Renderer', {
 
         config.formatValue = grid.getFormatter(format);
 
-        // Following supports partial render (when `paint` aborts before setting `minWidth`)
+        // Following supports partial render>
         config.snapshot = cellEvent.snapshot;
-        config.minWidth = cellEvent.minWidth;
+        config.minWidth = cellEvent.minWidth; // in case `paint` aborts before setting `minWidth`
 
         // Render the cell
         cellRenderer.paint(gc, config);
@@ -1089,8 +1089,8 @@ var Renderer = Base.extend('Renderer', {
 
     /**
      * @param {number|CellEvent} colIndexOrCellEvent - This is the "data" x coordinate.
-     * @param {number} [rowIndex] - This is the "data" y coordinate.
-     * @param {dataModelAPI} [dataModel=this.grid.behavior.dataModel]
+     * @param {number} [rowIndex] - This is the "data" y coordinate. Omit if `colIndexOrCellEvent` is a `CellEvent`.
+     * @param {dataModelAPI} [dataModel=this.grid.behavior.dataModel] Omit if `colIndexOrCellEvent` is a `CellEvent`.
      * @returns {CellEvent} The matching `CellEvent` object from the renderer's pool. Returns `undefined` if the requested cell is not currently visible (due to being scrolled out of view).
      */
     findCell: function(colIndexOrCellEvent, rowIndex, dataModel) {
@@ -1125,6 +1125,12 @@ var Renderer = Base.extend('Renderer', {
         var cellEvent = this.findCell.apply(this, arguments);
         if (cellEvent) { cellEvent._cellOwnProperties = undefined; }
         return cellEvent;
+    },
+
+    resetAllCellPropertiesCaches: function() {
+        this.cellEventPool.forEach(function(cellEvent) {
+            cellEvent._cellOwnProperties = undefined;
+        });
     },
 
     isViewableButton: function(c, r) {

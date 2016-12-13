@@ -18,8 +18,8 @@ var rectangular = require('rectangular');
 var RESIZE_POLLING_INTERVAL = 200,
     paintables = [],
     resizables = [],
-    paintLoopRunning = true,
-    resizeLoopRunning = true,
+    paintRequest,
+    resizeInterval,
     charMap = makeCharMap();
 
 function Canvas(div, component) {
@@ -128,28 +128,22 @@ Canvas.prototype = {
     },
 
     stopPaintLoop: function() {
-        paintLoopRunning = false;
+        if (paintRequest) {
+            cancelAnimationFrame(paintRequest);
+            paintRequest = undefined;
+        }
     },
 
-    restartPaintLoop: function() {
-        if (paintLoopRunning) {
-            return; // already running
-        }
-        paintLoopRunning = true;
-        requestAnimationFrame(paintLoopFunction);
-    },
+    restartPaintLoop: restartPaintLoop,
 
     stopResizeLoop: function() {
-        resizeLoopRunning = false;
+        if (resizeInterval) {
+            clearInterval(resizeInterval);
+            resizeInterval = undefined;
+        }
     },
 
-    restartResizeLoop: function() {
-        if (resizeLoopRunning) {
-            return; // already running
-        }
-        resizeLoopRunning = true;
-        setInterval(resizablesLoopFunction, 200);
-    },
+    restartResizeLoop: restartResizeLoop,
 
     detached: function() {
         this.stopPainting();
@@ -523,7 +517,7 @@ Canvas.prototype = {
 
     repaint: function() {
         this.dirty = true;
-        if (!paintLoopRunning || this.component.properties.repaintIntervalRate === 0) {
+        if (!paintRequest || this.component.properties.repaintIntervalRate === 0) {
             this.paintNow();
         }
     },
@@ -618,33 +612,37 @@ function dispatchContextMenuEvent(e) {
 }
 
 function paintLoopFunction(now) {
-    if (!paintLoopRunning) {
-        return;
-    }
-    for (var i = 0; i < paintables.length; i++) {
-        try {
-            paintables[i].tickPainter(now);
-        } catch (e) {
-            console.error(e);
+    if (paintRequest) {
+        for (var i = 0; i < paintables.length; i++) {
+            try {
+                paintables[i].tickPainter(now);
+            } catch (e) {
+                console.error(e);
+            }
         }
+        paintRequest = requestAnimationFrame(paintLoopFunction);
     }
-    requestAnimationFrame(paintLoopFunction);
 }
-requestAnimationFrame(paintLoopFunction);
+function restartPaintLoop() {
+    paintRequest = paintRequest || requestAnimationFrame(paintLoopFunction);
+}
+restartPaintLoop();
 
 function resizablesLoopFunction(now) {
-    if (!resizeLoopRunning) {
-        return;
-    }
-    for (var i = 0; i < resizables.length; i++) {
-        try {
-            resizables[i].tickResizer(now);
-        } catch (e) {
-            console.error(e);
+    if (resizeInterval) {
+        for (var i = 0; i < resizables.length; i++) {
+            try {
+                resizables[i].tickResizer(now);
+            } catch (e) {
+                console.error(e);
+            }
         }
     }
 }
-setInterval(resizablesLoopFunction, RESIZE_POLLING_INTERVAL);
+function restartResizeLoop() {
+    resizeInterval = resizeInterval || setInterval(resizablesLoopFunction, RESIZE_POLLING_INTERVAL);
+}
+restartResizeLoop();
 
 function makeCharMap() {
     var map = [];
@@ -789,5 +787,6 @@ function getCachedContext(canvasElement, type) {
 
     return Object.assign(gc, require('./graphics'));
 }
+
 
 module.exports = Canvas;

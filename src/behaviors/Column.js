@@ -25,24 +25,25 @@ var images = require('../../images/index');
  *    -1   | Row header column
  *    -2   | Tree (drill-down) column
  */
-function Column(behavior, options) {
-    var index, schema;
+function Column(behavior, indexOrOptions) {
+    var index, schema, options;
 
     this.behavior = behavior;
     this.dataModel = behavior.dataModel;
 
     schema = this.behavior.dataModel.schema;
 
-    switch (typeof options) {
+    switch (typeof indexOrOptions) {
         case 'number':
-            index = options;
+            index = indexOrOptions;
             options = {};
             break;
         case 'string':
-            index = getIndexFromName(options);
+            index = getIndexFromName(indexOrOptions);
             options = {};
             break;
         case 'object':
+            options = indexOrOptions;
             index = options.index !== undefined
                 ? options.index
                 : getIndexFromName(options.name);
@@ -76,8 +77,6 @@ function Column(behavior, options) {
                 throw '`index` out of range';
             }
     }
-
-    this.clearAllCellProperties();
 }
 
 Column.prototype = {
@@ -272,9 +271,9 @@ Column.prototype = {
     get properties() {
         return this._properties;
     },
-    set properties(properties) {
+    set properties(ownProperties) {
         this._properties = this.createColumnProperties();
-        this.addProperties(properties);
+        this.addProperties(ownProperties);
     },
 
     getProperties: function() {

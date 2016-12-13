@@ -68,6 +68,13 @@ var cell = {
         );
     },
 
+    deleteCellOwnProperties: function(rowIndex, dataModel) {
+        var rowData = (dataModel || this.dataModel).getRow(rowIndex);
+        if (rowData.__META) {
+            delete rowData.__META[this.name];
+        }
+    },
+
     /**
      * @summary Return a specific cell property.
      * @desc If there is no cell properties object, defers to column properties object.
@@ -88,14 +95,34 @@ var cell = {
      * @memberOf Column#
      */
     setCellProperty: function(rowIndex, key, value, dataModel) {
-        var propertiesObject = getCellPropertiesObject.call(this, rowIndex, dataModel);
-        propertiesObject[key] = value;
-        return propertiesObject;
+        var cellProps = getCellPropertiesObject.call(this, rowIndex, dataModel);
+        cellProps[key] = value;
+        return cellProps;
+    },
+
+    deleteCellProperty: function(rowIndex, key, dataModel) {
+        var cellProps = this.getCellOwnProperties(rowIndex, dataModel);
+        if (cellProps) {
+            delete cellProps[key];
+        }
     },
 
     clearAllCellProperties: function() {
-        // Unimplemented!
-        // Need to undefine all `dataModel.getData(*).__META[this.name]`.
+        var key = this.name;
+        this.behavior.subgrids.forEach(function(dataModel) {
+            for (var i = dataModel.getRowCount(); i--;) {
+                var rowData = dataModel.getRow(i),
+                    meta = rowData.__META;
+                if (meta) {
+                    if (Object.keys(meta).length === 1) {
+                        delete rowData.__META;
+                    }
+                    if (meta) {
+                        delete meta[key];
+                    }
+                }
+            }
+        });
     }
 };
 
