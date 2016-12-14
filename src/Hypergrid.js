@@ -1248,23 +1248,22 @@ var Hypergrid = Base.extend('Hypergrid', {
      * * `false` drill-down unchanged (was already in requested state)
      */
     cellClicked: function(event) {
-        var result = false;
+        var result = this.behavior.cellClicked(event);
 
-        //click occurred in background area
-        if (
-            event.gridCell.x <= this.getColumnCount() &&
-            event.gridCell.y <= this.getRowCount()
-        ) {
-            result = this.behavior.cellClicked(event);
-
-            if (result !== undefined) {
-                this.behavior.changed();
-            }
+        if (result !== undefined) {
+            this.behavior.changed();
         }
 
         return result;
     },
 
+    /**
+     * To intercept link clicks, override this method (either on the prototype to apply to all grid instances or on an instance to apply to a specific grid instance).
+     * @memberOf Hypergrid#
+     */
+    windowOpen: function(url, name, features, replace) {
+        return window.open.apply(window, arguments);
+    },
 
     /**
      * @memberOf Hypergrid#

@@ -922,14 +922,39 @@ var defaults = {
         backgroundColor: 'rgba(60, 60, 15, 0.15)'
     },
 
-
-    /** @summary Display cell font with underline.
-     * @desc Implementation of links right now is not automatic; you must attach a 'fin-click' listener to the hypergrid object, etc.
+    /** @summary Display cell value as a link (with underline).
+     * @desc One of:
+     * * `boolean` - Any truthy value will display the cell as a link. If a boolean `true`, that is all you get: No automatic action occurs on click; you would need to attach a 'fin-click' listener to the hypergrid object.
+     * * `string` - Contains a URL to open on cell click. The URL is opened in a separate window/tab. See also {@link module:defaults.linkTarget|linkTarget}.
+     * * `Array` - An array to "apply" to {@link https://developer.mozilla.org/en-US/docs/Web/API/Window/open window.open} in its entirety.
+     *
+     * In the case of `string` or `Array`, the link is further unpacked by {@link module:CellClick.openLink|openLink} and then sent to `grid.windowOpen`.
+     *
+     * @example
+     * // following affect upper-left data cell:
+     * grid.behavior.setCellProperty(0, 0, 'https://nytimes.com'); // absolute address using specific protocol
+     * grid.behavior.setCellProperty(0, 0, '//nytimes.com'); // absolute address using current protocol
+     * grid.behavior.setCellProperty(0, 0, '/page2.com'); // relative to current site
+     * grid.behavior.setCellProperty(0, 0, 'mypage.com'); // relative to current page
+     * grid.behavior.setCellProperty(0, 0, 'mypage.com?id=%value'); // cell's value will replace %value
+     * grid.behavior.setCellProperty(0, 0, ['//www.newyorker.com', 'ny', undefined, true]) // target='ny', replace=true
+     * @type {boolean|string|Array}
      * @type {boolean}
      * @default
      * @memberOf module:defaults
      */
     link: false,
+
+    /** @summary The window (or tab) in which to open the link.
+     * @desc The default ('_blank'`) will open a new window for every click.
+     *
+     * To have the first click open a new window and all subsequent clicks reuse that same window, set this to an arbitrary string.
+     *
+     * Otherwise, specific columns or cells can be set to open their links in their own window by setting the appropriate column's or cell's `linkTarget` property.
+     * @default
+     * @memberOf module:defaults
+     */
+    linkTarget: '_blank',
 
     /** @summary Underline link on hover only.
      * @type {boolean}
@@ -945,6 +970,14 @@ var defaults = {
      * @memberOf module:defaults
      */
     linkColor: 'blue',
+
+    /** @summary Color for visited link.
+     * @desc Falsy means defer to foreground color.
+     * @type {string}
+     * @default
+     * @memberOf module:defaults
+     */
+    linkVisitedColor: 'purple',
 
     /** @summary Color link on hover only.
      * @type {boolean}
