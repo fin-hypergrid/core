@@ -64,7 +64,7 @@ Development
  * Complete API get/set State
  * Consume Native CSS Styling
  * Remove Filter Cell from core and provide example
- * Remove Column Picker and provide example
+ * Remove Column Picker from core and provide example
  * Bugs
 
 
