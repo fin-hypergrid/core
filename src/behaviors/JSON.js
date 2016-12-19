@@ -118,12 +118,11 @@ var JSON = Behavior.extend('behaviors.JSON', {
      * @memberOf behaviors.JSON.prototype
      */
     setPipeline: function(DataSources, options) {
+        this.dataModel.setPipeline.apply(this.dataModel, arguments);
+
         if (!Array.isArray(DataSources)) {
             options = DataSources;
-            DataSources = undefined;
         }
-
-        this.dataModel.setPipeline(DataSources, options);
 
         if (!options || options.apply === undefined || options.apply) {
             this.reindex();

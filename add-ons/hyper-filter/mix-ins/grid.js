@@ -3,6 +3,23 @@
 module.exports = {
 
     /**
+     * @summary The grid instance's filter DCI.
+     * @desc This getter/setter is syntactic sugar.
+     *
+     * In addition to a data model that accepts an DCI of type 'filter', to display the standard filter cells, the filter DCI also requires FilterSubgrid in the subgrids list.
+     * @param {dataControlInterface|undefined|null} filter - One of:
+     * * A filter object, turning filter *ON*.
+     * * `undefined`, the null filter is reassigned to the grid, turning filtering *OFF.*
+     * @memberOf Hypergrid#
+     */
+    get filter() {
+        return this.behavior.filter;
+    },
+    set filter(filter) {
+        this.setController('filter', filter);
+    },
+
+    /**
      * @param {number|string} columnIndexOrName - The _column filter_ to set.
      * @param {FilterTreeGetStateOptionsObject} [options] - Passed to the filter's {@link DefaultFilter#getState|getState} method.
      * @param {boolean} [options.syntax='CQL'] - The syntax to use to describe the filter state. Note that `getFilter`'s default syntax, `'CQL'`, differs from the other get state methods.

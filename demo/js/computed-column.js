@@ -32,9 +32,12 @@ window.onload = function() {
 
     // recreate to include new column
     grid.behavior.createColumns();
-    // These modules are for EXAMPLE purposes only
-    grid.filter = grid.plugins.hyperfilter.create();
-    grid.sorter = grid.plugins.hypersorter;
+
+    // Inform data model of external DCIs. (These DCIs are for EXAMPLE purposes only.)
+    grid.setController({
+        filter: grid.plugins.hyperfilter.create(),
+        sorter: grid.plugins.hypersorter
+    });
 
     // force type of new column to 'number' because current auto-detect does not know about calculated columns
     grid.behavior.getColumn(1).type = 'number';

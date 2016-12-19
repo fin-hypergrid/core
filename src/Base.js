@@ -1,3 +1,5 @@
+/* globals alert */
+
 'use strict';
 
 /**
@@ -12,6 +14,14 @@ var Base = require('extend-me').Base;
 
 Base.prototype.deprecated = require('./lib/deprecated');
 Base.prototype.HypergridError = require('./lib/error');
+
+Base.prototype.notify = function(message, onerror) {
+    switch (onerror) {
+        case 'warn': console.warn(message); break;
+        case 'alert': alert(message); break; // eslint-disable-line no-alert
+        default: throw new this.HypergridError(message);
+    }
+};
 
 /**
  * Convenience function for getting the value when that value can be defined as a function that needs to be called to get the actual (primitive) value.

@@ -27,15 +27,19 @@ window.onload = function() {
         [Hypergrid.TreeView, options] // object API instantiation with one arg; `$$CLASS_NAME` defined so ref saved in `grid.plugins.treeViewAPI`
     ] });
 
-    grid.filter = grid.plugins.hyperfilter.create();
-    grid.sorter = grid.plugins.hypersorter;
+    // Inform data model of external DCIs. (These DCIs are for EXAMPLE purposes only.)
+    grid.setController({
+        // These modules are for EXAMPLE purposes only
+        filter: grid.plugins.hyperfilter.create(),
+        sorter: grid.plugins.hypersorter
+    });
 
     var idx = grid.behavior.columnEnum;
 
     grid.setState({
         columnIndexes: [ idx.NAME, idx.STATE, idx.LATITUDE, idx.LONGITUDE ], // so drill-down column on far left
         fixedColumnCount: 1, // so far left drill-down column always visible
-        showFilterRow: options.includeFilter && grid.filter.prop('columnFilters')
+        showFilterRow: options.includeFilter && grid.prop('filter', 'columnFilters')
     });
 
     grid.behavior.setColumnProperties(grid.behavior.columnEnum.STATE, {

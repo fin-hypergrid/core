@@ -6,6 +6,19 @@ var UPWARDS_BLACK_ARROW = '\u25b2', // aka '▲'
 module.exports = {
 
     /**
+     * @summary The behaviors's sorter DCI.
+     * @desc This getter/setter is syntactic sugar.
+     * @param {dataControlInterface|undefined|null} sorter
+     * @memberOf Behavior#
+     */
+    get sorter() {
+        return this.controllers.sorter;
+    },
+    set sorter(sorter) {
+        this.setController('sorter', sorter);
+    },
+
+    /**
      * @memberOf dataModels.JSON.prototype
      * @param column
      * @param keys
@@ -28,7 +41,6 @@ module.exports = {
         if (sortPosition > -1) {
             sorts.splice(sortPosition, 1); //Removed from sorts
             if (!deferred) {
-                this.sorter.prop('columnSorts', sorts);
                 this.reindex();
             }
         }
@@ -42,7 +54,10 @@ module.exports = {
                 sortPosition = index;
                 return spec.columnIndex === columnIndex;
             });
-        return {sortSpec: sortSpec, sortPosition: sortPosition};
+        return {
+            sortSpec: sortSpec,
+            sortPosition: sortPosition
+        };
     },
 
     /**
@@ -85,7 +100,7 @@ module.exports = {
      * @desc returns the columns that currently sorted and their intended direction of the sort
      */
     getSortedColumnIndexes: function() {
-        return this.sorter.prop('sorts') || [];
+        return this.getController('sorter');
     },
     /**
      * @memberOf dataModels.JSON.prototype

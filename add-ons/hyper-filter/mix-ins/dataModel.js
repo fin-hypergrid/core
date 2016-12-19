@@ -3,6 +3,21 @@
 module.exports = {
 
     /**
+     * @summary The behaviors's filter DCI.
+     * @desc This getter/setter is syntactic sugar.
+     * @param {dataControlInterface|undefined|null} filter - One of:
+     * * A filter object, turning filter *ON*.
+     * * `undefined`, the null filter is reassigned to the grid, turning filtering *OFF.*
+     * @memberOf Behavior#
+     */
+    get filter() {
+        return this.controllers.filter;
+    },
+    set filter(filter) {
+        this.setController('filter', filter);
+    },
+
+    /**
      * @summary Get a particular column filter's state.
      * @param {string} columnName
      * @param {FilterTreeGetStateOptionsObject} [options] - Passed to the filter's {@link DefaultFilter#getState|getState} method.

@@ -22,41 +22,27 @@ function Hypersorter(grid, objects) {
 Hypersorter.prototype = {
     constructor: Hypersorter,
     $$CLASS_NAME: 'hypersorter',
-    state: {
-        sorts: []
-    },
+
     /**
-     * @implements sorterAPI
+     * @implements dataControlInterface#properties
      * @desc Notes regarding specific properties:
-     * * `sorts` The array of objects describe the sort state of each column including type, direction and column index
      * * `type` Notification that a column within the sorts type has changed
      * @memberOf Hypersorter.prototype
      */
     properties: function(properties) {
-        var result, value, object,
-            dm = this.grid.behavior.dataModel;
-        if (properties && properties.column) {
-            object = dm.getColumnSortState(properties.column.index);
-        }  else {
-            object = this.state;
-        }
+        var result, value,
+            column = this.grid.behavior.dataModel.getColumnSortState(properties.COLUMN.index);
 
-        if (properties && object) {
-            if (properties.getPropName) {
-                result = object[properties.getPropName];
+        if (column) {
+            if (properties.GETTER) {
+                result = column[properties.GETTER];
                 if (result === undefined) {
                     result = null;
                 }
             } else {
                 for (var key in properties) {
                     value = properties[key];
-                    if (value === undefined) {
-                        delete object[key];
-                    } else if (typeof value === 'function') {
-                        object[key] = value();
-                    } else {
-                        object[key] = value;
-                    }
+                    column[key] = typeof value === 'function' ? value() : value;
                 }
             }
         }

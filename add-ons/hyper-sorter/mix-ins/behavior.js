@@ -14,11 +14,10 @@ module.exports = {
         }
     },
     sortChanged: function(hiddenColumns){
-        var dirty = removeHiddenColumns(
-            this.getSortedColumnIndexes(),
-            (hiddenColumns || this.getHiddenColumns())
-        );
-        if (dirty){
+        if (removeHiddenColumns(
+                this.getSortedColumnIndexes(),
+                hiddenColumns || this.getHiddenColumns()
+        )) {
             this.reindex();
         }
     }
