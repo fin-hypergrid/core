@@ -95,6 +95,10 @@ module.exports = {
         return dispatchEvent.call(this, 'fin-mousedown', {}, event);
     },
 
+    fireSyntheticMouseMoveEvent: function(event) {
+        return dispatchEvent.call(this, 'fin-mousemove', {}, event);
+    },
+
     fireSyntheticButtonPressedEvent: function(event) {
         if (this.isViewableButton(event.dataCell.x, event.gridCell.y)) {
             return dispatchEvent.call(this, 'fin-button-pressed', {}, event);
@@ -269,7 +273,10 @@ module.exports = {
             if (self.properties.readOnly) {
                 return;
             }
-            handleMouseEvent(e, self.delegateMouseMove);
+            handleMouseEvent(e, function(mouseEvent) {
+                this.delegateMouseMove(mouseEvent);
+                this.fireSyntheticMouseMoveEvent(mouseEvent);
+            });
         });
 
         this.addEventListener('fin-canvas-mousedown', function(e) {
