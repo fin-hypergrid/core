@@ -10,9 +10,13 @@ var CellClick = Feature.extend('CellClick', {
 
     handleMouseMove: function(grid, event) {
         var link = event.properties.link,
-            isActionableLink = link && typeof link !== 'boolean';
+            isActionableLink = link && typeof link !== 'boolean'; // actionable with truthy other than `true`
 
         this.cursor = isActionableLink ? 'pointer' : null;
+
+        if (this.next) {
+            this.next.handleMouseMove(grid, event);
+        }
     },
 
     /**
