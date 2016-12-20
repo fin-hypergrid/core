@@ -463,8 +463,13 @@ var DefaultFilter = FilterTree.extend('DefaultFilter', {
         calculator: true
     },
 
+    get enabled() {
+        return this.columnFilters.children.length > 0 ||
+            this.tableFilter.children.length > 0;
+    },
+
     /**
-     * @implements dataSourceHelperAPI#properties
+     * @implements dataControlInterface#properties
      * @desc Notes regarding specific properties:
      * * `caseSensitiveData` (root property) pertains to string compares only. This includes untyped columns, columns typed as strings, typed columns containing data that cannot be coerced to type or when the filter expression operand cannot be coerced. This is a shared property and affects all grids managed by this instance of the app.
      * * `calculator` (column property) Computed column calculator.

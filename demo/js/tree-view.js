@@ -25,12 +25,17 @@ window.onload = function() {
         [Hypergrid.Hypersorter, {Column: fin.Hypergrid.behaviors.Column}], // object API instantiation to grid.plugins; no `name` or `$$CLASS_NAME` defined so no ref saved
         ['treeviewAPI', Hypergrid.TreeView, options] // object API instantiation with one arg; [0] overrides any defined name so ref saved in `grid.plugins.treeViewAPI`
     ]);
-    grid.sorter = grid.plugins.hypersorter;
-    grid.filter = grid.plugins.hyperfilter.create();
+
+    // Inform data model of external DCIs. (These DCIs are for EXAMPLE purposes only.)
+    grid.setController({
+        // These modules are for EXAMPLE purposes only
+        filter: grid.plugins.hyperfilter.create(),
+        sorter: grid.plugins.hypersorter
+    });
 
     // show filter row as per `options`
     grid.setState({
-        showFilterRow: options.includeFilter && grid.filter.prop('columnFilters')
+        showFilterRow: options.includeFilter && grid.prop('filter', 'columnFilters')
     });
 
     grid.behavior.setColumnProperties(grid.behavior.columnEnum.STATE, {

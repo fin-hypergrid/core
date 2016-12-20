@@ -10,6 +10,10 @@ window.onload = function() {
 
     var Hypergrid = fin.Hypergrid;
     var filterOptions = Hypergrid.Hyperfilter.prototype;
+    var INCLUDE_SORTER = true;
+    var INCLUDE_FILTER = true;
+
+    Hypergrid.properties.showFilterRow = INCLUDE_FILTER;
 
     // List of properties to show as checkboxes in this demo's "dashboard"
     var toggleProps = [
@@ -30,7 +34,7 @@ window.onload = function() {
             label: 'Column header rows',
             ctrls: [
                 { name: 'showHeaderRow', label: 'header' }, // default "setter" is `setProp`
-                { name: 'showFilterRow', label: 'filter' }
+                INCLUDE_FILTER && { name: 'showFilterRow', label: 'filter' }
             ]
         },
         {
@@ -115,8 +119,8 @@ window.onload = function() {
             includeSorter: true,
             includeFilter: true
         }],
-        Hypergrid.Hyperfilter,
-        [Hypergrid.Hypersorter, {Column: Hypergrid.behaviors.Column}]
+        INCLUDE_FILTER && Hypergrid.Hyperfilter,
+        INCLUDE_SORTER && [Hypergrid.hypersorter, {Column: Hypergrid.behaviors.Column}]
     ];
 
     // restore previous "opinionated" headerify behavior
@@ -186,11 +190,11 @@ window.onload = function() {
         ctrlGroups = document.getElementById('ctrl-groups'),
         buttons = document.getElementById('buttons');
 
-    // Install the sorter and Filter APIs (optional).
+    // Install the sorter and Filter data sources (optional).
     // These modules are for EXAMPLE purposes only
     grid.setPipeline([
-        window.datasaur.filter,
-        Hypergrid.analytics.DataSourceSorterComposite
+        INCLUDE_FILTER && window.datasaur.filter,
+        INCLUDE_SORTER && window.datasaur.sorter
     ]);
     setGlobalSorter();
     resetGlobalFilter(people1);
@@ -219,10 +223,11 @@ window.onload = function() {
         { label: 'Column Picker&hellip;', onclick: toggleDialog.bind(this, 'ColumnPicker') },
         { label: 'Manage Filters&hellip;', onclick: toggleDialog.bind(this, 'ManageFilters') },
         { label: 'Toggle Empty Data', onclick: toggleEmptyData },
+        { label: 'Set Data', onclick: function() { resetData(); } },
         { label: 'Set Data 1 (5000 rows)', onclick: function() { setData(people1); } },
         { label: 'Set Data 2 (10000 rows)', onclick: function() { setData(people2); } },
         { label: 'Set Data 3 (tree data)', onclick: function() { setData(treeData); } },
-        { label: 'Reset Grid', onclick: grid.reset.bind(grid) },
+        { label: 'Reset Grid', onclick: function() { grid.reset(); } },
         { label: 'Toggle all drill-downs', onclick: toggleAllCtrlGroups }
 
     ].forEach(function(item) {
@@ -270,7 +275,7 @@ window.onload = function() {
     }
 
     function toggleCaseSensitivity() {
-        grid.filter.prop('caseSensitiveData', this.checked);
+        grid.prop('filter', 'caseSensitiveData', this.checked);
         this.applyAnalytics();
         this.behaviorChanged();
     }
@@ -313,13 +318,10 @@ window.onload = function() {
         }
     }
 
-    setData(people1);
-
     grid.setColumnProperties(2, {
         backgroundColor: 'maroon',
         color: 'green'
     });
-
 
     behavior.setFixedRowCount(2);
 
@@ -718,9 +720,7 @@ window.onload = function() {
     });
 
     grid.addProperties({
-        readOnly: false,
-        noDataMessage: 'No Data to Display',
-        showFilterRow: true
+        readOnly: false
     });
 
     grid.addEventListener('fin-cell-enter', function(e) {
@@ -915,7 +915,9 @@ window.onload = function() {
     toggleProps.forEach(function(prop) { addToggle(prop); });
 
 
-    setTimeout(function() {
+    function resetData() {
+
+        setData(people1);
 
         var state = {
             columnIndexes: [
@@ -933,6 +935,7 @@ window.onload = function() {
                 // idx.SQUARE_OF_INCOME
             ],
 
+            noDataMessage: 'No Data to Display',
             backgroundColor: 'white',
             font: 'normal small garamond',
             rowProperties: [
@@ -949,7 +952,6 @@ window.onload = function() {
 
             showRowNumbers: true,
             showHeaderRow: true,
-            showFilterRow: !!grid.filter.prop('columnFilters'),
             columnAutosizing: false,
             headerTextWrapping: true,
 
@@ -1104,7 +1106,9 @@ window.onload = function() {
             behavior.setAggregates(aggregates, [idx.BIRTH_STATE, idx.LAST_NAME, idx.FIRST_NAME]);
         }
 
-    }, 50);
+    }
+
+    setTimeout(resetData, 50);
 
     //});
 
@@ -1397,11 +1401,17 @@ window.onload = function() {
     }
 
     function resetGlobalFilter(data) {
-        var schema = (data === people1 || data === people2) && peopleSchema;
-        grid.filter = grid.plugins.hyperfilter.create(schema); // new filter with new derived column schema
+        if (grid.plugins.hyperfilter) {
+            // Inform data model of external filter data controller. (This data controller is for EXAMPLE purposes only.)
+            var schema = (data === people1 || data === people2) && peopleSchema;
+            grid.filter = grid.plugins.hyperfilter.create(schema); // new filter with new derived column schema
+        }
     }
 
     function setGlobalSorter() {
-        grid.sorter = grid.plugins.hypersorter;
+        if (grid.plugins.hypersorter) {
+            // Inform data model of external sorter data controller. (This data controller is for EXAMPLE purposes only.)
+            grid.sorter = grid.plugins.hypersorter;
+        }
     }
 };

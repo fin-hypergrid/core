@@ -10,28 +10,6 @@ var DataSourceOrigin = require('../dataSources/DataSourceOrigin');
  */
 
 /**
- * @implements dataSourceHelperAPI
- * @desc This is a simple "null" helper API implementation with only a null `properties` method is defined.
- * @see {@link http://c2.com/cgi/wiki?NullObject}
- * @memberOf dataModels.JSON
- * @inner
- */
-var nullDataSourceHelperAPI = {
-    properties: function(properties) {
-        var result,
-            isGetter = 'getPropName' in properties;
-
-        if (isGetter) {
-            // All props are undefined in this null API regardless of their name; and
-            // undefined props return `null` as per interface definition.
-            result = null;
-        }
-
-        return result;
-    }
-};
-
-/**
  * @name dataModels.JSON
  * @constructor
  * @extends DataModel
@@ -39,6 +17,16 @@ var nullDataSourceHelperAPI = {
 var JSON = DataModel.extend('dataModels.JSON', {
 
     initialize: function(grid, options) {
+        /**
+         * @summary Hash of controllers.
+         * @desc Keyed by data source type.
+         * Data controller are only accepted by data sources that have a defined `type` property.
+         * @see {@link dataControlInterface}
+         * @type {object}
+         * @memberOf dataModels.JSON.prototype
+         */
+        this.controllers = {};
+
         this.reset(options);
     },
 
@@ -52,40 +40,38 @@ var JSON = DataModel.extend('dataModels.JSON', {
     /**
      * @type {dataSourcePipelineObject[][]}
      * @summary Pipeline stash push-down list.
-     * @desc The pipeline stash may be shared or instanced. This is the shared stash. An instance may override this with an instance stash variable (of the same name). See {@link dataModels.JSON.prototype#getPipelineSchemaStash}.
+     * @desc The pipeline stash may be shared or instanced. This is the shared stash. An instance may override this with an instance stash variable (of the same name). See {@link dataModels.JSON#getPipelineSchemaStash}.
      * @memberOf dataModels.JSON.prototype
      */
     pipelineSchemaStash: [],
 
     /**
-     * @memberOf dataModels.JSON.prototype
      * @param {object} [options]
+     * @param {object} [options.pipeline] - Consumed by {@link dataModels.JSON#setPipeline}.
+     * If omitted, previously established pipeline is reused.
+     * @param {object} [options.controllers] - Consumed by {@link dataModels.JSON#setPipeline}.
+     * If omitted, previously established controllers.
+     * * @memberOf dataModels.JSON.prototype
      */
     reset: function(options) {
         this.selectedData = [];
 
-        /**
-         * @summary Hash of data source helper APIs.
-         * @desc Keyed by data source type. An API is required by data sources with an `api` property.
-         * @see {@link dataModels.JSON/updateDataSources}
-         * @type {object}
-         */
-        this.api = {};
-
         delete this.pipelineSchemaStash; // remove existing "own" version if any
 
-        this.source = new this.DataSourceOrigin(options.data, options.schema);
+        options = options || {};
+        this.source = new this.DataSourceOrigin(
+            options.data,
+            options.schema
+        );
 
-        this.setPipeline();
-        //Register Defaults
-        this.registerHelperAPI('filter');
-        this.registerHelperAPI('sorter');
+        this.setPipeline({
+            pipeline: options.pipeline,
+            controllers: options.controllers
+        });
     },
 
     /**
-     * @summary The default data sources for a new pipeline when none are give.
-     * @desc For now Filtering is hardcoded in the grid.
-     * In the future, this will likely be empty (unless overridden by application developer for his own purposes).
+     * Application developer should override to set up a default pipeline.
      * @type {pipelineSchema}
      * @memberOf dataModels.JSON.prototype
      */
@@ -263,8 +249,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
         this.source.setData(dataSource, schema);
     },
 
-    /** @typedef pipelineSchema
-     * @type {DataSourceBase[]}
+    /** @typedef {DataSourceBase[]} pipelineSchema
      * @summary Describes a new pipeline.
      * @desc Consists of an ordered list of data source constructors, descendants of `DataSourceBase`.
      * May contain `undefined` elements, which are ignored.
@@ -281,20 +266,42 @@ var JSON = DataModel.extend('dataModels.JSON', {
      * The last pipe is assigned the synonym `this.dataSource`.
      * @param {pipelineSchema} [DataSources] - New pipeline description. If not given, uses the default {@link dataModels.JSON#DataSources|this.defaultPipelineSchema}.
      * @param {object} [options] - Takes first argument position when `DataSources` omitted.
-     * @param {string} [options.stash] - See {@link dataModels.JSON.prototype#getPipelineSchemaStash}. If given, saves the currently defined pipeline onto the indicated stash stack and then resets it with the given `DataSources`.
+     * @param {string} [options.stash] - See {@link dataModels.JSON#getPipelineSchemaStash}. If given, saves the currently defined pipeline onto the indicated stash stack and then resets it with the given `DataSources`.
      * @memberOf dataModels.JSON.prototype
      */
     setPipeline: function(DataSources, options) {
         if (!Array.isArray(DataSources)) {
             options = DataSources;
-            DataSources = undefined;
+            DataSources = options.pipeline;
         }
 
-        if (options && options.stash) {
-            this.getPipelineSchemaStash(options.stash).push(this.DataSources);
+        options = options || {};
+
+        if (DataSources) {
+            DataSources = DataSources.slice();
+        } else if (this.DataSources) {
+            DataSources = this.DataSources;
+        } else {
+            DataSources = this.defaultPipelineSchema.slice();
         }
 
-        var dataSource = this.source;
+        this.DataSources = DataSources;
+
+        var pipeline = [],
+            dataSource = this.source;
+        if (DataSources.length) {
+            if (options.stash) {
+                this.getPipelineSchemaStash(options.stash).push(DataSources);
+            }
+
+            DataSources.forEach(function(DataSource) {
+                if (DataSource) {
+                    dataSource = new DataSource(dataSource);
+                    pipeline.push(dataSource);
+                }
+            }, this);
+        }
+        this.dataSource = dataSource;
 
         /**
          * @summary Currently defined pipeline.
@@ -304,27 +311,9 @@ var JSON = DataModel.extend('dataModels.JSON', {
          * @type {dataSourcePipelineObject[]}
          * @memberOf dataModels.JSON.prototype
          */
-        this.pipeline = [];
+        this.pipeline = pipeline;
 
-        DataSources = DataSources || this.defaultPipelineSchema;
-
-        DataSources.forEach(function(DataSource) {
-            if (DataSource) {
-                dataSource = new DataSource(dataSource);
-                this.pipeline.push(dataSource);
-
-                // Ensure a null helper API defined for all data sources that require one
-                if (dataSource.type && dataSource.set && !this.api[dataSource.type]) {
-                    this.registerHelperAPI(dataSource.type);
-                }
-            }
-        }, this);
-
-        this.updateDataSources();
-
-        this.dataSource = dataSource;
-
-        this.DataSources = DataSources;
+        this.setController(options.controllers || this.controllers); // set the new or previously set data controller(s) on the new pipeline
     },
 
     /**
@@ -344,40 +333,12 @@ var JSON = DataModel.extend('dataModels.JSON', {
     },
 
     /**
-     * @summary Update data sources with APIs of matching types.
-     * @desc Only updates _qualified_ data sources, which include:
-     * * those for which an API of the data source's type is defined in `this.api`; and
-     * * those that can accept an API (have an `api` property to set).
-     * @param {string} [type] - Type of data source to update. If omitted, updates all data sources.
-     * @returns {number|object} One of:
-     * `type` specified - The number of updated data sources of the specified type.
-     * `type` omitted - Hash containing the number of updated data sources by type.
-     * @memberOf dataModels.JSON.prototype
-     */
-    updateDataSources: function(type) {
-        var results = {},
-            api = this.api;
-
-        this.pipeline.forEach(function(dataSource) {
-            if (
-                (!type || dataSource.type === type) &&
-                api[dataSource.type]
-            ) {
-                dataSource.set(api[dataSource.type]);
-                results[dataSource.type] = (results[dataSource.type] || 0) + 1;
-            }
-        });
-
-        return type ? results[type] : results;
-    },
-
-    /**
      * @summary The pipeline stash currently in use (either shared or instance).
      * @desc Instance stash is created here when requested and instance doesn't yet have its "own" version.
-     * @param {string} [whichStash] - One of:
+     * @param {string} [whichStash='default'] - One of:
      * * `'shared'` - Use shared stash.
      * * `'own'' or `'instance'` - Use instance stash, creating it if it does not exist.
-     * * `'default'` or `undefined` - Use instance stash if previously created; otherwise use shared stash.
+     * * `'default'` - Use instance stash if previously created; otherwise use shared stash.
      * @returns The pipeline stash push-down list.
      * @memberOf dataModels.JSON.prototype
      */
@@ -406,7 +367,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
 
     /**
      * Pops the last stashed pipeline off the stash stack, making it the currently defined pipeline.
-     * @param {string} [whichStash] - See {@link dataModels.JSON.prototype#getPipelineSchemaStash}.
+     * @param {string} [whichStash] - See {@link dataModels.JSON#getPipelineSchemaStash}.
      * @memberOf dataModels.JSON.prototype
      */
     unstashPipeline: function(whichStash) {
@@ -579,68 +540,158 @@ var JSON = DataModel.extend('dataModels.JSON', {
     },
 
     /**
-     * @summary _Getter:_ Return the filter from the data model.
-     * @method
-     * @returns {dataSourceHelperAPI} The grid's currently assigned filter.
-     * @memberOf dataModels.JSON.prototype
+     * @summary Get the given data controller.
+     * @param {string} type
+     * @returns {undefined|*} The data controller; or `undefined` if data controller unknown to data model.
+     * @memberOf dataModels.JSON#
      */
-    get filter() {
-        return this.api.filter;
+    getController: function(type) {
+        return this.controllers[type]; // alternatively: this.dataSource.getController(type)
     },
 
     /**
-     * @summary _Setter:_ Assign a filter to the data model.
-     * @method
-     * @param {dataSourceHelperAPI|undefined|null} filter - One of:
-     * * A filter object - Turns the filter *ON*.
-     * * `undefined` or `null` - Turns the filter *OFF.*
-     * @memberOf dataModels.JSON.prototype
+     * @summary Set the given data controller(s).
+     * @param {string} typeOrHashOfTypes - One of:
+     * * **object** - Hash of multiple data controllers, by type.
+     * * **string** - Type of the single data controller given in `controller`.
+     * @param {dataControlInterface} [controller] - Only required when 'hash' is a string; omit when `hash` is an object.
+     * @returns {object} - Hash of all results, by type. Each member will be:
+     * * The given data controller for that type when defined.
+     * * A new "null" data controller, generated by the data model when the given data controller for that type was `undefined`.
+     * * `undefined` - The data controller was unknown to the data model.
+     * @memberOf dataModels.JSON#
      */
-    set filter(filter) {
-        this.registerHelperAPI('filter', filter);
-    },
-    /**
-     * @summary _Getter_
-     * @method
-     * @returns {sorterAPI} The grid's currently assigned sorter.
-     * @memberOf dataModels.JSON.prototype
-     */
-    get sorter() {
-        return this.api.sorter;
-    },
+    setController: function(typeOrHashOfTypes, controller) {
+        var dataSource = this.dataSource,
+            controllers = this.controllers,
+            result, results = {},
+            atLeastOneAccepted,
+            hash;
 
-    /**
-     * @summary _Setter:_ Assign a sorter to the grid.
-     * @method
-     * @param {sorterAPI|undefined|null} sorter - One of:
-     * * A sorter object, turning sorting *ON*.
-     * * If `undefined` or `null`, the {@link dataModels.JSON~nullSorter|nullSorter} is reassigned to the grid, turning sorting *OFF.*
-     * @memberOf dataModels.JSON.prototype
-     */
-    set sorter(sorter) {
-        this.registerHelperAPI('sorter', sorter);
-    },
-
-    /**
-     * @summary Register the data source helper API.
-     * @desc The API is immediately applied to all data sources in the pipeline of the given type; and reassigned later whenever the pipeline is reset.
-     * @param {string} dataSourceType
-     * @param {dataSourceHelperAPI|undefined|null} helper - One of:
-     * * A filter object - Turns the data source *ON*.
-     * * `undefined` or `null` - Turns the data source *OFF.*
-     * * A helper API. Turns the data source *ON*.
-     * @memberOf dataModels.JSON.prototype
-     */
-    registerHelperAPI: function(dataSourceType, helper) {
-        this.api[dataSourceType] = helper = helper || nullDataSourceHelperAPI;
-
-        if (typeof helper.properties === 'function' && helper.properties.length === 1) {
-            helper.prop = propPrep.bind(helper, this);
+        if (typeof typeOrHashOfTypes === 'string') {
+            var type = typeOrHashOfTypes;
+            hash = {};
+            hash[type] = controller;
+        } else {
+            hash = typeOrHashOfTypes;
         }
 
-        if (this.updateDataSources(dataSourceType)) {
+        Object.keys(hash).forEach(function(type) {
+            result = dataSource.setController(type, hash[type]);
+            atLeastOneAccepted = atLeastOneAccepted || result;
+            results[type] = result;
+        });
+
+        // add in the results to the active list including rejections
+        Object.assign(controllers, results);
+
+        // prune rejections from the active list
+        Object.keys(controllers).forEach(function(type) {
+            if (!controllers[type]) {
+                delete controllers[type];
+            }
+        });
+
+        if (atLeastOneAccepted) {
             this.reindex();
         }
+
+        return results;
+    },
+
+    /**
+     * @summary Digests `(columnIndex, propName, value)` and calls specified data controllers `properties()` method.
+     * @desc Digests the three parameters `(columnIndex, propName, value)` detailed below, creating a single {@link dataControlInterface} object with which it then calls the `properties` method of the data controller specified by `type`.
+     *
+     * This method is overloaded in the jQuery style: You can both set a data controller prop (when value give) and a get a data controller prop (when value omitted); or you can give a hash in place of the property name to set several properties at once. Whichever way you use it, you can in addition specify a column index for column-specific properties.
+     *
+     * @param {null|string} type - The controller type from which to get or to which to set the given property value(s). `null` in a setter operation applies the value(s) to all data controllers; `null` has questionable usefulness in a getter operation.
+     *
+     * @param {number} [columnIndex] - If given, this is a property on a specific column. If omitted, this is a property on the whole data controller properties object.
+     *
+     * @param {string|object} propNameOrPropHash - _If `columnIndex` is omitted, this arg takes its place._
+     *
+     * One of these types:
+     * * **string** - Property name. The name of the explicit property to either get or (if `value` also given) set on the properties object.
+     * * **object** - Hash of properties to set on the properties object.
+     *
+     * @param [value] - _If `columnIndex` is omitted, this arg takes its place._
+     *
+     * One of:
+     * * If omitted when `propNameOrPropHash` is a string, this is the "getter" action:
+     * Return the value from the properties object of the key in `property`.
+     * * Provided when `propNameOrPropHash` is a string, this is the "setter" action:
+     * Copy this value to properties object using the key in `property`.
+     * * When `propNameOrPropHash` is a hash and `value` is given: Unexpected; throws an error.
+     *
+     * @returns {propObject}
+     *
+     * @memberOf dataModels.JSON#
+     */
+    prop: function(type, columnIndex, propNameOrPropHash, value) {
+        var result, invalid,
+            properties = {},
+            argCount = arguments.length,
+            controllers = this.controllers,
+            types = (type !== null) ? [type] : Object.keys(controllers);
+
+        controllers = types
+            .map(function(type) { return controllers[type]; })
+            .filter(function(controller) { return controller; });
+
+        if (controllers.length) {
+            if (typeof columnIndex === 'number') {
+                argCount--;
+            } else {
+                value = propNameOrPropHash;
+                propNameOrPropHash = columnIndex;
+                columnIndex = undefined;
+            }
+
+            switch (argCount) {
+
+                case 2: // getter propName name or setter hash
+                    if (typeof propNameOrPropHash === 'object') {
+                        properties = propNameOrPropHash; // prop is object
+                    } else {
+                        properties.GETTER = propNameOrPropHash; // prop is name
+                    }
+                    break;
+
+                case 3: // setter for value
+                    if (typeof propNameOrPropHash === 'string') {
+                        properties[propNameOrPropHash] = value; // prop is name
+                    } else {
+                        invalid = true;
+                    }
+                    break;
+
+                default: // too few or too many args
+                    invalid = true;
+
+            }
+
+            if (invalid) {
+                throw 'Invalid overload.';
+            }
+
+            if (columnIndex !== undefined) {
+                // non-enumerable propName:
+                Object.defineProperty(properties, 'COLUMN', {
+                    value: {
+                        index: columnIndex,
+                        name: this.source.schema[columnIndex].name
+                    }
+                });
+            }
+
+            // Use the prepared propObject to get or set the properties on the controller
+            controllers.forEach(function(controller) {
+                result = controller.properties(properties);
+            });
+        }
+
+        return result;
     },
 
     /**
@@ -739,99 +790,6 @@ function reselectGridRowsBackedBySelectedDataRows() {
             }
         });
     }
-}
-
-/**
- * @inner
- * @summary Digests `(columnIndex, propName, value)` and calls `properties`.
- * @desc Digests the three parameters `(columnIndex, propName, value)` detailed below, creating a single object with which it then calls the helper API `properties` method.
- *
- * A helper API `properties` method:
- * * Supports two types of actions:
- *   * **Getter** call where you supply just the property name. The method gets the property value from the API and returns it.
- *   * **Setter** call where you supply a value along with the property name; or you supply a hash of property name/value pairs. The method sets the property on the API and returns nothing. All values are valid with the exception of `undefined` which deletes the property of the given name rather than setting it to `undefined`.
- * * Supports two types of properties:
- *   * **Global properties** affect the API globally.
- *   * **Column properties** pertain to specific columns.
- *
- * This method is overloaded. The way it is called as explained in the Parameters section below determines both the type of action (getter, setter) and the kind of property (global, column).
- *
- * Note: Not all API properties are dynamic; some are static and updating them later will have no effect.
- *
- * @this {dataSourceHelperAPI}
- *
- * @param {DataSourceBase} dataModel - The data model. This parameter is bound to the call by {@link dataModels.JSON#setHelperAPI|setHelperAPI}.
- *
- * @param {number} [columnIndex] - If given, this is a property on a specific column. If omitted, this is a property on the whole API properties object.
- *
- * @param {string|object} property - _If `columnIndex` is omitted, this arg takes its place._
- *
- * One of these types:
- * * **string** - Property name. The name of the explicit property to either get or (if `value` also given) set on the properties object.
- * * **object** - Hash of properties to set on the properties object.
- *
- * @param [value] - _If `columnIndex` is omitted, this arg takes its place._
- *
- * One of:
- * * Omitted (when `property` is a string), this is the "getter" action: Return the value from the properties object of the key in `property`.
- * * When `property` is a string and `value` is given, this is the "setter" action: Copy this value to properties object using the key in `property`.
- * * When `property` is a hash and `value` is given: Unexpected; throws an error.
- *
- * @returns {propObject}
- *
- * @memberOf dataModels.JSON~
- */
-function propPrep(dataModel, columnIndex, propName, value) {
-    var invalid,
-        properties = {},
-        argCount = arguments.length;
-
-    if (typeof columnIndex === 'number') {
-        argCount--;
-    } else {
-        value = propName;
-        propName = columnIndex;
-        columnIndex = undefined;
-    }
-
-    switch (argCount) {
-
-        case 2: // getter propName name or setter hash
-            if (typeof propName === 'object') {
-                properties = propName;
-            } else {
-                properties.getPropName = propName;
-            }
-            break;
-
-        case 3: // setter for value
-            if (typeof propName !== 'string') {
-                invalid = true;
-            } else {
-                properties[propName] = value;
-            }
-            break;
-
-        default: // too few or too many args
-            invalid = true;
-
-    }
-
-    if (invalid) {
-        throw 'Invalid overload.';
-    }
-
-    if (columnIndex !== undefined) {
-        // non-enumerable propName:
-        Object.defineProperty(properties, 'column', {
-            value: {
-                index: columnIndex,
-                name: dataModel.source.schema[columnIndex].name
-            }
-        });
-    }
-
-    return this.properties(properties);
 }
 
 /**

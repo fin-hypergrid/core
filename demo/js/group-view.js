@@ -23,14 +23,17 @@ window.onload = function() {
         [Hypergrid.GroupView, options] // object API instantiation with one arg; `$$CLASS_NAME` defined so ref saved in `grid.plugins.groupView`
     ]);
 
-    // These modules are for EXAMPLE purposes only
-    grid.sorter = grid.plugins.hypersorter;
-    grid.filter = grid.plugins.hyperfilter.create();
+    // Inform data model of external DCIs. (These DCIs are for EXAMPLE purposes only.)
+    grid.setController({
+        // These modules are for EXAMPLE purposes only
+        filter: grid.plugins.hyperfilter.create(),
+        sorter: grid.plugins.hypersorter
+    });
 
     // show filter row as per `options`
     grid.setState({
         // columnAutosizing: false,
-        showFilterRow: options.includeFilter && grid.filter.prop('columnFilters')
+        showFilterRow: options.includeFilter && grid.prop('filter', 'columnFilters')
     });
 
     document.querySelector('input[type=checkbox]').onclick = function() {

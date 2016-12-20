@@ -32,13 +32,17 @@ window.onload = function() {
             [Hypergrid.AggregationsView, options] // object API instantiation with one arg; `$$CLASS_NAME` defined so ref saved in `grid.plugins.aggregationsView`
         ]
     });
-    // These modules are for EXAMPLE purposes only
-    grid.filter = grid.plugins.hyperfilter.create();
-    grid.sorter = grid.plugins.hypersorter;
+
+    // Inform data model of external DCIs. (These DCIs are for EXAMPLE purposes only.)
+    grid.setController({
+        // These modules are for EXAMPLE purposes only
+        filter: grid.plugins.hyperfilter.create(),
+        sorter: grid.plugins.hypersorter
+    });
 
     // show filter row as per `options`
     grid.setState({
-        showFilterRow: options.includeFilter && grid.filter.prop('columnFilters')
+        showFilterRow: options.includeFilter && grid.prop('filter', 'columnFilters')
     });
 
     document.querySelector('input[type=checkbox]').onclick = function() {
