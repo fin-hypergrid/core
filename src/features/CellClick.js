@@ -99,6 +99,7 @@ var CellClick = Feature.extend('CellClick', {
         // STEP 5: Decorate the link as "visited"
         if (result) {
             cellEvent.setCellProperty('linkColor', grid.properties.linkVisitedColor);
+            grid.renderer.resetCellPropertiesCache(cellEvent);
             grid.repaint();
         }
 
