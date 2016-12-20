@@ -700,7 +700,7 @@ window.onload = function() {
 
     grid.addEventListener('fin-double-click', function(e) {
         var cell = e.detail.gridCell;
-        var rowContext = e.detail.row;
+        var rowContext = e.detail.dataRow;
         if (vent) { console.log('fin-double-click row-context:', rowContext); }
     });
 

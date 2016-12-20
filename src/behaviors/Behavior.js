@@ -1,5 +1,3 @@
-/* eslint-env browser */
-
 'use strict';
 
 var Point = require('rectangular').Point;

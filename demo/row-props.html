@@ -3,7 +3,7 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" >
     <style>
-        .hypergrid-container { width:1400px; height:1000px; }
+        .hypergrid-container { width: calc(100vw - 30px); height: calc(100vh - 50px); }
         body { margin: 5px }
         #controls { overflow-x: scroll }
         #controls::-webkit-scrollbar { display: none }
@@ -246,12 +246,6 @@ Renders all cells over consolidated row backgrounds, if any. Unsuitable as a cli
 
     <script>
 
-var sheet = document.styleSheets[0],
-    rules = sheet.cssRules || sheet.rules;
-
-rules[0].style.height = window.innerHeight - 50 + 'px'; // 50 for nowrap controls
-rules[0].style.width = window.innerWidth - 30 + 'px'; // 30 for possible scrollbar
-
 fin.Hypergrid.behaviors.Behavior.prototype.defaultSubgridSpecs = ['HeaderSubgrid', 'data'];
 var grid = new fin.Hypergrid();
 
@@ -453,8 +447,8 @@ function update(b) {
 
         // getCell
 //        grid.behavior.dataModel.getCell = function(config, rendererName) {
-//            if (config.isDataRow && config.gridCell.x % 3 === 2) {
-//                config.backgroundColor = (config.value < 500) ? '#ffcccc' : '#ccffcc';
+//            if (config.isUserDataArea) {
+//                config.backgroundColor = (config.value < MAGNITUDE / 2) ? '#ffcccc' : '#ccffcc';
 //            }
 //            return grid.cellRenderers.get(rendererName);
 //        };

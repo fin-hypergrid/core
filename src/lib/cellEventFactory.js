@@ -15,7 +15,7 @@ var prototype = Object.defineProperties({}, {
         set: function(value) { this.visibleRow.subgrid.setValue(this.dataCell.x, this.dataCell.y, value); }
     },
 
-    row: {
+    dataRow: {
         get: function() { return this.visibleRow.subgrid.getRow(this.dataCell.y); }
     },
 

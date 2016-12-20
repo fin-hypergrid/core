@@ -1036,7 +1036,7 @@ var Renderer = Base.extend('Renderer', {
         // * For all cells: set `config.value` (writable property)
         // * For cells outside of row handle column: also set `config.dataRow` for use by valOrFunc
         if (!isHandleColumn) {
-            config.dataRow = cellEvent.row;
+            config.dataRow = cellEvent.dataRow;
             config.value = cellEvent.value;
         } else {
             config.isHandleColumn = true;
