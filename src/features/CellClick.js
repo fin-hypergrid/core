@@ -10,9 +10,9 @@ var CellClick = Feature.extend('CellClick', {
 
     handleMouseMove: function(grid, event) {
         var link = event.properties.link,
-            isLink = link && typeof link === 'string' || link instanceof Array;
+            isActionableLink = link && typeof link !== 'boolean';
 
-        this.cursor = isLink ? 'pointer' : null;
+        this.cursor = isActionableLink ? 'pointer' : null;
     },
 
     /**
@@ -34,15 +34,15 @@ var CellClick = Feature.extend('CellClick', {
     /**
      * @summary Open the cell's URL.
      *
-     * @desc The URL is found in the cell's `link` property, which serves two functions:
-     * 1. **Renders as a link.** When truthy causes {@link SimpleCell} cell renderer to render the cell underlined with {@link module:defaults.linkColor|linkColor}. (See also {@link module:defaults.linkOnHover|linkOnHover} and {@link module:defaults.linkColorOnHover|linkColorOnHover}.) Therefore, setting this property to `true` will render as a link, although clicking on it will have no effect. This may be useful if you wish to handle the click yourself by attaching a `'fin-click'` listener to your hypergrid.
-     * 2. **Opens the link.** When a string or an array with at least one element, {@link Hypergrid#windowOpen|grid.windowOpen} is called to display it:
-     *    1. The value is executed when it is a function (or it has a `calculator` property that is function).
-     *    2. The cell name (_i.e.,_ the data column name) and cell value are merged into the URL wherever the respective substrings `'%name'` and `'%value'` are found. For example, if the column name is "age" and the cell value is 6 (or a function returning 6), and the link is `'http://www.abc.com?%name=%value'`, then the actual link (first argument given to `grid.windowOpen`) would be `'http://www.abc.com?age=6'`.
-     *    3. If `link` is an array, it is "applied" to `grid.windowOpen` in its entirety; otherwise, `grid.windowOpen` is called with the link as the first argument and {@link module:defaults.linkTarget|linkTarget} as the second.
+     * @desc The URL is found in the cell's {@link module:defaults.link|link} property, which serves two functions:
+     * 1. **Renders as a link.** When truthy causes {@link SimpleCell} cell renderer to render the cell underlined with {@link module:defaults.linkColor|linkColor}. (See also {@link module:defaults.linkOnHover|linkOnHover} and {@link module:defaults.linkColorOnHover|linkColorOnHover}.) Therefore, setting this property to `true` will render as a link, although clicking on it will have no effect. This is useful if you wish to handle the click yourself by attaching a `'fin-click'` listener to your hypergrid.
+     * 2. **Fetch the URL.** The value of the link property is interpreted as per {@link module:defaults.link|link}.
+     * 3. **Decorate the URL.** The cell name (_i.e.,_ the data column name) and cell value are merged into the URL wherever the respective substrings `'%name'` and `'%value'` are found. For example, if the column name is "age" and the cell value is 6 (or a function returning 25), and the link is `'http://www.abc.com?%name=%value'`, then the actual link (first argument given to `grid.windowOpen`) would be `'http://www.abc.com?age=25'`.
+     * 4. **Open the URL.** The link is then opened by {@link Hypergrid#windowOpen|grid.windowOpen}. If `link` is an array, it is "applied" to `grid.windowOpen` in its entirety; otherwise, `grid.windowOpen` is called with the link as the first argument and {@link module:defaults.linkTarget|linkTarget} as the second.
+     * 5. **Decorate the link.** On successful return from `windowOpen()`, the text is colored as "visited" as per the cell's {@link module:defaults.linkVisitedColor|linkVisitedColor} property (by setting the cell's `linkColor` property to its `linkVisitedColor` property).
 
      * @param {Hypergrid} grid
-     * @param {CellEvent} event - the event details
+     * @param {CellEvent} cellEvent - Event details.
      *
      * @returns {boolean|window|null|undefined} One of:
      *
@@ -55,34 +55,47 @@ var CellClick = Feature.extend('CellClick', {
      * @memberOf CellClick#
      */
     openLink: function(grid, cellEvent) {
-        var result,
-            link = cellEvent.properties.link;
+        var result, url,
+            dataRow = cellEvent.dataRow,
+            config = Object.create(cellEvent.properties, { dataRow: { value: dataRow } }),
+            value = config.exec(cellEvent.value),
+            linkProp = cellEvent.properties.link,
+            isArray = linkProp instanceof Array,
+            link = isArray ? linkProp[0] : linkProp;
 
-        if (typeof link === 'string') {
-            if (link) {
-                result = grid.windowOpen(dressLink(link), cellEvent.properties.linkTarget);
-            }
-        } else if (link instanceof Array) {
-            if (link.length) {
-                link = link.slice();
-                link[0] = dressLink(link[0]);
-                result = grid.windowOpen.apply(grid, link);
+        // STEP 2: Fetch the URL
+        switch (typeof link) {
+            case 'string':
+                if (link === '*') {
+                    url = value;
+                } else if (/^\w+$/.test(link)) {
+                    url = dataRow[link];
+                }
+                break;
+
+            case 'function':
+                url = link(cellEvent);
+                break;
+        }
+
+        if (url) {
+            // STEP 3: Decorate the URL
+            url = url.toString().replace(/%name/g, config.name).replace(/%value/g, value);
+
+            // STEP 4: Open the URL
+            if (isArray) {
+                linkProp = linkProp.slice();
+                linkProp[0] = url;
+                result = grid.windowOpen.apply(grid, linkProp);
             } else {
-                result = null;
+                result = grid.windowOpen(url, cellEvent.properties.linkTarget);
             }
         }
 
+        // STEP 5: Decorate the link as "visited"
         if (result) {
             cellEvent.setCellProperty('linkColor', grid.properties.linkVisitedColor);
-        }
-
-        function dressLink(link) {
-            var dataRowDescriptor = { value: cellEvent.dataRow },
-                descriptors = { dataRow: dataRowDescriptor },
-                config = Object.create(cellEvent.properties, descriptors),
-                value = config.exec.call(config, cellEvent.value);
-
-            return link.replace(/%name/g, config.name).replace(/%value/g, value);
+            grid.repaint();
         }
 
         return result;
