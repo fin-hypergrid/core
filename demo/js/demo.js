@@ -10,7 +10,7 @@ window.onload = function() {
 
     var Hypergrid = fin.Hypergrid;
     var filterOptions = Hypergrid.Hyperfilter.prototype;
-    var INCLUDE_SORTER = false;
+    var INCLUDE_SORTER = true;
     var INCLUDE_FILTER = true;
 
     Hypergrid.properties.showFilterRow = INCLUDE_FILTER;
@@ -120,7 +120,7 @@ window.onload = function() {
             includeFilter: true
         }],
         INCLUDE_FILTER && Hypergrid.Hyperfilter,
-        INCLUDE_SORTER && [Hypergrid.Hypersorter, {Column: Hypergrid.behaviors.Column}]
+        INCLUDE_SORTER && [Hypergrid.hypersorter, {Column: Hypergrid.behaviors.Column}]
     ];
 
     // restore previous "opinionated" headerify behavior
@@ -194,7 +194,7 @@ window.onload = function() {
     // These modules are for EXAMPLE purposes only
     grid.setPipeline([
         INCLUDE_FILTER && window.datasaur.filter,
-        INCLUDE_SORTER && Hypergrid.analytics.DataSourceSorterComposite
+        INCLUDE_SORTER && window.datasaur.sorter
     ]);
     setGlobalSorter();
     resetGlobalFilter(people1);
@@ -1402,16 +1402,16 @@ window.onload = function() {
 
     function resetGlobalFilter(data) {
         if (grid.plugins.hyperfilter) {
-            // Inform data model of external filter DCI. (This DCI is for EXAMPLE purposes only.)
+            // Inform data model of external filter data controller. (This data controller is for EXAMPLE purposes only.)
             var schema = (data === people1 || data === people2) && peopleSchema;
-            grid.setController('filter', grid.plugins.hyperfilter.create(schema)); // new filter with new derived column schema
+            grid.filter = grid.plugins.hyperfilter.create(schema); // new filter with new derived column schema
         }
     }
 
     function setGlobalSorter() {
         if (grid.plugins.hypersorter) {
-            // Inform data model of external sorter DCI. (This DCI is for EXAMPLE purposes only.)
-            grid.setController('sorter', grid.plugins.hypersorter);
+            // Inform data model of external sorter data controller. (This data controller is for EXAMPLE purposes only.)
+            grid.sorter = grid.plugins.hypersorter;
         }
     }
 };

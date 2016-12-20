@@ -3,15 +3,15 @@
 module.exports = {
 
     /**
-     * @summary The behaviors's filter DCI.
-     * @desc This getter/setter is syntactic sugar.
+     * @summary The behaviors's filter data controller.
+     * @desc This getter/setter is syntactic sugar for calls to `getController` and `setController`.
      * @param {dataControlInterface|undefined|null} filter - One of:
      * * A filter object, turning filter *ON*.
      * * `undefined`, the null filter is reassigned to the grid, turning filtering *OFF.*
      * @memberOf Behavior#
      */
     get filter() {
-        return this.controllers.filter;
+        return this.getController('filter');
     },
     set filter(filter) {
         this.setController('filter', filter);

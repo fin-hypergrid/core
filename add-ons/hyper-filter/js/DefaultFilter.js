@@ -463,6 +463,11 @@ var DefaultFilter = FilterTree.extend('DefaultFilter', {
         calculator: true
     },
 
+    get enabled() {
+        return this.columnFilters.children.length > 0 ||
+            this.tableFilter.children.length > 0;
+    },
+
     /**
      * @implements dataControlInterface#properties
      * @desc Notes regarding specific properties:

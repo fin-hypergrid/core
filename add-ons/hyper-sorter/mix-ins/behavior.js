@@ -3,6 +3,18 @@
 module.exports = {
 
     /**
+     * @summary The behaviors's sorter data controller.
+     * @desc This getter/setter is syntactic sugar for calls to `getController` and `setController`.
+     * @memberOf Behavior#
+     */
+    get sorter() {
+        return this.dataModel.sorter;
+    },
+    set sorter(sorter) {
+        this.dataModel.sorter = sorter;
+    },
+
+    /**
      * @memberOf Behavior.prototype
      * @param {number} c - grid column index.
      * @param {string[]} keys
@@ -15,7 +27,7 @@ module.exports = {
     },
     sortChanged: function(hiddenColumns){
         if (removeHiddenColumns(
-                this.getSortedColumnIndexes(),
+                this.sorter.sorts,
                 hiddenColumns || this.getHiddenColumns()
         )) {
             this.reindex();

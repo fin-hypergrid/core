@@ -3,10 +3,10 @@
 module.exports = {
 
     /**
-     * @summary The grid instance's filter DCI.
-     * @desc This getter/setter is syntactic sugar.
+     * @summary The grid instance's filter data controller.
+     * @desc This getter/setter is syntactic sugar for calls to `getController` and `setController`.
      *
-     * In addition to a data model that accepts an DCI of type 'filter', to display the standard filter cells, the filter DCI also requires FilterSubgrid in the subgrids list.
+     * In addition to a data model that accepts an data controller of type 'filter', to display the standard filter cells, the filter data controller also requires FilterSubgrid in the subgrids list.
      * @param {dataControlInterface|undefined|null} filter - One of:
      * * A filter object, turning filter *ON*.
      * * `undefined`, the null filter is reassigned to the grid, turning filtering *OFF.*
@@ -16,7 +16,7 @@ module.exports = {
         return this.behavior.filter;
     },
     set filter(filter) {
-        this.setController('filter', filter);
+        this.behavior.filter = filter;
     },
 
     /**

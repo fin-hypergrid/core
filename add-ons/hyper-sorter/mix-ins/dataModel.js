@@ -6,13 +6,13 @@ var UPWARDS_BLACK_ARROW = '\u25b2', // aka '▲'
 module.exports = {
 
     /**
-     * @summary The behaviors's sorter DCI.
-     * @desc This getter/setter is syntactic sugar.
+     * @summary The behaviors's sorter data controller.
+     * @desc This getter/setter is syntactic sugar for calls to `getController` and `setController`.
      * @param {dataControlInterface|undefined|null} sorter
      * @memberOf Behavior#
      */
     get sorter() {
-        return this.controllers.sorter;
+        return this.getController('sorter');
     },
     set sorter(sorter) {
         this.setController('sorter', sorter);
@@ -34,30 +34,30 @@ module.exports = {
      * @param {boolean} deferred
      */
     unSortColumn: function(column, deferred) {
-        var sorts = this.getSortedColumnIndexes(),
-            result = this.getColumnSortState(column.index),
-            sortPosition = result.sortPosition;
+        var sortSpec = this.getColumnSortState(column.index);
 
-        if (sortPosition > -1) {
-            sorts.splice(sortPosition, 1); //Removed from sorts
+        if (sortSpec) {
+            this.sorter.sorts.splice(sortSpec.rank, 1); //Removed from sorts
             if (!deferred) {
                 this.reindex();
             }
         }
+
         this.serializeSortState();
     },
 
+    /**
+     * @param {number} columnIndex
+     * @returns {sortSpecInterface}
+     */
     getColumnSortState: function(columnIndex){
-        var sorts = this.getSortedColumnIndexes(),
-            sortPosition = -1,
-            sortSpec = sorts.find(function(spec, index) {
-                sortPosition = index;
-                return spec.columnIndex === columnIndex;
+        var rank,
+            sort = this.sorter.sorts.find(function(sort, index) {
+                rank = index;
+                return sort.columnIndex === columnIndex;
             });
-        return {
-            sortSpec: sortSpec,
-            sortPosition: sortPosition
-        };
+
+        return sort && { sort: sort, rank: rank };
     },
 
     /**
@@ -67,41 +67,34 @@ module.exports = {
      * @return {object[]} sorts
      */
     incrementSortState: function(column, keys) {
-        var sorts = this.getSortedColumnIndexes(),
+        var sorts = this.sorter.sorts,
             columnIndex = column.index,
             columnSchema = this.schema[columnIndex],
-            sortSpec = this.getColumnSortState(columnIndex).sortSpec;
+            sortSpec = this.getColumnSortState(columnIndex);
 
         if (!sortSpec) { // was unsorted
-            if (keys.indexOf('CTRL') < 0) { sorts.length = 0; }
+            if (keys.indexOf('CTRL') < 0) {
+                sorts.length = 0;
+            }
             sorts.unshift({
                 columnIndex: columnIndex, // so define and...
                 direction: 1, // ...make ascending
                 type: columnSchema.type
             });
-        } else if (sortSpec.direction > 0) { // was ascending
-            sortSpec.direction = -1; // so make descending
+        } else if (sortSpec.sort.direction > 0) { // was ascending
+            sortSpec.sort.direction = -1; // so make descending
         } else { // was descending
             this.unSortColumn(column, true); // so make unsorted
         }
 
-        //Minor improvement, but this check can happe n earlier and terminate earlier
-        if (sorts.length > 3) {
-            sorts.length = 3;
-        }
+        //Minor improvement, but this check can happen earlier and terminate earlier
+        sorts.length = Math.min(sorts.length, this.grid.properties.maxSortColumns);
     },
 
     serializeSortState: function(){
-        this.grid.properties.sorts = this.getSortedColumnIndexes();
+        this.grid.properties.sorts = this.sorter.sorts;
     },
 
-    /**
-     * @memberOf dataModels.JSON.prototype
-     * @desc returns the columns that currently sorted and their intended direction of the sort
-     */
-    getSortedColumnIndexes: function() {
-        return this.getController('sorter');
-    },
     /**
      * @memberOf dataModels.JSON.prototype
      * @param index
@@ -110,21 +103,19 @@ module.exports = {
      * @returns {*}
      */
     getSortImageForColumn: function(columnIndex) {
-        var sorts = this.getSortedColumnIndexes(),
-            state = this.getColumnSortState(columnIndex),
-            sortSpec = state.sortSpec,
-            sortPosition = state.sortPosition,
+        var sorts = this.sorter.sorts,
+            sortSpec = this.getColumnSortState(columnIndex),
             result, rank;
 
         if (sortSpec) {
-            var arrow = sortSpec.direction > 0
+            var arrow = sortSpec.sort.direction > 0
                 ? UPWARDS_BLACK_ARROW
                 : DOWNWARDS_BLACK_ARROW;
 
             result = arrow + ' ';
 
             if (sorts.length > 1) {
-                rank = sorts.length - sortPosition;
+                rank = sorts.length - sortSpec.rank;
                 result = rank + result;
             }
         }

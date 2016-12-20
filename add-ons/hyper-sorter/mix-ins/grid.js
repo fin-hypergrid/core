@@ -3,7 +3,19 @@
 module.exports = {
 
     /**
-     * @memberOf Hypergrid.prototype
+     * @summary The behaviors's sorter data controller.
+     * @desc This getter/setter is syntactic sugar for calls to `getController` and `setController`.
+     * @memberOf Hypergrid#
+     */
+    get sorter() {
+        return this.behavior.sorter;
+    },
+    set sorter(sorter) {
+        this.behavior.sorter = sorter;
+    },
+
+    /**
+     * @memberOf Hypergrid#
      * @param event
      */
     toggleSort: function(event) {

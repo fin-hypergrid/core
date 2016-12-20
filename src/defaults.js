@@ -12,6 +12,8 @@ var warned = {};
 
 var defaults = {
 
+    mixIn: require('overrider').mixIn,
+
     /**
      * The font for data cells.
      * @default
@@ -60,12 +62,6 @@ var defaults = {
      * @memberOf module:defaults
      */
     foregroundSelectionColor: 'rgb(0, 0, 128)',
-    /**
-     * @default
-     * @type {boolean}
-     * @memberOf module:defaults
-     */
-    sortOnHiddenColumns: true,
     /**
      * Background color for selected cell(s).
      * @default
@@ -488,11 +484,11 @@ var defaults = {
     useHiDPI: true,
 
     /**
-     * @default ['alt', 'esc']
+     * @default ['esc']
      * @type {string[]}
      * @memberOf module:defaults
      */
-    editorActivationKeys: [], // ['alt', 'esc'],
+    editorActivationKeys: ['esc'], // ['alt', 'esc'],
 
     /**
      * @summary Mappings for cell navigation keys.
@@ -966,6 +962,13 @@ var defaults = {
      * @memberOf module:defaults
      */
     unsortable: false,
+
+    /**
+     * @default
+     * @type {boolean}
+     * @memberOf module:defaults
+     */
+    sortOnHiddenColumns: true,
 
     /** Allow multiple cell region selections.
      * @type {boolean}

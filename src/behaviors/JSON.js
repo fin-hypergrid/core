@@ -263,10 +263,6 @@ var JSON = Behavior.extend('behaviors.JSON', {
     getSelections: function() {
         return this.grid.selectionModel.getSelections();
     },
-
-    getSortedColumnIndexes: function(){
-      return this.dataModel.getSortedColumnIndexes();
-    }
 });
 
 module.exports = JSON;
