@@ -18,9 +18,9 @@ window.onload = function() {
 
     grid.installPlugins([
         Hypergrid.drillDown, // simple API install (plain object with `install` method) but no `name` defined so no ref is saved
-        Hypergrid.Hyperfilter, // object API instantiation; `$$CLASS_NAME` defined so ref saved in `grid.plugins.hyperfilter`
-        [Hypergrid.Hypersorter, {Column: fin.Hypergrid.behaviors.Column}], // object API instantiation to grid.plugins; no `name` or `$$CLASS_NAME` defined so no ref saved
-        [Hypergrid.GroupView, options] // object API instantiation with one arg; `$$CLASS_NAME` defined so ref saved in `grid.plugins.groupView`
+        Hypergrid.Hyperfilter, // object API instantiation; `name` defined so ref saved in `grid.plugins.hyperfilter`
+        Hypergrid.Hypersorter, // object API instantiation; `name` defined so ref saved in `grid.plugins.hypersorter`
+        [Hypergrid.GroupView, options] // object API instantiation with one arg; `name` defined so ref saved in `grid.plugins.groupView`
     ]);
 
     // Inform data model of external DCIs. (These DCIs are for EXAMPLE purposes only.)

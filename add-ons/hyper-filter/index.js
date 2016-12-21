@@ -10,24 +10,21 @@ var ColumnSchemaFactory = require('./js/ColumnSchemaFactory');
  */
 function Hyperfilter(grid, targets) {
     this.grid = grid;
-    targets = targets || {};
-
-    mixInTo('Hypergrid', grid, require('./mix-ins/grid'));
-    mixInTo('Behavior', grid.behavior, require('./mix-ins/behavior'));
-    mixInTo('DataModel', grid.behavior.dataModel, require('./mix-ins/dataModel'));
-
-    function mixInTo(target, instance, mixin) {
-        var object = targets[target];
-        var prototype = object && object.prototype || Object.getPrototypeOf(instance);
-
-        prototype.mixIn(mixin);
-    }
+    this.install(targets);
 }
 
 Hyperfilter.prototype = {
     constructor: Hyperfilter.prototype.constructor,
 
-    $$CLASS_NAME: 'Hyperfilter',
+    name: 'Hyperfilter',
+
+    install: function(targets) {
+        var Hypergrid = Object.getPrototypeOf(this.grid).constructor;
+        Hypergrid.prototype.mixIn(require('./mix-ins/grid'));
+        targets = targets || {};
+        (targets.Behavior && targets.Behavior.prototype || Object.getPrototypeOf(this.grid.behavior)).mixIn(require('./mix-ins/behavior'));
+        (targets.DataModel && targets.DataModel.prototype || Object.getPrototypeOf(this.grid.behavior.dataModel)).mixIn(require('./mix-ins/dataModel'));
+    },
 
     /**
      * @type {boolean}
@@ -53,7 +50,7 @@ Hyperfilter.prototype = {
      * Call this before calling `create` if you want to organize and/or sort your schema.
      */
     deriveSchema: function() {
-        this.factory = new ColumnSchemaFactory(this.grid.behavior.columns);
+        this.factory = new ColumnSchemaFactory(this.grid.behavior.allColumns);
     },
     organizeSchema: function(columnGroupsRegex, options) {
         this.factory.organize(columnGroupsRegex, options);
