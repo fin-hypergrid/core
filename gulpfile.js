@@ -40,7 +40,7 @@ gulp.task('browserify-hypersorter', browserify.bind(null,
     addOnsDir + 'hyper-sorter/',
     buildDir + addOnsDir,
     /\w+\.exports(\s*=)/,
-    'window.fin.Hypergrid.hypersorter$1'
+    'window.fin.Hypergrid.Hypersorter$1'
 ));
 gulp.task('browserify-totals-toolkit', browserify.bind(null,
     'totals-toolkit',
