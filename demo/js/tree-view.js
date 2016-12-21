@@ -21,8 +21,8 @@ window.onload = function() {
     grid.installPlugins([
         Hypergrid.drillDown, // simple API install (plain object with `install` method) but no `name` defined so no ref is saved
         Hypergrid.rowById, // ditto
-        Hypergrid.Hyperfilter, // object API instantiation; `$$CLASS_NAME` defined so ref saved in `grid.plugins.hyperfilter`
-        [Hypergrid.Hypersorter, {Column: fin.Hypergrid.behaviors.Column}], // object API instantiation to grid.plugins; no `name` or `$$CLASS_NAME` defined so no ref saved
+        Hypergrid.Hyperfilter, // object API instantiation; `name` defined so ref saved in `grid.plugins.hyperfilter`
+        Hypergrid.Hypersorter, // object API instantiation; `name` defined so ref saved in `grid.plugins.hypersorter`
         ['treeviewAPI', Hypergrid.TreeView, options] // object API instantiation with one arg; [0] overrides any defined name so ref saved in `grid.plugins.treeViewAPI`
     ]);
 

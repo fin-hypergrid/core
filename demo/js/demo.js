@@ -120,7 +120,7 @@ window.onload = function() {
             includeFilter: true
         }],
         INCLUDE_FILTER && Hypergrid.Hyperfilter,
-        INCLUDE_SORTER && [Hypergrid.Hypersorter, {Column: Hypergrid.behaviors.Column}]
+        INCLUDE_SORTER && Hypergrid.Hypersorter
     ];
 
     // restore previous "opinionated" headerify behavior

@@ -27,9 +27,9 @@ window.onload = function() {
         data: window.people1,
         plugins: [
             Hypergrid.drillDown, // simple API install (plain object with `install` method) but no `name` defined so no ref is saved
-            Hypergrid.Hyperfilter, // object API instantiation; `$$CLASS_NAME` defined so ref saved in `grid.plugins.hyperfilter`
-            [Hypergrid.Hypersorter, {Column: fin.Hypergrid.behaviors.Column}], // object API instantiation to grid.plugins; no `name` or `$$CLASS_NAME` defined so no ref saved
-            [Hypergrid.AggregationsView, options] // object API instantiation with one arg; `$$CLASS_NAME` defined so ref saved in `grid.plugins.aggregationsView`
+            Hypergrid.Hyperfilter, // object API instantiation; `name` defined so ref saved in `grid.plugins.hyperfilter`
+            Hypergrid.Hypersorter, // object API instantiation; `name` defined so ref saved in `grid.plugins.hypersorter`
+            [Hypergrid.AggregationsView, options] // object API instantiation with one arg; `name` defined so ref saved in `grid.plugins.aggregationsView`
         ]
     });
 
