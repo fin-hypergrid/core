@@ -121,6 +121,9 @@ var ComboBox = Textfield.extend('ComboBox', {
             if (this.controllable) {
                 toggle.className = TOGGLE_MODE_PREFIX + mode.name;
                 toggle.title = 'Toggle ' + (mode.label || mode.name).toLowerCase();
+                if (mode.tooltip) {
+                    toggle.title += '\n' + mode.tooltip;
+                }
                 toggle.textContent = mode.symbol;
             }
             this.controls.appendChild(toggle);

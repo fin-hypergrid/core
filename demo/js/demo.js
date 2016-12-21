@@ -127,16 +127,17 @@ window.onload = function() {
     var headerify = Hypergrid.analytics.util.headerify;
     headerify.transform = headerify.capitalize;
 
-    function derivedPeopleSchema(columns) {
+    function derivedPeopleSchema() {
         // create a hierarchical schema organized by alias
-        var factory = new Hypergrid.ColumnSchemaFactory(columns);
-        factory.organize(/^(one|two|three|four|five|six|seven|eight)/i, { key: 'alias' });
-        var columnSchema = factory.lookup('last_name');
-        if (columnSchema) {
-            columnSchema.defaultOp = 'IN';
+        this.organize(/^(one|two|three|four|five|six|seven|eight)/i, { key: 'alias' });
+
+        // set some column-specific properties
+        var columnSchema;
+        if ((columnSchema = this.lookup('last_name'))) {
+            columnSchema.defaultOp = 'CONTAINS';
         }
-        //factory.lookup('birthState').opMenu = ['>', '<'];
-        return factory.schema;
+
+        // this.lookup('birthState').opMenu = ['>', '<'];
     }
 
     var customSchema = [
@@ -144,13 +145,21 @@ window.onload = function() {
         { name: 'total_number_of_pets_owned', type: 'number' },
         { name: 'height', type: 'number' },
         'birthDate',
-        'birthState',
+        { name: 'birthState', defaultOp: 'CONTAINS' },
         'employed',
         { name: 'income', type: 'number' },
         { name: 'travel', type: 'number' }
     ];
 
-    var peopleSchema = customSchema;  // or try setting to derivedPeopleSchema
+    function superimposedCustomSchema() {
+        this.schema.walk(function(columnSchema) {
+            return customSchema.find(function(customColumnSchema) {
+                return (customColumnSchema.name || customColumnSchema) === columnSchema.name;
+            });
+        });
+    }
+
+    var peopleSchema = superimposedCustomSchema;  // or customSchema or derivedPeopleSchema
 
     function capitalize(string) {
         return (/[a-z]/.test(string) ? string : string.toLowerCase())
