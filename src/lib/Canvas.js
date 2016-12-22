@@ -64,23 +64,23 @@ function Canvas(div, component) {
     this.canvas.onmouseover = function() {
         self.hasMouse = true;
     };
-    this.canvas.addEventListener('focus', function(e) {
+    this.addEventListener('focus', function(e) {
         self.finfocusgained(e);
     });
-    this.canvas.addEventListener('blur', function(e) {
+    this.addEventListener('blur', function(e) {
         self.finfocuslost(e);
     });
-    this.canvas.addEventListener('mousedown', function(e) {
+    this.addEventListener('mousedown', function(e) {
         self.finmousedown(e);
     });
-    this.canvas.addEventListener('mouseout', function(e) {
+    this.addEventListener('mouseout', function(e) {
         self.hasMouse = false;
         self.finmouseout(e);
     });
-    this.canvas.addEventListener('click', function(e) {
+    this.addEventListener('click', function(e) {
         self.finclick(e);
     });
-    this.canvas.addEventListener('contextmenu', function(e) {
+    this.addEventListener('contextmenu', function(e) {
         self.fincontextmenu(e);
         e.preventDefault();
         return false;
@@ -127,22 +127,14 @@ Canvas.prototype = {
         this.canvas.addEventListener(name, callback);
     },
 
-    stopPaintLoop: function() {
-        if (paintRequest) {
-            cancelAnimationFrame(paintRequest);
-            paintRequest = undefined;
-        }
+    removeEventListener: function(name, callback) {
+        this.canvas.removeEventListener(name, callback);
     },
 
+    stopPaintLoop: stopPaintLoop,
     restartPaintLoop: restartPaintLoop,
 
-    stopResizeLoop: function() {
-        if (resizeInterval) {
-            clearInterval(resizeInterval);
-            resizeInterval = undefined;
-        }
-    },
-
+    stopResizeLoop: stopResizeLoop,
     restartResizeLoop: restartResizeLoop,
 
     detached: function() {
@@ -613,18 +605,28 @@ function dispatchContextMenuEvent(e) {
 
 function paintLoopFunction(now) {
     if (paintRequest) {
-        for (var i = 0; i < paintables.length; i++) {
+        paintables.forEach(function(paintable) {
             try {
-                paintables[i].tickPainter(now);
+                paintable.tickPainter(now);
             } catch (e) {
                 console.error(e);
             }
-        }
+
+            if (paintable.component.tickNotification) {
+                paintable.component.tickNotification();
+            }
+        });
         paintRequest = requestAnimationFrame(paintLoopFunction);
     }
 }
 function restartPaintLoop() {
     paintRequest = paintRequest || requestAnimationFrame(paintLoopFunction);
+}
+function stopPaintLoop() {
+    if (paintRequest) {
+        cancelAnimationFrame(paintRequest);
+        paintRequest = undefined;
+    }
 }
 restartPaintLoop();
 
@@ -641,6 +643,12 @@ function resizablesLoopFunction(now) {
 }
 function restartResizeLoop() {
     resizeInterval = resizeInterval || setInterval(resizablesLoopFunction, RESIZE_POLLING_INTERVAL);
+}
+function stopResizeLoop() {
+    if (resizeInterval) {
+        clearInterval(resizeInterval);
+        resizeInterval = undefined;
+    }
 }
 restartResizeLoop();
 

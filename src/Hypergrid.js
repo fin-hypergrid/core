@@ -100,6 +100,7 @@ var Hypergrid = Base.extend('Hypergrid', {
         this.numColumns = 0;
         this.clearMouseDown();
         this.setFormatter(options.localization);
+        this.listeners = {};
 
         /**
          * @name cellRenderers
@@ -303,6 +304,8 @@ var Hypergrid = Base.extend('Hypergrid', {
      */
     reset: function(options) {
         this.clearState();
+
+        this.removeAllEventListeners();
 
         this.lastEdgeSelection = [0, 0];
         this.selectionModel = new SelectionModel(this);
@@ -675,6 +678,10 @@ var Hypergrid = Base.extend('Hypergrid', {
         this.fireSyntheticGridRenderedEvent();
     },
 
+    tickNotification: function() {
+        this.fireSyntheticTickEvent();
+    },
+
     /**
      * @memberOf Hypergrid#
      * @desc The grid has just been rendered, make sure the column widths are optimal.
@@ -721,12 +728,17 @@ var Hypergrid = Base.extend('Hypergrid', {
      * @param {pipelineSchema} [options.pipeline] - New pipeline description.
      */
     setBehavior: function(options) {
-        var Behavior = options.Behavior || BehaviorJSON;
-        this.behavior = new Behavior(this, options);
-        this.initCanvas();
-        this.initScrollbars();
-        this.refreshProperties();
-        this.behavior.reindex();
+        if (!this.behavior) {
+            // If we get here it means:
+            // 1. Called from constructor because behavior included in options object.
+            // 2. Called from `setData` _and_ wasn't called explicitly since instantiation
+            var Behavior = options.Behavior || BehaviorJSON;
+            this.behavior = new Behavior(this, options);
+            this.initCanvas();
+            this.initScrollbars();
+            this.refreshProperties();
+            this.behavior.reindex();
+        }
     },
 
     /**
@@ -739,15 +751,15 @@ var Hypergrid = Base.extend('Hypergrid', {
      * @param {object} [options] - _(See {@link behaviors.JSON#setData}.)_
      */
     setData: function(dataRows, options) {
-        if (!this.behavior) {
-            // If we get here it means:
-            // 1. `Behavior` option wasn't given to constructor.
-            // 2. `setBehavior` wasn't called explicitly.
-            // So we call it now to set the default behavior (by not specifying a `Behavior`) with the unused constructor `pipeline` option.
-            this.setBehavior({ pipeline: this.options.pipeline });
-        }
+        // Call `setBehavior` here just in case not previously set by constructor _or_ explicitly since instantiation
+        this.setBehavior({
+            pipeline: this.options.pipeline
+        });
+
         this.behavior.setData(dataRows, options);
+
         this.setInfo(this.properties.noDataMessage);
+
         this.behavior.changed();
     },
 
@@ -938,32 +950,6 @@ var Hypergrid = Base.extend('Hypergrid', {
 
     convertDataPointToViewPoint: function(dataPoint) {
         return this.behavior.convertDataPointToViewPoint(dataPoint);
-    },
-
-    /**
-     * @memberOf Hypergrid#
-     * @summary Add an event listener to me.
-     * @param {string} eventName - The type of event we are interested in.
-     * @param {function} callback - The event handler.
-     */
-    addEventListener: function(eventName, callback) {
-        var self = this;
-        var decorator = function(e) {
-            if (self.allowEventHandlers){
-                callback(e);
-            }
-        };
-        this.canvas.addEventListener(eventName, decorator);
-    },
-
-    allowEvents: function(allow){
-        if ((this.allowEventHandlers = !!allow)){
-            this.behavior.featureChain.attachChain();
-        } else {
-            this.behavior.featureChain.detachChain();
-        }
-
-        this.behavior.changed();
     },
 
     /**

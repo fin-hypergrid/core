@@ -436,6 +436,10 @@ var Renderer = Base.extend('Renderer', {
         }
     },
 
+    tickNotification: function() {
+        this.grid.tickNotification();
+    },
+
     /**
      * @memberOf Renderer.prototype
      * @returns {number} Answer how many rows we rendered
