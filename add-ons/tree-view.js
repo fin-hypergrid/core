@@ -50,7 +50,7 @@ function TreeView(grid, options) {
     this.options = options || {};
 }
 
-TreeView.prototype.$$CLASS_NAME = 'TreeView';
+TreeView.prototype.name = 'TreeView';
 
 /**
  * @summary Build/unbuild the tree view.

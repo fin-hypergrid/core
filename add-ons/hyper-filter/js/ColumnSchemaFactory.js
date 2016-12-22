@@ -30,6 +30,9 @@ function ColumnSchemaFactory(columns) {
 
         return item;
     });
+
+    this.schema.walk = popMenu.walk;
+    this.schema.lookup = popMenu.lookup;
 }
 
 var placementPrefixMap = {
