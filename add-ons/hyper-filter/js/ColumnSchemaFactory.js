@@ -30,6 +30,9 @@ function ColumnSchemaFactory(columns) {
 
         return item;
     });
+
+    this.schema.walk = popMenu.walk;
+    this.schema.lookup = popMenu.lookup;
 }
 
 var placementPrefixMap = {
@@ -82,6 +85,19 @@ ColumnSchemaFactory.prototype = {
 
     walk: function(iteratee) {
         return popMenu.walk.apply(this.schema, arguments);
+    },
+
+    /**
+     * Overlays a custom schema on top of the derived schema.
+     * This is an easy way to include hidden columns that might have been omitted from your custom schema.
+     * @param customSchema
+     */
+    overlay: function(customSchema) {
+        this.schema.walk(function(columnSchema) {
+            return customSchema.find(function(customColumnSchema) {
+                return (customColumnSchema.name || customColumnSchema) === columnSchema.name;
+            });
+        });
     },
 
     /**

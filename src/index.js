@@ -17,20 +17,23 @@
 
 var Hypergrid = require('./Hypergrid');
 
+Hypergrid.analytics = require('hyper-analytics'); // npm
+// Hypergrid.analytics = require('../../hyper-analytics'); // developer
+
 // Expose some namespaces to users of the hypergrid.js file through `fin.Hypergrid`:
 Hypergrid.images = require('../images');
 Hypergrid.behaviors = require('./behaviors');
 Hypergrid.dataModels = require('./dataModels');
 Hypergrid.features = require('./features');
-Hypergrid.analytics = require('./Shared.js').analytics;
-Hypergrid.DataSourceBase = require('./dataSources').DataSourceBase;
 Hypergrid.rectangular = require('rectangular');
+Hypergrid.lib = require('./lib');
 
 // Create the `fin` namespace and the `fin.Hypergrid` objects:
 (window.fin = window.fin || {}).Hypergrid = Hypergrid;
 
 // Create the `datasaur` namespace and the `datasaur.base` objects:
-(window.datasaur = window.datasaur || {}).base = Hypergrid.DataSourceBase;
+(window.datasaur = window.datasaur || {}).base = require('fin-hypergrid-data-source-base');
 
-// Note that while users of the npm module can also access the above namespaces through the Hypergrid object, in reality they also have access to any namespace through `require`, for example:
+// Note users of the npm module do not have this object.
+// THey have access to any namespace through `require`, for example:
 // var behaviorJSON = require('fin-hypergrid/src/behaviors/JSON');

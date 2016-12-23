@@ -1,7 +1,7 @@
 'use strict';
 
 var DataModel = require('./DataModel');
-var DataSourceOrigin = require('../dataSources/DataSourceOrigin');
+var DataSourceOrigin = require('../lib/DataSourceOrigin');
 
 /** @typedef {object} dataSourcePipelineObject
  * @property {string} type - A "DataSourceOrigin" style constructor name.

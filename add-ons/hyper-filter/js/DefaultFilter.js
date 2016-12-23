@@ -482,25 +482,23 @@ var DefaultFilter = FilterTree.extend('DefaultFilter', {
      */
     properties: function(properties) {
         var result, value,
-            object = properties && properties.column
-                ? this.schema.lookup(properties.column.name)
+            object = properties && properties.COLUMN
+                ? this.schema.lookup(properties.COLUMN.name)
                 : this.root;
 
         if (properties && object) {
-            if (properties.getPropName) {
-                result = object[properties.getPropName];
+            if (properties.GETTER) {
+                result = object[alias(properties.GETTER)];
                 if (result === undefined) {
                     result = null;
                 }
             } else {
                 for (var key in properties) {
                     value = properties[key];
-                    if (value === undefined) {
-                        delete object[key];
-                    } else if (typeof value === 'function' && !this.firstClassProperties[key]) {
-                        object[key] = value();
+                    if (typeof value === 'function' && !this.firstClassProperties[key]) {
+                        object[alias(key)] = value();
                     } else {
-                        object[key] = value;
+                        object[alias(key)] = value;
                     }
                 }
             }
@@ -509,6 +507,13 @@ var DefaultFilter = FilterTree.extend('DefaultFilter', {
         return result;
     }
 });
+
+function alias(key) {
+    if (key === 'header') {
+        key = 'alias';
+    }
+    return key;
+}
 
 
 module.exports = DefaultFilter;

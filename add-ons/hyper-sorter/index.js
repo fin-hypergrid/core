@@ -1,37 +1,33 @@
 'use strict';
 
-function Hypersorter(grid, objects) {
+function Hypersorter(grid, targets) {
     this.grid = grid;
 
+    this.install(targets);
+
     this.sorts = [];
-
-    objects = objects || {};
-
-    var hypergridPrototype = getPrototype('Hypergrid', grid);
-
-    hypergridPrototype.constructor.properties.mixIn(require('./mix-ins/defaults'));
-
-    hypergridPrototype.mixIn(require('./mix-ins/grid'));
-    getPrototype('Behavior', grid.behavior).mixIn(require('./mix-ins/behavior'));
-    getPrototype('Column', grid.behavior.allColumns.length && grid.behavior.allColumns[0]).mixIn(require('./mix-ins/column'));
-    getPrototype('DataModel', grid.behavior.dataModel).mixIn(require('./mix-ins/dataModel'));
 
     grid.behavior.dataModel.charMap.mixIn({
         ASC: '\u25b2', // UPWARDS_BLACK_ARROW, aka '▲'
         DESC: '\u25bc' // DOWNWARDS_BLACK_ARROW, aka '▼'
     });
 
-    this.grid.addEventListener('fin-column-sort', function(c, keys){
+    grid.addEventListener('fin-column-sort', function(c, keys){
         grid.toggleSort(c, keys);
     });
-
-    function getPrototype(name, instance) {
-        var object = objects[name];
-        return object && object.prototype || Object.getPrototypeOf(instance);
-    }
 }
 
-Hypersorter.prototype.name = 'hypersorter';
+Hypersorter.prototype.name = 'Hypersorter';
+
+Hypersorter.prototype.install = function(targets) {
+    var Hypergrid = Object.getPrototypeOf(this.grid).constructor;
+    Hypergrid.properties.mixIn(require('./mix-ins/defaults'));
+    Hypergrid.prototype.mixIn(require('./mix-ins/grid'));
+    targets = targets || {};
+    (targets.Behavior && targets.Behavior.prototype || Object.getPrototypeOf(this.grid.behavior)).mixIn(require('./mix-ins/behavior'));
+    (targets.Column || Hypergrid.behaviors.Column).prototype.mixIn(require('./mix-ins/column'));
+    (targets.DataModel && targets.DataModel.prototype || Object.getPrototypeOf(this.grid.behavior.dataModel)).mixIn(require('./mix-ins/dataModel'));
+};
 
 /** @typedef {object} sortSpecInterface
  * @property {number} columnIndex
