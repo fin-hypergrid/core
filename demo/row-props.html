@@ -45,23 +45,27 @@
     </label>
     <div class="radio-group">
         Render:
-        <label title="grid.properties.enableContinuousRepaint = false; // next requestAnimationFrame AND repaint was called">
-            <input type="radio" name="paint" onclick="update(false);grid.properties.enableContinuousRepaint=false" checked>
-            on repaint
+        <label title="grid.properties.enableContinuousRepaint = false; // next requestAnimationFrame AND repaint() was called to set flag">
+            <input type="radio" name="paint" onclick="update(false, false);" checked>
+            framed + flag set
         </label>
         <label title="grid.properties.enableContinuousRepaint = true // each requestAnimationFrame">
-            <input type="radio" name="paint" onclick="update(false);grid.properties.enableContinuousRepaint=true">
-            continuous
+            <input type="radio" name="paint" onclick="update(false, true);">
+            framed always
         </label>
         <label title="Call cancelAnimationFrame; then renderGrid as often as possible to render data changes.">
-            <input type="radio" name="paint" onclick="grid.properties.enableContinuousRepaint=false;update(true)">
-            changes
-            <span id="fps" title="Chrome FPS meter not accurate when not using requestAnimationFrame!"></span>
-            <input type="range" id="changes" style="width:100px" min="1" max="500" value="1" oninput="this.nextElementSibling.innerHTML=CHANGES=this.value">
-            (<span>1</span>)
-            <input type="button" onclick="grid.clearAllCellProperties()" value="Clear">
+            <input type="radio" name="paint" onclick="update(true)">
+            blast
         </label>
     </div>
+    <label>
+        <input type="checkbox" onclick="simulate(this.checked)">
+        sim updates
+        <span id="fps" title="Warning: Chrome's built in FPS meter is not accurate in blast mode (i.e., when not using requestAnimationFrame)."></span>
+        <input type="range" id="changes" style="width:100px" min="1" max="500" value="1" oninput="this.nextElementSibling.innerHTML=CHANGES=this.value">
+        (<span>1</span>)
+        <input type="button" onclick="grid.clearAllCellProperties()" value="Clear">
+    </label>
     <div class="radio-group">
         Render by:
         <label title="setGridRenderer('by-cells');
@@ -438,57 +442,122 @@ function random() {
     return Math.floor(Math.random() * MAGNITUDE * FACTOR) / FACTOR;
 }
 
-var randomInterval, t1, t2, n = 0;
-function update(b) {
-    if (b && !randomInterval) {
-        var fpsEl = document.getElementById('fps');
-        var cells = grid.renderer.cellEventPool;
+var blastPaint, scheduledPaint, changeMax, sim, t1, t2, n = 0;
+function update(blast, enableContinuousRepaint) {
+    if (blast) {
+        stopScheduledPaint();
+        startBlastPaint();
+    } else {
+        grid.properties.enableContinuousRepaint = enableContinuousRepaint;
+        stopBlastPaint();
+        startScheduledPaint();
+    }
+}
+
+function startScheduledPaint() {
+    if (!scheduledPaint && sim) {
+        grid.canvas.restartPaintLoop();
+
+        grid.addEventListener('fin-tick', scheduledPaint = function() {
+            change();
+            grid.repaint();
+        })
+    }
+}
+
+function stopScheduledPaint() {
+    if (scheduledPaint) {
+        grid.removeEventListener('fin-tick', scheduledPaint);
+        scheduledPaint = undefined;
+    }
+}
+
+function startBlastPaint() {
+    if (!blastPaint) {
         grid.canvas.stopPaintLoop();
 
-        // getCell
-//        grid.behavior.dataModel.getCell = function(config, rendererName) {
-//            if (config.isUserDataArea) {
-//                config.backgroundColor = (config.value < MAGNITUDE / 2) ? '#ffcccc' : '#ccffcc';
-//            }
-//            return grid.cellRenderers.get(rendererName);
-//        };
-
-        var changeMax;
-        randomInterval = setInterval(function() {
-            var rowNumberCells = grid.properties.showRowNumbers ? grid.renderer.visibleRows.length : 0,
-                dataCells = grid.renderer.visibleRows.length * grid.renderer.visibleColumns.length,
-                cellEvent, value;
-
-            if (changeMax !== dataCells) {
-                document.getElementById('changes').max = changeMax = dataCells;
+        blastPaint = setInterval(function() {
+            if (sim) {
+                change();
             }
-
-            for (var i = CHANGES; i; --i) {
-                do {
-                    cellEvent = cells[rowNumberCells + Math.random() * dataCells | 0];
-                } while (cellEvent.isHeaderRow); // while a header
-
-                value = random();
-                cellEvent.value = value;
-
-                // background color
-                cellEvent.setCellProperty('backgroundColor', value < MAGNITUDE / 2 ? '#ffcccc' : '#ccffcc');
-            }
-
             grid.renderer.renderGrid(grid.canvas.gc);
-            t2 = (Date.now() / 1000 | 0) % 10;
-            n += 1;
-            if (t2 !== t1) {
-                t1 = t2;
-                fpsEl.innerHTML = '(FPS=' + n + ')';
-                n = 0;
-            }
         }, 0);
-    } else if (!b && randomInterval) {
-        clearInterval(randomInterval);
-        randomInterval = undefined;
-        grid.canvas.restartPaintLoop();
     }
+}
+
+function stopBlastPaint() {
+    if (blastPaint) {
+        clearInterval(blastPaint);
+        blastPaint = undefined;
+    }
+}
+
+function change() {
+    var rowNumberCells = grid.properties.showRowNumbers ? grid.renderer.visibleRows.length : 0,
+        dataCells = grid.renderer.visibleRows.length * grid.renderer.visibleColumns.length,
+        cells = grid.renderer.cellEventPool,
+        cellEvent, value;
+
+    if (changeMax !== dataCells) {
+        document.getElementById('changes').max = changeMax = dataCells;
+    }
+
+    for (var i = CHANGES; i; --i) {
+        do {
+            cellEvent = cells[rowNumberCells + Math.random() * dataCells | 0];
+        } while (cellEvent.isHeaderRow); // while a header
+
+        value = random();
+        cellEvent.value = value;
+
+        // background color
+        cellEvent.setCellProperty('backgroundColor', value < MAGNITUDE / 2 ? '#ffcccc' : '#ccffcc');
+    }
+/*
+     // getCell:
+     grid.behavior.dataModel.getCell = function(config, rendererName) {
+         if (config.isUserDataArea) {
+            config.backgroundColor = (config.value < MAGNITUDE / 2) ? '#ffcccc' : '#ccffcc';
+         }
+         return grid.cellRenderers.get(rendererName);
+     };
+ */
+    t2 = (Date.now() / 1000 | 0) % 10;
+    n += 1;
+    if (t2 !== t1) {
+        t1 = t2;
+        document.getElementById('fps').innerHTML = '(FPS=' + n + ')';
+        n = 0;
+    }
+}
+
+function simulate(checked) {
+    var paintRadioButtons = document.querySelectorAll('[name=paint]'),
+        paintOnFlagSetRadioButton = paintRadioButtons[0],
+        paintBlastRadioButton = paintRadioButtons[2]
+        paintBlastLabel = paintBlastRadioButton.parentElement;
+
+    if (!checked && paintBlastRadioButton.checked) {
+        paintOnFlagSetRadioButton.checked = true;
+        paintOnFlagSetRadioButton.onclick();
+    }
+
+    paintBlastLabel.style.color = checked ? 'black' : 'lightgrey';
+    paintBlastRadioButton.disabled = !checked;
+
+    sim = checked;
+
+    document.getElementById('fps').innerHTML = '';
+
+    stopBlastPaint();
+    stopScheduledPaint();
+
+    Array.prototype.slice.call(paintRadioButtons).find(function(radioButton) {
+        if (radioButton.checked) {
+            radioButton.onclick();
+            return true;
+        }
+    });
 }
     </script>
 </body>

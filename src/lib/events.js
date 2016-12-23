@@ -2,9 +2,73 @@
 
 'use strict';
 
+var _ = require('object-iterators');
+
 var Behavior = require('../behaviors/Behavior');
 
 module.exports = {
+
+    /**
+     * @summary Add an event listener to me.
+     * @param {string} eventName - The type of event we are interested in.
+     * @param {function} listener - The event handler.
+     * @param {boolean} [internal=false] - Internal listeners can be removed as usual by {@link Hypergrid#removeEventListener|grid.removeEventListener}. However, they are ignored by {@link Hypergrid#removeAllEventListeners|grid.removeAllEventListeners} (called on {@link Hypergrid#reset|reset}).
+     * @memberOf Hypergrid#
+     */
+    addEventListener: function(eventName, listener, internal) {
+        var self = this,
+            listeners = this.listeners[eventName] = this.listeners[eventName] || [],
+            info = listeners.find(function(info) { return info.listener === listener; });
+
+        if (!info) {
+            info = {
+                internal: internal,
+                listener: listener,
+                decorator: function(e) {
+                    if (self.allowEventHandlers){
+                        listener(e);
+                    }
+                }
+            };
+            listeners.push(info);
+            this.canvas.addEventListener(eventName, info.decorator);
+        }
+    },
+
+    removeEventListener: function(eventName, listener) {
+        var listenerList = this.listeners[eventName];
+
+        if (listenerList) {
+            listenerList.find(function(info, index) {
+                if (info.listener === listener) {
+                    listenerList.splice(index, 1); // remove it from the list
+                    this.canvas.removeEventListener(eventName, info.decorator);
+                    return true;
+                }
+            }, this);
+        }
+    },
+
+    removeAllEventListeners: function() {
+        _(this.listeners).each(function(listenerList, key) {
+            listenerList.forEach(function(info) {
+                if (!info.internal) {
+                    this.removeEventListener(key, info.listener);
+                }
+            });
+        });
+    },
+
+    allowEvents: function(allow){
+        if ((this.allowEventHandlers = !!allow)){
+            this.behavior.featureChain.attachChain();
+        } else {
+            this.behavior.featureChain.detachChain();
+        }
+
+        this.behavior.changed();
+    },
+
     /**
      * @memberOf Hypergrid#
      * @param {number} c - grid column index.
@@ -188,6 +252,10 @@ module.exports = {
      */
     fireSyntheticGridRenderedEvent: function() {
        return dispatchEvent.call(this, 'fin-grid-rendered', { source: this });
+    },
+
+    fireSyntheticTickEvent: function() {
+        return dispatchEvent.call(this, 'fin-tick', { source: this });
     },
 
     fireSyntheticGridResizedEvent: function(e) {
