@@ -1,8 +1,5 @@
 'use strict';
 
-var UPWARDS_BLACK_ARROW = '\u25b2', // aka '▲'
-    DOWNWARDS_BLACK_ARROW = '\u25bc'; // aka '▼'
-
 module.exports = {
 
     /**
@@ -108,9 +105,8 @@ module.exports = {
             result, rank;
 
         if (sortSpec) {
-            var arrow = sortSpec.sort.direction > 0
-                ? UPWARDS_BLACK_ARROW
-                : DOWNWARDS_BLACK_ARROW;
+            var directionKey = sortSpec.sort.direction > 0 ? 'ASC' : 'DESC',
+                arrow = this.charMap[directionKey];
 
             result = arrow + ' ';
 

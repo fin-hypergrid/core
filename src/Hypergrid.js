@@ -2151,6 +2151,10 @@ var Hypergrid = Base.extend('Hypergrid', {
         return this.behavior.prop.apply(this.behavior, arguments);
     },
 
+    get charMap() {
+        return this.behavior.charMap;
+    },
+
     /**
      * @summary Sticky hash of dialog options objects.
      * @desc Each key is a dialog name; the value is the options object for that dialog.

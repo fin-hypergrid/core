@@ -1324,6 +1324,10 @@ var Behavior = Base.extend('Behavior', {
         return result;
     },
 
+    get charMap() {
+        return this.dataModel.charMap;
+    },
+
     getSelectedRows: function() {
         return this.grid.selectionModel.getSelectedRows();
     },

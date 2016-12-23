@@ -27,6 +27,8 @@ var JSON = DataModel.extend('dataModels.JSON', {
          */
         this.controllers = {};
 
+        this.charMap = new CharMap(this);
+
         this.reset(options);
     },
 
@@ -805,6 +807,19 @@ function getSchemaPropArr(propName, deprecatedMethodName) {
         return columnSchema[propName];
     }, this);
 }
+
+function CharMap(dataModel) {
+    this.dataModel = dataModel;
+}
+CharMap.prototype = {
+    mixIn: require('overrider').mixIn,
+
+    get OPEN() { return this.dataModel.dataSource.drillDownCharMap.OPEN; },
+    set OPEN(s) { this.dataModel.dataSource.drillDownCharMap.OPEN = s; },
+
+    get CLOSE() { return this.dataModel.dataSource.drillDownCharMap.CLOSE; },
+    set CLOSE(s) { this.dataModel.dataSource.drillDownCharMap.CLOSE = s; },
+};
 
 /**
  * Synonym of {@link JSON.prototype.reindex}.
