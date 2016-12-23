@@ -877,7 +877,7 @@ var defaults = {
      * @type {string}
      * @memberOf module:defaults
      */
-    gridRenderer: 'by-column-and-rows',
+    gridRenderer: 'by-columns-and-rows',
 
     /********** HOVER COLORS **********/
 

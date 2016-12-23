@@ -13,7 +13,7 @@ window.onload = function() {
     var INCLUDE_SORTER = true;
     var INCLUDE_FILTER = true;
 
-    Hypergrid.properties.showFilterRow = INCLUDE_FILTER;
+    Hypergrid.defaults.showFilterRow = INCLUDE_FILTER;
 
     // List of properties to show as checkboxes in this demo's "dashboard"
     var toggleProps = [
@@ -1177,7 +1177,7 @@ window.onload = function() {
 
             switch (type) {
                 case 'text':
-                    input.value = ctrl.value || globalProperty(ctrl.name) || '';
+                    input.value = ctrl.value || getProperty(ctrl.name) || '';
                     input.style.width = '25px';
                     input.style.marginLeft = '4px';
                     input.style.marginRight = '4px';
@@ -1187,7 +1187,7 @@ window.onload = function() {
                 case 'radio':
                     input.checked = 'checked' in ctrl
                         ? ctrl.checked
-                        : globalProperty(ctrl.name);
+                        : getProperty(ctrl.name);
                     referenceElement = null; // label goes before input
                     break;
             }
@@ -1210,7 +1210,7 @@ window.onload = function() {
         ctrlGroups.appendChild(container);
     }
 
-    function globalProperty(key) {
+    function getProperty(key) {
         var keys = key.split('.');
         var prop;
 
@@ -1218,7 +1218,7 @@ window.onload = function() {
             keys.shift();
             prop = filterOptions;
         } else {
-            prop = Hypergrid.properties;
+            prop = grid.properties;
         }
 
         while (keys.length) {
