@@ -102,10 +102,11 @@ var FilterBox = ComboBox.extend('FilterBox', {
             name: 'columnNames',
             label: 'Column Names',
             selector: 'optgroup.submenu-columnNames',
+            tooltip: '(Hold down alt/option key while clicking to include hidden column names.)',
             symbol: 'A',
             backgroundColor: '#eff',
             appendOptions: function(optgroup) {
-                var columns = this.grid.behavior.columns,
+                var columns = window.event.altKey ? this.grid.behavior.allColumns : this.grid.behavior.columns,
                     x = this.event.gridCell.x;
 
                 while (optgroup.firstElementChild) {

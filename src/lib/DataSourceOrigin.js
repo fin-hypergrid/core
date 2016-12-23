@@ -2,6 +2,8 @@
 
 var DataSourceBase = require('fin-hypergrid-data-source-base');
 
+var getFieldNames = require('./fields').getFieldNames;
+
 /**
  * See {@link DataSourceOrigin#initialize} for constructor parameters.
  * @constructor
@@ -14,13 +16,39 @@ var DataSourceOrigin = DataSourceBase.extend('DataSourceOrigin',  {
     initialize: function(data, schema) {
         delete this.dataSource; // added by DataSourceBase#initialize but we don't want here
         this._schema = [];
-        this.setData.call(this, data, schema);
+        this.setData(data, schema);
     },
 
+    /** @typedef {object} columnSchemaObject
+     * @property {string} name - The required column name.
+     * @property {string} [header] - An override for derived header
+     * @property {function} [calculator] - A function for a computed column. Undefined for normal data columns.
+     * @property {string} [type] - Used for sorting when and only when comparator not given.
+     * @property {object} [comparator] - For sorting, both of following required:
+     * @property {function} comparator.asc - ascending comparator
+     * @property {function} comparator.desc - descending comparator
+     */
+
     /**
+     * @param {object[]} [data=[]] - Array of uniform objects containing the grid data.
+     * @param {columnSchemaObject[]} [schema=[]]
      * @memberOf DataSourceOrigin#
      */
-    setData: setData,
+    setData: function(data, schema) {
+        /**
+         * @summary The array of uniform data objects.
+         * @name schema
+         * @type {columnSchemaObject[]}
+         * @memberOf DataSourceOrigin#
+         */
+        this.data = data || [];
+
+        if (schema) {
+            this.setSchema(schema);
+        } else if (this.data.length && !this.schema.length) {
+            this.setSchema([]);
+        }
+    },
 
     get schema() { return this._schema; },
     set schema(schema) { this._schema = schema; },
@@ -39,7 +67,7 @@ var DataSourceOrigin = DataSourceBase.extend('DataSourceOrigin',  {
      */
     setSchema: function(schema){
         if (!schema.length) {
-            var fields = computeFieldNames(this.data[0]);
+            var fields = getFieldNames(this.data[0]);
 
             schema = Array(fields.length);
 
@@ -296,50 +324,5 @@ var DataSourceOrigin = DataSourceBase.extend('DataSourceOrigin',  {
         }, this);
     }
 });
-
-/** @typedef {object} columnSchemaObject
- * @property {string} name - The required column name.
- * @property {string} [header] - An override for derived header
- * @property {function} [calculator] - A function for a computed column. Undefined for normal data columns.
- * @property {string} [type] - Used for sorting when and only when comparator not given.
- * @property {object} [comparator] - For sorting, both of following required:
- * @property {function} comparator.asc - ascending comparator
- * @property {function} comparator.desc - descending comparator
- */
-
-/**
- * @param {object[]} [data=[]] - Array of uniform objects containing the grid data.
- * @param {columnSchemaObject[]} [schema=[]]
- * @memberOf DataSourceOrigin#
- */
-function setData(data, schema) {
-    /**
-     * @summary The array of uniform data objects.
-     * @name schema
-     * @type {columnSchemaObject[]}
-     * @memberOf DataSourceOrigin#
-     */
-    this.data = data || [];
-
-    if (schema) {
-        this.setSchema(schema);
-    } else if (this.data.length && !this.schema.length) {
-        this.setSchema([]);
-    }
-}
-
-/**
- * @private
- * @param {object} object
- * @returns {string[]}
- */
-function computeFieldNames(object) {
-    if (!object) {
-        return [];
-    }
-    return Object.keys(object || []).filter(function(e) {
-        return e.substr(0, 2) !== '__';
-    });
-}
 
 module.exports = DataSourceOrigin;

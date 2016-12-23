@@ -125,18 +125,19 @@ window.onload = function() {
 
     // restore previous "opinionated" headerify behavior
     var headerify = Hypergrid.analytics.util.headerify;
-    headerify.transform = headerify.capitalize;
+    headerify.transform = fin.Hypergrid.lib.fields.titleize;
 
-    function derivedPeopleSchema(columns) {
+    function derivedPeopleSchema() {
         // create a hierarchical schema organized by alias
-        var factory = new Hypergrid.ColumnSchemaFactory(columns);
-        factory.organize(/^(one|two|three|four|five|six|seven|eight)/i, { key: 'alias' });
-        var columnSchema = factory.lookup('last_name');
-        if (columnSchema) {
-            columnSchema.defaultOp = 'IN';
+        this.organize(/^(one|two|three|four|five|six|seven|eight)/i, { key: 'alias' });
+
+        // set some column-specific properties
+        var columnSchema;
+        if ((columnSchema = this.lookup('last_name'))) {
+            columnSchema.defaultOp = 'CONTAINS';
         }
-        //factory.lookup('birthState').opMenu = ['>', '<'];
-        return factory.schema;
+
+        // this.lookup('birthState').opMenu = ['>', '<'];
     }
 
     var customSchema = [
@@ -144,42 +145,22 @@ window.onload = function() {
         { name: 'total_number_of_pets_owned', type: 'number' },
         { name: 'height', type: 'number' },
         'birthDate',
-        'birthState',
+        { name: 'birthState', defaultOp: 'CONTAINS' },
         'employed',
         { name: 'income', type: 'number' },
         { name: 'travel', type: 'number' }
     ];
 
-    var peopleSchema = customSchema;  // or try setting to derivedPeopleSchema
-
-    function capitalize(string) {
-        return (/[a-z]/.test(string) ? string : string.toLowerCase())
-            .replace(/[\s\-_]*([^\s\-_])([^\s\-_]+)/g, replacer)
-            .replace(/[A-Z]/g, ' $&')
-            .trim();
+    function superimposedCustomSchema() {
+        this.overlay(customSchema);
     }
 
-    function replacer(a, b, c) {
-        return b.toUpperCase() + c;
-    }
-
-    function getSchema(data){
-        var schema = [],
-            firstRow = Array.isArray(data) && data[0];
-
-        firstRow = (typeof firstRow === 'object') ? firstRow : {};
-        for (var p in firstRow) {
-            if (firstRow.hasOwnProperty(p)){
-                schema.push({name: p, header: capitalize(p)});
-            }
-        }
-        return schema;
-    }
+    var peopleSchema = superimposedCustomSchema;  // or customSchema or derivedPeopleSchema
 
     var gridOptions = {
             data: people1,
             margin: { bottom: '17px' },
-            schema: getSchema(people1),
+            schema: Hypergrid.lib.fields.getSchema(people1),
             plugins: plugins
         },
         grid = window.grid = window.g = new Hypergrid('div#json-example', gridOptions),
@@ -205,7 +186,7 @@ window.onload = function() {
 
     function setData(data, options) {
         options = !data.length ? undefined : options || {
-            schema: getSchema(data)
+            schema: Hypergrid.lib.fields.getSchema(data)
         };
         grid.setData(data, options);
         resetGlobalFilter(data);

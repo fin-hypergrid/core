@@ -7,9 +7,15 @@
 !/images/index.js
 !/images/images.js
 /jsdoc-template
-/src/index.js
+/src/jsdoc
 /test
 /favicon.ico
 /*.sh
 /gulpfile.js
 /*.md
+*.index.js
+!/src/cellRenderers/index.js
+!/src/cellEditors/index.js
+!/src/dataModels/index.js
+!/src/dialogs/index.js
+!/src/renderer/index.js
