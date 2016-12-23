@@ -182,7 +182,7 @@ window.onload = function() {
             schema: getSchema(people1),
             plugins: plugins
         },
-        grid = window.g = new Hypergrid('div#json-example', gridOptions),
+        grid = window.grid = window.g = new Hypergrid('div#json-example', gridOptions),
         behavior = window.b = grid.behavior,
         dataModel = window.m = behavior.dataModel,
         idx = behavior.columnEnum,

@@ -16,6 +16,11 @@ function Hypersorter(grid, objects) {
     getPrototype('Column', grid.behavior.allColumns.length && grid.behavior.allColumns[0]).mixIn(require('./mix-ins/column'));
     getPrototype('DataModel', grid.behavior.dataModel).mixIn(require('./mix-ins/dataModel'));
 
+    grid.behavior.dataModel.charMap.mixIn({
+        ASC: '\u25b2', // UPWARDS_BLACK_ARROW, aka '▲'
+        DESC: '\u25bc' // DOWNWARDS_BLACK_ARROW, aka '▼'
+    });
+
     this.grid.addEventListener('fin-column-sort', function(c, keys){
         grid.toggleSort(c, keys);
     });
