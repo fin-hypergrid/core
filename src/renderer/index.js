@@ -130,7 +130,7 @@ var Renderer = Base.extend('Renderer', {
         this.grid = grid;
 
         // typically grid properties won't exist yet
-        this.setGridRenderer(grid.properties && grid.properties.gridRenderer || 'by-columns-and-rows');
+        this.setGridRenderer(this.properties.gridRenderer || 'by-columns-and-rows');
 
         this.reset();
     },
@@ -420,7 +420,7 @@ var Renderer = Base.extend('Renderer', {
      */
     resolveProperty: function(key) {
         this.deprecated('resolveProperty', 'The .resolveProperty(key) method is deprecated as of v1.2.10 in favor of the .grid.properties object dereferenced with [key]. (Will be removed in a future release.)');
-        return this.grid.properties[key];
+        return this.properties[key];
     },
 
     /**
@@ -531,7 +531,7 @@ var Renderer = Base.extend('Renderer', {
             y = point.y,
             vrs = this.visibleRows,
             vcs = this.visibleColumns,
-            firstColumn = vcs[this.grid.properties.showRowNumbers ? -1 : 0],
+            firstColumn = vcs[this.properties.showRowNumbers ? -1 : 0],
             inFirstColumn = x < firstColumn.right,
             vc = inFirstColumn ? firstColumn : vcs.find(function(vc) { return x < vc.right; }),
             vr = vrs.find(function(vr) { return y < vr.bottom; }),
@@ -730,7 +730,7 @@ var Renderer = Base.extend('Renderer', {
             return;
         }
 
-        var gridProps = this.grid.properties;
+        var gridProps = this.properties;
         vcOrigin = vcOrigin || this.visibleColumns[gridProps.fixedColumnCount];
         vrOrigin = vrOrigin || this.visibleRows[gridProps.fixedRowCount];
         vcCorner = vcCorner || (selection.corner.x > lastColumn.columnIndex ? lastColumn : vci[gridProps.fixedColumnCount - 1]);
@@ -782,7 +782,7 @@ var Renderer = Base.extend('Renderer', {
         var targetCTX = override.ctx;
         var imgData = gc.getImageData(startX, 0, Math.round(width * hdpiRatio), Math.round(height * hdpiRatio));
         targetCTX.putImageData(imgData, 0, 0);
-        gc.cache.fillStyle = this.grid.properties.backgroundColor2;
+        gc.cache.fillStyle = this.properties.backgroundColor2;
         gc.fillRect(Math.round(startX / hdpiRatio), 0, width, height);
     },
 
@@ -879,7 +879,7 @@ var Renderer = Base.extend('Renderer', {
     getPageUpRow: function() {
         var grid = this.grid,
             scrollHeight = this.getVisibleScrollHeight(),
-            top = this.dataWindow.origin.y - this.grid.properties.fixedRowCount - 1,
+            top = this.dataWindow.origin.y - this.properties.fixedRowCount - 1,
             scanHeight = 0;
         while (scanHeight < scrollHeight && top >= 0) {
             scanHeight += grid.getRowHeight(top);
@@ -893,7 +893,7 @@ var Renderer = Base.extend('Renderer', {
      * @returns {number} The row to goto for a page down.
      */
     getPageDownRow: function() {
-        return this.dataWindow.corner.y - this.grid.properties.fixedRowCount + 1;
+        return this.dataWindow.corner.y - this.properties.fixedRowCount + 1;
     },
 
     renderErrorCell: function(err, gc, vc, vr) {
@@ -923,7 +923,7 @@ var Renderer = Base.extend('Renderer', {
             visibleRows = this.visibleRows, R = visibleRows.length;
 
         if (C && R) {
-            var gridProps = this.grid.properties,
+            var gridProps = this.properties,
                 lineWidth = gridProps.lineWidth,
                 lineColor = gridProps.lineColor;
 

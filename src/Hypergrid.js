@@ -10,7 +10,7 @@ var Rectangle = require('rectangular').Rectangle;
 var _ = require('object-iterators'); // fyi: installs the Array.prototype.find polyfill, as needed
 
 var Base = require('./Base');
-var globalProperties = require('./defaults');
+var defaults = require('./defaults');
 var dynamicProperties = require('./lib/dynamicProperties');
 var Canvas = require('./lib/Canvas');
 var Renderer = require('./renderer');
@@ -78,6 +78,8 @@ var Hypergrid = Base.extend('Hypergrid', {
 
         this.options = options = options || {};
 
+        this.clearState();
+
         //Set up the container for a grid instance
         this.setContainer(
             container ||
@@ -87,8 +89,6 @@ var Hypergrid = Base.extend('Hypergrid', {
 
         // Install shared plug-ins (those with a `preinstall` method)
         Object.getPrototypeOf(this).installPlugins(options.plugins);
-
-        this.clearState();
 
         this.lastEdgeSelection = [0, 0];
         this.isWebkit = navigator.userAgent.toLowerCase().indexOf('webkit') > -1;
@@ -274,20 +274,26 @@ var Hypergrid = Base.extend('Hypergrid', {
         this.div.setAttribute(attribute, value);
     },
 
+    /**
+     * @memberOf Hypergrid#
+     */
     clearState: function() {
-        var cache = new Cache(dynamicProperties, globalProperties);
-
         /**
-         * memento for the user configured visual properties of the table
+         * @name properties
          * @type {object}
+         * @summary Object containing the properties of the grid.
+         * @desc Grid properties objects have the following structure:
+         * 1. User-configured properties are in the "own" layer.
+         * 2. Extends from (has as its prototype) the {@link module:dynamicProperties|dynamicProperties} object.
+         * 3. The dynamic properties object extends from the {@link module:defaults|defaults} object.
+         *
+         * Note: Any changes the application developer may wish to make to the {@link module:defaults|defaults} object should be made _before_ reaching this point (_i.e.,_ prior to any grid instantiations).
          * @memberOf Hypergrid#
          */
-        this.properties = Object.create(globalProperties, {
+        this.properties = Object.create(dynamicProperties, {
             grid: { value: this },
-            cache: { value: cache }
+            var: { value: new Var() }
         });
-
-        Object.defineProperties(this.properties, dynamicProperties);
     },
 
     /**
@@ -540,15 +546,6 @@ var Hypergrid = Base.extend('Hypergrid', {
         if (me) { this.fireSyntheticOnCellExitEvent(me); } //Exit first
         this.fireSyntheticOnCellEnterEvent(newPoint);
         this.repaint();
-    },
-
-    /**
-     * @memberOf Hypergrid#
-     * @desc Ammend properties for all hypergrids in this process.
-     * @param {object} properties - A simple properties hash.
-     */
-    addGlobalProperties: function(properties) {
-        Object.assign(globalProperties, properties);
     },
 
     /**
@@ -2252,10 +2249,24 @@ var Hypergrid = Base.extend('Hypergrid', {
     }
 });
 
-function Cache(descriptors, defaults) {
-    defaults = defaults || {};
-    Object.keys(descriptors).forEach(function(key) {
-        this[key] = defaults[key];
+var VAR = '.var.';
+function hasVar(descriptor) {
+    return (
+        descriptor.get && descriptor.get.toString().indexOf(VAR) >= 0 ||
+        descriptor.set && descriptor.set.toString().indexOf(VAR) >= 0
+    );
+}
+/**
+ * Creates an instance variable backer for use by the getters and setters in {@link dynamicProperties}.
+ * @constructor
+ * @memberOf Hypergrid~
+ * @private
+ */
+function Var() {
+    Object.getOwnPropertyNames(dynamicProperties).forEach(function(name) {
+        if (hasVar(Object.getOwnPropertyDescriptor(dynamicProperties, name))) {
+            this[name] = defaults[name];
+        }
     }, this);
 }
 
@@ -2347,7 +2358,7 @@ Hypergrid.prototype.setController.onerror = 'warn';
 Hypergrid.prototype.mixIn(require('./lib/events'));
 Hypergrid.prototype.mixIn(require('./lib/selection'));
 
-Hypergrid.properties = globalProperties;
+Hypergrid.defaults = Hypergrid.properties = defaults;
 
 
 module.exports = Hypergrid;
