@@ -919,7 +919,7 @@ var Renderer = Base.extend('Renderer', {
 
     /**
      * @memberOf Renderer.prototype
-     * @desc We opted to not paint borders for each cell as that was extremely expensive. Instead we draw gridlines here. Also we record the widths and heights for later.
+     * @desc We opted to not paint borders for each cell as that was extremely expensive. Instead we draw grid lines here.
      * @param {CanvasRenderingContext2D} gc
      */
     paintGridlines: function(gc) {
@@ -933,15 +933,31 @@ var Renderer = Base.extend('Renderer', {
 
             if (gridProps.gridLinesV) {
                 gc.cache.fillStyle = lineColor;
-                var viewHeight = visibleRows[R - 1].bottom;
-                for (var c = gridProps.showRowNumbers ? 0 : 1; c < C; c++) {
+                var viewHeight = visibleRows[R - 1].bottom,
+                    c = gridProps.showRowNumbers ? -1 : 0;
+                if (gridProps.gridBorderLeft) {
+                    gc.fillRect(visibleColumns[c].left, 0, lineWidth, viewHeight);
+                }
+                for (c += 1; c < C; c++) {
                     gc.fillRect(visibleColumns[c].left - lineWidth, 0, lineWidth, viewHeight);
+                }
+                if (gridProps.gridBorderRight) {
+                    gc.fillRect(visibleColumns[c - 1].right + 1 - lineWidth, 0, lineWidth, viewHeight);
                 }
             }
 
             if (gridProps.gridLinesH) {
                 gc.cache.fillStyle = lineColor;
                 var viewWidth = visibleColumns[C - 1].right;
+                if (gridProps.gridBorderTop) {
+                    gc.fillRect(0, visibleRows[0].top, viewWidth, lineWidth);
+                }
+                if (!gridProps.gridBorderBottom) {
+                    R -= 1;
+                }
+                if (gridProps.gridBorderRight) {
+                    viewWidth += lineWidth;
+                }
                 for (var r = 0; r < R; r++) {
                     gc.fillRect(0, visibleRows[r].bottom, viewWidth, lineWidth);
                 }

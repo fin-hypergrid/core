@@ -64,7 +64,7 @@ function paintCellsByColumnsAndRows(gc) {
         rowPrefillColors = this.rowPrefillColors;
         for (r = rowBundles.length; r--;) {
             rowBundle = rowBundles[r];
-            gc.clearFill(0, rowBundle.top, viewWidth, rowBundle.bottom - rowBundle.top + 1, rowBundle.backgroundColor);
+            gc.clearFill(0, rowBundle.top, viewWidth, rowBundle.bottom - rowBundle.top, rowBundle.backgroundColor);
         }
     } else {
         for (columnBundles = this.columnBundles, c = columnBundles.length; c--;) {
@@ -72,8 +72,6 @@ function paintCellsByColumnsAndRows(gc) {
             gc.clearFill(columnBundle.left, 0, columnBundle.right - columnBundle.left, viewHeight, columnBundle.backgroundColor);
         }
     }
-
-    this.paintGridlines(gc);
 
     // gc.clipSave(clipToGrid, 0, 0, viewWidth, viewHeight);
 
@@ -112,7 +110,7 @@ function paintCellsByColumnsAndRows(gc) {
 
     // gc.clipRestore(clipToGrid);
 
-    // this.paintGridlines(gc);
+    this.paintGridlines(gc);
 }
 
 paintCellsByColumnsAndRows.key = 'by-columns-and-rows';
