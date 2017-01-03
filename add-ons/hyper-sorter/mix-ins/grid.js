@@ -8,10 +8,10 @@ module.exports = {
      * @memberOf Hypergrid#
      */
     get sorter() {
-        return this.behavior.sorter;
+        return this.getController('sorter');
     },
     set sorter(sorter) {
-        this.behavior.sorter = sorter;
+        this.setController('sorter', sorter);
     },
 
     /**

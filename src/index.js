@@ -12,7 +12,7 @@
  * * This file is not a node module; it has no reference to `module.exports` or `exports`; it cannot be "required" by any other file.
  * * This file is blacklisted in .npmignore and is not published to npm.
  *
- * Note: The npm "main" entry point (as noted in package.json) is src/Hypergrid.js.
+ * Note: The npm "main" entry point is undefined in package.json implying /index.js.
  */
 
 var Hypergrid = require('./Hypergrid');
@@ -30,9 +30,6 @@ Hypergrid.lib = require('./lib');
 
 // Create the `fin` namespace and the `fin.Hypergrid` objects:
 (window.fin = window.fin || {}).Hypergrid = Hypergrid;
-
-// Create the `datasaur` namespace and the `datasaur.base` objects:
-(window.datasaur = window.datasaur || {}).base = require('fin-hypergrid-data-source-base');
 
 // Note users of the npm module do not have this object.
 // THey have access to any namespace through `require`, for example:

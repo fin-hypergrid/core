@@ -11,10 +11,10 @@ module.exports = {
      * @memberOf Behavior#
      */
     get filter() {
-        return this.dataModel.filter;
+        return this.getController('filter');
     },
     set filter(filter) {
-        this.dataModel.filter = filter;
+        this.setController('filter', filter);
     },
 
     /**

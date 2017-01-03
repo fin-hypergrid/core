@@ -109,6 +109,7 @@ gulp.task('default', ['build', 'watch'], browserSyncLaunchServer);
 
 function lint() {
     return gulp.src([
+        'index.js',
         addOnsDir + jsFiles,
         srcDir + jsFiles,
         '!' + srcDir + '**/old/**/',

@@ -13,11 +13,12 @@ module.exports = {
      * @memberOf Hypergrid#
      */
     get filter() {
-        return this.behavior.filter;
+        return this.getController('filter');
     },
     set filter(filter) {
-        this.behavior.filter = filter;
+        this.setController('filter', filter);
     },
+
 
     /**
      * @param {number|string} columnIndexOrName - The _column filter_ to set.

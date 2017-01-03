@@ -93,9 +93,10 @@ ColumnSchemaFactory.prototype = {
      * @param customSchema
      */
     overlay: function(customSchema) {
+        var lookup = this.schema.lookup;
         this.schema.walk(function(columnSchema) {
-            return customSchema.find(function(customColumnSchema) {
-                return (customColumnSchema.name || customColumnSchema) === columnSchema.name;
+            return lookup.call(customSchema, function(customColumnSchema) {
+                return customColumnSchema.name === columnSchema.name;
             });
         });
     },
