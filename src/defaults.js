@@ -406,12 +406,38 @@ var defaults = {
      * @memberOf module:defaults
      */
     gridLinesV: true,
+
     /**
+     * Draw horizontal grid line before first rendered column.
      * @default
      * @type {boolean}
      * @memberOf module:defaults
      */
-    gridLinesVOverflow: false,
+    gridBorderLeft: false,
+
+    /**
+     * Draw horizontal grid line after last rendered column.
+     * @default
+     * @type {boolean}
+     * @memberOf module:defaults
+     */
+    gridBorderRight: false,
+
+    /**
+     * Draw horizontal grid line above first rendered row.
+     * @default
+     * @type {boolean}
+     * @memberOf module:defaults
+     */
+    gridBorderTop: false,
+
+    /**
+     * Draw horizontal grid line below last rendered row.
+     * @default
+     * @type {boolean}
+     * @memberOf module:defaults
+     */
+    gridBorderBottom: true,
 
     /**
      * @default
