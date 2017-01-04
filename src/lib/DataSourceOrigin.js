@@ -1,3 +1,5 @@
+/* eslint-env browser */
+
 'use strict';
 
 var DataSourceBase = require('fin-hypergrid-data-source-base');
@@ -325,4 +327,9 @@ var DataSourceOrigin = DataSourceBase.extend('DataSourceOrigin',  {
     }
 });
 
+
 module.exports = DataSourceOrigin;
+
+
+// Create the `datasaur` namespace and the `datasaur.base` object for use by data sources included via <script> tags:
+(window.datasaur = window.datasaur || {}).base = require('fin-hypergrid-data-source-base');

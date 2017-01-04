@@ -8,10 +8,10 @@ module.exports = {
      * @memberOf Behavior#
      */
     get sorter() {
-        return this.dataModel.sorter;
+        return this.getController('sorter');
     },
     set sorter(sorter) {
-        this.dataModel.sorter = sorter;
+        this.setController('sorter', sorter);
     },
 
     /**
