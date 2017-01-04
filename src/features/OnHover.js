@@ -19,7 +19,7 @@ var OnHover = Feature.extend('OnHover', {
                 this.handleMouseExit(grid, hoverCell);
             }
             this.handleMouseEnter(grid, event);
-            grid.setHoverCell(event.gridCell);
+            grid.setHoverCell(event);
         } else if (this.next) {
             this.next.handleMouseMove(grid, event);
         }

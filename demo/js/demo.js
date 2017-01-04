@@ -705,11 +705,17 @@ window.onload = function() {
     });
 
     grid.addEventListener('fin-cell-enter', function(e) {
-        var cell = e.detail.gridCell;
+        var cellEvent = e.detail;
+
         //if (vent) { console.log('fin-cell-enter', cell.x, cell.y); }
 
         //how to set the tooltip....
-        grid.setAttribute('title', 'fin-cell-enter(' + cell.x + ', ' + cell.y + ')');
+        grid.setAttribute('title', 'event name: "fin-cell-enter"\n' +
+            'gridCell: { x: ' + cellEvent.gridCell.x + ', y: ' + cellEvent.gridCell.y + ' }\n' +
+            'dataCell: { x: ' + cellEvent.dataCell.x + ', y: ' + cellEvent.dataCell.y + ' }\n' +
+            'subgrid type: "' + cellEvent.subgrid.type + '"\n' +
+            'subgrid name: ' + (cellEvent.subgrid.name ? '"' + cellEvent.subgrid.name + '"' : 'undefined')
+        );
     });
 
     grid.addEventListener('fin-set-totals-value', function(e) {

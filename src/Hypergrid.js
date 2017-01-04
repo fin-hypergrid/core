@@ -537,18 +537,18 @@ var Hypergrid = Base.extend('Hypergrid', {
     /**
      * @memberOf Hypergrid#
      * @desc Set the cell under the cursor.
-     * @param {Point} point
+     * @param {CellEvent} cellEvent
      */
-    setHoverCell: function(point) {
-        var me = this.hoverCell;
-        var newPoint = new Point(point.x, point.y);
-        if (me && me.equals(newPoint)) {
-            return;
+    setHoverCell: function(cellEvent) {
+        var hoverCell = this.hoverCell;
+        if (!hoverCell || !hoverCell.equals(cellEvent.gridCell)) {
+            this.hoverCell = cellEvent.gridCell;
+            if (hoverCell) {
+                this.fireSyntheticOnCellExitEvent(cellEvent);
+            }
+            this.fireSyntheticOnCellEnterEvent(cellEvent);
+            this.repaint();
         }
-        this.hoverCell = newPoint;
-        if (me) { this.fireSyntheticOnCellExitEvent(me); } //Exit first
-        this.fireSyntheticOnCellEnterEvent(newPoint);
-        this.repaint();
     },
 
     /**

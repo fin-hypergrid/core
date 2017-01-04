@@ -205,8 +205,8 @@ module.exports = {
      * @param {Point} cell - The pixel location of the cell in which the click event occurred.
      * @param {MouseEvent} event - The system mouse event.
      */
-    fireSyntheticOnCellEnterEvent: function(cell) {
-        return dispatchEvent.call(this, 'fin-cell-enter', { gridCell: cell });
+    fireSyntheticOnCellEnterEvent: function(cellEvent) {
+        return dispatchEvent.call(this, 'fin-cell-enter', cellEvent);
     },
 
     /**
@@ -215,8 +215,8 @@ module.exports = {
      * @param {Point} cell - The pixel location of the cell in which the click event occured.
      * @param {MouseEvent} event - The system mouse event.
      */
-    fireSyntheticOnCellExitEvent: function(cell) {
-        return dispatchEvent.call(this, 'fin-cell-exit', { gridCell: cell });
+    fireSyntheticOnCellExitEvent: function(cellEvent) {
+        return dispatchEvent.call(this, 'fin-cell-exit', cellEvent);
     },
 
     /**
@@ -585,7 +585,10 @@ function dispatchEvent(eventName, cancelable, event, primitiveEvent) {
 
     detail = event.detail;
 
-    detail.grid = this;
+    if (!detail.grid) { // CellEvent objects already have a (read-only) `grid` prop
+        detail.grid = this;
+    }
+
     detail.time = Date.now();
 
     if (primitiveEvent) {
