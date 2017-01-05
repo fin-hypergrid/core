@@ -33,6 +33,13 @@ window.onload = function() {
         ]
     });
 
+    // Install the sorter and Filter data sources (optional).
+    // These modules are for EXAMPLE purposes only
+    grid.setPipeline([
+        window.datasaur.filter,
+        window.datasaur.sorter
+    ]);
+
     // Inform data model of external DCIs. (These DCIs are for EXAMPLE purposes only.)
     grid.setController({
         // These modules are for EXAMPLE purposes only

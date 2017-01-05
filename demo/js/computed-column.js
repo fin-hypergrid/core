@@ -33,6 +33,13 @@ window.onload = function() {
     // recreate to include new column
     grid.behavior.createColumns();
 
+    // Install the sorter and Filter data sources (optional).
+    // These modules are for EXAMPLE purposes only
+    grid.setPipeline([
+        window.datasaur.filter,
+        window.datasaur.sorter
+    ]);
+
     // Inform data model of external DCIs. (These DCIs are for EXAMPLE purposes only.)
     grid.setController({
         filter: grid.plugins.hyperfilter.create(),

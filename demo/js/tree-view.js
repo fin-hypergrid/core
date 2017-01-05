@@ -26,6 +26,13 @@ window.onload = function() {
         ['treeviewAPI', Hypergrid.TreeView, options] // object API instantiation with one arg; [0] overrides any defined name so ref saved in `grid.plugins.treeViewAPI`
     ]);
 
+    // Install the sorter and Filter data sources (optional).
+    // These modules are for EXAMPLE purposes only
+    grid.setPipeline([
+        window.datasaur.filter,
+        window.datasaur.sorter
+    ]);
+
     // Inform data model of external DCIs. (These DCIs are for EXAMPLE purposes only.)
     grid.setController({
         // These modules are for EXAMPLE purposes only

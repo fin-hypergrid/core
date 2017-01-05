@@ -1317,7 +1317,7 @@ var Behavior = Base.extend('Behavior', {
     },
 
     prop: function(type, columnIndex, keyOrHash, value) {
-        var result = this.dataModel.prop.apply(this.behavior, arguments);
+        var result = this.dataModel.prop.apply(this.dataModel, arguments);
         if (!result.GETTER) {
             this.changed();
         }
