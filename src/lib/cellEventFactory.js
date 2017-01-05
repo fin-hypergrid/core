@@ -94,13 +94,27 @@ var prototype = Object.defineProperties({}, {
     /**
      * Set up this `CellEvent` instance to point to the cell at the given grid coordinates.
      * @desc If the requested cell is not be visible (due to being scrolled out of view or outside the bounds of the rendered grid), the instance is not reset.
-     * @param {number} gridX - Horizontal grid cell coordinate (adjusted for horizontal scrolling after fixed columns).
-     * @param {number} gridY - Vertical grid cell coordinate, adjusted (adjusted for vertical scrolling if data subgrid)
+     * @param {number} gridC - Horizontal grid cell coordinate adjusted for horizontal scrolling after fixed columns.
+     * @param {number} gridY - Raw vertical grid cell coordinate.
+     * @returns {boolean} Visibility.
+     * @memberOf CellEvent#
+     */
+    resetGridCY: { value: function(gridC, gridY) {
+        var vr, vc, visible = (vc = this.renderer.getVisibleColumn(gridC)) && (vr = this.renderer.getVisibleRow(gridY));
+        if (visible) { this.reset(vc, vr); }
+        return visible;
+    } },
+
+    /**
+     * Set up this `CellEvent` instance to point to the cell at the given grid coordinates.
+     * @desc If the requested cell is not be visible (due to being scrolled out of view or outside the bounds of the rendered grid), the instance is not reset.
+     * @param {number} gridX - Raw horizontal grid cell coordinate.
+     * @param {number} gridY - Raw vertical grid cell coordinate.
      * @returns {boolean} Visibility.
      * @memberOf CellEvent#
      */
     resetGridXY: { value: function(gridX, gridY) {
-        var vr, vc, visible = (vc = this.renderer.getVisibleColumn(gridX)) && (vr = this.renderer.getVisibleRow(gridY));
+        var vr, vc, visible = (vc = this.renderer.visibleColumns[gridX]) && (vr = this.renderer.getVisibleRow(gridY));
         if (visible) { this.reset(vc, vr); }
         return visible;
     } },
@@ -239,8 +253,8 @@ function factory(grid) {
      * * Excludes `this.gridCell`, `this.dataCell`, `this.visibleRow.subgrid` defined by constructor (as non-enumerable).
      * * Any additional (enumerable) members mixed in by application's `getCellEditorAt` override.
      *
-     * Omit params to defer call to {CellEvent#resetGridXY}.
-     * (See also {@link CellEvent#resetDataXY} which accepts `dataX`, `dataY`.)
+     * Omit params to defer the convenience call to {CellEvent#resetGridCY}.
+     * (See also the alternative {@link CellEvent#resetGridXY}; and {@link CellEvent#resetDataXY} which accepts `dataX`, `dataY`.)
      *
      * @param {number} [gridX] - grid cell coordinate (adjusted for horizontal scrolling after fixed columns).
      * @param {number} [gridY] - grid cell coordinate, adjusted (adjusted for vertical scrolling if data subgrid)
@@ -296,7 +310,7 @@ function factory(grid) {
         });
 
         if (arguments.length) {
-            this.resetGridXY(gridX, gridY);
+            this.resetGridCY(gridX, gridY);
         }
     }
 

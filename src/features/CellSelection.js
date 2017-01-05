@@ -95,20 +95,12 @@ var CellSelection = Feature.extend('CellSelection', {
      * @param {Object} event - the event details
      */
     handleKeyDown: function(grid, event) {
-        var char = event.detail.char,
-            navKeyMap = grid.properties.navKeyMap || {},
-            mappedChar = char in navKeyMap ? navKeyMap[char] : char,
-            handlerName = 'handle' + mappedChar,
-            cellEvent = grid.getGridCellFromLastSelection(),
-            qualified = cellEvent && (
-                char.length > 1 || // is it a meta character (non-printable, white-space)?
-                !cellEvent.properties.editOnKeydown || // normal char. is edit-on-keydown OFF?
-                event.detail.ctrl // normal char, edit-on-keydown ON. is CTRL key down?
-            ),
-            handler = qualified && this[handlerName];
+        var cellEvent = grid.getGridCellFromLastSelection(),
+            detail = event.detail,
+            navKey = cellEvent && cellEvent.properties.navKey(detail.char, detail.ctrl);
 
-        if (handler) {
-            handler.call(this, grid, event.detail);
+        if (navKey) {
+            this['handle' + navKey](grid, detail);
         } else if (this.next) {
             this.next.handleKeyDown(grid, event);
         }

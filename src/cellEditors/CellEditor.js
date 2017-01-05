@@ -101,42 +101,32 @@ var CellEditor = Base.extend('CellEditor', {
         0x1b: 'cancelEditing' // escape
     },
 
-    keyup: function(e) {
+    keyup: function(e, dontFocus) {
         var grid = this.grid,
             cellProps = this.event.properties,
             feedbackCount = cellProps.feedbackCount,
-            specialKeyup, stopped, mappedChar, keyChar, qualified;
+            keyChar = grid.canvas.getKeyChar(e),
+            specialKeyup,
+            stopped;
 
-        // First perform the special key function as needed
-        if ((specialKeyup = this.specialKeyups[e.keyCode])) {
-            if ((stopped = this[specialKeyup](feedbackCount))) {
-                grid.repaint();
-                grid.takeFocus();
-            }
+        // STEP 1: Call the special key handler as needed
+        if (
+            (specialKeyup = this.specialKeyups[e.keyCode]) &&
+            (stopped = this[specialKeyup](feedbackCount))
+        ) {
+            grid.repaint();
+            if (!dontFocus) { grid.takeFocus(); }
         }
 
-        // is this a "nav key" consumed by CellSelection ?
-        keyChar = grid.canvas.getKeyChar(e);
-        mappedChar = grid.properties.navKeyMap[keyChar];
-
-        // and is it qualified (normal chars require CTRL when edit-on-keydown)?
-        qualified = mappedChar && ( // a mapped nav key; and...
-            keyChar.length > 1 || // is it a meta character (non-printable, white-space)?
-            !cellProps.editOnKeydown || // normal char. is edit-on-keydown OFF?
-            e.ctrlKey // normal char, edit-on-keydown ON. is CTRL key down?
-        );
-
-        if (qualified) {
-            // This is a qualified nav key that CellSelection consumes
-            // -> try to stop editing and send it along
-
-            if (!specialKeyup) {
-                // We didn't try to stop editing above so we're still editing
-                // -> try to stop editing
-                if ((stopped = this.stopEditing(feedbackCount))) {
-                    grid.repaint();
-                    grid.takeFocus();
-                }
+        // STEP 2: If this is a possible "nav key" consumable by CellSelection#handleKeyDown, try to stop editing and send it along
+        if (cellProps.navKey(keyChar, e.ctrlKey)) {
+            if (
+                !specialKeyup &&
+                // We didn't try to stop editing above so try to stop it now
+                (stopped = this.stopEditing(feedbackCount))
+            ) {
+                grid.repaint();
+                if (!dontFocus) { grid.takeFocus(); }
             }
 
             if (stopped) {
@@ -150,7 +140,7 @@ var CellEditor = Base.extend('CellEditor', {
                     key: e.keyCode,
                     meta: e.metaKey,
                     shift: e.shiftKey,
-                    identifier: e.key,
+                    identifier: e.key
                 });
                 grid.delegateKeyDown(finEvent);
             }
@@ -365,9 +355,10 @@ var CellEditor = Base.extend('CellEditor', {
      * @memberOf CellEditor.prototype
      */
     saveEditorValue: function(value) {
-        var save =
+        var save = (
             !(value && value === this.initialValue) && // data changed
-            this.grid.fireBeforeCellEdit(this.event.gridCell, this.initialValue, value, this); // proceed
+            this.grid.fireBeforeCellEdit(this.event.gridCell, this.initialValue, value, this) // proceed
+        );
 
         if (save) {
             this.grid.behavior.setValue(this.event, value);

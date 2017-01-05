@@ -47,8 +47,10 @@ var SimpleCell = CellRenderer.extend('SimpleCell', {
                 val = null;
             }
         } else if (config.isFilterRow) {
-            rightIcon = images[config.isHandleColumn || !val.length ? 'filter-off' : 'filter-on'];
-            config.renderFalsy = false;
+            if (config.filterable) {
+                rightIcon = images[config.isHandleColumn || !val.length ? 'filter-off' : 'filter-on'];
+                config.renderFalsy = false;
+            }
         } else if (!config.isHandleColumn) {
             leftIcon = images[config.leftIcon];
             rightIcon = images[config.rightIcon];
