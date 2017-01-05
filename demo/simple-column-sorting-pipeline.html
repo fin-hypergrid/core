@@ -15,7 +15,7 @@
         *
         * */
         var grid = new fin.Hypergrid(),
-            DataSourceBase = fin.Hypergrid.DataSourceBase,
+            DataSourceBase = window.datasaur.base,
             UPWARDS_BLACK_ARROW = '\u25b2'; //icon to indicate toggle state
 
         grid.setData([
@@ -157,11 +157,11 @@
 
 
         grid.installPlugins([MySorterAPI]);
-        grid.sorter = grid.plugins.mySorterAPI;
         grid.setPipeline([MySorterDataSource], {
             stash: 'default',
             apply: false //  Set the new pipeline without calling reindex.
         });
+        grid.sorter = grid.plugins.mySorterAPI;
         //Miscellaneous
         grid.addProperties({
             showRowNumbers: false

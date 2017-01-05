@@ -11,8 +11,10 @@
     <script src="data/sampledata.js"></script>
     <script src="build/add-ons/hyper-filter.js"></script>
     <script src="build/add-ons/hyper-sorter.js"></script>
-    <script src="http://joneit.github.io/datasaur-indexed/build/datasaur-indexed.js"></script>
-    <script src="http://joneit.github.io/datasaur-filter/build/datasaur-filter.js"></script>
+
+    <script src="http://joneit.github.io/datasaur-indexed/build/0.1.1/datasaur-indexed.js"></script>
+    <script src="http://joneit.github.io/datasaur-filter/build/0.2.3/datasaur-filter.js"></script>
+    <script src="http://joneit.github.io/datasaur-sorter/build/0.1.2/datasaur-sorter.js"></script>
 
     <script>
         var Hypergrid = window.fin.Hypergrid,
@@ -24,7 +26,7 @@
                 ],
                 pipeline: [
                     window.datasaur.filter,
-                    window.fin.Hypergrid.analytics.DataSourceSorterComposite
+                    window.datasaur.sorter
                 ]
             },
             grid = window.g = new Hypergrid(document.querySelector('div#json-example'), gridOptions);
