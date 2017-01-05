@@ -132,7 +132,7 @@ module.exports = {
             detail: {
                 input: inputControl,
                 keyEvent: keyEvent,
-                char: this.canvas.getCharMap()[keyEvent.keyCode][keyEvent.shiftKey ? 1 : 0],
+                char: this.canvas.getCharMap()[keyEvent.keyCode][keyEvent.shiftKey ? 1 : 0]
             },
             primitiveEvent: keyEvent
         });
@@ -159,7 +159,7 @@ module.exports = {
             detail: {
                 input: inputControl,
                 keyEvent: keyEvent,
-                char: this.canvas.getCharMap()[keyEvent.keyCode][keyEvent.shiftKey ? 1 : 0],
+                char: this.canvas.getCharMap()[keyEvent.keyCode][keyEvent.shiftKey ? 1 : 0]
             },
             primitiveEvent: keyEvent
         });
@@ -187,7 +187,7 @@ module.exports = {
             detail: {
                 rows: this.getSelectedRows(),
                 columns: this.getSelectedColumns(),
-                selections: this.selectionModel.getSelections(),
+                selections: this.selectionModel.getSelections()
             }
         });
    },
@@ -197,7 +197,7 @@ module.exports = {
             detail: {
                 rows: this.getSelectedRows(),
                 columns: this.getSelectedColumns(),
-                selections: this.selectionModel.getSelections(),
+                selections: this.selectionModel.getSelections()
             }
         });
     },
@@ -207,7 +207,7 @@ module.exports = {
             detail: {
                 rows: this.getSelectedRows(),
                 columns: this.getSelectedColumns(),
-                selections: this.selectionModel.getSelections(),
+                selections: this.selectionModel.getSelections()
             }
         });
     },
@@ -475,13 +475,14 @@ module.exports = {
      * @returns {boolean} Proceed (don't cancel).
      */
     fireBeforeCellEdit: function(cellEvent, oldValue, newValue, control) {
-        return this.dispatchEvent('fin-before-cell-edit', true, {
+        return this.dispatchEvent('fin-before-cell-edit', {
             detail: {
                 oldValue: oldValue,
                 newValue: newValue,
                 input: control
             },
-            cellEvent: cellEvent
+            cellEvent: cellEvent,
+            cancelable: true
         });
     },
 
@@ -508,7 +509,7 @@ module.exports = {
 
 
         this.addEventListener('fin-grid-resized', function(e) {
-            self.resized();
+            self.resized(e);
         });
 
         this.addEventListener('fin-mousemove', function(e) {
