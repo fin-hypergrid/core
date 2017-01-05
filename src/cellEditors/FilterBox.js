@@ -5,7 +5,7 @@
 var popMenu = require('pop-menu');
 
 var ComboBox = require('./ComboBox');
-var prototype = require('./CellEditor').prototype;
+var CellEditor = require('./CellEditor');
 
 
 /**
@@ -71,7 +71,7 @@ var FilterBox = ComboBox.extend('FilterBox', {
 
     },
 
-    abortEditing: prototype.cancelEditing,
+    abortEditing: CellEditor.prototype.cancelEditing,
 
     /**
      * When there's only one mode defined here, the control area portion of the UI is hidden.
@@ -153,11 +153,14 @@ var FilterBox = ComboBox.extend('FilterBox', {
         ComboBox.prototype.hideEditor.call(this);
     },
 
-    keyup: function(e) {
-        if (e) {
-            prototype.keyup.call(this, e);
+    keyup: function(event) {
+        if (event) {
+            CellEditor.prototype.keyup.call(this, event, true);
 
-            if (this.grid.properties.filteringMode === 'immediate') {
+            if (!this.grid.cellEditor) {
+                // this keyup caused editor to close... was it a listed navKey?
+                navigateAway.call(this, this.grid.canvas.getKeyChar(event));
+            } else if (this.grid.properties.filteringMode === 'immediate') {
                 this.saveEditorValue(this.getEditorValue());
             }
         }
@@ -207,11 +210,73 @@ var FilterBox = ComboBox.extend('FilterBox', {
     },
 
     saveEditorValue: function(value) {
-        prototype.saveEditorValue.call(this, value);
-        this.grid.behavior.applyAnalytics();
+        CellEditor.prototype.saveEditorValue.call(this, value);
+        this.grid.behavior.reindex();
+    },
+
+    stopEditing: function(feedbackCount) {
+        var result = CellEditor.prototype.stopEditing.call(this, feedbackCount);
+
+        if (result) {
+            this.grid.clearSelections();
+        }
+
+        return result;
     }
 
 });
+
+/**
+ * @param {string} keyChar - A key that maps (through {@link module:defaults.navKeyMap|navKeyMap}) to one of:
+ * * `'UP'` or `'DOWN'` - Selects first visible data cell under filter cell.
+ * * `'LEFT'` - Opens filter cell editor in previous filterable column; if nonesuch, selects first visible data cell under filter cell.
+ * * `'RIGHT'` - Opens filter cell editor in next filterable column; if nonesuch, selects first visible data cell under filter cell.
+ */
+function navigateAway(keyChar) {
+    var originX = this.event.visibleColumn.index,
+        gridX,
+        gridY = this.event.visibleRow.index,
+        cellEvent = new this.grid.behavior.CellEvent,
+        visibleColumnCount = this.grid.renderer.visibleColumns.length;
+
+    function wrap(n) {
+        return (n + visibleColumnCount) % visibleColumnCount;
+    }
+
+    switch (this.event.properties.navKey(keyChar)) {
+        case 'LEFT':
+            // Select next filterable column's filter cell
+            for (
+                gridX = wrap(originX - 1);
+                gridX !== originX && cellEvent.resetGridXY(gridX, gridY);
+                gridX = wrap(gridX - 1)
+            ) {
+                if (cellEvent.properties.filterable) {
+                    this.grid.editAt(cellEvent);
+                    return;
+                }
+            }
+            break;
+
+        case 'RIGHT':
+            // Select previous filterable column's filter cell
+            for (
+                gridX = wrap(originX + 1);
+                gridX !== originX && cellEvent.resetGridXY(gridX, gridY);
+                gridX = wrap(gridX + 1)
+            ) {
+                if (cellEvent.properties.filterable) {
+                    this.grid.editAt(cellEvent);
+                    return;
+                }
+            }
+            break;
+    }
+
+    // Select first visible grid cell of this column
+    gridX = this.event.visibleColumn.columnIndex;
+    this.grid.selectCell(gridX, 0, true);
+}
 
 
 module.exports = FilterBox;

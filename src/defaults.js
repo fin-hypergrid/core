@@ -582,6 +582,25 @@ var defaults = {
         TABSHIFT: 'LEFT'
     },
 
+    /**
+     * Logic:
+     * 1. If a non-printable, white-space character, then nav key.
+     * 2. If not (i.e., a normal character), it can still be a nav key if not editing on keydown.
+     * 3. If not, it can still be a nav key if CTRL key is down.
+     *
+     * @param {string} keyChar
+     * @param {boolean} ctrlKey
+     * @returns {string} Falsy means not a nav key; otherwise returns mapped nav key.
+     */
+    navKey: function(keyChar, ctrlKey) {
+        var navKey = this.navKeyMap[keyChar];
+        return (
+            navKey && // must be defined in map
+            (navKey.length > 1 || !this.editOnKeydown || ctrlKey) && // see "logic" comment
+            navKey // return the mapped value
+        );
+    },
+
     /** @summary Validation failure feedback.
      * @desc Validation occurs on {@link CellEditor#stopEditing}, normally called on commit (`TAB`, `ENTER`, or any other keys listed in `navKeyMap`).
      *

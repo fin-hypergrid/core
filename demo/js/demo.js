@@ -748,21 +748,23 @@ window.onload = function() {
 
         if (detail.input instanceof grid.cellEditors.editors.filterbox) { // or: detail.input.$$CLASS_NAME === 'FilterBox'
             // skip "select" calls if editing a filter cell
-        } else if (detail.shift) {
-            switch (key) {
-                case '0': if (grid.stopEditing()) { grid.selectToViewportCell(0, 0); } break;
-                case '9': if (grid.stopEditing()) { grid.selectToFinalCell(); } break;
-                case '8': if (grid.stopEditing()) { grid.selectToFinalCellOfCurrentRow(); } break;
-                case '7': if (grid.stopEditing()) { grid.selectToFirstCellOfCurrentRow(); } break;
-                default: result = true;
-            }
-        } else {
-            switch (key) {
-                case '0': if (grid.stopEditing()) { grid.selectViewportCell(0, 0); } break;
-                case '9': if (grid.stopEditing()) { grid.selectFinalCell(); } break;
-                case '8': if (grid.stopEditing()) { grid.selectFinalCellOfCurrentRow(); } break;
-                case '7': if (grid.stopEditing()) { grid.selectFirstCellOfCurrentRow(); } break;
-                default: result = true;
+        } else if (detail.ctrl) {
+            if (detail.shift) {
+                switch (key) {
+                    case '0': if (grid.stopEditing()) { grid.selectToViewportCell(0, 0); } break;
+                    case '9': if (grid.stopEditing()) { grid.selectToFinalCell(); } break;
+                    case '8': if (grid.stopEditing()) { grid.selectToFinalCellOfCurrentRow(); } break;
+                    case '7': if (grid.stopEditing()) { grid.selectToFirstCellOfCurrentRow(); } break;
+                    default: result = true;
+                }
+            } else {
+                switch (key) {
+                    case '0': if (grid.stopEditing()) { grid.selectViewportCell(0, 0); } break;
+                    case '9': if (grid.stopEditing()) { grid.selectFinalCell(); } break;
+                    case '8': if (grid.stopEditing()) { grid.selectFinalCellOfCurrentRow(); } break;
+                    case '7': if (grid.stopEditing()) { grid.selectFirstCellOfCurrentRow(); } break;
+                    default: result = true;
+                }
             }
         }
 
