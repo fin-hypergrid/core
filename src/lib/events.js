@@ -74,7 +74,7 @@ module.exports = {
      */
     dispatchEvent: function(eventName, options) {
         options = options || {};
-        var result,
+        var canvasEvent,
             payload = {},
             detail = options.detail || {},
             cancelable = options.cancelable || false,
@@ -94,10 +94,11 @@ module.exports = {
             payload.cancelable = true;
         }
 
-        result = this.canvas.dispatchEvent(new CustomEvent(eventName, payload));
+        canvasEvent = new CustomEvent(eventName, payload);
+        this.canvas.dispatchEvent(canvasEvent);
 
         if (cancelable) {
-            return result;
+            return canvasEvent;
         }
     },
 
@@ -132,20 +133,24 @@ module.exports = {
                 input: inputControl,
                 keyEvent: keyEvent,
                 char: this.canvas.getCharMap()[keyEvent.keyCode][keyEvent.shiftKey ? 1 : 0],
-                primitiveEvent: keyEvent
-            }
+            },
+            primitiveEvent: keyEvent
         });
     },
-
-
-    fireSyntheticEditorKeyDownEvent: function(keyEvent, inputControl) {
-        return this.dispatchEvent('fin-editor-keydown', {
-            detail: {
+    fireSyntheticEditorKeyDownEvent: function(keyEvent, inputControl, cancelable, additional) {
+        var detail = {
                 input: inputControl,
                 keyEvent: keyEvent,
-                char: this.canvas.getCharMap()[keyEvent.keyCode][keyEvent.shiftKey ? 1 : 0],
-                primitiveEvent: keyEvent
-            }
+                char: this.canvas.getCharMap()[keyEvent.keyCode][keyEvent.shiftKey ? 1 : 0]
+            };
+
+        if (additional){
+            detail = Object.assign(detail, additional);
+        }
+        return this.dispatchEvent('fin-editor-keydown', {
+            detail: detail,
+            cancelable: cancelable,
+            primitiveEvent: keyEvent
         });
     },
 
@@ -155,8 +160,8 @@ module.exports = {
                 input: inputControl,
                 keyEvent: keyEvent,
                 char: this.canvas.getCharMap()[keyEvent.keyCode][keyEvent.shiftKey ? 1 : 0],
-                primitiveEvent: keyEvent
-            }
+            },
+            primitiveEvent: keyEvent
         });
     },
 
@@ -167,9 +172,9 @@ module.exports = {
                 input: inputControl,
                 oldValue: oldValue,
                 newValue: newValue,
-                keyEvent: keyEvent,
-                primitiveEvent: keyEvent
-            }
+                keyEvent: keyEvent
+            },
+            primitiveEvent: keyEvent
         });
     },
 
@@ -183,7 +188,6 @@ module.exports = {
                 rows: this.getSelectedRows(),
                 columns: this.getSelectedColumns(),
                 selections: this.selectionModel.getSelections(),
-                primitiveEvent: null
             }
         });
    },
@@ -194,7 +198,6 @@ module.exports = {
                 rows: this.getSelectedRows(),
                 columns: this.getSelectedColumns(),
                 selections: this.selectionModel.getSelections(),
-                primitiveEvent: null
             }
         });
     },
@@ -205,7 +208,6 @@ module.exports = {
                 rows: this.getSelectedRows(),
                 columns: this.getSelectedColumns(),
                 selections: this.selectionModel.getSelections(),
-                primitiveEvent: null
             }
         });
     },

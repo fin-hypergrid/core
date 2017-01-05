@@ -142,7 +142,7 @@ var CellEditor = Base.extend('CellEditor', {
             if (stopped) {
                 // Editing successfully stopped
                 // -> send the event down the feature chain
-                var finEvent = grid.fireSyntheticEditorKeyDownEvent(e, this, {
+                var finEvent = grid.fireSyntheticEditorKeyDownEvent(e, this, true, {
                     alt: e.altKey,
                     ctrl: e.ctrlKey,
                     char: keyChar,
@@ -150,7 +150,7 @@ var CellEditor = Base.extend('CellEditor', {
                     key: e.keyCode,
                     meta: e.metaKey,
                     shift: e.shiftKey,
-                    identifier: e.key,
+                    identifier: e.key
                 });
                 grid.delegateKeyDown(finEvent);
             }
