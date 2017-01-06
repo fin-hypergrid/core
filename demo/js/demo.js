@@ -105,6 +105,7 @@ window.onload = function() {
     var plugins = [
         Hypergrid.drillDown,
         Hypergrid.totalsToolkit,
+        Hypergrid.DialogUI,
         [Hypergrid.TreeView, {
             treeColumn: 'State',
             includeSorter: true,
@@ -194,7 +195,8 @@ window.onload = function() {
         behavior.reindex();
     }
 
-    // Preset a default dialog options object. Used by call to toggleDialog('ColumnPicker') from features/ColumnPicker.js and by toggleDialog() defined herein.
+    // Preset a default dialog options object. Used by call to toggleDialog('ColumnPicker') from features/ExternalUI.js and by toggleDialog() defined herein.
+    // Dependent on column picker example add-on
     grid.setDialogOptions({
         //container: document.getElementById('dialog-container'),
         settings: false

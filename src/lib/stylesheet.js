@@ -17,11 +17,12 @@ var refNode = Array.prototype.slice.call(head.children).find(function(child) {
 
 exports.prefix = 'injected-stylesheet-';
 
-exports.inject = function(id, replacements) {
+exports.inject = function(id, overrideDir) {
     var stylesheet = document.querySelector('#' + this.prefix + id);
+    var repo = overrideDir || css;
 
     if (!stylesheet) {
-        stylesheet = css[id];
+        stylesheet = repo[id];
         stylesheet = '<style>\n' + stylesheet + '\n</style>\n';
         var args = [stylesheet, head, refNode].concat(Array.prototype.slice.call(arguments, 1));
         stylesheet = automat.append.apply(null, args)[0];

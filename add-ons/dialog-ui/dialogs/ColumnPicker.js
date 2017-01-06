@@ -5,7 +5,7 @@
 var ListDragon = require('list-dragon');
 
 var Dialog = require('./Dialog');
-var stylesheet = require('../lib/stylesheet');
+var stylesheet = window.fin.Hypergrid.stylesheet;
 
 /**
  * @constructor
@@ -23,7 +23,7 @@ var ColumnPicker = Dialog.extend('ColumnPicker', {
 
         if (behavior.isColumnReorderable()) {
             // parse & add the drag-and-drop stylesheet addendum
-            var stylesheetAddendum = stylesheet.inject('list-dragon-addendum');
+            var stylesheetAddendum = stylesheet.inject('list-dragon-addendum', require('../css'));
 
             // grab the group lists from the behavior
             if (behavior.setGroups) {
@@ -58,7 +58,7 @@ var ColumnPicker = Dialog.extend('ColumnPicker', {
                 models: behavior.getActiveColumns()
             };
 
-            this.sortOnHiddenColumns = this.wasSortOnHiddenColumns = grid.properties.sortOnHiddenColumns;
+            this.sortOnHiddenColumns = this.wasSortOnHiddenColumns = true;
 
             var columnPicker = new ListDragon([
                 this.inactiveColumns,
@@ -125,7 +125,6 @@ var ColumnPicker = Dialog.extend('ColumnPicker', {
             });
 
             if (this.sortOnHiddenColumns !== this.wasSortOnHiddenColumns) {
-                this.grid.addProperties({ sortOnHiddenColumns: this.sortOnHiddenColumns });
                 behavior.sortChanged(this.inactiveColumns.models);
             }
 
@@ -138,6 +137,9 @@ var ColumnPicker = Dialog.extend('ColumnPicker', {
             });
             behavior.setGroups(groupBys);
         }
+
+        this.grid.takeFocus();
+        this.grid.allowEvents(true);
     }
 });
 
