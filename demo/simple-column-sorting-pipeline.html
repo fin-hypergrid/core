@@ -155,13 +155,12 @@
 //            }
         };
 
-
-        grid.installPlugins([MySorterAPI]);
         grid.setPipeline([MySorterDataSource], {
             stash: 'default',
             apply: false //  Set the new pipeline without calling reindex.
         });
-        grid.sorter = grid.plugins.mySorterAPI;
+        grid.installPlugins([MySorterAPI]);
+        grid.setController('sorter', grid.plugins.mySorterAPI);
         //Miscellaneous
         grid.addProperties({
             showRowNumbers: false
