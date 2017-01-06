@@ -39,7 +39,7 @@ var RowResizing = ColumnResizing.extend('RowResizing', {
      * @param {MouseEvent} event - the mouse event to query
      */
     getMouseValue: function(event) {
-        return event.primitiveEvent.detail.mouse.y;
+        return event.detail.mouse.y;
     },
 
     /**

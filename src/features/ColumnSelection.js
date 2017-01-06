@@ -87,15 +87,15 @@ var ColumnSelection = Feature.extend('ColumnSelection', {
         // todo: >= 5 depends on header being top-most row which is currently always true but we may allow header "section" to be arbitrary position within quadrant (see also handleMouseDown in ColumnMoving.js)
         if (
             grid.properties.columnSelection &&
-            event.mousePoint.y >= 5 &&
-            !event.primitiveEvent.detail.isRightClick &&
-            event.isHeaderCell
+            event.detail.mousePoint.y >= 5 &&
+            !event.detail.isRightClick &&
+            event.detail.isHeaderCell
         ) {
             // HOLD OFF WHILE WAITING FOR DOUBLE-CLICK
             this.doubleClickTimer = setTimeout(function() {
                 this.doubleClickTimer = undefined;
                 this.dragging = true;
-                this.extendSelection(grid, event.gridCell.x, event.primitiveEvent.detail.keys);
+                this.extendSelection(grid, event.detail.gridCell.x, event.detail.keys);
             }.bind(this), grid.properties.doubleClickDelay + RACE_TIME);
         } else if (this.next) {
             this.next.handleMouseDown(grid, event);
@@ -111,14 +111,14 @@ var ColumnSelection = Feature.extend('ColumnSelection', {
         if (
             grid.properties.columnSelection &&
             !this.isColumnDragging(grid) &&
-            !event.primitiveEvent.detail.isRightClick &&
+            !event.detail.isRightClick &&
             this.dragging
         ) {
             //if we are in the fixed area do not apply the scroll values
-            this.lastDragColumn = event.gridCell.x;
-            this.currentDrag = event.primitiveEvent.detail.mouse;
+            this.lastDragColumn = event.detail.gridCell.x;
+            this.currentDrag = event.detail.mouse;
             this.checkDragScroll(grid, this.currentDrag);
-            this.handleMouseDragCellSelection(grid, this.lastDragColumn, event.primitiveEvent.detail.keys);
+            this.handleMouseDragCellSelection(grid, this.lastDragColumn, event.detail.keys);
         } else if (this.next) {
             this.next.handleMouseDrag(grid, event);
         }

@@ -17,9 +17,9 @@ var CellEditing = Feature.extend('CellEditing', {
     handleDoubleClick: function(grid, event) {
         if (
             grid.properties.editOnDoubleClick &&
-            event.isDataCell
+            event.detail.isDataCell
         ) {
-            grid.onEditorActivate(event);
+            grid.onEditorActivate(event.detail);
         } else if (this.next) {
             this.next.handleDoubleClick(grid, event);
         }
@@ -28,9 +28,9 @@ var CellEditing = Feature.extend('CellEditing', {
     handleClick: function(grid, event) {
         if (
             !grid.properties.editOnDoubleClick &&
-            event.isDataCell
+            event.detail.isDataCell
         ) {
-            grid.onEditorActivate(event);
+            grid.onEditorActivate(event.detail);
         } else if (this.next) {
             this.next.handleClick(grid, event);
         }

@@ -931,7 +931,7 @@ var Hypergrid = Base.extend('Hypergrid', {
 
             this.div.appendChild(divCanvas);
 
-            var canvas = new Canvas(divCanvas, this.renderer, this.options.canvas);
+            var canvas = new Canvas(divCanvas, this, this.options.canvas);
             canvas.canvas.classList.add('hypergrid');
 
             this.divCanvas = divCanvas;
@@ -947,6 +947,32 @@ var Hypergrid = Base.extend('Hypergrid', {
 
     convertDataPointToViewPoint: function(dataPoint) {
         return this.behavior.convertDataPointToViewPoint(dataPoint);
+    },
+
+    /**
+     * @memberOf Hypergrid#
+     * @summary Add an event listener to me.
+     * @param {string} eventName - The type of event we are interested in.
+     * @param {function} callback - The event handler.
+     */
+    addEventListener: function(eventName, callback) {
+        var self = this;
+        var decorator = function(e) {
+            if (self.allowEventHandlers){
+                callback.call(self, e);
+            }
+        };
+        this.canvas.addEventListener(eventName, decorator);
+    },
+
+    allowEvents: function(allow){
+        if ((this.allowEventHandlers = !!allow)){
+            this.behavior.featureChain.attachChain();
+        } else {
+            this.behavior.featureChain.detachChain();
+        }
+
+        this.behavior.changed();
     },
 
     /**
@@ -1266,15 +1292,7 @@ var Hypergrid = Base.extend('Hypergrid', {
      * @desc Synthesize and dispatch a `fin-selection-changed` event.
      */
     selectionChanged: function() {
-        var selectedRows = this.getSelectedRows();
-        var selectionEvent = new CustomEvent('fin-selection-changed', {
-            detail: {
-                rows: selectedRows,
-                columns: this.getSelectedColumns(),
-                selections: this.selectionModel.getSelections(),
-            }
-        });
-        this.canvas.dispatchEvent(selectionEvent);
+        this.fireSyntheticSelectionChangedEvent();
     },
 
     getHiddenColumns: function(){

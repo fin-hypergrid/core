@@ -23,7 +23,7 @@ module.exports = {
      * @param {string[]} [areas=['top', 'bottom']] - may include `'top'` and/or `'bottom'`
      */
     fireSyntheticSetTotalsValue: function(x, y, value, areas) {
-        var clickEvent = new CustomEvent('fin-set-totals-value', {
+        this.dispatchEvent('fin-set-totals-value', {
             detail: {
                 x: x,
                 y: y,
@@ -31,7 +31,6 @@ module.exports = {
                 areas: areas
             }
         });
-        this.canvas.dispatchEvent(clickEvent);
     }
 
 };

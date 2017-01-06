@@ -22,11 +22,12 @@ var RESIZE_POLLING_INTERVAL = 200,
     resizeInterval,
     charMap = makeCharMap();
 
-function Canvas(div, component) {
+function Canvas(div, grid) {
     var self = this;
 
     this.div = div;
-    this.component = component;
+    this.grid = grid;
+    this.component = grid.renderer;
 
     this.dragEndtime = Date.now();
 
@@ -89,7 +90,7 @@ function Canvas(div, component) {
     this.canvas.setAttribute('tabindex', 0);
     this.canvas.contentEditable = true;
 
-    this.resize();
+    this.resize(true);
 
     this.beginResizing();
     this.beginPainting();
@@ -214,7 +215,7 @@ Canvas.prototype = {
         }
     },
 
-    resize: function() {
+    resize: function(silent) {
         var box = this.size = this.div.getBoundingClientRect();
 
         this.width = box.width;
@@ -250,12 +251,12 @@ Canvas.prototype = {
 
         this.bounds = new rectangular.Rectangle(0, 0, this.width, this.height);
         this.component.setBounds(this.bounds);
-        this.resizeNotification();
+        if (!silent) {this.resizeNotification();}
         this.paintNow();
     },
 
     resizeNotification: function() {
-        this.dispatchNewEvent(undefined, 'fin-canvas-resized', {
+        this.grid.fireSyntheticGridResizedEvent(null, {
             width: this.width,
             height: this.height
         });
@@ -289,89 +290,91 @@ Canvas.prototype = {
             this.gc.drawImage(this.buffer, 0, 0);
         }
     },
-
-    newEvent: function(primitiveEvent, name, detail) {
-        var event = {
-            detail: detail || {}
+    getMouseKeyInfo: function() {
+        return {
+            mouse: this.mouseLocation,
+            keys: this.currentKeys
         };
-        if (primitiveEvent) {
-            event.detail.primitiveEvent = primitiveEvent;
-        }
-        return new CustomEvent(name, event);
-    },
-
-    dispatchNewEvent: function(primitiveEvent, name, detail) {
-        return this.canvas.dispatchEvent(this.newEvent(primitiveEvent, name, detail));
-    },
-
-    dispatchNewMouseKeysEvent: function(event, name, detail) {
-        detail = detail || {};
-        detail.mouse = this.mouseLocation;
-        detail.keys = this.currentKeys;
-        return this.dispatchNewEvent(event, name, detail);
     },
 
     finmousemove: function(e) {
+        var info = this.getMouseKeyInfo();
         if (!this.isDragging() && this.mousedown) {
             this.beDragging();
-            this.dispatchNewMouseKeysEvent(e, 'fin-canvas-dragstart', {
-                isRightClick: this.isRightClick(e)
+            this.grid.fireSyntheticDragStartEvent(e, {
+                isRightClick: this.isRightClick(e),
+                mouse: info.mouse,
+                keys: info.keys
             });
             this.dragstart = new rectangular.Point(this.mouseLocation.x, this.mouseLocation.y);
         }
         this.mouseLocation = this.getLocal(e);
         //console.log(this.mouseLocation);
         if (this.isDragging()) {
-            this.dispatchNewMouseKeysEvent(e, 'fin-canvas-drag', {
+            this.grid.fireSyntheticMouseDrag(e, {
                 dragstart: this.dragstart,
-                isRightClick: this.isRightClick(e)
+                isRightClick: this.isRightClick(e),
+                mouse: info.mouse,
+                keys: info.keys
             });
         }
         if (this.bounds.contains(this.mouseLocation)) {
-            this.dispatchNewMouseKeysEvent(e, 'fin-canvas-mousemove');
+            this.grid.fireSyntheticMouseMoveEvent(e, info);
         }
     },
 
     finmousedown: function(e) {
+        var info = this.getMouseKeyInfo();
         this.mouseLocation = this.mouseDownLocation = this.getLocal(e);
         this.mousedown = true;
 
-        this.dispatchNewMouseKeysEvent(e, 'fin-canvas-mousedown', {
-            isRightClick: this.isRightClick(e)
+        this.grid.fireSyntheticMouseDownEvent(e, {
+            isRightClick: this.isRightClick(e),
+            mouse: info.mouse,
+            keys: info.keys
         });
         this.takeFocus();
     },
 
     finmouseup: function(e) {
+        var info = this.getMouseKeyInfo();
         if (this.isDragging()) {
-            this.dispatchNewMouseKeysEvent(e, 'fin-canvas-dragend', {
+            this.grid.fireSyntheticDragEndEvent(e, {
                 dragstart: this.dragstart,
-                isRightClick: this.isRightClick(e)
+                isRightClick: this.isRightClick(e),
+                mouse: info.mouse,
+                keys: info.keys
             });
             this.beNotDragging();
             this.dragEndtime = Date.now();
         }
         this.mousedown = false;
-        this.dispatchNewMouseKeysEvent(e, 'fin-canvas-mouseup', {
-            isRightClick: this.isRightClick(e)
+        this.grid.fireSyntheticMouseUpEvent(e, {
+            isRightClick: this.isRightClick(e),
+            mouse: info.mouse,
+            keys: info.keys
         });
         //this.mouseLocation = new rectangular.Point(-1, -1);
     },
 
     finmouseout: function(e) {
+        var info = this.getMouseKeyInfo();
         if (!this.mousedown) {
             this.mouseLocation = new rectangular.Point(-1, -1);
         }
-        this.dispatchNewMouseKeysEvent(e, 'fin-canvas-mouseout');
+        this.grid.fireSyntheticMouseOut(e, info);
     },
 
     finwheelmoved: function(e) {
+        var info = this.getMouseKeyInfo();
         if (this.isDragging() || !this.hasFocus()) {
             return;
         }
         e.preventDefault();
-        this.dispatchNewMouseKeysEvent(e, 'fin-canvas-wheelmoved', {
-            isRightClick: this.isRightClick(e)
+        this.grid.fireSyntheticWheelMovedEvent(e, {
+            isRightClick: this.isRightClick(e),
+            mouse: info.mouse,
+            keys: info.keys
         });
     },
 
@@ -391,10 +394,13 @@ Canvas.prototype = {
     },
 
     findblclick: function(e) {
+        var info = this.getMouseKeyInfo();
         this.mouseLocation = this.getLocal(e);
         this.lastDoubleClickTime = Date.now();
-        this.dispatchNewMouseKeysEvent(e, 'fin-canvas-dblclick', {
-            isRightClick: this.isRightClick(e)
+        this.grid.fireSyntheticDoubleClickEvent(e, {
+            isRightClick: this.isRightClick(e),
+            mouse: info.mouse,
+            keys: info.keys
         });
         //console.log('dblclick', this.currentKeys);
     },
@@ -434,7 +440,7 @@ Canvas.prototype = {
             this.currentKeys.push(keyChar);
         }
 
-        this.dispatchNewEvent(e, 'fin-canvas-keydown', {
+        this.grid.fireSyntheticKeydownEvent(e, {
             alt: e.altKey,
             ctrl: e.ctrlKey,
             char: keyChar,
@@ -464,7 +470,7 @@ Canvas.prototype = {
         this.repeatKeyCount = 0;
         this.repeatKey = null;
         this.repeatKeyStartTime = 0;
-        this.dispatchNewEvent(e, 'fin-canvas-keyup', {
+        this.grid.fireSyntheticKeyupEvent(e, {
             alt: e.altKey,
             ctrl: e.ctrlKey,
             char: keyChar,
@@ -479,11 +485,11 @@ Canvas.prototype = {
     },
 
     finfocusgained: function(e) {
-        this.dispatchNewEvent(e, 'fin-canvas-focus-gained');
+        this.grid.fireSyntheticGridFocusEvent(e);
     },
 
     finfocuslost: function(e) {
-        this.dispatchNewEvent(e, 'fin-canvas-focus-lost');
+        this.grid.fireSyntheticGridBlurEvent(e);
     },
 
     fincontextmenu: function(e) {
@@ -589,17 +595,23 @@ Canvas.prototype = {
 };
 
 function dispatchClickEvent(e) {
+    var info = this.getMouseKeyInfo();
     this.doubleClickTimer = undefined;
     this.mouseLocation = this.getLocal(e);
-    this.dispatchNewMouseKeysEvent(e, 'fin-canvas-click', {
-        isRightClick: this.isRightClick(e)
+    this.grid.fireSyntheticClickEvent(e, {
+        isRightClick: this.isRightClick(e),
+        mouse: info.mouse,
+        keys: info.keys
     });
 }
 
 function dispatchContextMenuEvent(e) {
+    var info = this.getMouseKeyInfo();
     this.doubleRightClickTimer = undefined;
-    this.dispatchNewMouseKeysEvent(e, 'fin-canvas-context-menu', {
-        isRightClick: this.isRightClick(e)
+    this.grid.fireSyntheticContextMenuEvent(e, {
+        isRightClick: this.isRightClick(e),
+        mouse: info.mouse,
+        keys: info.keys
     });
 }
 

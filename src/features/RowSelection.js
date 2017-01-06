@@ -65,17 +65,17 @@ var RowSelection = Feature.extend('RowSelection', {
      */
     handleMouseDown: function(grid, event) {
         var rowSelectable = grid.properties.rowSelection &&
-            !event.primitiveEvent.detail.isRightClick &&
+            !event.detail.isRightClick &&
             grid.properties.showRowNumbers &&
-            event.isHandleColumn;
+            event.detail.isHandleColumn;
 
-        if (rowSelectable && event.isHeaderHandle) {
+        if (rowSelectable && event.detail.isHeaderHandle) {
             //global row selection
             grid.toggleSelectAllRows();
-        } else if (rowSelectable && event.isDataRow)  {
+        } else if (rowSelectable && event.detail.isDataRow)  {
             // if we are in the fixed area, do not apply the scroll values
             this.dragArmed = true;
-            this.extendSelection(grid, event.dataCell.y, event.primitiveEvent.detail.keys);
+            this.extendSelection(grid, event.detail.dataCell.y, event.detail.keys);
         } else if (this.next) {
             this.next.handleMouseDown(grid, event);
         }
@@ -90,14 +90,14 @@ var RowSelection = Feature.extend('RowSelection', {
         if (
             this.dragArmed &&
             grid.properties.rowSelection &&
-            !event.primitiveEvent.detail.isRightClick
+            !event.detail.isRightClick
         ) {
             //if we are in the fixed area do not apply the scroll values
-            this.lastDragRow = event.dataCell.y;
+            this.lastDragRow = event.detail.dataCell.y;
             this.dragging = true;
-            this.currentDrag = event.primitiveEvent.detail.mouse;
+            this.currentDrag = event.detail.mouse;
             this.checkDragScroll(grid, this.currentDrag);
-            this.handleMouseDragCellSelection(grid, this.lastDragRow, event.primitiveEvent.detail.keys);
+            this.handleMouseDragCellSelection(grid, this.lastDragRow, event.detail.keys);
         } else if (this.next) {
             this.next.handleMouseDrag(grid, event);
         }

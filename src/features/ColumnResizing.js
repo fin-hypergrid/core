@@ -31,7 +31,7 @@ var ColumnResizing = Feature.extend('ColumnResizing', {
      * @param {MouseEvent} event - the mouse event to query
      */
     getMouseValue: function(event) {
-        return event.primitiveEvent.detail.mouse.x;
+        return event.detail.mouse.x;
     },
 
     /**
@@ -43,8 +43,8 @@ var ColumnResizing = Feature.extend('ColumnResizing', {
      */
     overAreaDivider: function(grid, event) {
         var leftMostColumnIndex = grid.properties.showRowNumbers ? -1 : 0;
-        return event.gridCell.x !== leftMostColumnIndex && event.mousePoint.x <= 3 ||
-            event.mousePoint.x >= event.bounds.width - 3;
+        return event.detail.gridCell.x !== leftMostColumnIndex && event.detail.mousePoint.x <= 3 ||
+            event.detail.mousePoint.x >= event.detail.bounds.width - 3;
     },
 
     /**
@@ -76,14 +76,14 @@ var ColumnResizing = Feature.extend('ColumnResizing', {
      * @param {Object} event - the event details
      */
     handleMouseDown: function(grid, event) {
-        if (event.isHeaderRow && this.overAreaDivider(grid, event)) {
-            if (event.mousePoint.x <= 3) {
-                var columnIndex = event.gridCell.x - 1;
+        if (event.detail.isHeaderRow && this.overAreaDivider(grid, event)) {
+            if (event.detail.mousePoint.x <= 3) {
+                var columnIndex = event.detail.gridCell.x - 1;
                 this.dragColumn = grid.behavior.getActiveColumn(columnIndex);
                 this.dragStartWidth = grid.renderer.visibleColumns[columnIndex].width;
             } else {
-                this.dragColumn = event.column;
-                this.dragStartWidth = event.bounds.width;
+                this.dragColumn = event.detail.column;
+                this.dragStartWidth = event.detail.bounds.width;
             }
 
             this.dragStart = this.getMouseValue(event);
@@ -103,7 +103,7 @@ var ColumnResizing = Feature.extend('ColumnResizing', {
             this.cursor = null;
             this.dragColumn = false;
 
-            event.primitiveEvent.stopPropagation();
+            event.detail.primitiveEvent.stopPropagation();
             //delay here to give other events a chance to be dropped
             var self = this;
             grid.synchronizeScrollingBoundaries();
@@ -128,7 +128,7 @@ var ColumnResizing = Feature.extend('ColumnResizing', {
                 this.next.handleMouseMove(grid, event);
             }
 
-            this.cursor = event.isHeaderRow && this.overAreaDivider(grid, event) ? this.getCursorName() : null;
+            this.cursor = event.detail.isHeaderRow && this.overAreaDivider(grid, event) ? this.getCursorName() : null;
         }
     },
 
@@ -139,9 +139,9 @@ var ColumnResizing = Feature.extend('ColumnResizing', {
      */
     handleDoubleClick: function(grid, event) {
         if (event.isHeaderRow && this.overAreaDivider(grid, event)) {
-            var column = event.mousePoint.x <= 3
-                ? grid.behavior.getActiveColumn(event.gridCell.x - 1)
-                : event.column;
+            var column = event.detail.mousePoint.x <= 3
+                ? grid.behavior.getActiveColumn(event.detail.gridCell.x - 1)
+                : event.detail.column;
             column.addProperties({
                 columnAutosizing: true,
                 columnAutosized: false // todo: columnAutosizing should be a setter that automatically resets columnAutosized on state change to true

@@ -58,14 +58,13 @@ var CellSelection = Feature.extend('CellSelection', {
      * @param {Object} event - the event details
      */
     handleMouseDown: function(grid, event) {
-        var dx = event.gridCell.x,
-            dy = event.dataCell.y,
-            isSelectable = grid.behavior.getCellProperty(event.dataCell.x, event.gridCell.y, 'cellSelection');
+        var dx = event.detail.gridCell.x,
+            dy = event.detail.dataCell.y,
+            isSelectable = grid.behavior.getCellProperty(event.detail.dataCell.x, event.detail.gridCell.y, 'cellSelection');
 
-        if (isSelectable && event.isDataCell && !event.primitiveEvent.detail.isRightClick) {
+        if (isSelectable && event.detail.isDataCell && !event.detail.isRightClick) {
             var dCell = grid.newPoint(dx, dy),
-                primEvent = event.primitiveEvent,
-                keys = primEvent.detail.keys;
+                keys = event.detail.keys;
             this.dragging = true;
             this.extendSelection(grid, dCell, keys);
         } else if (this.next) {
@@ -79,11 +78,11 @@ var CellSelection = Feature.extend('CellSelection', {
      * @param {Object} event - the event details
      */
     handleMouseDrag: function(grid, event) {
-        if (this.dragging && grid.properties.cellSelection && !event.primitiveEvent.detail.isRightClick) {
-            this.currentDrag = event.primitiveEvent.detail.mouse;
-            this.lastDragCell = grid.newPoint(event.gridCell.x, event.dataCell.y);
+        if (this.dragging && grid.properties.cellSelection && !event.detail.isRightClick) {
+            this.currentDrag = event.detail.mouse;
+            this.lastDragCell = grid.newPoint(event.detail.gridCell.x, event.detail.dataCell.y);
             this.checkDragScroll(grid, this.currentDrag);
-            this.handleMouseDragCellSelection(grid, this.lastDragCell, event.primitiveEvent.detail.keys);
+            this.handleMouseDragCellSelection(grid, this.lastDragCell, event.detail.keys);
         } else if (this.next) {
             this.next.handleMouseDrag(grid, event);
         }
@@ -301,11 +300,11 @@ var CellSelection = Feature.extend('CellSelection', {
     /**
      * @memberOf CellSelection.prototype
      * @param {Hypergrid} grid
-     * @param {Object} event - the event details
+     * @param {Object} eventDetails - the event details
      */
-    handleDOWN: function(grid, event) {
+    handleDOWN: function(grid, eventDetails) {
         //keep the browser viewport from auto scrolling on key event
-        event.primitiveEvent.preventDefault();
+        eventDetails.primitiveEvent.preventDefault();
 
         var count = this.getAutoScrollAcceleration();
         grid.moveSingleSelect(0, count);
@@ -316,9 +315,9 @@ var CellSelection = Feature.extend('CellSelection', {
      * @param {Hypergrid} grid
      * @param {Object} event - the event details
      */
-    handleUP: function(grid, event) {
+    handleUP: function(grid, eventDetails) {
         //keep the browser viewport from auto scrolling on key event
-        event.primitiveEvent.preventDefault();
+        eventDetails.primitiveEvent.preventDefault();
 
         var count = this.getAutoScrollAcceleration();
         grid.moveSingleSelect(0, -count);

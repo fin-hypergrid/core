@@ -8,16 +8,16 @@ var Feature = require('./Feature');
 var Filters = Feature.extend('Filters', {
 
     handleDoubleClick: function(grid, event) {
-        if (event.isFilterCell) {
-            grid.onEditorActivate(event);
+        if (event.detail.isFilterCell) {
+            grid.onEditorActivate(event.detail);
         } else if (this.next) {
             this.next.handleDoubleClick(grid, event);
         }
     },
 
     handleClick: function(grid, event) {
-        if (event.isFilterCell) {
-            grid.onEditorActivate(event);
+        if (event.detail.isFilterCell) {
+            grid.onEditorActivate(event.detail);
         } else if (this.next) {
             this.next.handleClick(grid, event);
         }

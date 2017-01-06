@@ -1099,31 +1099,6 @@ window.onload = function() {
 
     setTimeout(resetData, 50);
 
-    //});
-
-    // var eventNames = [
-    //     'dragstart',
-    //     'drag',
-    //     'mousemove',
-    //     'mousedown',
-    //     'dragend',
-    //     'mouseup',
-    //     'mouseout',
-    //     'wheelmoved',
-    //     'click',
-    //     'dblclick',
-    //     'keydown',
-    //     'keyup',
-    //     'focus-gained',
-    //     'focus-lost',
-    //     'context-menu'
-    // ];
-
-    // eventNames.forEach(function(name) {
-    //     grid.canvas.addEventListener('fin-canvas-' + name, function(e) {
-    //         console.log(e.type);
-    //     });
-    // });
 
     // Some DOM support functions...
     // Besides the canvas, this test harness only has a handful of buttons and checkboxes.
@@ -1132,7 +1107,6 @@ window.onload = function() {
     function addToggle(ctrlGroup) {
         var input, label,
             container = document.createElement('div');
-
         container.className = 'ctrl-group';
 
         if (ctrlGroup.label) {

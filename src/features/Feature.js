@@ -236,7 +236,7 @@ var Feature = Base.extend('Feature', {
      */
     isFixedRow: function(grid, event) {
         this.deprecated('isFixedRow', 'isFixedRow(grid, event) has been deprecated as of v1.2.0 in favor of event.isRowFixed. (Will be removed in a future version.)');
-        return event.isRowFixed;
+        return event.detail.isRowFixed;
     },
 
     /**
@@ -245,7 +245,7 @@ var Feature = Base.extend('Feature', {
      * @param {Object} event - the event details
      */
     isFirstFixedRow: function(grid, event) {
-        return event.gridCell.y < 1;
+        return event.detail.gridCell.y < 1;
     },
 
     /**
@@ -255,7 +255,7 @@ var Feature = Base.extend('Feature', {
      */
     isFixedColumn: function(grid, event) {
         this.deprecated('isFixedColumn', 'isFixedColumn(grid, event) has been deprecated as of v1.2.0 in favor of event.isColumnFixed. (Will be removed in a future version.)');
-        return event.isColumnFixed;
+        return event.detail.isColumnFixed;
     },
 
     /**
@@ -264,7 +264,7 @@ var Feature = Base.extend('Feature', {
      * @param {Object} event - the event details
      */
     isFirstFixedColumn: function(grid, event) {
-        return event.gridCell.x === 0;
+        return event.detail.gridCell.x === 0;
     },
 
     /**
@@ -274,7 +274,7 @@ var Feature = Base.extend('Feature', {
      */
     isTopLeft: function(grid, event) {
         this.deprecated('isTopLeft', 'isTopLeft(grid, event) has been deprecated as of v1.2.0 in favor of event.isCellFixed. (Will be removed in a future version.)');
-        return event.isCellFixed;
+        return event.detail.isCellFixed;
     },
 
     /**

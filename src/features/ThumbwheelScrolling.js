@@ -17,7 +17,7 @@ var ThumbwheelScrolling = Feature.extend('ThumbwheelScrolling', {
             return;
         }
 
-        var primEvent = e.primitiveEvent,
+        var primEvent = e.detail.primitiveEvent,
             deltaX = Math.sign(primEvent.wheelDeltaX || -primEvent.deltaX),
             deltaY = Math.sign(primEvent.wheelDeltaY || -primEvent.deltaY);
 
