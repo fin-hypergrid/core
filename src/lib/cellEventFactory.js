@@ -82,6 +82,8 @@ var prototype = Object.defineProperties({}, {
         this.visibleColumn = visibleColumn;
         this.visibleRow = visibleRow;
 
+        this.subgrid = visibleRow.subgrid;
+
         this.column = visibleColumn.column; // enumerable so will be copied to cell renderer object
 
         this.gridCell.x = visibleColumn.columnIndex;
@@ -149,6 +151,25 @@ var prototype = Object.defineProperties({}, {
         return visible && this;
     } },
 
+    /**
+     * Copy self with or without own properties
+     * @param {boolan} [assign=false] - Copy the own properties to the clone.
+     * @returns {CellEvent}
+     * @memberOf CellEvent#
+     */
+    clone: { value: function(assign) {
+        var cellEvent = new this.constructor;
+
+        cellEvent.resetGridXY(this.visibleColumn.index, this.visibleRow.index);
+
+        if (assign) {
+            // copy own props
+            Object.assign(cellEvent, this);
+        }
+
+        return cellEvent;
+    } },
+
     editPoint: {
         get: function() {
             throw 'The `.editPoint` property is no longer available as of v1.2.10. Use the following coordinates instead:\n' +
@@ -158,8 +179,6 @@ var prototype = Object.defineProperties({}, {
             '`.dataCell.y` - The data model\'s row index. (Adjusted for data row scrolling after fixed rows.)\n';
         }
     },
-
-    subgrid: { get: function() { return this.visibleRow.subgrid; } },
 
     // "Visible" means scrolled into view.
     isRowVisible:    { get: function() { return !!this.visibleRow; } },
@@ -276,6 +295,13 @@ function factory(grid) {
              * @memberOf CellEvent#
              */
             visibleRow: writableDescriptor,
+
+            /**
+             * @name subgrid
+             * @type {dataModelAPI}
+             * @memberOf CellEvent#
+             */
+            subgrid: writableDescriptor,
 
             /**
              * @name gridCell

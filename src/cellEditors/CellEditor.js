@@ -101,7 +101,7 @@ var CellEditor = Base.extend('CellEditor', {
         0x1b: 'cancelEditing' // escape
     },
 
-    keyup: function(e, dontFocus) {
+    keyup: function(e) {
         var grid = this.grid,
             cellProps = this.event.properties,
             feedbackCount = cellProps.feedbackCount,
@@ -115,7 +115,6 @@ var CellEditor = Base.extend('CellEditor', {
             (stopped = this[specialKeyup](feedbackCount))
         ) {
             grid.repaint();
-            if (!dontFocus) { grid.takeFocus(); }
         }
 
         // STEP 2: If this is a possible "nav key" consumable by CellSelection#handleKeyDown, try to stop editing and send it along
@@ -126,7 +125,6 @@ var CellEditor = Base.extend('CellEditor', {
                 (stopped = this.stopEditing(feedbackCount))
             ) {
                 grid.repaint();
-                if (!dontFocus) { grid.takeFocus(); }
             }
 
             if (stopped) {

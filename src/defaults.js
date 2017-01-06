@@ -885,7 +885,7 @@ var defaults = {
 
     /**
      * Grid-level property.
-     * When user presses a printable character key _or_ BACKSPACE _or_ DELETE:
+     * When user presses a "printable" keyboard character _or_ BACKSPACE _or_ DELETE:
      * 1. Activate cell editor on current cell (i.e., origin of most recent selection).
      * 2. If cell editor is a text editor:
      *    1. Replace current value with the character the user typed; or
@@ -898,6 +898,15 @@ var defaults = {
      * @memberOf module:defaults
      */
     editOnKeydown: true,
+
+    /**
+     * Grid-level property.
+     * When user navigates away from a cell editor (by pressing a nav key as defined in {@link module:defaults.navKeyMap}), open the cell editor of the destination cell.
+     * @default
+     * @type {boolean}
+     * @memberOf module:defaults
+     */
+    editOnNextCell: false,
 
     /**
      * @default
