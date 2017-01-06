@@ -154,15 +154,11 @@ var FilterBox = ComboBox.extend('FilterBox', {
     },
 
     keyup: function(event) {
-        if (event) {
-            CellEditor.prototype.keyup.call(this, event, true);
-
-            if (!this.grid.cellEditor) {
-                // this keyup caused editor to close... was it a listed navKey?
-                navigateAway.call(this, this.grid.canvas.getKeyChar(event));
-            } else if (this.grid.properties.filteringMode === 'immediate') {
-                this.saveEditorValue(this.getEditorValue());
-            }
+        if (
+            !CellEditor.prototype.keyup.call(this, event, true) &&
+            this.grid.properties.filteringMode === 'immediate'
+        ) {
+            this.saveEditorValue(this.getEditorValue());
         }
     },
 
@@ -225,58 +221,5 @@ var FilterBox = ComboBox.extend('FilterBox', {
     }
 
 });
-
-/**
- * @param {string} keyChar - A key that maps (through {@link module:defaults.navKeyMap|navKeyMap}) to one of:
- * * `'UP'` or `'DOWN'` - Selects first visible data cell under filter cell.
- * * `'LEFT'` - Opens filter cell editor in previous filterable column; if nonesuch, selects first visible data cell under filter cell.
- * * `'RIGHT'` - Opens filter cell editor in next filterable column; if nonesuch, selects first visible data cell under filter cell.
- */
-function navigateAway(keyChar) {
-    var event = this.event,
-        originX = event.visibleColumn.index,
-        gridX, gridY = event.visibleRow.index,
-        cellEvent = new this.grid.behavior.CellEvent,
-        visibleColumnCount = this.grid.renderer.visibleColumns.length;
-
-    function wrap(n) {
-        return (n + visibleColumnCount) % visibleColumnCount;
-    }
-
-    switch (event.properties.mappedNavKey(keyChar)) {
-        case 'LEFT':
-            // Select next filterable column's filter cell
-            for (
-                gridX = wrap(originX - 1);
-                gridX !== originX && cellEvent.resetGridXY(gridX, gridY);
-                gridX = wrap(gridX - 1)
-            ) {
-                if (cellEvent.properties.filterable) {
-                    this.grid.editAt(cellEvent);
-                    return;
-                }
-            }
-            break;
-
-        case 'RIGHT':
-            // Select previous filterable column's filter cell
-            for (
-                gridX = wrap(originX + 1);
-                gridX !== originX && cellEvent.resetGridXY(gridX, gridY);
-                gridX = wrap(gridX + 1)
-            ) {
-                if (cellEvent.properties.filterable) {
-                    this.grid.editAt(cellEvent);
-                    return;
-                }
-            }
-            break;
-    }
-
-    // Select first visible grid cell of this column
-    gridX = this.event.visibleColumn.columnIndex;
-    this.grid.selectCell(gridX, 0, true);
-}
-
 
 module.exports = FilterBox;

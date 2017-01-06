@@ -140,13 +140,16 @@ var CellEditor = Base.extend('CellEditor', {
                     key: e.keyCode,
                     meta: e.metaKey,
                     shift: e.shiftKey,
-                    identifier: e.key
+                    identifier: e.key,
+                    editor: this
                 });
                 grid.delegateKeyDown(finEvent);
             }
         }
 
         this.grid.fireSyntheticEditorKeyUpEvent(this, e);
+
+        return stopped;
     },
 
     /**

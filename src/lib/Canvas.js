@@ -404,7 +404,9 @@ Canvas.prototype = {
     },
 
     getKeyChar: function(e) {
-        return charMap[e.keyCode][e.shiftKey ? 1 : 0];
+        var key = e.keyCode || e.detail.key,
+            shift = e.shiftKey || e.detail.shift;
+        return charMap[key][shift ? 1 : 0];
     },
 
     finkeydown: function(e) {
