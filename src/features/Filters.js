@@ -14,56 +14,26 @@ var Filters = Feature.extend('Filters', {
      * * `'RIGHT'` - Opens filter cell editor in next filterable column; if nonesuch, selects first visible data cell under filter cell.
      */
     handleKeyDown: function(grid, event) {
-        var editor = event.detail.editor;
+        var keyChar, mappedNavKey, handler,
+            detail = event.detail;
 
-        if (editor) {
-            var keyChar = grid.canvas.getKeyChar(event),
-                originX = editor.event.visibleColumn.index,
-                gridX, gridY = editor.event.visibleRow.index,
-                cellEvent = new grid.behavior.CellEvent,
-                visibleColumnCount = grid.renderer.visibleColumns.length;
+        if (detail.editor) {
+            keyChar = grid.canvas.getKeyChar(event);
+            mappedNavKey = detail.editor.event.properties.mappedNavKey(keyChar);
+            handler = this['handle' + mappedNavKey];
+        }
 
-            switch (editor.event.properties.mappedNavKey(keyChar)) {
-                case 'LEFT':
-                    // Select next filterable column's filter cell
-                    for (
-                        gridX = wrap(originX - 1);
-                        gridX !== originX && cellEvent.resetGridXY(gridX, gridY);
-                        gridX = wrap(gridX - 1)
-                    ) {
-                        if (cellEvent.properties.filterable) {
-                            grid.editAt(cellEvent);
-                            return;
-                        }
-                    }
-                    break;
-
-                case 'RIGHT':
-                    // Select previous filterable column's filter cell
-                    for (
-                        gridX = wrap(originX + 1);
-                        gridX !== originX && cellEvent.resetGridXY(gridX, gridY);
-                        gridX = wrap(gridX + 1)
-                    ) {
-                        if (cellEvent.properties.filterable) {
-                            grid.editAt(cellEvent);
-                            return;
-                        }
-                    }
-                    break;
-            }
-
-            // Select first visible grid cell of this column
-            gridX = editor.event.visibleColumn.columnIndex;
-            grid.selectCell(gridX, 0, true);
+        if (handler) {
+            handler(grid, detail);
         } else if (this.next) {
             this.next.handleKeyDown(grid, event);
         }
-
-        function wrap(n) {
-            return (n + visibleColumnCount) % visibleColumnCount;
-        }
     },
+
+    handleLEFT: function(grid, detail) { moveLaterally(grid, detail, -1); },
+    handleRIGHT: function(grid, detail) { moveLaterally(grid, detail, +1); },
+    handleDOWN: moveDown,
+    handleUP: moveDown,
 
     handleDoubleClick: function(grid, event) {
         if (event.isFilterCell) {
@@ -82,5 +52,36 @@ var Filters = Feature.extend('Filters', {
     }
 
 });
+
+function moveLaterally(grid, detail, deltaX) {
+    var cellEvent = detail.editor.event,
+        gridX = cellEvent.visibleColumn.index,
+        gridY = cellEvent.visibleRow.index,
+        originX = gridX,
+        C = grid.renderer.visibleColumns.length;
+
+    cellEvent = new grid.behavior.CellEvent; // redefine so we don't reset the original below
+
+    while (
+        (gridX = (gridX + deltaX + C) % C) !== originX &&
+        cellEvent.resetGridXY(gridX, gridY)
+    ) {
+        if (cellEvent.properties.filterable) {
+            // Select previous or next filterable column's filter cell
+            grid.editAt(cellEvent);
+            return;
+        }
+    }
+
+    moveDown(grid, cellEvent);
+}
+
+function moveDown(grid, detail) {
+    var cellEvent = detail.editor.event,
+        gridX = cellEvent.visibleColumn.columnIndex;
+
+    // Select first visible grid cell of this column
+    grid.selectCell(gridX, 0, true);
+}
 
 module.exports = Filters;
