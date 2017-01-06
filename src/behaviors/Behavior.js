@@ -828,8 +828,7 @@ var Behavior = Base.extend('Behavior', {
      * @param {Object} event - the event details
      */
     onContextMenu: function(grid, event) {
-        var proceed = grid.fireSyntheticContextMenuEvent(event);
-        if (proceed && this.featureChain) {
+        if (this.featureChain) {
             this.featureChain.handleContextMenu(grid, event);
             this.setCursor(grid);
         }
