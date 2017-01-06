@@ -119,7 +119,7 @@ var CellEditor = Base.extend('CellEditor', {
         }
 
         // STEP 2: If this is a possible "nav key" consumable by CellSelection#handleKeyDown, try to stop editing and send it along
-        if (cellProps.navKey(keyChar, e.ctrlKey)) {
+        if (cellProps.mappedNavKey(keyChar, e.ctrlKey)) {
             if (
                 !specialKeyup &&
                 // We didn't try to stop editing above so try to stop it now

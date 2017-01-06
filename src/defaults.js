@@ -583,22 +583,41 @@ var defaults = {
     },
 
     /**
-     * Logic:
+     * Returns any value of `keyChar` that passes the following logic test:
      * 1. If a non-printable, white-space character, then nav key.
-     * 2. If not (i.e., a normal character), it can still be a nav key if not editing on keydown.
-     * 3. If not, it can still be a nav key if CTRL key is down.
+     * 2. If not (i.e., a normal character), can still be a nav key if not editing on key down.
+     * 3. If not, can still be a nav key if CTRL key is down.
      *
-     * @param {string} keyChar
-     * @param {boolean} ctrlKey
-     * @returns {string} Falsy means not a nav key; otherwise returns mapped nav key.
+     * Note: Callers are typcially only interested in the following values of `keyChar` and will ignore all others:
+     * * `'LEFT'` and `'LEFTSHIFT'`
+     * * `'RIGHT'` and `'RIGHTSHIFT'`
+     * * `'UP'` and `'UPSHIFT'`
+     * * `'DOWN'` and `'DOWNSHIFT'`
+     *
+     * @param {string} keyChar - A value from Canvas's `charMap`.
+     * @param {boolean} [ctrlKey=false] - The CTRL key was down.
+     * @returns {undefined|string} `undefined` means not a nav key; otherwise returns `keyChar`.
+     * @memberOf module:defaults
      */
     navKey: function(keyChar, ctrlKey) {
-        var navKey = this.navKeyMap[keyChar];
-        return (
-            navKey && // must be defined in map
-            (navKey.length > 1 || !this.editOnKeydown || ctrlKey) && // see "logic" comment
-            navKey // return the mapped value
-        );
+        var result;
+        if (keyChar.length > 1 || !this.editOnKeydown || ctrlKey) {
+            result = keyChar; // return the mapped value
+        }
+        return result;
+    },
+
+    /**
+     * Returns only values of `keyChar` that, when run through {@link module:defaults.navKeyMap|navKeyMap}, pass the {@link module:defaults.navKey|navKey} logic test.
+     *
+     * @param {string} keyChar - A value from Canvas's `charMap`, to be remapped through {@link module:defaults.navKeyMap|navKeyMap}.
+     * @param {boolean} [ctrlKey=false] - The CTRL key was down.
+     * @returns {undefined|string} `undefined` means not a nav key; otherwise returns `keyChar`.
+     * @memberOf module:defaults
+     */
+    mappedNavKey: function(keyChar, ctrlKey) {
+        keyChar = this.navKeyMap[keyChar];
+        return keyChar && this.navKey(keyChar);
     },
 
     /** @summary Validation failure feedback.

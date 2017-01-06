@@ -130,12 +130,12 @@ var ColumnSelection = Feature.extend('ColumnSelection', {
      * @param {Object} event - the event details
      */
     handleKeyDown: function(grid, event) {
-        var handler;
-        if (
-            grid.getLastSelectionType() === 'column' &&
-            (handler = this['handle' + event.detail.char])
-        ) {
-            handler.call(this, grid, event.detail);
+        var detail = event.detail,
+            handler = grid.getLastSelectionType() === 'column' &&
+                this['handle' + detail.char];
+
+        if (handler) {
+            handler.call(this, grid, detail);
         } else if (this.next) {
             this.next.handleKeyDown(grid, event);
         }
