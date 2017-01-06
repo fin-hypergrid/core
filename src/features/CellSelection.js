@@ -96,11 +96,10 @@ var CellSelection = Feature.extend('CellSelection', {
      */
     handleKeyDown: function(grid, event) {
         var cellEvent = grid.getGridCellFromLastSelection(),
-            cellProps = cellEvent.properties,
             detail = event.detail,
             navKey = cellEvent && (
-                cellProps.mappedNavKey(detail.char, detail.ctrl) ||
-                cellProps.navKey(detail.char, detail.ctrl)
+                cellEvent.properties.mappedNavKey(detail.char, detail.ctrl) ||
+                cellEvent.properties.navKey(detail.char, detail.ctrl)
             ),
             handler = this['handle' + navKey];
 
