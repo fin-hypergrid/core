@@ -149,6 +149,25 @@ var prototype = Object.defineProperties({}, {
         return visible && this;
     } },
 
+    /**
+     * Copy self with or without own properties
+     * @param {boolan} [assign=false] - Copy the own properties to the clone.
+     * @returns {CellEvent}
+     * @memberOf CellEvent#
+     */
+    clone: { value: function(assign) {
+        var cellEvent = new this.constructor;
+
+        cellEvent.resetGridXY(this.visibleColumn.index, this.visibleRow.index);
+
+        if (assign) {
+            // copy own props
+            Object.assign(cellEvent, this);
+        }
+
+        return cellEvent;
+    } },
+
     editPoint: {
         get: function() {
             throw 'The `.editPoint` property is no longer available as of v1.2.10. Use the following coordinates instead:\n' +
