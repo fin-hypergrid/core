@@ -82,6 +82,8 @@ var prototype = Object.defineProperties({}, {
         this.visibleColumn = visibleColumn;
         this.visibleRow = visibleRow;
 
+        this.subgrid = visibleRow.subgrid;
+
         this.column = visibleColumn.column; // enumerable so will be copied to cell renderer object
 
         this.gridCell.x = visibleColumn.columnIndex;
@@ -177,8 +179,6 @@ var prototype = Object.defineProperties({}, {
             '`.dataCell.y` - The data model\'s row index. (Adjusted for data row scrolling after fixed rows.)\n';
         }
     },
-
-    subgrid: { get: function() { return this.visibleRow.subgrid; } },
 
     // "Visible" means scrolled into view.
     isRowVisible:    { get: function() { return !!this.visibleRow; } },
@@ -295,6 +295,13 @@ function factory(grid) {
              * @memberOf CellEvent#
              */
             visibleRow: writableDescriptor,
+
+            /**
+             * @name subgrid
+             * @type {dataModelAPI}
+             * @memberOf CellEvent#
+             */
+            subgrid: writableDescriptor,
 
             /**
              * @name gridCell
