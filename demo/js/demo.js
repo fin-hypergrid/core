@@ -892,7 +892,7 @@ window.onload = function() {
 
     grid.addEventListener('fin-context-menu', function(e) {
         var modelPoint = e.detail.gridCell;
-        if (vent) { console.log('fin-context-menu(' + modelPoint.x + ', ' + (modelPoint.y) + ')'); }
+        if (vent) { console.log('fin-context-menu(' + modelPoint.x + ', ' + modelPoint.y + ')'); }
     });
 
     // make buttons div absolute so buttons width of 100% doesn't stretch to width of dashboard
