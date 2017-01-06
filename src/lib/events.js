@@ -443,7 +443,10 @@ module.exports = {
         });
 
         this.addEventListener('fin-canvas-context-menu', function(e) {
-            handleMouseEvent(e, self.delegateContextMenu);
+            handleMouseEvent(e, function(mouseEvent){
+                self.delegateContextMenu(mouseEvent);
+                self.fireSyntheticContextMenuEvent(mouseEvent);
+            });
         });
 
         //Register a listener for the copy event so we can copy our selected region to the pastebuffer if conditions are right.
