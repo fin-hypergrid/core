@@ -233,9 +233,9 @@ var FilterBox = ComboBox.extend('FilterBox', {
  * * `'RIGHT'` - Opens filter cell editor in next filterable column; if nonesuch, selects first visible data cell under filter cell.
  */
 function navigateAway(keyChar) {
-    var originX = this.event.visibleColumn.index,
-        gridX,
-        gridY = this.event.visibleRow.index,
+    var event = this.event,
+        originX = event.visibleColumn.index,
+        gridX, gridY = event.visibleRow.index,
         cellEvent = new this.grid.behavior.CellEvent,
         visibleColumnCount = this.grid.renderer.visibleColumns.length;
 
@@ -243,7 +243,7 @@ function navigateAway(keyChar) {
         return (n + visibleColumnCount) % visibleColumnCount;
     }
 
-    switch (this.event.properties.navKey(keyChar)) {
+    switch (event.properties.mappedNavKey(keyChar)) {
         case 'LEFT':
             // Select next filterable column's filter cell
             for (
