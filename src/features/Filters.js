@@ -8,19 +8,24 @@ var Feature = require('./Feature');
 var Filters = Feature.extend('Filters', {
 
     /**
-     * Navigate away from the filter cell if the key maps (through {@link module:defaults.navKeyMap|navKeyMap}) to one of:
-     * * `'UP'` or `'DOWN'` - Selects first visible data cell under filter cell.
-     * * `'LEFT'` - Opens filter cell editor in previous filterable column; if nonesuch, selects first visible data cell under filter cell.
-     * * `'RIGHT'` - Opens filter cell editor in next filterable column; if nonesuch, selects first visible data cell under filter cell.
+     * Navigate away from the filter cell when:
+     * 1. Coming from a cell editor (`event.detail.editor` defined).
+     * 2. The cell editor was for a filter cell.
+     * 3. The key (`event.detail.char) maps (through {@link module:defaults.navKeyMap|navKeyMap}) to one of:
+     *    * `'UP'` or `'DOWN'` - Selects first visible data cell under filter cell.
+     *    * `'LEFT'` - Opens filter cell editor in previous filterable column; if nonesuch, selects first visible data cell under filter cell.
+     *    * `'RIGHT'` - Opens filter cell editor in next filterable column; if nonesuch, selects first visible data cell under filter cell.
      */
     handleKeyDown: function(grid, event) {
-        var keyChar, mappedNavKey, handler,
+        var cellEvent, mappedNavKey, handler,
             detail = event.detail;
 
         if (detail.editor) {
-            keyChar = grid.canvas.getKeyChar(event);
-            mappedNavKey = detail.editor.event.properties.mappedNavKey(keyChar);
-            handler = this['handle' + mappedNavKey];
+            cellEvent = detail.editor.event;
+            if (cellEvent.isFilterCell) {
+                mappedNavKey = cellEvent.properties.mappedNavKey(detail.char);
+                handler = this['handle' + mappedNavKey];
+            }
         }
 
         if (handler) {
@@ -32,8 +37,8 @@ var Filters = Feature.extend('Filters', {
 
     handleLEFT: function(grid, detail) { moveLaterally(grid, detail, -1); },
     handleRIGHT: function(grid, detail) { moveLaterally(grid, detail, +1); },
-    handleDOWN: moveDown,
     handleUP: moveDown,
+    handleDOWN: moveDown,
 
     handleDoubleClick: function(grid, event) {
         if (event.isFilterCell) {

@@ -155,7 +155,7 @@ var FilterBox = ComboBox.extend('FilterBox', {
 
     keyup: function(event) {
         if (
-            !CellEditor.prototype.keyup.call(this, event, true) &&
+            !CellEditor.prototype.keyup.call(this, event) &&
             this.grid.properties.filteringMode === 'immediate'
         ) {
             this.saveEditorValue(this.getEditorValue());

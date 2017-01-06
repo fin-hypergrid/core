@@ -95,16 +95,28 @@ var CellSelection = Feature.extend('CellSelection', {
      * @param {Object} event - the event details
      */
     handleKeyDown: function(grid, event) {
-        var cellEvent = grid.getGridCellFromLastSelection(),
-            detail = event.detail,
+        var detail = event.detail,
+            cellEvent = grid.getGridCellFromLastSelection(),
             navKey = cellEvent && (
                 cellEvent.properties.mappedNavKey(detail.char, detail.ctrl) ||
                 cellEvent.properties.navKey(detail.char, detail.ctrl)
             ),
             handler = this['handle' + navKey];
 
+        // STEP 1: Move the selection
         if (handler) {
             handler.call(this, grid, detail);
+
+            // STEP 2: Open the cell editor if `editOnNextCell`, `editable` and `editor` props are all set
+            if (detail.editor && grid.properties.editOnNextCell) {
+                cellEvent = grid.getGridCellFromLastSelection();
+                grid.editAt(cellEvent);
+            }
+
+            // STEP 3: If editor not opened on new cell, take focus
+            if (!grid.cellEditor) {
+                grid.takeFocus();
+            }
         } else if (this.next) {
             this.next.handleKeyDown(grid, event);
         }
