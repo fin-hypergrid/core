@@ -1327,6 +1327,29 @@ var Behavior = Base.extend('Behavior', {
         return this.dataModel.charMap;
     },
 
+    getColumns: function() {
+        return this.allColumns;
+    },
+
+    getActiveColumns: function() {
+        return this.columns;
+    },
+
+    getHiddenColumns: function() {
+        var visible = this.columns;
+        var all = this.allColumns;
+        var hidden = [];
+        for (var i = 0; i < all.length; i++) {
+            if (visible.indexOf(all[i]) === -1) {
+                hidden.push(all[i]);
+            }
+        }
+        hidden.sort(function(a, b) {
+            return a.header < b.header;
+        });
+        return hidden;
+    },
+
     getSelectedRows: function() {
         return this.grid.selectionModel.getSelectedRows();
     },

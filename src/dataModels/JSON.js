@@ -438,9 +438,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
      * @returns {Column[]}
      */
     getActiveColumns: function() {
-        return this.grid.behavior.columns.filter(function(column) {
-            return column.name !== 'tree';
-        });
+        return this.deprecated('getActiveColumns()', 'grid.behavior.getActiveColumns()', '1.2.14', arguments);
     },
 
     /**
@@ -457,18 +455,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
      * @returns {object[]}
      */
     getHiddenColumns: function() {
-        var visible = this.grid.behavior.columns;
-        var all = this.grid.behavior.allColumns;
-        var hidden = [];
-        for (var i = 0; i < all.length; i++) {
-            if (visible.indexOf(all[i]) === -1) {
-                hidden.push(all[i]);
-            }
-        }
-        hidden.sort(function(a, b) {
-            return a.header < b.header;
-        });
-        return hidden;
+        return this.deprecated('getHiddenColumns()', 'grid.behavior.getHiddenColumns()', '1.2.14', arguments);
     },
     /**
      * @memberOf dataModels.JSON.prototype

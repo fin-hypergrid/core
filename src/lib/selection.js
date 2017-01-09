@@ -146,23 +146,20 @@ module.exports = {
         return this.selectionModel.isCellSelectedInColumn(x);
     },
 
-    getRowSelection: function(includeHiddenColumns) {
-        var column, rows, getColumn,
+    /**
+     * @param {boolean|number[]|string[]} [hiddenColumns=false] - See {@link Hypergrid~getColumns}.
+     * @returns {{}}
+     * @memberOf Hypergrid#
+     */
+    getRowSelection: function(hiddenColumns) {
+        var column, rows,
             self = this,
             selectedRowIndexes = this.selectionModel.getSelectedRows(),
-            numColumns = this.getColumnCount(),
+            columns = getColumns.call(this, hiddenColumns),
             result = {};
 
-        if (includeHiddenColumns) {
-            numColumns += this.getHiddenColumns().length;
-            getColumn = this.behavior.getColumn;
-        } else {
-            getColumn = this.behavior.getActiveColumn;
-        }
-        getColumn = getColumn.bind(this.behavior);
-
-        for (var c = 0; c < numColumns; c++) {
-            column = getColumn(c);
+        for (var c = 0, C = columns.length; c < C; c++) {
+            column = columns[c];
             rows = result[column.name] = new Array(selectedRowIndexes.length);
             selectedRowIndexes.forEach(getValue);
         }
@@ -175,14 +172,19 @@ module.exports = {
         return result;
     },
 
-    getRowSelectionMatrix: function() {
+    /**
+     * @param {boolean|number[]|string[]} [hiddenColumns=false] - See {@link Hypergrid~getColumns}.
+     * @returns {Array}
+     * @memberOf Hypergrid#
+     */
+    getRowSelectionMatrix: function(hiddenColumns) {
         var self = this,
             selectedRowIndexes = this.selectionModel.getSelectedRows(),
-            numCols = this.getColumnCount(),
-            result = new Array(numCols);
+            columns = getColumns.call(this, hiddenColumns),
+            result = new Array(columns.length);
 
-        for (var c = 0; c < numCols; c++) {
-            var column = this.behavior.getActiveColumn(c);
+        for (var c = 0, C = columns.length; c < C; c++) {
+            var column = columns[c];
             result[c] = new Array(selectedRowIndexes.length);
             selectedRowIndexes.forEach(getValue);
         }
@@ -647,6 +649,38 @@ module.exports = {
         return cellEvent;
     }
 };
+
+/**
+ * @param {boolean|number[]|string[]} [hiddenColumns=false] - One of:
+ * `false` - Active column list
+ * `true` - All column list
+ * `Array` - Active column list with listed columns prefixed as needed (when not already in the list). Each item in the array may be either:
+ * * `number` - index into all column list
+ * * `string` - name of a column from the all column list
+ * @returns {Column[]}
+ * @memberOf Hypergrid~
+ */
+function getColumns(hiddenColumns) {
+    var columns,
+        allColumns = this.behavior.getColumns(),
+        activeColumns = this.behavior.getActiveColumns();
+
+    if (Array.isArray(hiddenColumns)) {
+        columns = [];
+        hiddenColumns.forEach(function(index) {
+            var key = typeof index === 'number' ? 'index' : 'name',
+                column = allColumns.find(function(column) { return column[key] === index; });
+            if (activeColumns.indexOf(column) < 0) {
+                columns.push(column);
+            }
+        });
+        columns = columns.concat(activeColumns);
+    } else {
+        columns = hiddenColumns ? allColumns : activeColumns;
+    }
+
+    return columns;
+}
 
 function normalizeRect(rect) {
     var o = rect.origin,
