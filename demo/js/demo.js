@@ -792,7 +792,9 @@ window.onload = function() {
         grid.selectRowsFromCells();
         //grid.selectColumnsFromCells();
 
-        if (vent) { console.log('fin-selection-changed', grid.getSelectedRows(), grid.getSelectedColumns(), grid.getSelections()); }
+        if (vent) {
+            console.log('fin-selection-changed', grid.getSelectedRows(), grid.getSelectedColumns(), grid.getSelections());
+        }
 
         if (e.detail.selections.length === 0) {
             console.log('no selections');
@@ -901,6 +903,28 @@ window.onload = function() {
     dashboard.style.display = 'none';
 
     toggleProps.forEach(function(prop) { addToggle(prop); });
+
+    // reset dashboard checkboxes and radio buttons to match current values of grid properties
+    function resetDashboard() {
+        toggleProps.forEach(function(prop) {
+            prop.ctrls.forEach(function(ctrl) {
+                if (ctrl) {
+                    switch (ctrl.setter) {
+                        case setSelectionProp:
+                        case setProp:
+                        case undefined:
+                            switch (ctrl.type) {
+                                case 'radio':
+                                case 'checkbox':
+                                case undefined:
+                                    var id = ctrl.name, polarity = (id[0] === '!');
+                                    document.getElementById(id.substr(polarity)).checked = getProperty(id) ^ polarity;
+                            }
+                    }
+                }
+            });
+        });
+    }
 
 
     function resetData() {
@@ -1094,6 +1118,7 @@ window.onload = function() {
             behavior.setAggregates(aggregates, [idx.BIRTH_STATE, idx.LAST_NAME, idx.FIRST_NAME]);
         }
 
+        resetDashboard();
     }
 
     setTimeout(resetData, 50);
