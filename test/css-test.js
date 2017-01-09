@@ -6,11 +6,7 @@ var instance = [
     {
         name:'grid',
         type:'string'
-    },
-    {
-        name:'list-dragon-addendum',
-        type:'string'
-    },
+    }
 ];
 
 describe('CSS', function(){
