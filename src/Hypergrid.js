@@ -1277,6 +1277,14 @@ var Hypergrid = Base.extend('Hypergrid', {
         this.canvas.dispatchEvent(selectionEvent);
     },
 
+    getColumns: function() {
+        return this.behavior.getColumns();
+    },
+
+    getActiveColumns: function() {
+        return this.behavior.getActiveColumns();
+    },
+
     getHiddenColumns: function(){
         //A non in-memory behavior will be more troublesome
         return this.behavior.getHiddenColumns();

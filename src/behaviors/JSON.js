@@ -245,19 +245,8 @@ var JSON = Behavior.extend('behaviors.JSON', {
         return this.dataModel.hasHierarchyColumn();
     },
 
-    getHiddenColumns: function() {
-        return this.dataModel.getHiddenColumns();
-    },
-
-    getActiveColumns: function() {
-        return this.dataModel.getActiveColumns();
-    },
     getVisibleColumns: function() {
         return this.deprecated('getVisibleColumns()', 'getActiveColumns()', '1.0.6', arguments);
-    },
-
-    getSelectedColumns: function() {
-        return this.grid.selectionModel.getSelectedColumns();
     },
 
     getSelections: function() {
