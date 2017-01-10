@@ -62,9 +62,15 @@ window.onload = function() {
         }, {
             label: 'Selection',
             ctrls: [
-                { name: 'checkboxOnlyRowSelections', label: 'by row handles only', setter: setSelectionProp },
+                { name: 'checkboxOnlyRowSelections', label: 'by row handles only', setter: setSelectionProp,
+                    tooltip: 'Note that when this property is active, autoSelectRows will not work.'},
                 { name: 'singleRowSelectionMode', label: 'one row at a time', setter: setSelectionProp },
-                { name: '!multipleSelections', label: 'one cell region at a time', setter: setSelectionProp, checked: true }
+                { name: '!multipleSelections', label: 'one cell region at a time', setter: setSelectionProp, checked: true },
+                { name: 'autoSelectRows', label: 'auto-select rows', setter: setSelectionProp,
+                    tooltip: 'Notes:\n' +
+                    '1. Requires that checkboxOnlyRowSelections be set to false (so checking this box automatically unchecks that one).\n' +
+                    '2. Set singleRowSelectionMode to false to allow auto-select of multiple rows.' },
+                { name: 'autoSelectColumns', label: 'auto-select columns', setter: setSelectionProp }
             ]
         }, {
             label: 'Filtering',
@@ -790,10 +796,6 @@ window.onload = function() {
 
     grid.addEventListener('fin-selection-changed', function(e) {
 
-        //lets mirror the cell selection into the rows and or columns
-        grid.selectRowsFromCells();
-        //grid.selectColumnsFromCells();
-
         if (vent) {
             console.log('fin-selection-changed', grid.getSelectedRows(), grid.getSelectedColumns(), grid.getSelections());
         }
@@ -1002,7 +1004,8 @@ window.onload = function() {
         grid.addProperties({
             fixedRowCount: 4,
             showRowNumbers: true,
-            checkboxOnlyRowSelections: true
+            checkboxOnlyRowSelections: true,
+            autoSelectRows: true
         });
         // properties that can be set
         // use a function or a value
@@ -1379,9 +1382,37 @@ window.onload = function() {
     }
 
     function setSelectionProp() { // alternate checkbox click handler
+        var ctrl;
+
         grid.selectionModel.clear();
         dataModel.clearSelectedData();
+
         setProp.call(this);
+
+        if (this.checked) {
+            if (
+                this.id === 'checkboxOnlyRowSelections' &&
+                (ctrl = document.getElementById('autoSelectRows')).checked
+            ) {
+                alert('Note that autoSelectRows is ineffectual when checkboxOnlyRowSelections is on.');
+            } else if (this.id === 'autoSelectRows') {
+                if (
+                    (ctrl = document.getElementById('checkboxOnlyRowSelections')).checked &&
+                    confirm('Note that autoSelectRows is ineffectual when checkboxOnlyRowSelections is on.\n\nTurn off checkboxOnlyRowSelections?')
+                ) {
+                    ctrl.checked = false;
+                    setProp.call(ctrl);
+                }
+
+                if (
+                    (ctrl = document.getElementById('singleRowSelectionMode')).checked &&
+                    confirm('Note that auto-selecting a range of rows by selecting a range of cells (with click + drag or shift + click) is not possible with singleRowSelectionMode is on.\n\nTurn off singleRowSelectionMode?')
+                ) {
+                    ctrl.checked = false;
+                    setProp.call(ctrl);
+                }
+            }
+        }
     }
 
     function resetFilterWithNewPropValue() {

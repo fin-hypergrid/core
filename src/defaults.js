@@ -915,6 +915,29 @@ var defaults = {
      */
     checkboxOnlyRowSelections: false,
 
+    /**
+     * @summary Select cell's entire row.
+     * @desc When truthy, selecting a cell will also select the entire row it is in, subject to note #1 below.
+     *
+     * Notes:
+     * 1. Ineffectual unless `checkboxOnlyRowSelections` is set to `false`.
+     * 2. To allow auto-selection of _multiple rows,_ set `singleRowSelectionMode` to `false`.
+     *
+     * @default
+     * @type {boolean}
+     * @memberOf module:defaults
+     */
+    autoSelectRows: false,
+
+    /**
+     * @summary Select cell's entire column.
+     * @desc When truthy, selecting a cell will also select the entire column it is in.
+     * @default
+     * @type {boolean}
+     * @memberOf module:defaults
+     */
+    autoSelectColumns: false,
+
     /** @summary Name of a formatter for cell text.
      * @desc The default (`undefined`) falls back to `column.type`.
      * The value `null` does no formatting.

@@ -1261,22 +1261,6 @@ var Hypergrid = Base.extend('Hypergrid', {
         return window.open.apply(window, arguments);
     },
 
-    /**
-     * @memberOf Hypergrid#
-     * @desc Synthesize and dispatch a `fin-selection-changed` event.
-     */
-    selectionChanged: function() {
-        var selectedRows = this.getSelectedRows();
-        var selectionEvent = new CustomEvent('fin-selection-changed', {
-            detail: {
-                rows: selectedRows,
-                columns: this.getSelectedColumns(),
-                selections: this.selectionModel.getSelections(),
-            }
-        });
-        this.canvas.dispatchEvent(selectionEvent);
-    },
-
     getColumns: function() {
         return this.behavior.getColumns();
     },
@@ -1875,28 +1859,6 @@ var Hypergrid = Base.extend('Hypergrid', {
     },
 
     /**
-     * @memberOf Hypergrid#
-     * @returns {object} An object that represents the currently selection row.
-     */
-    getSelectedRow: function() {
-        var sels = this.selectionModel.getSelections();
-        if (sels.length) {
-            var behavior = this.behavior,
-                colCount = this.getColumnCount(),
-                topRow = sels[0].origin.y,
-                row = {
-                    //hierarchy: behavior.getFixedColumnValue(0, topRow)
-                };
-
-            for (var c = 0; c < colCount; c++) {
-                row[behavior.getActiveColumn(c).header] = behavior.getValue(c, topRow);
-            }
-
-            return row;
-        }
-    },
-
-    /**
      * @summary Autosize a column for best fit.
      * @param {Column|number} columnOrIndex - The column or active column index.
      * @memberOf Hypergrid#
@@ -2073,24 +2035,6 @@ var Hypergrid = Base.extend('Hypergrid', {
         //     this.sbHScroller.classList.add('visible');
         //     this.sbVScroller.classList.add('visible');
         // }
-    },
-    isColumnOrRowSelected: function() {
-        return this.selectionModel.isColumnOrRowSelected();
-    },
-    selectColumn: function(x1, x2) {
-        this.selectionModel.selectColumn(x1, x2);
-    },
-    selectRow: function(y1, y2) {
-        var sm = this.selectionModel;
-
-        if (this.singleSelect()) {
-            y1 = y2;
-        } else {
-            // multiple row selection
-            y2 = y2 || y1;
-        }
-
-        sm.selectRow(Math.min(y1, y2), Math.max(y1, y2));
     },
     isRowNumberAutosizing: function() {
         return this.deprecated('isRowNumberAutosizing()', 'properties.rowNumberAutosizing', 'v1.2.10');

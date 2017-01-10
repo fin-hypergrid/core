@@ -484,13 +484,74 @@ module.exports = {
         }
     },
 
-    selectRowsFromCells: function() {
-        if (!this.properties.checkboxOnlyRowSelections) {
-            var last,
-                hasCTRL = this.mouseDownState.primitiveEvent.detail.primitiveEvent.ctrlKey;
+    /**
+     * @memberOf Hypergrid#
+     * @returns {object} An object that represents the currently selection row.
+     */
+    getSelectedRow: function() {
+        var sels = this.selectionModel.getSelections();
+        if (sels.length) {
+            var behavior = this.behavior,
+                colCount = this.getColumnCount(),
+                topRow = sels[0].origin.y,
+                row = {
+                    //hierarchy: behavior.getFixedColumnValue(0, topRow)
+                };
 
-            if (hasCTRL && !this.isSingleRowSelectionMode()) {
-                this.selectionModel.selectRowsFromCells(0, hasCTRL);
+            for (var c = 0; c < colCount; c++) {
+                row[behavior.getActiveColumn(c).header] = behavior.getValue(c, topRow);
+            }
+
+            return row;
+        }
+    },
+
+    /**
+     * @memberOf Hypergrid#
+     * @desc Synthesize and dispatch a `fin-selection-changed` event.
+     */
+    selectionChanged: function() {
+        // Project the cell selection into the rows
+        this.selectRowsFromCells();
+
+        // Project the cell selection into the columns
+        this.selectColumnsFromCells();
+
+        var selectionEvent = new CustomEvent('fin-selection-changed', {
+            detail: {
+                rows: this.getSelectedRows(),
+                columns: this.getSelectedColumns(),
+                selections: this.selectionModel.getSelections(),
+            }
+        });
+        this.canvas.dispatchEvent(selectionEvent);
+    },
+
+    isColumnOrRowSelected: function() {
+        return this.selectionModel.isColumnOrRowSelected();
+    },
+    selectColumn: function(x1, x2) {
+        this.selectionModel.selectColumn(x1, x2);
+    },
+    selectRow: function(y1, y2) {
+        var sm = this.selectionModel;
+
+        if (this.singleSelect()) {
+            y1 = y2;
+        } else {
+            // multiple row selection
+            y2 = y2 || y1;
+        }
+
+        sm.selectRow(Math.min(y1, y2), Math.max(y1, y2));
+    },
+
+    selectRowsFromCells: function() {
+        if (!this.properties.checkboxOnlyRowSelections && this.properties.autoSelectRows) {
+            var last;
+
+            if (!this.isSingleRowSelectionMode()) {
+                this.selectionModel.selectRowsFromCells(0, true);
             } else if ((last = this.selectionModel.getLastSelection())) {
                 this.selectRow(null, last.corner.y);
             } else {
@@ -499,7 +560,9 @@ module.exports = {
         }
     },
     selectColumnsFromCells: function() {
-        this.selectionModel.selectColumnsFromCells();
+        if (this.properties.autoSelectColumns) {
+            this.selectionModel.selectColumnsFromCells();
+        }
     },
     getSelectedRows: function() {
         return this.behavior.getSelectedRows();
