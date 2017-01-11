@@ -55,8 +55,8 @@ module.exports = {
                 if (!info.internal) {
                     this.removeEventListener(key, info.listener);
                 }
-            });
-        });
+            }, this);
+        }, this);
     },
 
     allowEvents: function(allow){
