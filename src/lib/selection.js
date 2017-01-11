@@ -66,8 +66,8 @@ module.exports = {
      * @desc Clear all the selections.
      */
     clearSelections: function() {
-        var dontClearRows = this.properties.checkboxOnlyRowSelections;
-        this.selectionModel.clear(dontClearRows);
+        var keepRowSelections = this.properties.checkboxOnlyRowSelections;
+        this.selectionModel.clear(keepRowSelections);
         this.clearMouseDown();
     },
 
@@ -76,8 +76,8 @@ module.exports = {
      * @desc Clear the most recent selection.
      */
     clearMostRecentSelection: function() {
-        var dontClearRows = this.properties.checkboxOnlyRowSelections;
-        this.selectionModel.clearMostRecentSelection(dontClearRows);
+        var keepRowSelections = this.properties.checkboxOnlyRowSelections;
+        this.selectionModel.clearMostRecentSelection(keepRowSelections);
     },
 
     /**
@@ -300,8 +300,8 @@ module.exports = {
     },
 
     selectCell: function(x, y, silent) {
-        var dontClearRows = this.properties.checkboxOnlyRowSelections;
-        this.selectionModel.clear(dontClearRows);
+        var keepRowSelections = this.properties.checkboxOnlyRowSelections;
+        this.selectionModel.clear(keepRowSelections);
         this.selectionModel.select(x, y, 0, 0, silent);
     },
 
@@ -364,20 +364,7 @@ module.exports = {
     },
 
     singleSelect: function() {
-        var isCheckboxOnlyRowSelections = this.properties.checkboxOnlyRowSelections,
-            isSingleRowSelectionMode = this.isSingleRowSelectionMode(),
-            hasCTRL = false,
-            result;
-
-        if (this.mouseDownState) {
-            //triggered programmatically
-            hasCTRL = this.mouseDownState.primitiveEvent.detail.primitiveEvent.ctrlKey;
-        }
-
-        result = (
-            isCheckboxOnlyRowSelections && isSingleRowSelectionMode ||
-            !isCheckboxOnlyRowSelections && (!hasCTRL || isSingleRowSelectionMode)
-        );
+        var result = this.properties.singleRowSelectionMode;
 
         if (result) {
             this.selectionModel.clearRowSelection();
@@ -484,13 +471,74 @@ module.exports = {
         }
     },
 
-    selectRowsFromCells: function() {
-        if (!this.properties.checkboxOnlyRowSelections) {
-            var last,
-                hasCTRL = this.mouseDownState.primitiveEvent.detail.primitiveEvent.ctrlKey;
+    /**
+     * @memberOf Hypergrid#
+     * @returns {object} An object that represents the currently selection row.
+     */
+    getSelectedRow: function() {
+        var sels = this.selectionModel.getSelections();
+        if (sels.length) {
+            var behavior = this.behavior,
+                colCount = this.getColumnCount(),
+                topRow = sels[0].origin.y,
+                row = {
+                    //hierarchy: behavior.getFixedColumnValue(0, topRow)
+                };
 
-            if (hasCTRL && !this.isSingleRowSelectionMode()) {
-                this.selectionModel.selectRowsFromCells(0, hasCTRL);
+            for (var c = 0; c < colCount; c++) {
+                row[behavior.getActiveColumn(c).header] = behavior.getValue(c, topRow);
+            }
+
+            return row;
+        }
+    },
+
+    /**
+     * @memberOf Hypergrid#
+     * @desc Synthesize and dispatch a `fin-selection-changed` event.
+     */
+    selectionChanged: function() {
+        // Project the cell selection into the rows
+        this.selectRowsFromCells();
+
+        // Project the cell selection into the columns
+        this.selectColumnsFromCells();
+
+        var selectionEvent = new CustomEvent('fin-selection-changed', {
+            detail: {
+                rows: this.getSelectedRows(),
+                columns: this.getSelectedColumns(),
+                selections: this.selectionModel.getSelections(),
+            }
+        });
+        this.canvas.dispatchEvent(selectionEvent);
+    },
+
+    isColumnOrRowSelected: function() {
+        return this.selectionModel.isColumnOrRowSelected();
+    },
+    selectColumn: function(x1, x2) {
+        this.selectionModel.selectColumn(x1, x2);
+    },
+    selectRow: function(y1, y2) {
+        var sm = this.selectionModel;
+
+        if (this.singleSelect()) {
+            y1 = y2;
+        } else {
+            // multiple row selection
+            y2 = y2 || y1;
+        }
+
+        sm.selectRow(Math.min(y1, y2), Math.max(y1, y2));
+    },
+
+    selectRowsFromCells: function() {
+        if (!this.properties.checkboxOnlyRowSelections && this.properties.autoSelectRows) {
+            var last;
+
+            if (!this.properties.singleRowSelectionMode) {
+                this.selectionModel.selectRowsFromCells(0, true);
             } else if ((last = this.selectionModel.getLastSelection())) {
                 this.selectRow(null, last.corner.y);
             } else {
@@ -499,7 +547,9 @@ module.exports = {
         }
     },
     selectColumnsFromCells: function() {
-        this.selectionModel.selectColumnsFromCells();
+        if (this.properties.autoSelectColumns) {
+            this.selectionModel.selectColumnsFromCells();
+        }
     },
     getSelectedRows: function() {
         return this.behavior.getSelectedRows();
@@ -531,19 +581,16 @@ module.exports = {
         this.repaint();
     },
     isCellSelection: function() {
-        this.deprecated('isCellSelection', 'Property `isCellSelection` has been deprecated as of v1.2.2 in favor of `this.properties.cellSelection === true`. (Will be removed in a future version.)');
-        return this.properties.cellSelection === true;
+        return this.deprecated('isCellSelection()', 'properties.cellSelection', '1.2.2');
     },
     isRowSelection: function() {
-        this.deprecated('isRowSelection', 'Property `isRowSelection` has been deprecated as of v1.2.2 in favor of `this.properties.rowSelection === true`. (Will be removed in a future version.)');
-        return this.properties.rowSelection === true;
+        return this.deprecated('isRowSelection()', 'properties.rowSelection', '1.2.2');
     },
     isColumnSelection: function() {
-        this.deprecated('isColumnSelection', 'Property `isColumnSelection` has been deprecated as of v1.2.2 in favor of `this.properties.columnSelection === true`. (Will be removed in a future version.)');
-        return this.properties.columnSelection === true;
+        return this.deprecated('isColumnSelection()', 'properties.columnSelection', '1.2.2');
     },
     isSingleRowSelectionMode: function() {
-        return this.properties.singleRowSelectionMode;
+        return this.deprecated('isSingleRowSelectionMode()', 'properties.singleRowSelectionMode', '1.2.14');
     },
 
     /**

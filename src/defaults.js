@@ -909,11 +909,37 @@ var defaults = {
     editOnNextCell: false,
 
     /**
+     * @summary Retain row selections.
+     * @desc When falsy, row selections are cleared when selecting cells; when truthy, row selections are kept as is when selecting cells.
+     * @todo Deprecate in favor of something simpler like `keepRowSelections`. (The current name is misleading and has caused some confusion among both developers and users. At the very least it should have been called `checkboxOnlyRowDeselections`.)
      * @default
      * @type {boolean}
      * @memberOf module:defaults
      */
     checkboxOnlyRowSelections: false,
+
+    /**
+     * @summary Select cell's entire row.
+     * @desc When truthy, selecting a cell will also select the entire row it is in, subject to note #1 below.
+     *
+     * Notes:
+     * 1. Ineffectual unless `checkboxOnlyRowSelections` is set to `false`.
+     * 2. To allow auto-selection of _multiple rows,_ set `singleRowSelectionMode` to `false`.
+     *
+     * @default
+     * @type {boolean}
+     * @memberOf module:defaults
+     */
+    autoSelectRows: false,
+
+    /**
+     * @summary Select cell's entire column.
+     * @desc When truthy, selecting a cell will also select the entire column it is in.
+     * @default
+     * @type {boolean}
+     * @memberOf module:defaults
+     */
+    autoSelectColumns: false,
 
     /** @summary Name of a formatter for cell text.
      * @desc The default (`undefined`) falls back to `column.type`.
