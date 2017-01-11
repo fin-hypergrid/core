@@ -3,6 +3,5 @@
 /doc
 /node_modules*
 /demo/build
-/images/images.js
 ~*.*x
 /v?.*
