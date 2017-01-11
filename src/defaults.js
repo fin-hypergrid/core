@@ -909,6 +909,9 @@ var defaults = {
     editOnNextCell: false,
 
     /**
+     * @summary Retain row selections.
+     * @desc When falsy, row selections are cleared when selecting cells; when truthy, row selections are kept as is when selecting cells.
+     * @todo Deprecate in favor of something simpler like `keepRowSelections`. (The current name is misleading and has caused some confusion among both developers and users. At the very least it should have been called `checkboxOnlyRowDeselections`.)
      * @default
      * @type {boolean}
      * @memberOf module:defaults

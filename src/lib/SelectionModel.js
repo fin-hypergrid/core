@@ -176,9 +176,8 @@ SelectionModel.prototype = {
      * @memberOf SelectionModel.prototype
      * @desc Remove the last selection that was created.
      */
-    clearMostRecentSelection: function(dontClearRowSelections) {
-        dontClearRowSelections = dontClearRowSelections === true;
-        if (!dontClearRowSelections) {
+    clearMostRecentSelection: function(keepRowSelections) {
+        if (!keepRowSelections) {
             this.setAllRowsSelected(false);
         }
         if (this.selections.length) { --this.selections.length; }
@@ -307,13 +306,12 @@ SelectionModel.prototype = {
      * @desc empty out all our state
      *
      */
-    clear: function(dontClearRowSelections) {
-        dontClearRowSelections = dontClearRowSelections === true;
+    clear: function(keepRowSelections) {
         this.selections.length = 0;
         this.flattenedX.length = 0;
         this.flattenedY.length = 0;
         this.columnSelectionModel.clear();
-        if (!dontClearRowSelections) {
+        if (!keepRowSelections) {
             this.setAllRowsSelected(false);
             this.rowSelectionModel.clear();
         }
@@ -483,13 +481,12 @@ SelectionModel.prototype = {
      * @memberOf SelectionModel.prototype
      * @param offset
      */
-    selectRowsFromCells: function(offset, dontClearRowSelections) {
+    selectRowsFromCells: function(offset, keepRowSelections) {
         offset = offset || 0;
-        dontClearRowSelections = dontClearRowSelections === true;
 
         var sm = this.rowSelectionModel;
 
-        if (!dontClearRowSelections) {
+        if (!keepRowSelections) {
             this.setAllRowsSelected(false);
             sm.clear();
         }

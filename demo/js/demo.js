@@ -921,8 +921,9 @@ window.onload = function() {
                                 case 'radio':
                                 case 'checkbox':
                                 case undefined:
-                                    var id = ctrl.name, polarity = (id[0] === '!');
-                                    document.getElementById(id.substr(polarity)).checked = getProperty(id) ^ polarity;
+                                    var id = ctrl.name,
+                                        polarity = (id[0] === '!');
+                                    document.getElementById(id).checked = getProperty(id) ^ polarity;
                             }
                     }
                 }
