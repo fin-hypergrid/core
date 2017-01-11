@@ -1,6 +1,4 @@
 .DS_Store
-/css/index.js
-/html/index.js
 /.idea
 /doc
 /node_modules*
@@ -8,5 +6,3 @@
 /images/images.js
 ~*.*x
 /v?.*
-add-ons/dialog-ui/css/index.js
-
