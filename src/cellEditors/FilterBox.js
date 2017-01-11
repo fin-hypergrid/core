@@ -158,7 +158,11 @@ var FilterBox = ComboBox.extend('FilterBox', {
             !CellEditor.prototype.keyup.call(this, event) &&
             this.grid.properties.filteringMode === 'immediate'
         ) {
-            this.saveEditorValue(this.getEditorValue());
+            try {
+                this.saveEditorValue(this.getEditorValue());
+            } catch (err) {
+                // ignore syntax errors in immediate mode
+            }
         }
     },
 
