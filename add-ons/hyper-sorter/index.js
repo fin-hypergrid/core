@@ -12,7 +12,7 @@ function Hypersorter(grid, targets) {
         DESC: '\u25bc' // DOWNWARDS_BLACK_ARROW, aka '▼'
     });
 
-    grid.addEventListener('fin-column-sort', function(c, keys){
+    grid.addEventListener('fin-column-sort', true, function(c, keys){
         grid.toggleSort(c, keys);
     });
 }

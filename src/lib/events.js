@@ -11,17 +11,22 @@ module.exports = {
     /**
      * @summary Add an event listener to me.
      * @param {string} eventName - The type of event we are interested in.
-     * @param {function} listener - The event handler.
      * @param {boolean} [internal=false] - Internal listeners can be removed as usual by {@link Hypergrid#removeEventListener|grid.removeEventListener}. However, they are ignored by {@link Hypergrid#removeAllEventListeners|grid.removeAllEventListeners} (called on {@link Hypergrid#reset|reset}).
+     * @param {function} listener - The event handler.
      * @memberOf Hypergrid#
      */
-    addEventListener: function(eventName, listener, internal) {
+    addEventListener: function(eventName, internal, listener) {
+        if (arguments.length === 2) {
+            listener = internal;
+            internal = false;
+        }
+
         var self = this,
             listeners = this.listeners[eventName] = this.listeners[eventName] || [],
-            info = listeners.find(function(info) { return info.listener === listener; });
+            alreadyAttached = listeners.find(function(info) { return info.listener === listener; });
 
-        if (!info) {
-            info = {
+        if (!alreadyAttached) {
+            var info = {
                 internal: internal,
                 listener: listener,
                 decorator: function(e) {
@@ -341,12 +346,12 @@ module.exports = {
             }
         }
 
-        this.addEventListener('fin-canvas-resized', function(e) {
+        this.addEventListener('fin-canvas-resized', true, function(e) {
             self.resized();
             self.fireSyntheticGridResizedEvent(e);
         });
 
-        this.addEventListener('fin-canvas-mousemove', function(e) {
+        this.addEventListener('fin-canvas-mousemove', true, function(e) {
             if (self.properties.readOnly) {
                 return;
             }
@@ -356,7 +361,7 @@ module.exports = {
             });
         });
 
-        this.addEventListener('fin-canvas-mousedown', function(e) {
+        this.addEventListener('fin-canvas-mousedown', true, function(e) {
             if (self.properties.readOnly) {
                 return;
             }
@@ -374,7 +379,7 @@ module.exports = {
             });
         });
 
-        this.addEventListener('fin-canvas-click', function(e) {
+        this.addEventListener('fin-canvas-click', true, function(e) {
             if (self.properties.readOnly) {
                 return;
             }
@@ -385,7 +390,7 @@ module.exports = {
             });
         });
 
-        this.addEventListener('fin-canvas-mouseup', function(e) {
+        this.addEventListener('fin-canvas-mouseup', true, function(e) {
             if (self.properties.readOnly) {
                 return;
             }
@@ -406,7 +411,7 @@ module.exports = {
             });
         });
 
-        this.addEventListener('fin-canvas-dblclick', function(e) {
+        this.addEventListener('fin-canvas-dblclick', true, function(e) {
             if (self.properties.readOnly) {
                 return;
             }
@@ -416,7 +421,7 @@ module.exports = {
             });
         });
 
-        this.addEventListener('fin-canvas-drag', function(e) {
+        this.addEventListener('fin-canvas-drag', true, function(e) {
             if (self.properties.readOnly) {
                 return;
             }
@@ -424,7 +429,7 @@ module.exports = {
             handleMouseEvent(e, self.delegateMouseDrag);
         });
 
-        this.addEventListener('fin-canvas-keydown', function(e) {
+        this.addEventListener('fin-canvas-keydown', true, function(e) {
             if (self.properties.readOnly) {
                 return;
             }
@@ -432,7 +437,7 @@ module.exports = {
             self.delegateKeyDown(e);
         });
 
-        this.addEventListener('fin-canvas-keyup', function(e) {
+        this.addEventListener('fin-canvas-keyup', true, function(e) {
             if (self.properties.readOnly) {
                 return;
             }
@@ -440,18 +445,18 @@ module.exports = {
             self.delegateKeyUp(e);
         });
 
-        this.addEventListener('fin-canvas-wheelmoved', function(e) {
+        this.addEventListener('fin-canvas-wheelmoved', true, function(e) {
             handleMouseEvent(e, self.delegateWheelMoved);
         });
 
-        this.addEventListener('fin-canvas-mouseout', function(e) {
+        this.addEventListener('fin-canvas-mouseout', true, function(e) {
             if (self.properties.readOnly) {
                 return;
             }
             handleMouseEvent(e, self.delegateMouseExit);
         });
 
-        this.addEventListener('fin-canvas-context-menu', function(e) {
+        this.addEventListener('fin-canvas-context-menu', true, function(e) {
             handleMouseEvent(e, function(mouseEvent){
                 self.delegateContextMenu(mouseEvent);
                 self.fireSyntheticContextMenuEvent(mouseEvent);
