@@ -97,6 +97,7 @@ var ComboBox = Textfield.extend('ComboBox', {
         }
     ],
 
+    // Quick Note. Fn called on init and when reposition editor for a cell still visible after scrolling
     showEditor: function() {
         var menuModesSource = this.menuModesSource,
             menuModes = this.menuModes = {};
@@ -126,7 +127,10 @@ var ComboBox = Textfield.extend('ComboBox', {
                 }
                 toggle.textContent = mode.symbol;
             }
-            this.controls.appendChild(toggle);
+
+            if (this.controls.childNodes.length < this.modes.length) {
+                this.controls.appendChild(toggle);
+            }
 
             // create and label a new optgroup
             if (mode.selector) {
@@ -138,8 +142,7 @@ var ComboBox = Textfield.extend('ComboBox', {
             }
 
             setModeIconAndOptgroup.call(this, toggle, mode.name, menuModes[mode.name]);
-        }.bind(this));
-
+        }, this);
         prototype.showEditor.call(this);
     },
 
