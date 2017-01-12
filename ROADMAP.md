@@ -1,3 +1,5 @@
+
+
 ## Future development
 
 * Eventing for triggering remote data transformations will be supported
@@ -13,12 +15,36 @@
 ## User Requested
 
 ### Features
-- autopersist layouts
-- visual queue for nested sort
-- add ink effects
-- mobile support
 - Serializable Filtering and Sorting State
+- Configurable mouse wheel scrolling sensitivity 
+- Complete API get/set State
+- Consume Native CSS Styling
+- Remove Filter Cell from core and provide example
+- Remove Column Picker from core and provide example
+- Autopersist layouts
+- Visual queue for nested sort
+- Add ink effects
+- Mobile support
 - Browserstack integration
+
+### Wiki Documentation
+- Context Menu Example
+- Pull Filters
+- Split out Add-ons and Demos
+- Selection Model
+- Merge Cells
+- Hierarchical rows/columns
+- Localization & Formatter
+- Scroll bars
+- Freezing Columns
+- Columns Object
+- Calculated Columns
+- Rendering strategies 
+- Handle Extra Space
+- Hidden Column Rows
+- Show/Hide Group Area Property
+- Serialized State Format and Usage
+-  Column Oriented DataSource
 
 If you would like to work on on these ideas or suggest your own, feel free to browse through our [githuib issues](https://github.com/openfin/fin-hypergrid/issues)
 and read our [contributing guide](./CONTRIBUTING.md).
