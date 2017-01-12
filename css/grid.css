@@ -9,6 +9,14 @@
     right: 0;
     bottom: 0;
 }
+.hypergrid-container > div:first-child > div.info {
+    position: absolute;
+    display: none; /* initially hidden */
+    margin-top: 100px; /* to place below headers */
+    font-size: 40pt;
+    text-align: center;
+    top: 0; right: 0; bottom: 0; left: 0;
+}
 .hypergrid-textfield {
     position: absolute;
     font-size: 12px;

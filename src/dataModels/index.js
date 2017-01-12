@@ -5,8 +5,7 @@ var dataModels = {
     JSON: require('./JSON'),
     HeaderSubgrid: require('./HeaderSubgrid'),
     FilterSubgrid: require('./FilterSubgrid'),
-    SummarySubgrid: require('./SummarySubgrid'),
-    InfoSubgrid: require('./InfoSubgrid')
+    SummarySubgrid: require('./SummarySubgrid')
 };
 
 module.exports = dataModels;
