@@ -30,19 +30,6 @@ var dynamicProperties = Object.create(defaults, {
     /**
      * @memberOf module:dynamicProperties
      */
-    noDataMessage: {
-        get: function() {
-            return this.var.noDataMessage;
-        },
-        set: function(message) {
-            this.var.noDataMessage = message;
-            this.grid.canvas.infoDiv.innerHTML = message;
-        }
-    },
-
-    /**
-     * @memberOf module:dynamicProperties
-     */
     columnIndexes: {
         get: function() {
             return this.grid.behavior.columns.map(function(column) { return column.index; });
