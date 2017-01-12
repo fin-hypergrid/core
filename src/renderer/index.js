@@ -1188,6 +1188,14 @@ var Renderer = Base.extend('Renderer', {
 
     setBounds: function(bounds) {
         return (this.bounds = bounds);
+    },
+
+    setInfo: function(message) {
+        var width;
+        if (this.visibleColumns.length) {
+            width = this.visibleColumns[this.visibleColumns.length - 1].right;
+        }
+        this.grid.canvas.setInfo(message, width);
     }
 });
 

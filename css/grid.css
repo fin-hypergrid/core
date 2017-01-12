@@ -12,8 +12,11 @@
 .hypergrid-container > div:first-child > div.info {
     position: absolute;
     display: none; /* initially hidden */
-    margin-top: 100px; /* to place below headers */
-    font-size: 40pt;
+    margin-top: 150px; /* to place below headers */
+    color: #eee;
+    text-shadow: 1px 1px #ccc;
+    font-size: 36pt;
+    font-weight: bold;
     text-align: center;
     top: 0; right: 0; bottom: 0; left: 0;
 }

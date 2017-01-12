@@ -92,17 +92,7 @@ module.exports = {
         });
 
         return result;
-    },
-
-    setInfo: function(messages) {
-        if (this.subgrids.lookup.info) {
-            this.subgrids.lookup.info.setData(
-                messages instanceof Array ? messages : [messages],
-                this.dataModel.schema
-            );
-            this.grid.behavior.changed();
-        }
-    },
+    }
 };
 
 /**

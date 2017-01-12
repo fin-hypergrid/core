@@ -594,6 +594,25 @@ Canvas.prototype = {
 
     dispatchEvent: function(e) {
         return this.canvas.dispatchEvent(e);
+    },
+
+    setInfo: function(message, width) {
+        if (message) {
+            if (width !== undefined) {
+                if (width && !isNaN(Number(width))) {
+                    width += 'px';
+                }
+                this.infoDiv.style.width = width;
+            }
+
+            if (message.indexOf('<')) {
+                this.infoDiv.innerHTML = message;
+            } else {
+                this.infoDiv.innerText = message;
+            }
+        }
+
+        this.infoDiv.style.display = message ? 'block' : 'none';
     }
 };
 
