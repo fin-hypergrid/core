@@ -15,7 +15,8 @@ var defaults = {
     mixIn: require('overrider').mixIn,
 
     /**
-     * The font for data cells.
+     * The default message to display in front of the canvas when there are no grid rows.
+     * Format is HTML.
      * @default
      * @type {string}
      * @memberOf module:defaults

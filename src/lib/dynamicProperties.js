@@ -36,7 +36,7 @@ var dynamicProperties = Object.create(defaults, {
         },
         set: function(message) {
             this.var.noDataMessage = message;
-            this.grid.setInfo(message);
+            this.grid.canvas.infoDiv.innerHTML = message;
         }
     },
 

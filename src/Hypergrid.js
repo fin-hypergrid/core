@@ -752,11 +752,8 @@ var Hypergrid = Base.extend('Hypergrid', {
         this.setBehavior({
             pipeline: this.options.pipeline
         });
-
         this.behavior.setData(dataRows, options);
-
-        this.setInfo(this.properties.noDataMessage);
-
+        this.canvas.infoDiv.style.display = dataRows.length ? 'none' : 'block';
         this.behavior.changed();
     },
 
