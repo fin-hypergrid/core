@@ -27,7 +27,6 @@ module.exports = {
         dataModels.HeaderSubgrid,
         dataModels.FilterSubgrid,
         [dataModels.SummarySubgrid, { name: 'topTotals' }],
-        dataModels.InfoSubgrid,
         'data',
         [dataModels.SummarySubgrid, { name: 'bottomTotals' }]
     ],

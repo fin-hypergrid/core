@@ -25,11 +25,18 @@ var RESIZE_POLLING_INTERVAL = 200,
 function Canvas(div, component) {
     var self = this;
 
+    // create the containing <div>...</div>
     this.div = div;
     this.component = component;
 
     this.dragEndtime = Date.now();
 
+    // create and append the info <div>...</div> (to be displayed when there are no data rows)
+    this.infoDiv = document.createElement('div');
+    this.infoDiv.className = 'info';
+    this.div.appendChild(this.infoDiv);
+
+    // create and append the canvas
     this.gc = getCachedContext(this.canvas = document.createElement('canvas'));
     this.bc = getCachedContext(this.buffer = document.createElement('canvas'));
 
