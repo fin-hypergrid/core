@@ -14,7 +14,7 @@ function DialogUI(grid, targets) {
     mixInTo('Hypergrid', grid, require('./mix-ins/grid'));
     mixInTo('Behavior', grid.behavior, require('./mix-ins/behavior'));
 
-    this.grid.addEventListener('fin-external-ui-on', function(keys){
+    this.grid.addEventListener('fin-external-ui-on', true, function(keys){
         grid.toggleDialog('ColumnPicker');
     });
 
