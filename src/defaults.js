@@ -901,8 +901,12 @@ var defaults = {
     editOnKeydown: true,
 
     /**
-     * Grid-level property.
-     * When user navigates away from a cell editor (by pressing a nav key as defined in {@link module:defaults.navKeyMap}), open the cell editor of the destination cell.
+     * @summary Open cell editor when cell selected via keyboard navigation.
+     * @desc Keyboard navigation always includes:
+     * 1. The four arrow keys -- but only when there is no active text cell editor open
+     * 2. Additional keys mapped to the four directs in {@link module:defaults.navKeyMap}
+     *
+     * Generally set at the grid level. If set at the column (or cell) level, note that the property pertains to the cell navigated _to,_ not the cell navigated _away from._
      * @default
      * @type {boolean}
      * @memberOf module:defaults
