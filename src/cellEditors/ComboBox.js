@@ -252,7 +252,7 @@ function slideDown() {
     this.options.style.visibility = 'visible';
     var dropDownTopMargin = getFloat(this.dropdown, 'marginTop'),
         dropDownRows = this.dropdown.size,
-        optionHeight = Math.ceil((this.dropdown.length ? getFloat(this.dropdown[0], 'height') : 13.1875) * 2) / 2 + 1;
+        optionHeight = Math.ceil((this.dropdown.length && getFloat(this.dropdown[0], 'height') || 13.1875) * 2) / 2 + 1;
     this.options.style.height = dropDownTopMargin + optionHeight * dropDownRows + 'px'; // starts the slide down effect
 
     // while in drop-down, listen for clicks in text box which means abprt
