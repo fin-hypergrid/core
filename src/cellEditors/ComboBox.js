@@ -97,52 +97,54 @@ var ComboBox = Textfield.extend('ComboBox', {
         }
     ],
 
-    // Quick Note. Fn called on init and when reposition editor for a cell still visible after scrolling
     showEditor: function() {
-        var menuModesSource = this.menuModesSource,
-            menuModes = this.menuModes = {};
+        // set the initial state of the mode toggles
+        if (!this.built) {
+            var menuModesSource = this.menuModesSource,
+                menuModes = this.menuModes = {};
 
-        // build the proxy
-        this.modes.forEach(function(mode) {
-            var modeName = mode.name;
-            if (modeName in menuModesSource) {
-                menuModes[modeName] = menuModesSource[modeName];
+            // build the proxy
+            this.modes.forEach(function(mode) {
+                var modeName = mode.name;
+                if (modeName in menuModesSource) {
+                    menuModes[modeName] = menuModesSource[modeName];
+                }
+            });
+
+            // wire-ups
+            if (this.controllable) {
+                this.controls.addEventListener('click', onModeIconClick.bind(this));
             }
-        });
 
-        // wire-ups
-        if (this.controllable) {
-            this.controls.addEventListener('click', onModeIconClick.bind(this));
+            this.modes.forEach(function(mode) {
+                // create a toggle
+                var toggle = document.createElement('span');
+                if (this.controllable) {
+                    toggle.className = TOGGLE_MODE_PREFIX + mode.name;
+                    toggle.title = 'Toggle ' + (mode.label || mode.name).toLowerCase();
+                    if (mode.tooltip) {
+                        toggle.title += '\n' + mode.tooltip;
+                    }
+                    toggle.textContent = mode.symbol;
+                }
+
+                this.controls.appendChild(toggle);
+
+                // create and label a new optgroup
+                if (mode.selector) {
+                    var optgroup = document.createElement('optgroup');
+                    optgroup.label = mode.label;
+                    optgroup.className = 'submenu-' + mode.name;
+                    optgroup.style.backgroundColor = mode.backgroundColor;
+                    this.dropdown.add(optgroup);
+                }
+
+                setModeIconAndOptgroup.call(this, toggle, mode.name, menuModes[mode.name]);
+            }, this);
+
+            this.built = true;
         }
 
-        // set the initial state of the mode toggles
-        this.modes.forEach(function(mode) {
-            // create a toggle
-            var toggle = document.createElement('span');
-            if (this.controllable) {
-                toggle.className = TOGGLE_MODE_PREFIX + mode.name;
-                toggle.title = 'Toggle ' + (mode.label || mode.name).toLowerCase();
-                if (mode.tooltip) {
-                    toggle.title += '\n' + mode.tooltip;
-                }
-                toggle.textContent = mode.symbol;
-            }
-
-            if (this.controls.childNodes.length < this.modes.length) {
-                this.controls.appendChild(toggle);
-            }
-
-            // create and label a new optgroup
-            if (mode.selector) {
-                var optgroup = document.createElement('optgroup');
-                optgroup.label = mode.label;
-                optgroup.className = 'submenu-' + mode.name;
-                optgroup.style.backgroundColor = mode.backgroundColor;
-                this.dropdown.add(optgroup);
-            }
-
-            setModeIconAndOptgroup.call(this, toggle, mode.name, menuModes[mode.name]);
-        }, this);
         prototype.showEditor.call(this);
     },
 
@@ -189,7 +191,8 @@ function onModeIconClick(e) {
 function setModeIconAndOptgroup(ctrl, name, state) {
     var style, optgroup, sum, display,
         dropdown = this.dropdown,
-        mode = this.modes.find(function(mode) { return mode.name === name; }); // eslint-disable-line no-shadow
+        mode = this.modes.find(function(mode) { return mode.name === name; }), // eslint-disable-line no-shadow
+        selector = mode.selector;
 
     // set icon state (color)
     ctrl.classList.toggle('active', !!state);
@@ -201,8 +204,8 @@ function setModeIconAndOptgroup(ctrl, name, state) {
         style.cursor = 'progress';
         setTimeout(function() { style.cursor = null; }, 333);
 
-        if (mode.selector) {
-            optgroup = dropdown.querySelector(mode.selector);
+        if (selector) {
+            optgroup = dropdown.querySelector(selector);
             sum = mode.appendOptions.call(this, optgroup);
 
             // update sum
@@ -221,7 +224,6 @@ function setModeIconAndOptgroup(ctrl, name, state) {
     }
 
     // hide/show the group
-    var selector = mode.selector;
     if (!selector) {
         selector = 'option,optgroup:not([class])';
         var mustBeChildren = true; // work-around for ':scope>option,...' not avail in IE11
