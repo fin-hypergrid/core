@@ -107,10 +107,10 @@ var CellSelection = Feature.extend('CellSelection', {
         if (handler) {
             handler.call(this, grid, detail);
 
-            // STEP 2: Open the cell editor if `editOnNextCell`, `editable` and `editor` props are all set
-            if (detail.editor && grid.properties.editOnNextCell) {
-                cellEvent = grid.getGridCellFromLastSelection();
-                grid.editAt(cellEvent);
+            // STEP 2: Open the cell editor at the new position if it has `editOnNextCell` and is `editable`
+            cellEvent = grid.getGridCellFromLastSelection(); // new cell
+            if (cellEvent.properties.editOnNextCell) {
+                grid.editAt(cellEvent); // succeeds only if `editable`
             }
 
             // STEP 3: If editor not opened on new cell, take focus
