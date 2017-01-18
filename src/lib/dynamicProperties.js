@@ -32,7 +32,7 @@ var dynamicProperties = Object.create(defaults, {
      */
     columnIndexes: {
         get: function() {
-            return this.grid.behavior.columns.map(function(column) { return column.index; });
+            return this.grid.behavior.getActiveColumns().map(function(column) { return column.index; });
         },
         set: function(columnIndexes) {
             this.grid.behavior.setColumnOrder(columnIndexes);

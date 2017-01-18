@@ -478,13 +478,6 @@ var defaults = {
     useHiDPI: true,
 
     /**
-     * @default ['esc']
-     * @type {string[]}
-     * @memberOf module:defaults
-     */
-    editorActivationKeys: ['esc'], // ['alt', 'esc'],
-
-    /**
      * @summary Mappings for cell navigation keys.
      * @desc Cell navigation is handled in the {@link CellSelection} "feature". This property gives you control over which keypresses the built-in mechanism will respond to.
      *

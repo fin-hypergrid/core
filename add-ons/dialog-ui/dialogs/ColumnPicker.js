@@ -55,7 +55,7 @@ var ColumnPicker = Dialog.extend('ColumnPicker', {
 
             this.activeColumns = {
                 title: 'Active Columns',
-                models: behavior.getActiveColumns()
+                models: grid.getActiveColumns()
             };
 
             this.sortOnHiddenColumns = this.wasSortOnHiddenColumns = true;
@@ -110,7 +110,7 @@ var ColumnPicker = Dialog.extend('ColumnPicker', {
 
     onClosed: function() {
         var behavior = this.grid.behavior,
-            columns = behavior.columns;
+            columns = behavior.getActiveColumns();
 
         if (this.activeColumns) {
             var tree = columns[0];

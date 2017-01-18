@@ -11,11 +11,21 @@ function DialogUI(grid, targets) {
     this.grid = grid;
     targets = targets || {};
 
+    var Hypergrid = this.grid.constructor;
+    Hypergrid.defaults.mixIn(require('./mix-ins/defaults'));
+
     mixInTo('Hypergrid', grid, require('./mix-ins/grid'));
     mixInTo('Behavior', grid.behavior, require('./mix-ins/behavior'));
 
-    this.grid.addEventListener('fin-external-ui-on', true, function(keys){
-        grid.toggleDialog('ColumnPicker');
+    grid.addEventListener('fin-keyup', function(e) {
+        var charPressed = e.detail.char;
+        grid.properties.editorActivationKeys.find(function(activationKey) {
+            var isActivationKey = charPressed === activationKey.toUpperCase();
+            if (isActivationKey) {
+                grid.toggleDialog('ColumnPicker');
+            }
+            return isActivationKey;
+        });
     });
 
     function mixInTo(target, instance, mixin) {
