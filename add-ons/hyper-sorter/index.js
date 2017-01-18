@@ -20,8 +20,8 @@ function Hypersorter(grid, targets) {
 Hypersorter.prototype.name = 'Hypersorter';
 
 Hypersorter.prototype.install = function(targets) {
-    var Hypergrid = Object.getPrototypeOf(this.grid).constructor;
-    Hypergrid.properties.mixIn(require('./mix-ins/defaults'));
+    var Hypergrid = this.grid.constructor;
+    Hypergrid.defaults.mixIn(require('./mix-ins/defaults'));
     Hypergrid.prototype.mixIn(require('./mix-ins/grid'));
     targets = targets || {};
     (targets.Behavior && targets.Behavior.prototype || Object.getPrototypeOf(this.grid.behavior)).mixIn(require('./mix-ins/behavior'));

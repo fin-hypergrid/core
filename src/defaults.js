@@ -134,39 +134,6 @@ var defaults = {
     columnHeaderRenderer: 'SimpleCell',
 
 
-    /********** SECTION: INFO COLORS **********/
-
-    // IMPORTANT CAVEAT: The code is inconsistent regarding the terminology. Is the "column header" section _the row_ of cells at the top (that act as headers for each column) or is it _the column_ of cells (that act as headers for each row)? Oh my.
-
-    /**
-     * @default
-     * @type {cssFont}
-     * @memberOf module:defaults
-     */
-    infoFont: 'bold 32px Tahoma, Geneva, sans-serif',
-
-    /**
-     * @default
-     * @type {cssColor}
-     * @memberOf module:defaults
-     */
-    infoColor: 'rgb(245, 245, 245)',
-
-    /**
-     * @default
-     * @type {cssColor}
-     * @memberOf module:defaults
-     */
-    infoBackgroundColor: 'rgb(224, 224, 224)',
-
-    /**
-     * @default
-     * @type {string}
-     * @memberOf module:defaults
-     */
-    infoHalign: 'center',
-
-
     /********** SECTION: ROW HEADER COLORS **********/
 
     /**
@@ -509,13 +476,6 @@ var defaults = {
      * @memberOf module:defaults
      */
     useHiDPI: true,
-
-    /**
-     * @default ['esc']
-     * @type {string[]}
-     * @memberOf module:defaults
-     */
-    editorActivationKeys: ['esc'], // ['alt', 'esc'],
 
     /**
      * @summary Mappings for cell navigation keys.

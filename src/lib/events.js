@@ -200,15 +200,6 @@ module.exports = {
         return dispatchEvent.call(this, 'fin-keyup', keyEvent.detail);
     },
 
-    /**
-     * @memberOf Hypergrid#
-     * @desc Synthesize and fire a `fin-external-ui-on` event.
-     * @param {keyEvent} event - The canvas event.
-     */
-    fireSyntheticExternalUIActivationEvent: function(keyEvent) {
-        return dispatchEvent.call(this, 'fin-external-ui-on', keyEvent);
-    },
-
     fireSyntheticFilterAppliedEvent: function() {
         return dispatchEvent.call(this, 'fin-filter-applied', {});
     },

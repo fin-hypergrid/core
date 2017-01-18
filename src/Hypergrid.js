@@ -314,7 +314,7 @@ var Hypergrid = Base.extend('Hypergrid', {
         this.removeAllEventListeners();
 
         this.lastEdgeSelection = [0, 0];
-        this.selectionModel = new SelectionModel(this);
+        this.selectionModel.reset();
         this.renderOverridesCache = {};
         this.clearMouseDown();
         this.dragExtent = new Point(0, 0);
@@ -568,9 +568,6 @@ var Hypergrid = Base.extend('Hypergrid', {
      * @param {object} properties - An object of various key value pairs.
      */
     refreshProperties: function() {
-        var state = this.properties;
-        this.selectionModel.multipleSelections = state.multipleSelections;
-
         this.computeCellsBounds();
         this.checkScrollbarVisibility();
         this.behavior.defaultRowHeight = null;
@@ -1258,12 +1255,24 @@ var Hypergrid = Base.extend('Hypergrid', {
         return window.open.apply(window, arguments);
     },
 
-    getColumns: function() {
-        return this.behavior.getColumns();
+    /**
+     * @param {number} [begin]
+     * @param {nubmer} [end]
+     * * @returns {Column[]} A copy of the all columns array by passing the params to `Array.prototype.slice`.
+     */
+    getColumns: function(begin, end) {
+        var columns = this.behavior.getColumns();
+        return columns.slice.apply(columns, arguments);
     },
 
-    getActiveColumns: function() {
-        return this.behavior.getActiveColumns();
+    /**
+     * @param {number} [begin]
+     * @param {nubmer} [end]
+     * * @returns {Column[]} A copy of the active columns array by passing the params to `Array.prototype.slice`.
+     */
+    getActiveColumns: function(begin, end) {
+        var columns = this.behavior.getActiveColumns();
+        return columns.slice.apply(columns, arguments);
     },
 
     getHiddenColumns: function(){

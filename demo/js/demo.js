@@ -206,8 +206,9 @@ window.onload = function() {
         addEventListeners();
     }
 
-    // Preset a default dialog options object. Used by call to toggleDialog('ColumnPicker') from features/ExternalUI.js and by toggleDialog() defined herein.
-    // Dependent on column picker example add-on
+    // Preset a default dialog options object.
+    // Used by call to toggleDialog() defined herein.
+    // Dependent on column picker example add-on.
     grid.setDialogOptions({
         //container: document.getElementById('dialog-container'),
         settings: false
@@ -296,7 +297,7 @@ window.onload = function() {
                 bottomTotals: behavior.getBottomTotals(),
                 data: dataModel.getData(),
                 schema: dataModel.schema,
-                activeColumns: behavior.columns.map(function(column) { return column.index; })
+                activeColumns: behavior.getActiveColumns().map(function(column) { return column.index; })
             };
             //important to set top totals first
             behavior.setTopTotals([]);

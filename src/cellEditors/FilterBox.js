@@ -106,7 +106,9 @@ var FilterBox = ComboBox.extend('FilterBox', {
             symbol: 'A',
             backgroundColor: '#eff',
             appendOptions: function(optgroup) {
-                var columns = window.event.altKey ? this.grid.behavior.allColumns : this.grid.behavior.columns,
+                var columns = window.event.altKey
+                        ? this.grid.behavior.getColumns()
+                        : this.grid.behavior.getActiveColumns(),
                     x = this.event.gridCell.x;
 
                 while (optgroup.firstElementChild) {

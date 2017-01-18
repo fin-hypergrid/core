@@ -6,7 +6,7 @@ var automat = require('automat');
 var markup = require('../html');
 
 var Base = window.fin.Hypergrid.base;
-var images = window.fin.Hypergrid.images;
+
 var elfor = {
     each: function(selector, iteratee, context) {
         return Array.prototype.forEach.call((context || document).querySelectorAll(selector), iteratee);
@@ -54,9 +54,11 @@ var Dialog = Base.extend('Dialog', {
             }
         }
 
-        // add background image
-        if (options.backgroundImage !== false) {
-            this.el.style.backgroundImage = 'url(\'' + (options.backgroundImage || images.dialog.src) + '\')';
+        // set alternative background image
+        if (options.backgroundImage === false) {
+            this.el.style.backgroundImage = null;
+        } else if (options.backgroundImage) {
+            this.el.style.backgroundImage = 'url(\'' + options.backgroundImage + '\')';
         }
 
         // listen for clicks
@@ -74,20 +76,18 @@ var Dialog = Base.extend('Dialog', {
      * @param {...*} [replacements] - See `automat`.
      */
     append: function(nodes, replacements/*...*/) {
-        var el = this.el;
-
         if (typeof nodes === 'string' || typeof nodes === 'function') {
             var args = Array.prototype.slice.call(arguments);
-            args.splice(1, 0, el, this.originalFirstChild);
+            args.splice(1, 0, this.el, this.originalFirstChild);
             automat.append.apply(null, args);
 
         } else if ('length' in nodes) {
             for (var i = 0; i < nodes.length; ++i) {
-                el.insertBefore(nodes[i], this.originalFirstChild);
+                this.el.insertBefore(nodes[i], this.originalFirstChild);
             }
 
         } else {
-            el.insertBefore(nodes, this.originalFirstChild);
+            this.el.insertBefore(nodes, this.originalFirstChild);
         }
     },
 
@@ -142,18 +142,16 @@ var Dialog = Base.extend('Dialog', {
             error = this.onClose();
 
             if (!error) {
-                var el = this.el;
-
                 this.closing = true;
 
                 // unhide all the hypergrids behind the dialog
                 this.appVisible('visible');
 
                 // start a hide transition of dialog revealing grids behind it
-                el.classList.remove('hypergrid-dialog-visible');
+                this.el.classList.remove('hypergrid-dialog-visible');
 
                 // at end of hide transition, remove dialog from the DOM
-                el.addEventListener('transitionend', this.removeDialogBound = removeDialog.bind(this));
+                this.el.addEventListener('transitionend', this.removeDialogBound = removeDialog.bind(this));
             }
         }
 
@@ -178,6 +176,8 @@ function nullPattern() {}
 
 function removeDialog(evt) {
     if (evt.target === this.el && evt.propertyName === 'opacity') {
+        this.el.removeEventListener('transitionend', this.removeDialogBound);
+
         if (this.el.parentElement.tagName !== 'BODY') {
             this.el.parentElement.style.visibility = 'hidden';
         }
@@ -193,8 +193,9 @@ function removeDialog(evt) {
 
 function hideApp(evt) {
     if (evt.target === this.el && evt.propertyName === 'opacity') {
-        this.appVisible('hidden');
         this.el.removeEventListener('transitionend', this.hideAppBound);
+
+        this.appVisible('hidden');
         this.onOpened();
         this.opening = false;
         this.opened = true;
