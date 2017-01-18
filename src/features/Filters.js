@@ -29,7 +29,7 @@ var Filters = Feature.extend('Filters', {
         }
 
         if (handler) {
-            handler(grid, detail);
+            handler.call(this, grid, detail);
         } else if (this.next) {
             this.next.handleKeyDown(grid, event);
         }
@@ -86,7 +86,8 @@ function moveDown(grid, detail) {
         gridX = cellEvent.visibleColumn.columnIndex;
 
     // Select first visible grid cell of this column
-    grid.selectCell(gridX, 0, true);
+    grid.selectViewportCell(gridX, 0);
+    grid.takeFocus();
 }
 
 module.exports = Filters;
