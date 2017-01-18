@@ -213,7 +213,7 @@ var Renderer = Base.extend('Renderer', {
             subrows, // rows in subgrid g
             base, // sum of rows for all subgrids so far
             subgrids = behavior.subgrids,
-            subgrid, infoSubgrid, infoRowCount,
+            subgrid,
             rowIndex,
             scrollableSubgrid,
             footerHeight,
@@ -356,37 +356,6 @@ var Renderer = Base.extend('Renderer', {
         this.viewHeight = Y;
 
         this.dataWindow = this.grid.newRectangle(firstVX, firstVY, lastVX - firstVX, lastVY - firstVY);
-
-        if (C && (infoSubgrid = behavior.subgrids.lookup.info)) {
-            // Create an "info" column that stretches from column 0 to column n
-            this.visibleColumns.info = {
-                index: vc.index,
-                columnIndex: vc.columnIndex,
-                column: vc.column,
-                left: this.visibleColumns[0].left,
-                width: vc.right - this.visibleColumns[0].left,
-                right: vc.right
-            };
-
-            // Pad all info rows equally to fill to bottom of canvas
-            if (infoSubgrid.pad && (infoRowCount = infoSubgrid.getRowCount())) {
-                y = bounds.height - y;
-                if (y > 0) {
-                    Y = Math.floor(y / infoRowCount);
-                    y = y % infoRowCount;
-                    var i = 0, k = 0;
-                    this.visibleRows.forEach(function(vr) {
-                        if (vr.subgrid.isInfo) {
-                            var j = Y + (i++ < y ? 1 : 0);
-                            vr.top += k;
-                            vr.height += j;
-                            vr.bottom += vr.top + vr.height;
-                            k += j;
-                        }
-                    });
-                }
-            }
-        }
 
         // Resize CellEvent pool
         var pool = this.cellEventPool,
@@ -1019,7 +988,6 @@ var Renderer = Base.extend('Renderer', {
 
             isRowHandleOrHierarchyColumn = isHandleColumn || isHierarchyColumn,
             isUserDataArea = !isRowHandleOrHierarchyColumn && isDataRow,
-            isRealData = !subgrid.isInfo, // selectable/hoverable
 
             config = Object.assign(Object.create(cellEvent.columnProperties), cellEvent.cellOwnProperties), // SEE IMPORTANT NOTE ABOVE
             x = (config.gridCell = cellEvent.gridCell).x,
@@ -1046,9 +1014,10 @@ var Renderer = Base.extend('Renderer', {
             format = subgrid.format || config.format; // subgrid format can override column format
             if (isFilterRow) {
                 isSelected = false;
-            } else if (isRealData) {
-                isSelected = isColumnSelected ||
-                    selectionModel.isCellSelectedInColumn(x); // header or summary or other non-meta
+            } else if (isColumnSelected) {
+                isSelected = true;
+            } else {
+                isSelected = selectionModel.isCellSelectedInColumn(x); // header or summary or other non-meta
             }
         }
 
@@ -1074,9 +1043,8 @@ var Renderer = Base.extend('Renderer', {
         config.isDataRow = isDataRow;
         config.isHeaderRow = isHeaderRow;
         config.isFilterRow = isFilterRow;
-        config.isInfoRow = cellEvent.isInfoRow;
         config.isUserDataArea = isUserDataArea;
-        config.isColumnHovered = isRealData && cellEvent.isColumnHovered;
+        config.isColumnHovered = cellEvent.isColumnHovered;
         config.isRowHovered = cellEvent.isRowHovered;
         config.isCellHovered = cellEvent.isCellHovered;
         config.bounds = cellEvent.bounds;
@@ -1122,7 +1090,7 @@ var Renderer = Base.extend('Renderer', {
         cellEvent.snapshot = config.snapshot;
         cellEvent.minWidth = config.minWidth;
 
-        return isRealData ? config.minWidth : 0;
+        return config.minWidth;
     },
 
     /**
