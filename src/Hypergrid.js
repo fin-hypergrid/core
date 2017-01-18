@@ -314,7 +314,7 @@ var Hypergrid = Base.extend('Hypergrid', {
         this.removeAllEventListeners();
 
         this.lastEdgeSelection = [0, 0];
-        this.selectionModel = new SelectionModel(this);
+        this.selectionModel.reset();
         this.renderOverridesCache = {};
         this.clearMouseDown();
         this.dragExtent = new Point(0, 0);
@@ -568,9 +568,6 @@ var Hypergrid = Base.extend('Hypergrid', {
      * @param {object} properties - An object of various key value pairs.
      */
     refreshProperties: function() {
-        var state = this.properties;
-        this.selectionModel.multipleSelections = state.multipleSelections;
-
         this.computeCellsBounds();
         this.checkScrollbarVisibility();
         this.behavior.defaultRowHeight = null;

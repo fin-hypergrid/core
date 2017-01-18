@@ -9,63 +9,8 @@ var RangeSelectionModel = require('sparse-boolean-array');
  */
 
 function SelectionModel(grid) {
-
     this.grid = grid;
-
-    /**
-     * @name multipleSelections
-     * @type {boolean}
-     * @summary Can select multiple cell regions.
-     * @memberOf SelectionModel.prototype
-     */
-    this.multipleSelections = grid.properties.multipleSelections;
-
-    /**
-     * @name selections
-     * @type {Rectangle[]}
-     * @summary The selection rectangles.
-     * @desc Created as an empty array upon instantiation by the {@link SelectionModel|constructor}.
-     * @memberOf SelectionModel.prototype
-     */
-    this.selections = [];
-
-    /**
-     * @name flattenedX
-     * @type {Rectangle[]}
-     * @summary The selection rectangles flattened in the horizontal direction (no width).
-     * @desc Created as an empty array upon instantiation by the {@link SelectionModel|constructor}.
-     * @memberOf SelectionModel.prototype
-     */
-    this.flattenedX = [];
-
-    /**
-     * @name flattenedY
-     * @type {Rectangle[]}
-     * @summary The selection rectangles flattened in the vertical direction (no height).
-     * @desc Created as an empty array upon instantiation by the {@link SelectionModel|constructor}.
-     * @memberOf SelectionModel.prototype
-     */
-    this.flattenedY = [];
-
-    /**
-     * @name rowSelectionModel
-     * @type {RangeSelectionModel}
-     * @summary The selection rectangles.
-     * @desc Created as a new RangeSelectionModel upon instantiation by the {@link SelectionModel|constructor}.
-     * @memberOf SelectionModel.prototype
-     */
-    this.rowSelectionModel = new RangeSelectionModel();
-
-    /**
-     * @name columnSelectionModel
-     * @type {RangeSelectionModel}
-     * @summary The selection rectangles.
-     * @desc Created as a new RangeSelectionModel upon instantiation by the {@link SelectionModel|constructor}.
-     * @memberOf SelectionModel.prototype
-     */
-    this.columnSelectionModel = new RangeSelectionModel();
-
-    this.setLastSelectionType('');
+    this.reset();
 }
 
 SelectionModel.prototype = {
@@ -77,6 +22,55 @@ SelectionModel.prototype = {
      * @memberOf SelectionModel.prototype
      */
     allRowsSelected: false,
+
+    reset: function() {
+        /**
+         * @name selections
+         * @type {Rectangle[]}
+         * @summary The selection rectangles.
+         * @desc Created as an empty array upon instantiation by the {@link SelectionModel|constructor}.
+         * @memberOf SelectionModel.prototype
+         */
+        this.selections = [];
+
+        /**
+         * @name flattenedX
+         * @type {Rectangle[]}
+         * @summary The selection rectangles flattened in the horizontal direction (no width).
+         * @desc Created as an empty array upon instantiation by the {@link SelectionModel|constructor}.
+         * @memberOf SelectionModel.prototype
+         */
+        this.flattenedX = [];
+
+        /**
+         * @name flattenedY
+         * @type {Rectangle[]}
+         * @summary The selection rectangles flattened in the vertical direction (no height).
+         * @desc Created as an empty array upon instantiation by the {@link SelectionModel|constructor}.
+         * @memberOf SelectionModel.prototype
+         */
+        this.flattenedY = [];
+
+        /**
+         * @name rowSelectionModel
+         * @type {RangeSelectionModel}
+         * @summary The selection rectangles.
+         * @desc Created as a new RangeSelectionModel upon instantiation by the {@link SelectionModel|constructor}.
+         * @memberOf SelectionModel.prototype
+         */
+        this.rowSelectionModel = new RangeSelectionModel();
+
+        /**
+         * @name columnSelectionModel
+         * @type {RangeSelectionModel}
+         * @summary The selection rectangles.
+         * @desc Created as a new RangeSelectionModel upon instantiation by the {@link SelectionModel|constructor}.
+         * @memberOf SelectionModel.prototype
+         */
+        this.columnSelectionModel = new RangeSelectionModel();
+
+        this.setLastSelectionType('');
+    },
 
     /**
      * @memberOf SelectionModel.prototype
@@ -127,7 +121,7 @@ SelectionModel.prototype = {
             ? newSelection.corner
             : newSelection.origin;
 
-        if (this.multipleSelections) {
+        if (this.grid.properties.multipleSelections) {
             this.selections.push(newSelection);
             this.flattenedX.push(newSelection.flattenXAt(0));
             this.flattenedY.push(newSelection.flattenYAt(0));
