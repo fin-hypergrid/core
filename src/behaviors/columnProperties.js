@@ -91,10 +91,6 @@ function createColumnProperties() {
         value: Object.create(properties, createColumnProperties.filterDescriptors)
     });
 
-    Object.defineProperty(properties, 'infoProperties', {
-        value: Object.create(properties, createColumnProperties.infoDescriptors)
-    });
-
     return properties;
 }
 
@@ -318,54 +314,6 @@ createColumnProperties.columnHeaderDescriptors = {
     leftIcon: { writable: true, value: undefined},
     centerIcon: { writable: true, value: undefined},
     rightIcon: { writable: true, value: undefined},
-};
-
-createColumnProperties.infoDescriptors = {
-    font: {
-        configurable: true,
-        enumerable: true,
-        get: function() {
-            return this.infoFont;
-        },
-        set: function(value) {
-            this.infoFont = value;
-        }
-    },
-    color: {
-        configurable: true,
-        enumerable: true,
-        get: function() {
-            return this.infoColor;
-        },
-        set: function(value) {
-            this.infoColor = value;
-        }
-    },
-    backgroundColor: {
-        configurable: true,
-        enumerable: true,
-        get: function() {
-            return this.infoBackgroundColor;
-        },
-        set: function(value) {
-            this.infoBackgroundColor = value;
-        }
-    },
-    halign: {
-        configurable: true,
-        enumerable: true,
-        get: function() {
-            return this.infoHalign;
-        },
-        set: function(value) {
-            this.infoHalign = value;
-        }
-    },
-    format: {
-        writable: true,
-        enumerable: true,
-        value: 'info'
-    }
 };
 
 module.exports.createColumnProperties = createColumnProperties;

@@ -42,8 +42,6 @@ var prototype = Object.defineProperties({}, {
                 // cp already set to basic props
             } else if (this.isFilterRow) {
                 cp = cp.filterProperties;
-            } else if (this.isInfoRow) {
-                cp = cp.infoProperties;
             } else { // unselected header, summary, etc., all have save look as unselected header
                 cp = cp.columnHeader;
             }
@@ -205,8 +203,6 @@ var prototype = Object.defineProperties({}, {
     isHandleCell:   { get: function() { return this.isHandleColumn && this.isDataRow; } },
 
     isHierarchyColumn: { get: function() { return this.gridCell.x === 0 && this.grid.properties.showTreeColumn && this.dataModel.isDrillDown(this.dataCell.x); } },
-
-    isInfoRow:      { get: function() { return this.visibleRow.subgrid.isInfo; } },
 
     isHeaderRow:    { get: function() { return this.visibleRow.subgrid.isHeader; } },
     isHeaderHandle: { get: function() { return this.isHeaderRow && this.isHandleColumn; } },
