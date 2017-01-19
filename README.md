@@ -39,6 +39,8 @@ Any questions, please contact us at support@openfin.co or open an [issue](https:
 
 **fin-hypergrid** is an ultra-fast HTML5 grid presentation layer, achieving its speed by rendering (in a canvas tag) only the currently visible portion of your (virtual) grid, thus avoiding the latency and life-cycle issues of building, walking, and maintaining a complex DOM structure. Please be sure to checkout our [architectural overview](https://github.com/openfin/fin-hypergrid/blob/master/OVERVIEW.md) 
 
+Below is an example custom application built ontop of the Hypergrid API. It also highlights an custom external editor which hypergrid can trigger via its events
+
 <img src="images/README/gridshot04.gif">
 
 ### Current Release (1.2.1 - 27 October 2016)
