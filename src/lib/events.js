@@ -10,17 +10,13 @@ module.exports = {
 
     /**
      * @summary Add an event listener to me.
+     * @desc Listeners added by this method should only be removed by {@link Hypergrid#removeEventListener|grid.removeEventListener} (or {@link Hypergrid#removeAllEventListeners|grid.removeAllEventListeners}).
      * @param {string} eventName - The type of event we are interested in.
-     * @param {boolean} [internal=false] - Internal listeners can be removed as usual by {@link Hypergrid#removeEventListener|grid.removeEventListener}. However, they are ignored by {@link Hypergrid#removeAllEventListeners|grid.removeAllEventListeners} (called on {@link Hypergrid#reset|reset}).
      * @param {function} listener - The event handler.
+     * @param {boolean} [internal=false] - Used by {@link Hypergrid#addInternalEventListener|grid.addInternalEventListener} (see).
      * @memberOf Hypergrid#
      */
-    addEventListener: function(eventName, internal, listener) {
-        if (arguments.length === 2) {
-            listener = internal;
-            internal = false;
-        }
-
+    addEventListener: function(eventName, listener, internal) {
         var self = this,
             listeners = this.listeners[eventName] = this.listeners[eventName] || [],
             alreadyAttached = listeners.find(function(info) { return info.listener === listener; });
@@ -40,6 +36,26 @@ module.exports = {
         }
     },
 
+    /**
+     * @summary Add an internal event listener to me.
+     * @desc The new listener is flagged as "internal." Internal listeners are removed as usual by {@link Hypergrid#removeEventListener|grid.removeEventListener}. However, they are ignored by {@link Hypergrid#removeAllEventListeners|grid.removeAllEventListeners()} (as called by {@link Hypergrid#reset|reset}). (But see {@link Hypergrid#removeAllEventListeners|grid.removeAllEventListeners(true)}.)
+     *
+     * Listeners added by this method should only be removed by {@link Hypergrid#removeEventListener|grid.removeEventListener} (or {@link Hypergrid#removeAllEventListeners|grid.removeAllEventListeners(true)}).
+     * @param {string} eventName - The type of event we are interested in.
+     * @param {function} listener - The event handler.
+     * @memberOf Hypergrid#
+     */
+    addInternalEventListener: function(eventName, listener) {
+        this.addEventListener(eventName, listener, true);
+    },
+
+    /**
+     * @summary Remove an event listeners.
+     * @desc Removes the event listener with matching name and function that was added by {@link Hypergrid#addEventListener|grid.addEventListener}.
+     *
+     * NOTE: This method cannot remove event listeners added by other means.
+     * @memberOf Hypergrid#
+     */
     removeEventListener: function(eventName, listener) {
         var listenerList = this.listeners[eventName];
 
@@ -54,10 +70,16 @@ module.exports = {
         }
     },
 
-    removeAllEventListeners: function() {
+    /**
+     * @summary Remove all event listeners.
+     * @desc Removes all event listeners added with {@link Hypergrid#addEventListener|grid.addEventListener} except those added as "internal."
+     * @param {boolean} [internal=false] - Include internal listeners.
+     * @memberOf Hypergrid#
+     */
+    removeAllEventListeners: function(internal) {
         _(this.listeners).each(function(listenerList, key) {
             listenerList.forEach(function(info) {
-                if (!info.internal) {
+                if (internal || !info.internal) {
                     this.removeEventListener(key, info.listener);
                 }
             }, this);
@@ -337,12 +359,12 @@ module.exports = {
             }
         }
 
-        this.addEventListener('fin-canvas-resized', true, function(e) {
+        this.addInternalEventListener('fin-canvas-resized', function(e) {
             self.resized();
             self.fireSyntheticGridResizedEvent(e);
         });
 
-        this.addEventListener('fin-canvas-mousemove', true, function(e) {
+        this.addInternalEventListener('fin-canvas-mousemove', function(e) {
             if (self.properties.readOnly) {
                 return;
             }
@@ -352,7 +374,7 @@ module.exports = {
             });
         });
 
-        this.addEventListener('fin-canvas-mousedown', true, function(e) {
+        this.addInternalEventListener('fin-canvas-mousedown', function(e) {
             if (self.properties.readOnly) {
                 return;
             }
@@ -370,7 +392,7 @@ module.exports = {
             });
         });
 
-        this.addEventListener('fin-canvas-click', true, function(e) {
+        this.addInternalEventListener('fin-canvas-click', function(e) {
             if (self.properties.readOnly) {
                 return;
             }
@@ -381,7 +403,7 @@ module.exports = {
             });
         });
 
-        this.addEventListener('fin-canvas-mouseup', true, function(e) {
+        this.addInternalEventListener('fin-canvas-mouseup', function(e) {
             if (self.properties.readOnly) {
                 return;
             }
@@ -402,7 +424,7 @@ module.exports = {
             });
         });
 
-        this.addEventListener('fin-canvas-dblclick', true, function(e) {
+        this.addInternalEventListener('fin-canvas-dblclick', function(e) {
             if (self.properties.readOnly) {
                 return;
             }
@@ -412,7 +434,7 @@ module.exports = {
             });
         });
 
-        this.addEventListener('fin-canvas-drag', true, function(e) {
+        this.addInternalEventListener('fin-canvas-drag', function(e) {
             if (self.properties.readOnly) {
                 return;
             }
@@ -420,7 +442,7 @@ module.exports = {
             handleMouseEvent(e, self.delegateMouseDrag);
         });
 
-        this.addEventListener('fin-canvas-keydown', true, function(e) {
+        this.addInternalEventListener('fin-canvas-keydown', function(e) {
             if (self.properties.readOnly) {
                 return;
             }
@@ -428,7 +450,7 @@ module.exports = {
             self.delegateKeyDown(e);
         });
 
-        this.addEventListener('fin-canvas-keyup', true, function(e) {
+        this.addInternalEventListener('fin-canvas-keyup', function(e) {
             if (self.properties.readOnly) {
                 return;
             }
@@ -436,18 +458,18 @@ module.exports = {
             self.delegateKeyUp(e);
         });
 
-        this.addEventListener('fin-canvas-wheelmoved', true, function(e) {
+        this.addInternalEventListener('fin-canvas-wheelmoved', function(e) {
             handleMouseEvent(e, self.delegateWheelMoved);
         });
 
-        this.addEventListener('fin-canvas-mouseout', true, function(e) {
+        this.addInternalEventListener('fin-canvas-mouseout', function(e) {
             if (self.properties.readOnly) {
                 return;
             }
             handleMouseEvent(e, self.delegateMouseExit);
         });
 
-        this.addEventListener('fin-canvas-context-menu', true, function(e) {
+        this.addInternalEventListener('fin-canvas-context-menu', function(e) {
             handleMouseEvent(e, function(mouseEvent){
                 self.delegateContextMenu(mouseEvent);
                 self.fireSyntheticContextMenuEvent(mouseEvent);
