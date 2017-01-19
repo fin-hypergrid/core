@@ -17,7 +17,7 @@ function DialogUI(grid, targets) {
     mixInTo('Hypergrid', grid, require('./mix-ins/grid'));
     mixInTo('Behavior', grid.behavior, require('./mix-ins/behavior'));
 
-    grid.addEventListener('fin-keyup', function(e) {
+    grid.addInternalEventListener('fin-keyup', function(e) {
         var charPressed = e.detail.char;
         grid.properties.editorActivationKeys.find(function(activationKey) {
             var isActivationKey = charPressed === activationKey.toUpperCase();
