@@ -1,45 +1,8 @@
-##ALPHA BRANCH ANNOUNCEMENT
-We've created an Alpha Branch for the Hypergrid OpenSource project. 
-
-###MOTIVATION
-   * Intended to be used by contributors and consumers for testing Features/Fixes prior to being merged to Master branch
-   * An environment for Sprint cycle efforts to be merged into for viewing/consumption
-   * Alleviate integration and regression issues resulting from development efforts (code commits)
-   * Create a more systematic software development process
-
-###ALPHA 
-
-####STEP 1 - GET IT AND INSTALL
-A) Download or Clone branch from https://github.com/openfin/fin-hypergrid/tree/alpha
-         Note: Alpha builds are subject to incremental changes. We will announce when this happens.
-
-     > npm install       
-
-  OR
-      
-B) NPM
- Point your package.json to:
-
-     > "fin-hypergrid": "git@github.com:openfin/fin-hypergrid.git#alpha"
-
-  OR
-     
- Via npm install
-   
-    > npm install git+https://github.com/openfin/fin-hypergrid.git#alpha
-
-For more info see the [npm docs](https://docs.npmjs.com/files/package.json#git-urls-as-dependencies)
-####STEP 2 - TEST IT
-        Validate it works.
-
-Any questions, please contact us at support@openfin.co or open an [issue](https://github.com/openfin/fin-hypergrid/issues).
-
-
 [![Build Status](https://travis-ci.org/openfin/fin-hypergrid.svg?branch=develop)](https://travis-ci.org/openfin/fin-hypergrid)
 
 **fin-hypergrid** is an ultra-fast HTML5 grid presentation layer, achieving its speed by rendering (in a canvas tag) only the currently visible portion of your (virtual) grid, thus avoiding the latency and life-cycle issues of building, walking, and maintaining a complex DOM structure. Please be sure to checkout our [architectural overview](https://github.com/openfin/fin-hypergrid/blob/master/OVERVIEW.md) 
 
-Below is an example custom application built ontop of the Hypergrid API. It also highlights an custom external editor which hypergrid can trigger via its events
+Below is an example custom application built ontop of the Hypergrid API tooling. It also highlights an DOM based custom external editor triggered via hypergrid events interaction with Hypergrid's column ordering API
 
 <img src="images/README/gridshot04.gif">
 
@@ -68,6 +31,14 @@ Check out the Table view on Hyperblotter on a Windows machine via [this installe
 ### Features
 
 ![](https://github.com/openfin/fin-hypergrid/blob/master/images/README/Hypergrid%20Features.png)
+
+### Testing
+
+Please use github [issues](https://github.com/openfin/fin-hypergrid/issues) or support.openfin.co to report problems
+
+We invite everyone to test the alpha branch for changes going into the next release
+
+Find more infomation on our [testing page](https://github.com/openfin/fin-hypergrid/blob/master/TESTING.md)
 
 ### Developer Documentation
 
