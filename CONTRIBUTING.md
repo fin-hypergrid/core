@@ -8,6 +8,8 @@ We have several beginner help wanted [tickets](https://github.com/openfin/fin-hy
 
 ## HyperGrid Core vs UserLand
 
+* Please see our [architectural overview](https://github.com/openfin/fin-hypergrid/blob/master/OVERVIEW.md)
+
 ## Getting Started
 
 * Create a [GitHub account](https://github.com/signup/free)
