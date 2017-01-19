@@ -715,10 +715,10 @@ var JSON = DataModel.extend('dataModels.JSON', {
         return newDataRow;
     },
 
-    get schema() { return this.source.schema; },
+    get schema() { return this.dataSource.schema; },
 
     set schema(schema) {
-        this.source.setSchema(schema);
+        this.dataSource.setSchema(schema);
     }
 });
 

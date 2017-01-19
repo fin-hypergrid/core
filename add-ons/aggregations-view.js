@@ -104,8 +104,12 @@ AggregationsView.prototype.setAggregateGroups = function(aggregations, groups) {
     if (aggregated) {
         dataSource.setAggregateGroups(aggregations, groups);
         behavior.reindex(); // rows have changed
+        behavior.setTopTotals(behavior.dataModel.dataSource.getGrandTotals());
+        behavior.setBottomTotals(behavior.dataModel.dataSource.getGrandTotals());
     } else {
         dataSource.setAggregateGroups({}, []);
+        behavior.setTopTotals([]);
+        behavior.setBottomTotals([]);
     }
 
     behavior.createColumns(); // columns changed
