@@ -6,6 +6,14 @@ Below is an example custom application built ontop of the Hypergrid API tooling.
 
 <img src="images/README/gridshot04.gif">
 
+## Table of Contents
+* [Current Release](https://github.com/openfin/fin-hypergrid#current-release-121---27-october-2016)
+* [Demos](https://github.com/openfin/fin-hypergrid/blob/master/README.md#demos)
+* [Features](https://github.com/openfin/fin-hypergrid/blob/master/README.md#features)
+* [Testing](https://github.com/openfin/fin-hypergrid/blob/master/README.md#testing)
+* [Documentation](https://github.com/openfin/fin-hypergrid/blob/master/README.md##developer-documentation)
+* [Contributing](https://github.com/openfin/fin-hypergrid/blob/master/README.md#contributing)
+
 ### Current Release (1.2.1 - 27 October 2016)
 
 The current version 1.0 replaces last year's [prototype version](https://github.com/openfin/fin-hypergrid/tree/polymer-prototype), which was built around Polymer. It is now completely "de-polymerized" and is being made available as:
