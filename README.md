@@ -67,9 +67,9 @@ Check out the Table view on Hyperblotter on a Windows machine via [this installe
 
 ![](https://github.com/openfin/fin-hypergrid/blob/master/images/README/Hypergrid%20Features.png)
 
-### Developer Tutorial && Documentation
+### Developer Documentation
 
-We have started a [wiki](https://github.com/openfin/fin-hypergrid/wiki). 
+Primarily our tutorials will be on the [wiki](https://github.com/openfin/fin-hypergrid/wiki). 
 
 We are also maintaining [online API documentation](http://openfin.github.io/fin-hypergrid/doc/Hypergrid.html) for all public objects and modules. This documentation is necessarily a on-going work-in-progress.
 
