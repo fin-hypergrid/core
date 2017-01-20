@@ -157,6 +157,7 @@ GroupView.prototype = {
             dataModel.getCell = getCell.bind(dataModel, this.defaultGetCell);
         }
 
+        behavior.createColumns(); // columns changed
         behavior.changed(); // number of rows changed
 
         this.fireSyntheticGroupsChangedEvent();
