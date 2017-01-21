@@ -256,7 +256,7 @@ window.onload = function() {
     }
 
     var treeViewing;
-    function toggleTreeview() {
+    function toggleTreeview(e) {
         treeViewing = grid.plugins.treeView.setRelation(this.checked);
     }
 
@@ -1220,8 +1220,8 @@ window.onload = function() {
                     break;
             }
 
-            input.onchange = function() {
-                handleRadioClick.call(this, ctrl.setter || setProp);
+            input.onchange = function(event) {
+                handleRadioClick.call(this, ctrl.setter || setProp, event);
             };
 
             label = document.createElement('label');
@@ -1233,6 +1233,15 @@ window.onload = function() {
             );
 
             choices.appendChild(label);
+
+            if (ctrl.name === 'treeview') {
+                label.onmousedown = input.onmousedown = function(event) {
+                    if (!input.checked && dataModel.source.data !== treeData) {
+                        alert('Load tree data first ("Set Data 3" button).');
+                        event.preventDefault();
+                    }
+                };
+            }
         });
 
         ctrlGroups.appendChild(container);
@@ -1351,7 +1360,7 @@ window.onload = function() {
 
     var radioGroup = {};
 
-    function handleRadioClick(handler) {
+    function handleRadioClick(handler, event) {
         if (this.type === 'radio') {
             var lastRadio = radioGroup[this.name];
             if (lastRadio) {
@@ -1359,7 +1368,7 @@ window.onload = function() {
             }
             radioGroup[this.name] = { ctrl: this, handler: handler };
         }
-        handler.call(this);
+        handler.call(this, event);
     }
 
     function setProp() { // standard checkbox click handler
