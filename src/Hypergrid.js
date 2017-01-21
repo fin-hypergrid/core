@@ -17,10 +17,9 @@ var Renderer = require('./renderer');
 var SelectionModel = require('./lib/SelectionModel');
 var stylesheet = require('./lib/stylesheet');
 var Localization = require('./lib/Localization');
-//var behaviors = require('./behaviors');
+var behaviors = require('./behaviors');
 var CellRenderers = require('./cellRenderers');
 var CellEditors = require('./cellEditors');
-var BehaviorJSON = require('./behaviors/JSON');
 
 var EDGE_STYLES = ['top', 'bottom', 'left', 'right'],
     RECT_STYLES = EDGE_STYLES.concat(['width', 'height', 'position']);
@@ -377,6 +376,8 @@ var Hypergrid = Base.extend('Hypergrid', {
      * * Preinstalled plugins which are installed on the prototype. These are simple API plugins with a `preinstall` method called with the `installPlugins` calling context as the first argument. Preinstallations are automatically performed whenever a grid is instantiated (at the beginning of the constructor), by calling `installPlugins` with `Hypergrid.prototype` as the calling context.
      * * Regular plugins which are installed on the instance. These are simple API plugins with an `install` method, as well as all object API plugins (constructors), called with the `installPlugins` calling context as the first argument. These installations are automatically performed whenever a grid is instantiated (at the end of the constructor), called with the new grid instance as the calling context.
      *
+     * The "`installPlugins` calling context" means either the grid instance or its prototype, depending on how this method is called.
+     *
      * Plugins may have both `preinstall` _and_ `install` methods, in which case both will be called. However, note that in any case, `install` methods on object API plugins are ignored.
      *
      * @this {Hypergrid}
@@ -399,10 +400,13 @@ var Hypergrid = Base.extend('Hypergrid', {
                 return; // ignore falsy plugin spec
             }
 
-            // set first arg to constructor to `this` (the grid instance)
-            // set first arg to `install` method to `this` (the grid instance)
-            // set first arg to `preinstall` method to `this` (the Hypergrid prototype)
+            // set first arg of constructor to `this` (the grid instance)
+            // set first arg of `install` method to `this` (the grid instance)
+            // set first two args of `preinstall` method to `this` (the Hypergrid prototype) and the Behavior prototype
             args = [this];
+            if (shared) {
+                args.push(behaviors.Behavior.prototype);
+            }
 
             if (Array.isArray(plugin)) {
                 if (!plugin.length) {
@@ -717,7 +721,7 @@ var Hypergrid = Base.extend('Hypergrid', {
      * @summary Set the Behavior (model) object for this grid control.
      * @desc This can be done dynamically.
      * @param {object} options - _(See {@link behaviors.JSON#setData}.)_
-     * @param {Behavior} [options.behavior=BehaviorJSON] - The behavior (model) can be either a constructor or an instance.
+     * @param {Behavior} [options.behavior=behaviors.JSON] - The behavior (model) can be either a constructor or an instance.
      * @param {dataRowObject[]} [options.data] - _(See {@link behaviors.JSON#setData}.)_
      * @param {pipelineSchema} [options.pipeline] - New pipeline description.
      */
@@ -726,7 +730,7 @@ var Hypergrid = Base.extend('Hypergrid', {
             // If we get here it means:
             // 1. Called from constructor because behavior included in options object.
             // 2. Called from `setData` _and_ wasn't called explicitly since instantiation
-            var Behavior = options.Behavior || BehaviorJSON;
+            var Behavior = options.Behavior || behaviors.JSON;
             this.behavior = new Behavior(this, options);
             this.initCanvas();
             this.initScrollbars();
