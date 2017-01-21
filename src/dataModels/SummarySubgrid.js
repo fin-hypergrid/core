@@ -48,7 +48,7 @@ SummarySubgrid.prototype = {
     },
 
     getRow: function(y) {
-        return this.data[y];
+        return this.getData()[y];
     }
 };
 
