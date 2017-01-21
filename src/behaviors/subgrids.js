@@ -1,8 +1,6 @@
 'use strict';
 
-
 var dataModels = require('../dataModels');
-
 
 /** @typedef subgridConstructorRef
  * @summary Type definition.
@@ -23,13 +21,15 @@ var dataModels = require('../dataModels');
  */
 
 module.exports = {
+    dataModels: {
+        HeaderSubgrid: dataModels.HeaderSubgrid
+    },
+
     defaultSubgridSpecs: [
-        dataModels.HeaderSubgrid,
-        dataModels.FilterSubgrid,
-        [dataModels.SummarySubgrid, { name: 'topTotals' }],
-        'data',
-        [dataModels.SummarySubgrid, { name: 'bottomTotals' }]
+        'HeaderSubgrid',
+        'data'
     ],
+
     /**
      * An array where each element represents a subgrid to be rendered in the hypergrid.
      *
@@ -53,27 +53,57 @@ module.exports = {
      * @memberOf Behavior#
      */
     set subgrids(subgridSpecs) {
-        var subgrids = this._subgrids = subgridSpecs.map(createSubgrid, this);
+        var subgrids = this._subgrids = [];
 
         subgrids.lookup = {};
 
-        // create the dictionary from the array elements
-        subgrids.forEach(function(subgrid) {
-            // undefined type is data
-            subgrid.type = subgrid.type || 'data';
-
-            // make dictionary lookup entry
-            var key = subgrid.name || subgrid.type;
-            subgrids.lookup[key] = subgrids.lookup[key] || subgrid; // only save first with this key
-
-            // make isType boolean
-            subgrid['is' + subgrid.type[0].toUpperCase() + subgrid.type.substr(1)] = true;
-        });
+        subgridSpecs.forEach(function(spec) {
+            if (spec) {
+                subgrids.push(this.createSubgrid(spec));
+            }
+        }, this);
 
         this.shapeChanged();
     },
     get subgrids() {
         return this._subgrids;
+    },
+
+    /**
+     * @summary Maps a `subgridSpec` to a data model.
+     * @desc The spec may describe either an existing data model, or a constructor for a new data model.
+     * @param {subgridSpec} spec
+     * @returns {dataModelAPI} A data model.
+     * @memberOf Behavior#
+     */
+    createSubgrid: function(spec, args) {
+        var subgrid, Constructor, variableArgArray;
+
+        if (spec === 'data') {
+            subgrid = this.dataModel;
+        } else if (spec instanceof Array && spec.length) {
+            Constructor = derefSubgridRef.call(this, spec[0]);
+            variableArgArray = spec.slice(1);
+            subgrid = this.createApply(Constructor, variableArgArray, this.grid);
+        } else if (typeof spec === 'object') {
+            subgrid = spec;
+        } else {
+            Constructor = derefSubgridRef.call(this, spec);
+            variableArgArray = Array.prototype.slice.call(arguments, 1);
+            subgrid = this.createApply(Constructor, variableArgArray, this.grid);
+        }
+
+        // undefined type is data
+        subgrid.type = subgrid.type || 'data';
+
+        // make dictionary lookup entry
+        var key = subgrid.name || subgrid.type;
+        this._subgrids.lookup[key] = this._subgrids.lookup[key] || subgrid; // only save first with this key
+
+        // make isType boolean
+        subgrid['is' + subgrid.type[0].toUpperCase() + subgrid.type.substr(1)] = true;
+
+        return subgrid;
     },
 
     /**
@@ -96,32 +126,9 @@ module.exports = {
 };
 
 /**
- * @summary Maps a `subgridSpec` to a data model.
- * @desc The spec may describe either an existing data model, or a constructor for a new data model.
- * @param {subgridSpec} spec
- * @returns {dataModelAPI} A data model.
- * @memberOf Behavior~
- */
-function createSubgrid(spec) {
-    var result, Constructor, variableArgArray;
-    if (spec === 'data') {
-        result = this.dataModel;
-    } else if (spec instanceof Array && spec.length) {
-        Constructor = derefSubgridRef.call(this, spec[0]);
-        variableArgArray = spec.slice(1);
-        result = this.createApply(Constructor, variableArgArray, this.grid);
-    } else if (typeof spec === 'object') {
-        result = spec;
-    } else {
-        Constructor = derefSubgridRef.call(this, spec);
-        result = new Constructor(this.grid);
-    }
-    return result;
-}
-
-/**
  * @summary Resolves a subgrid constructor reference.
  * @desc The ref is resolved to a data model constructor.
+ * @this {Behavior}
  * @param {subgridConstructorRef} ref
  * @returns {DataModel} A data model constructor.
  * @memberOf Behavior~
@@ -130,7 +137,7 @@ function derefSubgridRef(ref) {
     var Constructor;
     switch (typeof ref) {
         case 'string':
-            Constructor = dataModels[ref];
+            Constructor = this.dataModels[ref];
             break;
         case 'function':
             Constructor = ref;

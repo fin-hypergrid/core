@@ -154,7 +154,7 @@ Renders all cells over consolidated row backgrounds, if any. Unsuitable as a cli
     </div>
     <label title="Column properties defines a light blue background color BUT inherit's grid's rowProperties array.">
         Headers:
-        <input type="checkbox" onclick="grid.behavior.subgrids = this.checked ? ['HeaderSubgrid','data'] : ['data']" checked>Columns
+        <input type="checkbox" onclick="grid.behavior.subgrids = this.checked ? ['header','data'] : ['data']" checked>Columns
         <label>
             <input type="checkbox" onclick="grid.properties.showRowNumbers = this.checked; grid.behavior.changed()" checked>Rows
         </label>
@@ -250,7 +250,6 @@ Renders all cells over consolidated row backgrounds, if any. Unsuitable as a cli
 
     <script>
 
-fin.Hypergrid.behaviors.Behavior.prototype.defaultSubgridSpecs = ['HeaderSubgrid', 'data'];
 var grid = new fin.Hypergrid();
 
 var COLUMNS = 12;

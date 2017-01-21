@@ -32,9 +32,13 @@ SummarySubgrid.prototype = {
     },
 
     getData: function() {
-        return this.data.length
-            ? this.data
-            : this.behavior.dataModel.dataSource.getGrandTotals() || this.data;
+        var data = this.data;
+
+        if (!data.length) {
+            data = this.behavior.dataModel.dataSource.getGrandTotals() || data;
+        }
+
+        return data;
     },
 
     /**
