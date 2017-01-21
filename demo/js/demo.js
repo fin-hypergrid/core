@@ -250,7 +250,7 @@ window.onload = function() {
 
     function toggleAggregates() {
         grid.plugins.aggregationsView.setAggregateGroups(
-            this.checked ? aggregates : [],
+            this.checked ? aggregates : {},
             this.checked ? groups : []
         );
     }

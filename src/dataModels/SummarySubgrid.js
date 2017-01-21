@@ -28,11 +28,11 @@ SummarySubgrid.prototype = {
     hasOwnData: true, // do not call setData implicitly
 
     getRowCount: function() {
-        return this.behavior.dataModel.getRowCount() && this.getData().length;
+        return this.getData().length;
     },
 
     getData: function() {
-        return this.behavior.dataModel.dataSource.getGrandTotals() || this.data;
+        return this.data;
     },
 
     setData: function(data, schema) {
@@ -48,7 +48,7 @@ SummarySubgrid.prototype = {
     },
 
     getRow: function(y) {
-        return this.data[y];
+        return this.getData()[y];
     }
 };
 
