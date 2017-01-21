@@ -53,6 +53,7 @@ var SimpleCell = CellRenderer.extend('SimpleCell', {
             }
         } else if (!config.isHandleColumn) {
             leftIcon = images[config.leftIcon];
+            centerIcon = images[config.centerIcon];
             rightIcon = images[config.rightIcon];
         } else if (config.isDataRow) {
             leftIcon = images[config.leftIcon != undefined ? config.leftIcon : config.isRowSelected ? 'checked' : 'unchecked']; // eslint-disable-line eqeqeq
@@ -145,7 +146,7 @@ var SimpleCell = CellRenderer.extend('SimpleCell', {
             valWidth = config.isHeaderRow && config.headerTextWrapping
                 ? renderMultiLineText(gc, config, val, leftPadding, rightPadding)
                 : renderSingleLineText(gc, config, val, leftPadding, rightPadding);
-        } else if ((centerIcon = images[config.centerIcon])) {
+        } else if (centerIcon) {
             // Measure & draw center icon
             iyoffset = Math.round((height - centerIcon.height) / 2);
             ixoffset = Math.round((width - centerIcon.width) / 2);
