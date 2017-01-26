@@ -682,7 +682,10 @@ var defaults = {
     },
 
     /**
-     * This function is referenced here so it will be available to the cell renderers.
+     * @summary Execute value if "calculator" (function) or if column has calculator.
+     * @desc This function is referenced here so:
+     * 1. it will be available to the cell renderers.
+     * 2. Its context will naturally be the `config` object
      * @default {@link module:defaults.exec|exec}
      * @type {function}
      * @memberOf module:defaults

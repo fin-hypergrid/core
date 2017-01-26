@@ -154,6 +154,19 @@ createColumnProperties.rowHeaderDescriptors = {
         set: function(value) {
             this.rowHeaderBackgroundSelectionColor = value;
         }
+    },
+    leftIcon: {
+        configurable: true,
+        enumerable: true,
+        get: function() {
+            var result;
+            if (this.isDataRow) {
+                result = this.isRowSelected ? 'checked' : 'unchecked';
+            } else if (this.isHeaderRow) {
+                result = this.allRowsSelected ? 'checked' : 'unchecked';
+            }
+            return result;
+        }
     }
 };
 
