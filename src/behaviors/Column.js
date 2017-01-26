@@ -66,8 +66,8 @@ function Column(behavior, indexOrOptions) {
     switch (index) {
         case -1:
             // Width of icon + 3-pixel spacer (checked and unchecked should be same width)
-            this.properties.minimumColumnWidth = (images.unchecked && images.unchecked.width)
-                ?  images.unchecked.width + 3 : 0;
+            var icon = images[Object.create(this.properties.rowHeader, { isDataRow: { value: true } }).leftIcon];
+            this.properties.minimumColumnWidth = icon ? icon.width + 3 : 0;
             break;
         case -2:
             // This case avoids the "out of range" error.
