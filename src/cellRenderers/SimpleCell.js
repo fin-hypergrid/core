@@ -46,22 +46,10 @@ var SimpleCell = CellRenderer.extend('SimpleCell', {
                 centerIcon = val;
                 val = null;
             }
-        } else if (config.isFilterRow) {
-            if (config.filterable) {
-                rightIcon = images[config.isHandleColumn || !val.length ? 'filter-off' : 'filter-on'];
-                config.renderFalsy = false;
-            }
-        } else if (!config.isHandleColumn) {
+        } else {
             leftIcon = images[config.leftIcon];
             centerIcon = images[config.centerIcon];
             rightIcon = images[config.rightIcon];
-        } else if (config.isDataRow) {
-            leftIcon = images[config.leftIcon != undefined ? config.leftIcon : config.isRowSelected ? 'checked' : 'unchecked']; // eslint-disable-line eqeqeq
-        } else if (config.isHeaderRow) {
-            leftIcon = images[config.leftIcon != undefined ? config.leftIcon : config.allRowsSelected ? 'checked' : 'unchecked']; // eslint-disable-line eqeqeq
-        } else {
-            // row handles for "summary" or other subgrids' rows: empty
-            val = '';
         }
 
         // Note: vf == 0 is fastest equivalent of vf === 0 || vf === false which excludes NaN, null, undefined
