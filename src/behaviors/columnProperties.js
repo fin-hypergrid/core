@@ -164,8 +164,19 @@ createColumnProperties.rowHeaderDescriptors = {
                 result = this.isRowSelected ? 'checked' : 'unchecked';
             } else if (this.isHeaderRow) {
                 result = this.allRowsSelected ? 'checked' : 'unchecked';
+            } else if (this.isFilterRow) {
+                result = 'filter-off';
             }
             return result;
+        },
+        set: function(value) {
+            // replace self with a simple instance var
+            Object.defineProperty(this, 'leftIcon', {
+                configurable: true,
+                enumerable: true,
+                writable: true,
+                value: value
+            });
         }
     }
 };
@@ -239,6 +250,26 @@ createColumnProperties.filterDescriptors = {
         },
         set: function(value) {
             this.filterRenderer = value;
+        }
+    },
+    rightIcon: {
+        configurable: true,
+        enumerable: true,
+        get: function() {
+            var result;
+            if (this.filterable) {
+                result = this.value.length ? 'filter-on' : 'filter-off';
+            }
+            return result;
+        },
+        set: function(value) {
+            // replace self with a simple instance var
+            Object.defineProperty(this, 'rightIcon', {
+                configurable: true,
+                enumerable: true,
+                writable: true,
+                value: value
+            });
         }
     }
 };

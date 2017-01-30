@@ -46,12 +46,6 @@ var SimpleCell = CellRenderer.extend('SimpleCell', {
                 centerIcon = val;
                 val = null;
             }
-        } else if (config.isFilterRow) {
-            if (config.isHandleColumn) {
-                leftIcon = images['filter-off'];
-            } else if (config.filterable) {
-                rightIcon = images[val.length ? 'filter-on' : 'filter-off'];
-            }
         } else {
             leftIcon = images[config.leftIcon];
             centerIcon = images[config.centerIcon];
