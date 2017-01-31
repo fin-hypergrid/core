@@ -1,6 +1,9 @@
 'use strict';
 
 var graphics = require('./lib/graphics');
+var HypergridError = require('./lib/error');
+
+var COLUMN_ONLY_PROPERTY = 'Attempt to set column-only property on a non-column properties object.';
 
 var warned = {};
 
@@ -11,6 +14,11 @@ var warned = {};
  */
 
 var defaults = {
+
+    set name(x) { throw new HypergridError(COLUMN_ONLY_PROPERTY); },
+    set type(x) { throw new HypergridError(COLUMN_ONLY_PROPERTY); },
+    set header(x) { throw new HypergridError(COLUMN_ONLY_PROPERTY); },
+    set calculator(x) { throw new HypergridError(COLUMN_ONLY_PROPERTY); },
 
     mixIn: require('overrider').mixIn,
 
