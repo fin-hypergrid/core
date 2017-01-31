@@ -52,13 +52,13 @@ GroupView.prototype = {
     name: 'GroupView',
 
     fireSyntheticGroupsChangedEvent: function() {
-        this.grid.canvas.dispatchEvent(new CustomEvent('fin-groups-changed', {
+        this.grid.dispatchEvent('fin-groups-changed', {
             detail: {
                 groups: this.getGroups(),
                 time: Date.now(),
                 grid: this
             }
-        }));
+        });
     },
 
     getGroups: function() {
