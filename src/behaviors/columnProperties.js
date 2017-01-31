@@ -3,7 +3,8 @@
 var toFunction = require('../lib/toFunction');
 
 var FIELD = 'columnProperties.field is deprecated as of v1.1.0 in favor of columnProperties.name. (Will be removed in a future release.)',
-    COLUMN_NAME = 'columnProperties.columnName is deprecated as of v1.1.0 in favor of columnProperties.name. (Will be removed in a future release.)';
+    COLUMN_NAME = 'columnProperties.columnName is deprecated as of v1.1.0 in favor of columnProperties.name. (Will be removed in a future release.)',
+    COLUMN_ONLY_PROPERTY = 'Attempt to set column-only property on a non-column properties object.';
 
 /**
  * @this {Column}
@@ -53,6 +54,9 @@ function createColumnProperties() {
                 return column.header;
             },
             set: function(header) {
+                if (this !== column.properties) {
+                    throw new column.HypergridError(COLUMN_ONLY_PROPERTY);
+                }
                 column.header = header;
             }
         },
@@ -63,6 +67,9 @@ function createColumnProperties() {
                 return column.type;
             },
             set: function(type) {
+                if (this !== column.properties) {
+                    throw new column.HypergridError(COLUMN_ONLY_PROPERTY);
+                }
                 column.type = type;
             }
         },
@@ -73,6 +80,9 @@ function createColumnProperties() {
                 return column.calculator;
             },
             set: function(calculator) {
+                if (this !== column.properties) {
+                    throw new column.HypergridError(COLUMN_ONLY_PROPERTY);
+                }
                 column.calculator = toFunction(calculator);
             }
         }
