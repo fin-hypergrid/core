@@ -166,7 +166,7 @@ module.exports = {
 
         function getValue(selectedRowIndex, j) {
             var dataRow = self.getRow(selectedRowIndex);
-            rows[j] = valOrFunc.call(dataRow, column);
+            rows[j] = valOrFunc(dataRow, column);
         }
 
         return result;
@@ -191,7 +191,7 @@ module.exports = {
 
         function getValue(selectedRowIndex, r) {
             var dataRow = self.getRow(selectedRowIndex);
-            result[c][r] = valOrFunc.call(dataRow, column);
+            result[c][r] = valOrFunc(dataRow, column);
         }
 
         return result;
@@ -211,7 +211,7 @@ module.exports = {
 
             for (var r = headerRowCount; r < numRows; r++) {
                 dataRow = self.getRow(r);
-                values[r] = valOrFunc.call(dataRow, column);
+                values[r] = valOrFunc(dataRow, column);
             }
         });
 
@@ -232,7 +232,7 @@ module.exports = {
 
             for (var r = headerRowCount; r < rowCount; r++) {
                 dataRow = self.getRow(r);
-                values[r] = valOrFunc.call(dataRow, column);
+                values[r] = valOrFunc(dataRow, column);
             }
         });
 
@@ -259,7 +259,7 @@ module.exports = {
 
                 for (var r = 0, y = rect.origin.y; r < rowCount; r++, y++) {
                     dataRow = self.getRow(y);
-                    values[r] = valOrFunc.call(dataRow, column);
+                    values[r] = valOrFunc(dataRow, column);
                 }
             }
 
@@ -289,7 +289,7 @@ module.exports = {
 
                 for (var r = 0, y = rect.origin.y; r < rowCount; r++, y++) {
                     dataRow = self.getRow(y);
-                    values[r] = valOrFunc.call(dataRow, column);
+                    values[r] = valOrFunc(dataRow, column);
                 }
             }
 
@@ -747,13 +747,13 @@ function normalizeRect(rect) {
  * @param column
  * @returns {string}
  */
-function valOrFunc(column) {
+function valOrFunc(dataRow, column) {
     var result, calculator;
-    if (this) {
-        result = this[column.name];
+    if (dataRow) {
+        result = dataRow[column.name];
         calculator = (typeof result)[0] === 'f' && result || column.calculator;
         if (calculator) {
-            result = calculator.call(this, column.name);
+            result = calculator(dataRow, column.name);
         }
     }
     return result || result === 0 || result === false ? result : '';

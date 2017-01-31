@@ -1058,14 +1058,15 @@ var Renderer = Base.extend('Renderer', {
             config.mouseDown = grid.mouseDownState.gridCell.equals(cellEvent.gridCell);
         }
 
+        // compute value if a calculator
+        if (isUserDataArea && !(config.value && config.value.constructor === Array)) { // fastest array determination
+            config.value = config.exec(config.value);
+        }
+
         // This call's dataModel.getCell which developer can override to:
         // * mutate the (writable) properties of `config`
         // * mutate cell renderer choice (instance of which is returned)
         var cellRenderer = behavior.dataModel.getCell(config, config.renderer);
-
-        if (!(config.value && config.value.constructor === Array)) { // fastest array determination
-            config.value = config.exec(config.value);
-        }
 
         // Overwrite possibly mutated cell properties, if requested to do so by `getCell` override
         if (cellEvent.cellOwnProperties && config.reapplyCellProperties) {
