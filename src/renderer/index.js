@@ -500,25 +500,46 @@ var Renderer = Base.extend('Renderer', {
      * @returns {Point} Cell coordinates
      */
     getGridCellFromMousePoint: function(point) {
+
         var x = point.x,
             y = point.y,
+            isPseudoRow = false,
+            isPseudoCol = false,
             vrs = this.visibleRows,
             vcs = this.visibleColumns,
             firstColumn = vcs[this.properties.showRowNumbers ? -1 : 0],
             inFirstColumn = x < firstColumn.right,
             vc = inFirstColumn ? firstColumn : vcs.find(function(vc) { return x < vc.right; }),
             vr = vrs.find(function(vr) { return y < vr.bottom; }),
-            result = null;
+            result = {fake: false};
 
-        if (vr && vc) {
-            var mousePoint = this.grid.newPoint(x - vc.left, y - vr.top),
-                cellEvent = new this.grid.behavior.CellEvent(vc.columnIndex, vr.index);
-
-            // cellEvent.visibleColumn = vc;
-            // cellEvent.visibleRow = vr;
-
-            result = Object.defineProperty(cellEvent, 'mousePoint', {value: mousePoint});
+        //default to last row and col
+        if (vr) {
+            isPseudoRow = false;
+        } else {
+            vr = vrs[vrs.length - 1];
+            isPseudoRow = true;
         }
+
+        if (vc) {
+            isPseudoCol = false;
+        } else {
+            vc = vcs[vcs.length - 1];
+            isPseudoCol = true;
+        }
+
+        var mousePoint = this.grid.newPoint(x - vc.left, y - vr.top),
+            cellEvent = new this.grid.behavior.CellEvent(vc.columnIndex, vr.index);
+
+        // cellEvent.visibleColumn = vc;
+        // cellEvent.visibleRow = vr;
+
+        result.cellEvent = Object.defineProperty(cellEvent, 'mousePoint', {value: mousePoint});
+
+        if (isPseudoCol || isPseudoRow) {
+            result.fake = true;
+        }
+
         return result;
     },
 
