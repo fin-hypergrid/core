@@ -369,6 +369,7 @@ Canvas.prototype = {
         if (!this.mousedown) {
             this.mouseLocation = new rectangular.Point(-1, -1);
         }
+        this.repaint();
         this.dispatchNewMouseKeysEvent(e, 'fin-canvas-mouseout');
     },
 
