@@ -8,6 +8,7 @@ var FinBar = require('finbars');
 var Point = require('rectangular').Point;
 var Rectangle = require('rectangular').Rectangle;
 var _ = require('object-iterators'); // fyi: installs the Array.prototype.find polyfill, as needed
+var injectCSS = require('inject-stylesheet-template').bind(require('../css'));
 
 var Base = require('./Base');
 var defaults = require('./defaults');
@@ -15,7 +16,6 @@ var dynamicProperties = require('./lib/dynamicProperties');
 var Canvas = require('./lib/Canvas');
 var Renderer = require('./renderer');
 var SelectionModel = require('./lib/SelectionModel');
-var stylesheet = require('./lib/stylesheet');
 var Localization = require('./lib/Localization');
 var behaviors = require('./behaviors');
 var CellRenderers = require('./cellRenderers');
@@ -899,7 +899,7 @@ var Hypergrid = Base.extend('Hypergrid', {
             div.style.height = null; // revert to stylesheet value
         }
 
-        stylesheet.inject('grid');
+        injectCSS('grid');
 
         //prevent the default context menu for appearing
         div.oncontextmenu = function(event) {

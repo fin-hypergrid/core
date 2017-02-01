@@ -5,16 +5,7 @@
 var automat = require('automat');
 var markup = require('../html');
 
-var Base = window.fin.Hypergrid.base;
-
-var elfor = {
-    each: function(selector, iteratee, context) {
-        return Array.prototype.forEach.call((context || document).querySelectorAll(selector), iteratee);
-    },
-    find: function(selector, iteratee, context) {
-        return Array.prototype.find.call((context || document).querySelectorAll(selector), iteratee);
-    }
-};
+var Base = window.fin.Hypergrid.Base; // try require('fin-hypergrid/src/Base') when externalized
 
 /**
  * Creates and services a DOM element used as a cntainer for a dialog. The standard `markup.dialog` is simply a div with a _control panel_ containing a close box and a settings gear icon.
@@ -160,7 +151,7 @@ var Dialog = Base.extend('Dialog', {
 
     appSelector: 'canvas.hypergrid',
     appVisible: function(visibility) {
-        elfor.each(this.appSelector, function(el) {
+        Array.prototype.forEach.call(document.querySelectorAll(this.appSelector), function(el) {
             el.style.visibility = visibility;
         });
     },

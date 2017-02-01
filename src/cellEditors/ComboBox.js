@@ -9,7 +9,6 @@
 var Textfield = require('./Textfield');
 var prototype = require('./CellEditor').prototype;
 var Queueless = require('../lib/DOM/queueless');
-var elfor = require('../lib/DOM/elfor');
 
 /*********************************/
 /* eslint-disable no-unused-vars */
@@ -228,7 +227,7 @@ function setModeIconAndOptgroup(ctrl, name, state) {
         selector = 'option,optgroup:not([class])';
         var mustBeChildren = true; // work-around for ':scope>option,...' not avail in IE11
     }
-    elfor.each(selector, iteratee, dropdown);
+    Array.prototype.forEach.call(dropdown.querySelectorAll(selector), iteratee);
 
     function iteratee(el) {
         if (!mustBeChildren || el.parentElement === dropdown) {
