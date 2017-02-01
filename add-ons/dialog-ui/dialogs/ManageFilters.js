@@ -81,6 +81,8 @@ var ManageFilters = Dialog.extend('ManageFilters', {
 
     onClosed: function() {
         var behavior = this.grid.behavior;
+        this.grid.takeFocus();
+        this.grid.allowEvents(true);
         behavior.reindex();
         behavior.changed();
     },
