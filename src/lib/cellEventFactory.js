@@ -191,8 +191,8 @@ var prototype = Object.defineProperties({}, {
     isColumnSelected: { get: function() { return this.isDataColumn && this.selectionModel.isColumnSelected(this.gridCell.x); } },
     isCellSelected:   { get: function() { return this.selectionModel.isCellSelected(this.gridCell.x, this.dataCell.y); } },
 
-    isRowHovered:    { get: function() { return this.isDataRow && this.grid.hoverCell && this.grid.hoverCell.y === this.gridCell.y; } },
-    isColumnHovered: { get: function() { return this.isDataColumn && this.grid.hoverCell && this.grid.hoverCell.x === this.gridCell.x; } },
+    isRowHovered:    { get: function() { return this.grid.canvas.hasMouse && this.isDataRow && this.grid.hoverCell && this.grid.hoverCell.y === this.gridCell.y; } },
+    isColumnHovered: { get: function() { return this.grid.canvas.hasMouse && this.isDataColumn && this.grid.hoverCell && this.grid.hoverCell.x === this.gridCell.x; } },
     isCellHovered:   { get: function() { return this.isRowHovered && this.isColumnHovered; } },
 
     isRowFixed:    { get: function() { return this.isDataRow && this.dataCell.y < this.grid.properties.fixedRowCount; } },
