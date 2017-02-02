@@ -538,6 +538,7 @@ var Renderer = Base.extend('Renderer', {
 
         if (isPseudoCol || isPseudoRow) {
             result.fake = true;
+            this.grid.beCursor(null);
         }
 
         return result;
