@@ -322,7 +322,8 @@ Canvas.prototype = {
         if (!this.isDragging() && this.mousedown) {
             this.beDragging();
             this.dispatchNewMouseKeysEvent(e, 'fin-canvas-dragstart', {
-                isRightClick: this.isRightClick(e)
+                isRightClick: this.isRightClick(e),
+                dragstart: this.dragstart
             });
             this.dragstart = new rectangular.Point(this.mouseLocation.x, this.mouseLocation.y);
         }
@@ -360,6 +361,7 @@ Canvas.prototype = {
         }
         this.mousedown = false;
         this.dispatchNewMouseKeysEvent(e, 'fin-canvas-mouseup', {
+            dragstart: this.dragstart,
             isRightClick: this.isRightClick(e)
         });
         //this.mouseLocation = new rectangular.Point(-1, -1);
@@ -369,7 +371,10 @@ Canvas.prototype = {
         if (!this.mousedown) {
             this.mouseLocation = new rectangular.Point(-1, -1);
         }
-        this.dispatchNewMouseKeysEvent(e, 'fin-canvas-mouseout');
+        this.repaint();
+        this.dispatchNewMouseKeysEvent(e, 'fin-canvas-mouseout', {
+            dragstart: this.dragstart
+        });
     },
 
     finwheelmoved: function(e) {

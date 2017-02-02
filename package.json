@@ -19,8 +19,10 @@
     "chai": "^3.5.0",
     "extend-me": "^2.3",
     "filter-tree": "0.4.0",
+    "fin-hypergrid-data-source-base": "^0.4.7",
     "finbars": "1.5.2",
     "hyper-analytics": "^0.12.0",
+    "inject-stylesheet-template": "^1.0.1",
     "list-dragon": "1.3.3",
     "mustache": "2.2.0",
     "object-iterators": "1.3.0",
@@ -28,7 +30,6 @@
     "pop-menu": "0.2.5",
     "rectangular": "1.0.1",
     "sparse-boolean-array": "1.0.1",
-    "fin-hypergrid-data-source-base": "^0.4.7",
     "tabz": "1.1.3"
   },
   "devDependencies": {

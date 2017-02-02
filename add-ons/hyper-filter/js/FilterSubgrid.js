@@ -33,11 +33,11 @@ FilterSubgrid.prototype = {
     },
 
     getValue: function(x, y) {
-        return this.behavior.filter.getColumnFilterState(this.behavior.getColumn(x).name) || '';
+        return this.behavior.dataModel.getFilter(x) || '';
     },
 
     setValue: function(x, y, value) {
-        this.behavior.filter.setColumnFilterState(this.behavior.getColumn(x).name, value);
+        this.behavior.dataModel.setFilter(x, value);
     },
 
     getRow: function(y) {

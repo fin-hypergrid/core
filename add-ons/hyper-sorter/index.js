@@ -1,4 +1,8 @@
+/* eslint-env browser */
+
 'use strict';
+
+var Column = window.fin.Hypergrid.behaviors.Column; // try require('fin-hypergrid/src/behaviors/Column') when externalized
 
 function Hypersorter(grid, targets) {
     this.grid = grid;
@@ -25,7 +29,7 @@ Hypersorter.prototype.install = function(targets) {
     Hypergrid.prototype.mixIn(require('./mix-ins/grid'));
     targets = targets || {};
     (targets.Behavior && targets.Behavior.prototype || Object.getPrototypeOf(this.grid.behavior)).mixIn(require('./mix-ins/behavior'));
-    (targets.Column || Hypergrid.behaviors.Column).prototype.mixIn(require('./mix-ins/column'));
+    (targets.Column || Column).prototype.mixIn(require('./mix-ins/column'));
     (targets.DataModel && targets.DataModel.prototype || Object.getPrototypeOf(this.grid.behavior.dataModel)).mixIn(require('./mix-ins/dataModel'));
 };
 

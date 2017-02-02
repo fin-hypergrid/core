@@ -27,8 +27,7 @@ Hypergrid.dataModels = require('./dataModels');
 Hypergrid.features = require('./features');
 Hypergrid.rectangular = require('rectangular');
 Hypergrid.lib = require('./lib');
-Hypergrid.stylesheet = require('./lib/stylesheet');
-Hypergrid.base = require('./Base');
+Hypergrid.Base = require('./Base');
 
 // Create the `fin` namespace and the `fin.Hypergrid` objects:
 (window.fin = window.fin || {}).Hypergrid = Hypergrid;

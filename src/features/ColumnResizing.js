@@ -87,7 +87,7 @@ var ColumnResizing = Feature.extend('ColumnResizing', {
             }
 
             this.dragStart = this.getMouseValue(event);
-            this.detachChain();
+            //this.detachChain();
         } else if (this.next) {
             this.next.handleMouseDown(grid, event);
         }
@@ -105,11 +105,11 @@ var ColumnResizing = Feature.extend('ColumnResizing', {
 
             event.primitiveEvent.stopPropagation();
             //delay here to give other events a chance to be dropped
-            var self = this;
+            //var self = this;
             grid.synchronizeScrollingBoundaries();
-            setTimeout(function() {
-                self.attachChain();
-            }, 200);
+            // setTimeout(function() {
+            //     self.attachChain();
+            // }, 200);
         } else if (this.next) {
             this.next.handleMouseUp(grid, event);
         }
