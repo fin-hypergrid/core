@@ -341,8 +341,14 @@ module.exports = {
         var self = this;
 
         function handleMouseEvent(e, cb) {
-            var primitiveEvent = self.getGridCellFromMousePoint(e.detail.mouse),
+            var c = self.getGridCellFromMousePoint(e.detail.mouse),
+                primitiveEvent,
                 decoratedEvent;
+
+            // No events on the whitespace of the grid unless they're drag events
+            if (!c.fake || e.detail.dragstart) {
+                primitiveEvent = c.cellEvent;
+            }
 
             if (primitiveEvent) {
                 decoratedEvent = Object.defineProperty(
