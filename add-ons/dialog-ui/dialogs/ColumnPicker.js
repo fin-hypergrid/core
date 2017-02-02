@@ -3,9 +3,9 @@
 'use strict';
 
 var ListDragon = require('list-dragon');
+var injectCSS = require('inject-stylesheet-template').bind(require('../css'));
 
 var Dialog = require('./Dialog');
-var stylesheet = window.fin.Hypergrid.stylesheet;
 
 /**
  * @constructor
@@ -23,7 +23,7 @@ var ColumnPicker = Dialog.extend('ColumnPicker', {
 
         if (behavior.isColumnReorderable()) {
             // parse & add the drag-and-drop stylesheet addendum
-            var stylesheetAddendum = stylesheet.inject('list-dragon-addendum', require('../css'));
+            var stylesheetAddendum = injectCSS('list-dragon-addendum');
 
             // grab the group lists from the behavior
             if (behavior.setGroups) {

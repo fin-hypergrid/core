@@ -16,7 +16,23 @@ var name        = 'fin-hypergrid',
     demoDir     = './demo/',
     buildDir    = demoDir + 'build/';
 
+var replacementFinHypergrid = 'window.fin.Hypergrid.$2$1$2';
+
 //  //  //  //  //  //  //  //  //  //  //  //
+
+function gulpTaskAddOn(name, exportName) {
+    gulp.task('browserify-add-on-' + name, browserify.bind(null,
+        name,
+        addOnsDir + name + '/',
+        buildDir + addOnsDir,
+        exportName
+    ));
+}
+
+gulpTaskAddOn('hyper-filter', 'Hyperfilter');
+gulpTaskAddOn('hyper-sorter', 'Hypersorter');
+gulpTaskAddOn('totals-toolkit', 'totalsToolkit');
+gulpTaskAddOn('dialog-ui', 'DialogUI');
 
 gulp.task('lint', lint);
 gulp.task('test', test);
@@ -28,34 +44,7 @@ gulp.task('browserify', browserify.bind(null,
     srcDir,
     buildDir
 ));
-gulp.task('browserify-hyperfilter', browserify.bind(null,
-    'hyper-filter',
-    addOnsDir + 'hyper-filter/',
-    buildDir + addOnsDir,
-    /\w+\.exports(\s*=)/,
-    'window.fin.Hypergrid.Hyperfilter$1'
-));
-gulp.task('browserify-hypersorter', browserify.bind(null,
-    'hyper-sorter',
-    addOnsDir + 'hyper-sorter/',
-    buildDir + addOnsDir,
-    /\w+\.exports(\s*=)/,
-    'window.fin.Hypergrid.Hypersorter$1'
-));
-gulp.task('browserify-totals-toolkit', browserify.bind(null,
-    'totals-toolkit',
-    addOnsDir + 'totals-toolkit/',
-    buildDir + addOnsDir,
-    /\w+\.exports(\s*=)/,
-    'window.fin.Hypergrid.totalsToolkit$1'
-));
-gulp.task('browserify-dialog-ui', browserify.bind(null,
-    'dialog-ui',
-    addOnsDir + 'dialog-ui/',
-    buildDir + addOnsDir,
-    /\w+\.exports(\s*=\s*DialogUI)/,
-    'window.fin.Hypergrid.DialogUI$1'
-));
+
 gulp.task('reloadBrowsers', reloadBrowsers);
 gulp.task('serve', browserSyncLaunchServer);
 gulp.task('add-ons', addOns);
@@ -82,10 +71,10 @@ gulp.task('build', function(callback) {
         'dialogs-html-templates',
         'test',
         'add-ons',
-        'browserify-hyperfilter',
-        'browserify-hypersorter',
-        'browserify-totals-toolkit',
-        'browserify-dialog-ui',
+        'browserify-add-on-hyper-filter',
+        'browserify-add-on-hyper-sorter',
+        'browserify-add-on-totals-toolkit',
+        'browserify-add-on-dialog-ui',
         //'beautify',
         'browserify',
         //'doc',
@@ -147,22 +136,27 @@ function beautify() {
         .pipe(gulp.dest(srcDir));
 }
 
-function browserify(name, srcDir, buildDir, a, b) {
+function browserify(name, srcDir, buildDir, exportName) {
+    var exportsRegExp = exportName && new RegExp('module\\.exports(\\s*=\\s*)(' + exportName + ')');
     return gulp.src(srcDir + 'index.js')
+        // .pipe($$.replace(
+        //     /require\('fin-hypergrid\/src\/(.*?)'\)/g,
+        //     function(match, p1) { console.log('hi');return 'window.fin.Hypergrid.' + p1.replace(/\//g, '.'); }
+        // ))
         .pipe(
             $$.mirror(
                 pipe(
                     $$.rename(name + '.js'),
                     $$.browserify({ debug: true })
                         .on('error', $$.util.log),
-                    $$.replace(a, b)
+                    $$.replace(exportsRegExp, replacementFinHypergrid)
                 ),
                 pipe(
                     $$.rename(name + '.min.js'),
                     $$.browserify(),
                     $$.uglify()
                         .on('error', $$.util.log),
-                    $$.replace(a, b)
+                    $$.replace(exportsRegExp, replacementFinHypergrid)
                 )
             )
         )

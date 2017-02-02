@@ -36,9 +36,6 @@ function DialogUI(grid, targets) {
     }
 }
 
-DialogUI.prototype = {
-    constructor: DialogUI.prototype.constructor,
-    $$CLASS_NAME: 'DialogUI'
-};
+DialogUI.prototype.$$CLASS_NAME = 'DialogUI';
 
 module.exports = DialogUI;
