@@ -721,6 +721,9 @@ var Renderer = Base.extend('Renderer', {
             selectionRegionOutlineColor: gridProps.selectionRegionOutlineColor
         };
         this.grid.cellRenderers.get('lastselection').paint(gc, config);
+        if (this.paintCells.key === 'by-cells') {
+            this.paintCells.reset = true; // fixes GRID-490
+        }
     },
 
     /**
