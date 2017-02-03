@@ -56,8 +56,6 @@ var JSON = DataModel.extend('dataModels.JSON', {
      * * @memberOf dataModels.JSON.prototype
      */
     reset: function(options) {
-        this.selectedData = [];
-
         delete this.pipelineSchemaStash; // remove existing "own" version if any
 
         options = options || {};
@@ -80,7 +78,12 @@ var JSON = DataModel.extend('dataModels.JSON', {
     defaultPipelineSchema: [],
 
     clearSelectedData: function() {
-        this.selectedData.length = 0;
+        var key = 'clearSelectedData()',
+            warned = this.$$DEPRECATION_WARNED = this.$$DEPRECATION_WARNED || {};
+        if (!(key in warned)) {
+            warned[key] = 0;
+            console.warn(key + ' has been deprecated as of v1.2.23. This function no longer has any meaning; calls should be removed.');
+        }
     },
 
     /**
@@ -229,7 +232,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
      * @memberOf dataModels.JSON.prototype
      */
     reindex: function(options) {
-        selectedDataRowsBackingSelectedGridRows.call(this);
+        var selectedRowSourceIndexes = getUnderlyingIndexesOfSelectedRows.call(this);
 
         this.pipeline.forEach(function(dataSource) {
             if (dataSource) {
@@ -239,7 +242,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
             }
         });
 
-        reselectGridRowsBackedBySelectedDataRows.call(this);
+        reselectRowsByUnderlyingIndexes.call(this, selectedRowSourceIndexes);
     },
 
     /**
@@ -725,60 +728,56 @@ var JSON = DataModel.extend('dataModels.JSON', {
 // LOCAL METHODS -- to be called with `.call(this`
 
 /**
- * Accumulate actual data row objects backing current grid row selections.
+ * Save underlying data row indexes backing current grid row selections.
  * This call should be paired with a subsequent call to `reselectGridRowsBackedBySelectedDataRows`.
  * @private
  * @this {dataModels.JSON}
- * @memberOf dataModels.JSON.prototype
+ * @memberOf dataModels.JSON~
  */
-function selectedDataRowsBackingSelectedGridRows() {
-    var selectedData = this.selectedData,
-        hasRowSelections = this.grid.selectionModel.hasRowSelections(),
-        needIndexedDataList = selectedData.length || hasRowSelections;
+function getUnderlyingIndexesOfSelectedRows() {
+    var sourceIndexes = [],
+        dataSource = this.dataSource;
 
-    if (needIndexedDataList) {
-        var indexedData = this.getIndexedData();
-    }
-
-    // STEP 1: Remove any filtered data rows from the recently selected list.
-    selectedData.forEach(function(dataRow, index) {
-        if (indexedData.indexOf(dataRow) >= 0) {
-            delete selectedData[index];
-        }
-    });
-
-    // STEP 2: Accumulate the data rows backing any currently selected grid rows in `this.selectedData`.
-    if (hasRowSelections) { // any current grid row selections?
+    if (this.grid.properties.checkboxOnlyRowSelections) {
         this.grid.getSelectedRows().forEach(function(selectedRowIndex) {
-            var dataRow = indexedData[selectedRowIndex];
-            if (selectedData.indexOf(dataRow) < 0) {
-                selectedData.push(dataRow);
-            }
+            sourceIndexes.push(dataSource.getDataIndex(selectedRowIndex));
         });
     }
+
+    return sourceIndexes;
 }
 
 /**
- * Re-establish grid row selections based on actual data row objects accumulated by `selectedDataRowsBackingSelectedGridRows` which should be called first.
+ * Re-establish grid row selections based on underlying data row indexes saved by `getSelectedDataRowsBackingSelectedGridRows` which should be called first.
  * @private
  * @this {dataModels.JSON}
- * @memberOf dataModels.JSON.prototype
+ * @memberOf dataModels.JSON~
  */
-function reselectGridRowsBackedBySelectedDataRows() {
-    if (this.selectedData.length) { // any data row objects added from previous grid row selections?
-        var selectionModel = this.grid.selectionModel,
-            offset = this.grid.getHeaderRowCount(),
-            filteredData = this.getIndexedData();
+function reselectRowsByUnderlyingIndexes(sourceIndexes) {
+    var i, r,
+        rowCount = this.getRowCount(),
+        selectedRowCount = sourceIndexes.length,
+        rowIndexes = [],
+        selectionModel = this.grid.selectionModel;
 
-        selectionModel.clearRowSelection();
+    selectionModel.clearRowSelection();
 
-        this.selectedData.forEach(function(dataRow) {
-            var index = filteredData.indexOf(dataRow);
-            if (index >= 0) {
-                selectionModel.selectRow(offset + index);
+    if (this.grid.properties.checkboxOnlyRowSelections) {
+        for (r = 0; selectedRowCount && r < rowCount; ++r) {
+            i = sourceIndexes.indexOf(this.dataSource.getDataIndex(r));
+            if (i >= 0) {
+                rowIndexes.push(r);
+                delete sourceIndexes[i]; // might make indexOf increasingly faster as deleted elements are not enumerable
+                selectedRowCount--; // count down so we can bail early if all found
             }
+        }
+
+        rowIndexes.forEach(function(rowIndex) {
+            selectionModel.selectRow(rowIndex);
         });
     }
+
+    return rowIndexes.length;
 }
 
 /**
