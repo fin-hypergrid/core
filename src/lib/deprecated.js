@@ -8,8 +8,6 @@ if (!console.warn) {
     };
 }
 
-var classWarned = {};
-
 var regexIsMethod = /^\w+\(.*\)$/;
 
 /**
@@ -29,7 +27,7 @@ var deprecated = function(methodName, dotProps, since, args, notes) {
     }
 
     var chain = dotProps.split('.'),
-        warned = classWarned[this.$$CLASS_NAME] = classWarned[this.$$CLASS_NAME] || {},
+        warned = this.$$DEPRECATION_WARNED = this.$$DEPRECATION_WARNED || {},
         result = this,
         isSimpleWarning = dotProps.indexOf(' ') >= 0,
         isMethodCall = regexIsMethod.test(methodName),
