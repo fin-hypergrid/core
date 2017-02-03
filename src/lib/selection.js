@@ -98,7 +98,6 @@ module.exports = {
 
     clearRowSelection: function() {
         this.selectionModel.clearRowSelection();
-        this.behavior.dataModel.clearSelectedData();
     },
 
     /**
