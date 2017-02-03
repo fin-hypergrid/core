@@ -4,4 +4,4 @@
 /node_modules*
 /demo/build
 ~*.*x
-/v?.*
+/v*.*.*

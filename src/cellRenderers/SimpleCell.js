@@ -226,7 +226,7 @@ function renderMultiLineText(gc, config, val, leftPadding, rightPadding) {
     gc.cache.textBaseline = 'middle';
 
     for (var i = 0; i < lines.length; i++) {
-        gc.fillText(lines[i], x + halignOffset, y + valignOffset + (i * textHeight));
+        gc.simpleText(lines[i], x + halignOffset, y + valignOffset + (i * textHeight));
     }
 
     gc.cache.restore(); // discard clipping region
@@ -310,7 +310,7 @@ function renderSingleLineText(gc, config, val, leftPadding, rightPadding) {
 
         gc.cache.textAlign = 'left';
         gc.cache.textBaseline = 'middle';
-        gc.fillText(val, x, y);
+        gc.simpleText(val, x, y);
     }
 
     return minWidth;
