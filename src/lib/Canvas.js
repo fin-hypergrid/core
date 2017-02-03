@@ -826,8 +826,16 @@ function getCachedContext(canvasElement, type) {
 
     gc.conditionalsStack = [];
 
+    Object.getOwnPropertyNames(Canvas.graphicsContextAliases).forEach(function(alias) {
+        gc[alias] = gc[Canvas.graphicsContextAliases[alias]];
+    });
+
     return Object.assign(gc, require('./graphics'));
 }
+
+Canvas.graphicsContextAliases = {
+    simpleText: 'fillText'
+};
 
 
 module.exports = Canvas;
