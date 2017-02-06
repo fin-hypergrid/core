@@ -166,7 +166,7 @@ window.onload = function() {
 
     var gridOptions = {
             data: people1,
-            margin: { bottom: '17px' },
+            margin: { bottom: '17px', right: '17px'},
             schema: Hypergrid.lib.fields.getSchema(people1),
             plugins: plugins
         },
