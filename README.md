@@ -12,6 +12,7 @@ Below is an example custom application built ontop of the Hypergrid API tooling.
 * [Features](https://github.com/openfin/fin-hypergrid/blob/master/README.md#features)
 * [Testing](https://github.com/openfin/fin-hypergrid/blob/master/README.md#testing)
 * [Documentation](https://github.com/openfin/fin-hypergrid/blob/master/README.md#developer-documentation)
+* [Roadmap](https://github.com/openfin/fin-hypergrid/blob/master/README.md#roadmap)
 * [Contributing](https://github.com/openfin/fin-hypergrid/blob/master/README.md#contributors)
 
 ### Current Release (1.3.0 - 7 February 2017)
@@ -62,29 +63,7 @@ Hypergrid global configurations can be found [here](http://openfin.github.io/fin
 
 ### Roadmap
 
-Documentation - Wiki
- * Selection Model
- * Merge Cells
- * Hierarchical rows/columns
- * Localization & Formatter
- * Scroll bars
- * Freezing Columns
- * Columns Object
- * Calculated Columns
- * Column Oriented DataSource
- * Rendering strategies 
- * Handle Extra Space
- * Hidden Column Rows
- * Serialized State Format and Usage
-
-Development
- * Configurable mouse wheel scrolling sensitivity 
- * Complete API get/set State
- * Consume Native CSS Styling
- * Remove Filter Cell from core and provide example
- * Remove Column Picker from core and provide example
- * Bugs
-
+For our current queue of up coming work you can find it [here](https://github.com/openfin/fin-hypergrid/blob/master/ROADMAP.md) 
 
 ### Contributors
 
