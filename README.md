@@ -14,7 +14,7 @@ Below is an example custom application built ontop of the Hypergrid API tooling.
 * [Documentation](https://github.com/openfin/fin-hypergrid/blob/master/README.md#developer-documentation)
 * [Contributing](https://github.com/openfin/fin-hypergrid/blob/master/README.md#contributors)
 
-### Current Release (1.2.1 - 27 October 2016)
+### Current Release (1.3.0 - 7 February 2017)
 
 The current version 1.0 replaces last year's [prototype version](https://github.com/openfin/fin-hypergrid/tree/polymer-prototype), which was built around Polymer. It is now completely "de-polymerized" and is being made available as:
 * An [npm module](https://www.npmjs.com/package/fin-hypergrid) for use with browserify.
