@@ -636,6 +636,10 @@ function dispatchEvent(eventName, cancelable, event, primitiveEvent) {
                 detail[key] = primitiveEvent[key];
             }
         });
+        if ('dataRow' in primitiveEvent) {
+            // reference (without invoking) cellEvent's `dataRow` getter when available
+            Object.defineProperty(detail, 'row', { get: function() { return primitiveEvent.dataRow; } });
+        }
     }
 
     if (cancelable) {
