@@ -54,9 +54,9 @@ Primarily our tutorials will be on the [wiki](https://github.com/openfin/fin-hyp
 
 We are also maintaining [online API documentation](http://openfin.github.io/fin-hypergrid/doc/Hypergrid.html) for all public objects and modules. This documentation is necessarily a on-going work-in-progress.
 
-(Cell editor information can be found [here](http://openfin.github.io/fin-hypergrid/doc/tutorial-cell-editors.html).)
+(Cell editor information can be found [here](https://github.com/openfin/fin-hypergrid/wiki/Cell-Editors).)
 
-(Cell Rendering information can be found [here](http://openfin.github.io/fin-hypergrid/doc/tutorial-cell-renderer.html).)
+(Cell Rendering information can be found [here](https://github.com/openfin/fin-hypergrid/wiki/Cell-Renderers).)
 
 Hypergrid global configurations can be found [here](http://openfin.github.io/fin-hypergrid/doc/module-defaults.html). 
 
