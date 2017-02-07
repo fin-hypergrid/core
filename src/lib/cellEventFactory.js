@@ -9,7 +9,7 @@ var eumerableDescriptor = { writable: true, enumerable: true };
 // The nullSubgrid is for CellEvents representing clicks below last row.
 // var nullSubgrid = {};
 
-var prototype = Object.defineProperties({}, {
+factory.prototypeDescriptors = Object.defineProperties({}, {
     value: {
         get: function() { return this.visibleRow.subgrid.getValue(this.dataCell.x, this.dataCell.y); },
         set: function(value) { this.visibleRow.subgrid.setValue(this.dataCell.x, this.dataCell.y, value); }
@@ -36,8 +36,10 @@ var prototype = Object.defineProperties({}, {
         var cp = this._columnProperties;
         if (!cp) {
             cp = this.column.properties;
-            if (this.isHandleColumn || this.isHierarchyColumn) {
+            if (this.isHandleColumn){
                 cp = cp.rowHeader;
+            } else if (this.isHierarchyColumn) {
+                cp = cp.treeHeader;
             } else if (this.isDataRow) {
                 // cp already set to basic props
             } else if (this.isFilterRow) {
@@ -336,7 +338,7 @@ function factory(grid) {
         }
     }
 
-    CellEvent.prototype = Object.create(prototype);
+    CellEvent.prototype = Object.create(factory.prototypeDescriptors);
 
     Object.defineProperties(CellEvent.prototype, {
         constructor: { value: CellEvent },

@@ -80,7 +80,16 @@ var ColumnResizing = Feature.extend('ColumnResizing', {
             if (event.mousePoint.x <= 3) {
                 var columnIndex = event.gridCell.x - 1;
                 this.dragColumn = grid.behavior.getActiveColumn(columnIndex);
-                this.dragStartWidth = grid.renderer.visibleColumns[columnIndex].width;
+                //this.dragStartWidth = grid.renderer.visibleColumns[columnIndex].width;
+                var visibleColIndex = -1;
+                var dragColumn = this.dragColumn;
+                grid.renderer.visibleColumns.forEach(function(vCol, vIndex){
+                    var col = vCol.column;
+                    if (col.index === dragColumn.index){
+                        visibleColIndex = vIndex;
+                    }
+                });
+                this.dragStartWidth = grid.renderer.visibleColumns[visibleColIndex].width;
             } else {
                 this.dragColumn = event.column;
                 this.dragStartWidth = event.bounds.width;

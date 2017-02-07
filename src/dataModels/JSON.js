@@ -490,7 +490,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
         if (arguments.length === 2) {
             return this.deprecated('cellClicked(cell, event)', 'cellClicked(event)', '1.2.0', arguments);
         }
-        return this.toggleRow(event.dataCell.y);
+        return this.toggleRow(event.dataCell.y, undefined, event);
     },
 
     /**
@@ -503,16 +503,17 @@ var JSON = DataModel.extend('dataModels.JSON', {
      * * `true` - Expand row.
      * * `false` - Collapse row.
      * * `undefined` (or omitted) - Toggle state of row.
+     * @param event
      * @returns {boolean|undefined} Changed. Specifically, one of:
      * * `undefined` row had no drill-down control
      * * `true` drill-down changed
      * * `false` drill-down unchanged (was already in requested state)
      * @memberOf dataModels.JSON.prototype
      */
-    toggleRow: function(y, expand) {
+    toggleRow: function(y, expand, event) {
         //TODO: fire a row toggle event
         var changed;
-        if (this.isDrillDown()) {
+        if (this.isDrillDown(event)) {
             changed = this.dataSource.click(y, expand);
             if (changed) {
                 this.reindex({rowClick: true});
@@ -672,7 +673,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
                 Object.defineProperty(properties, 'COLUMN', {
                     value: {
                         index: columnIndex,
-                        name: this.source.schema[columnIndex].name
+                        name: this.schema[columnIndex].name
                     }
                 });
             }
