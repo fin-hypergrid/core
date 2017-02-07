@@ -36,8 +36,10 @@ factory.prototypeDescriptors = Object.defineProperties({}, {
         var cp = this._columnProperties;
         if (!cp) {
             cp = this.column.properties;
-            if (this.isHandleColumn || this.isHierarchyColumn) {
+            if (this.isHandleColumn){
                 cp = cp.rowHeader;
+            } else if (this.isHierarchyColumn) {
+                cp = cp.treeHeader;
             } else if (this.isDataRow) {
                 // cp already set to basic props
             } else if (this.isFilterRow) {
