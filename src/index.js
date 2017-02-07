@@ -31,7 +31,10 @@ Hypergrid.Base = require('./Base');
 
 var windowRequire = window.require;
 
-window.require = function(path) {
+// Recommended usage:
+// if (fin && fin.Hypergrid) { require = fin.Hypergrid.require; } // install
+// var Base = require('fin-hypergrid/src/Base');
+Hypergrid.require = function(path) {
     var result, crumbs, i,
         errMsg = 'Path ' + path + ' unknown or not exposed in build file.';
 
@@ -43,6 +46,7 @@ window.require = function(path) {
         if (crumbs[i] === 'src') {
             switch (crumbs[++i]) {
                 case 'lib':
+                case 'Base':
                 case 'behaviors':
                 case 'dataModels':
                 case 'features':
@@ -56,6 +60,7 @@ window.require = function(path) {
         while (crumbs[i]) {
             switch (crumbs[i]) {
                 case 'lib':
+                case 'Base':
                 case 'behaviors':
                 case 'dataModels':
                 case 'features':
