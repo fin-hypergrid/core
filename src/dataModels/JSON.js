@@ -673,7 +673,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
                 Object.defineProperty(properties, 'COLUMN', {
                     value: {
                         index: columnIndex,
-                        name: this.source.schema[columnIndex].name
+                        name: this.schema[columnIndex].name
                     }
                 });
             }

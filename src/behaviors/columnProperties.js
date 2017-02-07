@@ -93,6 +93,10 @@ function createColumnProperties() {
         value: Object.create(properties, createColumnProperties.rowHeaderDescriptors)
     });
 
+    Object.defineProperty(properties, 'treeHeader', {
+        value: Object.create(properties, createColumnProperties.treeHeaderDescriptors)
+    });
+
     Object.defineProperty(properties, 'columnHeader', {
         value: Object.create(properties, createColumnProperties.columnHeaderDescriptors)
     });
@@ -103,6 +107,70 @@ function createColumnProperties() {
 
     return properties;
 }
+
+createColumnProperties.treeHeaderDescriptors = {
+    font: {
+        configurable: true,
+        enumerable: true,
+        get: function() {
+            return this.rowHeaderFont;
+        },
+        set: function(value) {
+            this.rowHeaderFont = value;
+        }
+    },
+    color: {
+        configurable: true,
+        enumerable: true,
+        get: function() {
+            return this.rowHeaderColor;
+        },
+        set: function(value) {
+            this.rowHeaderColor = value;
+        }
+    },
+    backgroundColor: {
+        configurable: true,
+        enumerable: true,
+        get: function() {
+            return this.rowHeaderBackgroundColor;
+        },
+        set: function(value) {
+            this.rowHeaderBackgroundColor = value;
+        }
+    },
+    foregroundSelectionFont: {
+        configurable: true,
+        enumerable: true,
+        get: function() {
+            return this.rowHeaderForegroundSelectionFont;
+        },
+        set: function(value) {
+            this.rowHeaderForegroundSelectionFont = value;
+        }
+    },
+    foregroundSelectionColor: {
+        configurable: true,
+        enumerable: true,
+        get: function() {
+            return this.rowHeaderForegroundSelectionColor;
+        },
+        set: function(value) {
+            this.rowHeaderForegroundSelectionColor = value;
+        }
+    },
+    backgroundSelectionColor: {
+        configurable: true,
+        enumerable: true,
+        get: function() {
+            return this.rowHeaderBackgroundSelectionColor;
+        },
+        set: function(value) {
+            this.rowHeaderBackgroundSelectionColor = value;
+        }
+    }
+    //leftIcon: undefined
+};
 
 createColumnProperties.rowHeaderDescriptors = {
     font: {
