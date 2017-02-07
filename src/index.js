@@ -29,6 +29,61 @@ Hypergrid.rectangular = require('rectangular');
 Hypergrid.lib = require('./lib');
 Hypergrid.Base = require('./Base');
 
+var windowRequire = window.require;
+
+// Recommended usage:
+// if (fin && fin.Hypergrid) { require = fin.Hypergrid.require; } // install
+// var Base = require('fin-hypergrid/src/Base');
+Hypergrid.require = function(path) {
+    var result, crumbs, i,
+        errMsg = 'Path ' + path + ' unknown or not exposed in build file.';
+
+    if (path.indexOf('fin-hypergrid/') === 0) {
+        result = Hypergrid;
+        crumbs = path.split('/');
+        i = 1;
+
+        if (crumbs[i] === 'src') {
+            switch (crumbs[++i]) {
+                case 'lib':
+                case 'Base':
+                case 'behaviors':
+                case 'dataModels':
+                case 'features':
+                    result = result[crumbs[i++]];
+                    break;
+                default:
+                    throw errMsg;
+            }
+        }
+
+        while (crumbs[i]) {
+            switch (crumbs[i]) {
+                case 'lib':
+                case 'Base':
+                case 'behaviors':
+                case 'dataModels':
+                case 'features':
+                    result = undefined;
+                    break;
+                default:
+                    result = result[crumbs[i++]];
+            }
+            if (!result) {
+                throw errMsg;
+            }
+        }
+
+        return result;
+    } else if (windowRequire) {
+        return windowRequire.apply(this, arguments);
+    } else {
+        throw errMsg;
+    }
+
+    return result;
+};
+
 // Create the `fin` namespace and the `fin.Hypergrid` objects:
 (window.fin = window.fin || {}).Hypergrid = Hypergrid;
 
