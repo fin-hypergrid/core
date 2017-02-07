@@ -64,15 +64,15 @@ var RowSelection = Feature.extend('RowSelection', {
      * @param {Object} event - the event details
      */
     handleMouseDown: function(grid, event) {
-        var rowSelectable = grid.isRowSelection() &&
+        var rowSelectable = grid.properties.rowSelection &&
             !event.primitiveEvent.detail.isRightClick &&
-            grid.isShowRowNumbers() &&
+            grid.properties.showRowNumbers &&
             event.isHandleColumn;
 
         if (rowSelectable && event.isHeaderHandle) {
             //global row selection
             grid.toggleSelectAllRows();
-        } else if (rowSelectable && event.isGridRow)  {
+        } else if (rowSelectable && event.isDataRow)  {
             // if we are in the fixed area, do not apply the scroll values
             this.dragArmed = true;
             this.extendSelection(grid, event.dataCell.y, event.primitiveEvent.detail.keys);
@@ -89,7 +89,7 @@ var RowSelection = Feature.extend('RowSelection', {
     handleMouseDrag: function(grid, event) {
         if (
             this.dragArmed &&
-            grid.isRowSelection() &&
+            grid.properties.rowSelection &&
             !event.primitiveEvent.detail.isRightClick
         ) {
             //if we are in the fixed area do not apply the scroll values

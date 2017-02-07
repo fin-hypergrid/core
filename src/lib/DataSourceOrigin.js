@@ -1,6 +1,10 @@
+/* eslint-env browser */
+
 'use strict';
 
 var DataSourceBase = require('fin-hypergrid-data-source-base');
+
+var getFieldNames = require('./fields').getFieldNames;
 
 /**
  * See {@link DataSourceOrigin#initialize} for constructor parameters.
@@ -13,13 +17,40 @@ var DataSourceOrigin = DataSourceBase.extend('DataSourceOrigin',  {
      */
     initialize: function(data, schema) {
         delete this.dataSource; // added by DataSourceBase#initialize but we don't want here
-        this.setData.call(this, data, schema || []);
+        this._schema = [];
+        this.setData(data, schema);
     },
 
+    /** @typedef {object} columnSchemaObject
+     * @property {string} name - The required column name.
+     * @property {string} [header] - An override for derived header
+     * @property {function} [calculator] - A function for a computed column. Undefined for normal data columns.
+     * @property {string} [type] - Used for sorting when and only when comparator not given.
+     * @property {object} [comparator] - For sorting, both of following required:
+     * @property {function} comparator.asc - ascending comparator
+     * @property {function} comparator.desc - descending comparator
+     */
+
     /**
+     * @param {object[]} [data=[]] - Array of uniform objects containing the grid data.
+     * @param {columnSchemaObject[]} [schema=[]]
      * @memberOf DataSourceOrigin#
      */
-    setData: setData,
+    setData: function(data, schema) {
+        /**
+         * @summary The array of uniform data objects.
+         * @name schema
+         * @type {columnSchemaObject[]}
+         * @memberOf DataSourceOrigin#
+         */
+        this.data = data || [];
+
+        if (schema) {
+            this.setSchema(schema);
+        } else if (this.data.length && !this.schema.length) {
+            this.setSchema([]);
+        }
+    },
 
     get schema() { return this._schema; },
     set schema(schema) { this._schema = schema; },
@@ -38,7 +69,7 @@ var DataSourceOrigin = DataSourceBase.extend('DataSourceOrigin',  {
      */
     setSchema: function(schema){
         if (!schema.length) {
-            var fields = computeFieldNames(this.data[0]);
+            var fields = getFieldNames(this.data[0]);
 
             schema = Array(fields.length);
 
@@ -296,47 +327,9 @@ var DataSourceOrigin = DataSourceBase.extend('DataSourceOrigin',  {
     }
 });
 
-/** @typedef {object} columnSchemaObject
- * @property {string} name - The required column name.
- * @property {string} [header] - An override for derived header
- * @property {function} [calculator] - A function for a computed column. Undefined for normal data columns.
- * @property {string} [type] - Used for sorting when and only when comparator not given.
- * @property {object} [comparator] - For sorting, both of following required:
- * @property {function} comparator.asc - ascending comparator
- * @property {function} comparator.desc - descending comparator
- */
-
-/**
- * @param {object[]} [data=[]] - Array of uniform objects containing the grid data.
- * @param {columnSchemaObject[]} [schema=[]]
- * @memberOf DataSourceOrigin#
- */
-function setData(data, schema) {
-    /**
-     * @summary The array of uniform data objects.
-     * @name schema
-     * @type {columnSchemaObject[]}
-     * @memberOf DataSourceOrigin#
-     */
-    this.data = data || [];
-
-    if (schema) {
-        this.setSchema(schema);
-    }
-}
-
-/**
- * @private
- * @param {object} object
- * @returns {string[]}
- */
-function computeFieldNames(object) {
-    if (!object) {
-        return [];
-    }
-    return Object.getOwnPropertyNames(object || []).filter(function(e) {
-        return e.substr(0, 2) !== '__';
-    });
-}
 
 module.exports = DataSourceOrigin;
+
+
+// Create the `datasaur` namespace and the `datasaur.base` object for use by data sources included via <script> tags:
+(window.datasaur = window.datasaur || {}).base = require('fin-hypergrid-data-source-base');

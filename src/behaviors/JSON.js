@@ -29,12 +29,11 @@ var JSON = Behavior.extend('behaviors.JSON', {
     },
 
     features: [
+        features.Filters,
         features.CellSelection,
         features.KeyPaging,
-        features.ColumnPicker,
         features.ColumnResizing,
-        features.RowResizing,
-        features.Filters,
+        // features.RowResizing,
         features.RowSelection,
         features.ColumnSelection,
         features.ColumnMoving,
@@ -45,11 +44,9 @@ var JSON = Behavior.extend('behaviors.JSON', {
     ],
 
     createColumns: function() {
-        var schema = this.dataModel.schema;
+        Behavior.prototype.createColumns.call(this);
 
-        this.clearColumns();
-
-        schema.forEach(function(columnSchema, index) {
+        this.dataModel.schema.forEach(function(columnSchema, index) {
             this.addColumn({
                 index: index,
                 header: columnSchema.header,
@@ -66,6 +63,7 @@ var JSON = Behavior.extend('behaviors.JSON', {
      * @param key
      * @todo move columnEnum code from core to demo
      * @returns {string}
+     * @memberOf behaviors.JSON.prototype
      */
     columnEnumKey: function(key) {
         return key.replace(REGEX_CAMEL_CASE, '$1_$2').toUpperCase();
@@ -119,12 +117,11 @@ var JSON = Behavior.extend('behaviors.JSON', {
      * @memberOf behaviors.JSON.prototype
      */
     setPipeline: function(DataSources, options) {
+        this.dataModel.setPipeline.apply(this.dataModel, arguments);
+
         if (!Array.isArray(DataSources)) {
             options = DataSources;
-            DataSources = undefined;
         }
-
-        this.dataModel.setPipeline(DataSources, options);
 
         if (!options || options.apply === undefined || options.apply) {
             this.reindex();
@@ -137,6 +134,7 @@ var JSON = Behavior.extend('behaviors.JSON', {
      * @param {string} [whichStash]
      * @param {object} [options] - Takes first argument position when `DataSources` omitted.
      * @param {boolean} [options.apply=true] Apply data transformations to the new data.
+     * @memberOf behaviors.JSON.prototype
      */
     unstashPipeline: function(stash, options) {
         if (typeof stash === 'object') {
@@ -177,58 +175,48 @@ var JSON = Behavior.extend('behaviors.JSON', {
         }
 
         if (!Array.isArray(dataRows)) {
-            throw 'Data is not an array';
+            throw 'Expected data to be an array (of data row objects).';
         }
 
         options = options || {};
-        var grid = this.grid;
 
-        this.dataModel.setData(
-            dataRows,
-            this.unwrap(options.schema) || [] // *always* define a new schema on reset
-        );
+        var grid = this.grid,
+            schema = this.unwrap(options.schema), // *always* define a new schema on reset
+            schemaChanged = schema || !this.subgrids.lookup.data.schema.length, // schema will change if a new schema was provided OR data model has an empty schema now, which triggers schema generation on setData below
+            reindex = options.apply === undefined || options.apply; // defaults to true
+
+        // Inform interested data models of data.
+        this.subgrids.forEach(function(dataModel) {
+            if (dataModel.setData && !dataModel.hasOwnData) {
+                dataModel.setData(dataRows, schema);
+            }
+        });
 
         if (grid.cellEditor) {
             grid.cellEditor.cancelEditing();
         }
 
-        if (options.apply === undefined || options.apply) {
+        if (reindex) {
             this.reindex();
         }
 
-        var self = this;
-        this.createColumns();
-        if (self.grid.isColumnAutosizing()) {
-            setTimeout(function() {
-                self.autosizeAllColumns();
-            }, 100);
-            self.grid.allowEvents(self.dataModel.getRowCount() > 0);
-        } else {
-            setTimeout(function() {
-                self.getColumn(-1).checkColumnAutosizing(true);
-                self.grid.allowEvents(self.dataModel.getRowCount() > 0);
-            });
+        if (schemaChanged) {
+            this.createColumns();
         }
+
+        grid.allowEvents(this.dataModel.getRowCount() > 0);
     },
+
     /**
      * @summary Rebinds the data without reshaping it.
+     * @desc See {@link behaviors.JSON#setData|setData}'s parameter descriptions.
      * @param dataRows
      * @param options
      * @memberOf behaviors.JSON.prototype
      */
-    updateData: function(dataRows, options){
-        options = options || {};
-        if (!(Array.isArray(dataRows) || typeof dataRows === 'function')) {
-            options = dataRows;
-            dataRows = options && options.data;
-        }
-        dataRows = this.unwrap(dataRows);
-        this.dataModel.setData(
-            dataRows,
-            this.unwrap(options.schema) // undefined will be ignored
-        );
-
-        this.reindex();
+    updateData: function(dataRows, options) {
+        this.deprecated('updateData(dataRows, options)', 'setData(dataRows, options)', 'v1.2.10', arguments,
+            'To update data without changing column definitions, call setData _without a schema._');
     },
 
     /**
@@ -247,15 +235,6 @@ var JSON = Behavior.extend('behaviors.JSON', {
         console.warn('This function does not do anything');
     },
 
-    /**
-     * @memberOf behaviors.JSON.prototype
-     * @description Enhance the double-click event just before it's broadcast to listeners.
-     * @param {Point} event
-     */
-    enhanceDoubleClickEvent: function(event) {
-        event.row = this.getRow(event.gridCell.y);
-    },
-
     //Not being used. Should be repurposed??
     setDataProvider: function(dataProvider) {
         this.dataModel.setDataProvider(dataProvider);
@@ -265,28 +244,13 @@ var JSON = Behavior.extend('behaviors.JSON', {
         return this.dataModel.hasHierarchyColumn();
     },
 
-    getHiddenColumns: function() {
-        return this.dataModel.getHiddenColumns();
-    },
-
-    getActiveColumns: function() {
-        return this.dataModel.getActiveColumns();
-    },
     getVisibleColumns: function() {
         return this.deprecated('getVisibleColumns()', 'getActiveColumns()', '1.0.6', arguments);
-    },
-
-    getSelectedColumns: function() {
-        return this.grid.selectionModel.getSelectedColumns();
     },
 
     getSelections: function() {
         return this.grid.selectionModel.getSelections();
     },
-
-    getSortedColumnIndexes: function(){
-      return this.dataModel.getSortedColumnIndexes();
-    }
 });
 
 module.exports = JSON;

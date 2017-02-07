@@ -18,23 +18,35 @@ window.onload = function() {
     // Add a blank column.
     treeData.forEach(function(dataRow) { dataRow.name = ''; });
 
+    // These modules are for EXAMPLE purposes only
     grid = new Hypergrid('div#tree-example', { data: treeData, plugins: [
         Hypergrid.drillDown, // simple API install (plain object with `install` method) but no `name` defined so no ref is saved
         Hypergrid.rowById, // ditto
-        Hypergrid.Hyperfilter, // object API instantiation; `$$CLASS_NAME` defined so ref saved in `grid.plugins.hyperfilter`
-        [Hypergrid.Hypersorter, {Column: fin.Hypergrid.behaviors.Column}], // object API instantiation to grid.plugins; no `name` or `$$CLASS_NAME` defined so no ref saved
-        [Hypergrid.TreeView, options] // object API instantiation with one arg; `$$CLASS_NAME` defined so ref saved in `grid.plugins.treeViewAPI`
+        Hypergrid.Hyperfilter, // object API instantiation; `name` defined so ref saved in `grid.plugins.hyperfilter`
+        Hypergrid.Hypersorter, // object API instantiation; `name` defined so ref saved in `grid.plugins.hypersorter`
+        [Hypergrid.TreeView, options] // object API instantiation with one arg; `name` defined so ref saved in `grid.plugins.treeViewAPI`
     ] });
 
-    grid.filter = grid.plugins.hyperfilter.create();
-    grid.sorter = grid.plugins.hypersorter;
+    // Install the sorter and Filter data sources (optional).
+    // These modules are for EXAMPLE purposes only
+    grid.setPipeline([
+        window.datasaur.filter,
+        window.datasaur.sorter
+    ]);
+
+    // Inform data model of external DCIs. (These DCIs are for EXAMPLE purposes only.)
+    grid.setController({
+        // These modules are for EXAMPLE purposes only
+        filter: grid.plugins.hyperfilter.create(),
+        sorter: grid.plugins.hypersorter
+    });
 
     var idx = grid.behavior.columnEnum;
 
     grid.setState({
         columnIndexes: [ idx.NAME, idx.STATE, idx.LATITUDE, idx.LONGITUDE ], // so drill-down column on far left
         fixedColumnCount: 1, // so far left drill-down column always visible
-        showFilterRow: options.includeFilter && grid.filter.prop('columnFilters')
+        showFilterRow: options.includeFilter && grid.prop('filter', 'columnFilters')
     });
 
     grid.behavior.setColumnProperties(grid.behavior.columnEnum.STATE, {

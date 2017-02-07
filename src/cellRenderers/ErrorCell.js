@@ -24,45 +24,28 @@ var ErrorCell = CellRenderer.extend('ErrorCell', {
      *
      * Before doing anything else, this function should clear the cell by setting `gc.fillStyle` and calling `gc.fill()`.
      *
-     * @param {CanvasGraphicsContext} gc
+     * @param {CanvasRenderingContext2D} gc
      * @param {object} config
      * @param {Rectangle} config.bounds - The clipping rect of the cell to be rendered.
-     * @param {number} config.x - the "translated" index into the `behavior.allColumns` array
-     * @param {number} config.normalizedY - the vertical grid coordinate normalized to first data row
-     * @param {number} config.untranslatedX - the horizontal grid coordinate measured from first data column
-     * @param {number} config.y - the vertical grid coordinate measured from top header row
      * @memberOf ErrorCell.prototype
      */
     paint: function(gc, config, message) {
         //var images = require('../../images/index');
         var x = config.bounds.x,
             y = config.bounds.y,
-            width = config.bounds.width,
+            // width = config.bounds.width,
             height = config.bounds.height;
 
         // clear the cell
         // (this makes use of the rect path defined by the caller)
-        gc.fillStyle = '#FFD500';
+        gc.cache.fillStyle = '#FFD500';
         gc.fill();
-        // render cell border
-        //gc.strokeStyle = gc.createPattern(images.caution, 'repeat'); // Causes Error
-        gc.lineWidth = 5;
-        gc.beginPath();
-        gc.moveTo(x, y); // caution: do not use rect() here because Chrome does not clip its stroke properly
-        gc.lineTo(x + width, y);
-        gc.lineTo(x + width, y + height);
-        gc.lineTo(x, y + height);
-        gc.lineTo(x, y);
-        gc.stroke();
-        // adjust clip region to prevent text from rendering over right border should it overflow
-        gc.beginPath();
-        gc.rect(x, y, width - 2, height);
-        gc.clip();
+
         // render message text
-        gc.fillStyle = '#A00';
-        gc.textAlign = 'start';
-        gc.textBaseline = 'middle';
-        gc.font = 'bold 6pt "arial narrow", verdana, geneva';
+        gc.cache.fillStyle = '#A00';
+        gc.cache.textAlign = 'start';
+        gc.cache.textBaseline = 'middle';
+        gc.cache.font = 'bold 6pt "arial narrow", verdana, geneva';
         gc.fillText(message, x + 4, y + height / 2 + 0.5);
     }
 });

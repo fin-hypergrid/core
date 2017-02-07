@@ -1,7 +1,5 @@
 'use strict';
 
-var _ = require('object-iterators');
-
 var FilterTree = require('filter-tree');
 var ParserCQL = require('./parser-CQL');
 
@@ -95,7 +93,7 @@ var CustomFilterLeaf = FilterTree.prototype.addEditor({
 FilterTree.prototype.addEditor('Columns');
 
 // Add some node templates by updating shared instance of FilterNode's templates. (OK to mutate shared instance; filter-tree not being used for anything else here. Alternatively, we could have instantiated a new Templates object for our DefaultFilter prototype, although this would only affect tree nodes, not leaf nodes, but that would be ok in this case since the additions below are tree node templates.)
-_(FilterTree.Node.prototype.templates).extendOwn({
+Object.assign(FilterTree.Node.prototype.templates, {
     columnFilter: [
         '<span class="filter-tree">',
         '   <strong><span>{2} </span></strong><br>',
@@ -311,7 +309,7 @@ var DefaultFilter = FilterTree.extend('DefaultFilter', {
         subexpression = this.getColumnFilter(columnName);
 
         if (state) {
-            options = _({}).extend(options); // clone it because we may mutate it below
+            options = Object.assign({}, options); // clone it because we may mutate it below
             options.syntax = options.syntax || 'CQL';
 
             if (options.syntax === 'CQL') {
@@ -465,8 +463,13 @@ var DefaultFilter = FilterTree.extend('DefaultFilter', {
         calculator: true
     },
 
+    get enabled() {
+        return this.columnFilters.children.length > 0 ||
+            this.tableFilter.children.length > 0;
+    },
+
     /**
-     * @implements dataSourceHelperAPI#properties
+     * @implements dataControlInterface#properties
      * @desc Notes regarding specific properties:
      * * `caseSensitiveData` (root property) pertains to string compares only. This includes untyped columns, columns typed as strings, typed columns containing data that cannot be coerced to type or when the filter expression operand cannot be coerced. This is a shared property and affects all grids managed by this instance of the app.
      * * `calculator` (column property) Computed column calculator.
@@ -479,25 +482,23 @@ var DefaultFilter = FilterTree.extend('DefaultFilter', {
      */
     properties: function(properties) {
         var result, value,
-            object = properties && properties.column
-                ? this.schema.lookup(properties.column.name)
+            object = properties && properties.COLUMN
+                ? this.schema.lookup(properties.COLUMN.name)
                 : this.root;
 
         if (properties && object) {
-            if (properties.getPropName) {
-                result = object[properties.getPropName];
+            if (properties.GETTER) {
+                result = object[alias(properties.GETTER)];
                 if (result === undefined) {
                     result = null;
                 }
             } else {
                 for (var key in properties) {
                     value = properties[key];
-                    if (value === undefined) {
-                        delete object[key];
-                    } else if (typeof value === 'function' && !this.firstClassProperties[key]) {
-                        object[key] = value();
+                    if (typeof value === 'function' && !this.firstClassProperties[key]) {
+                        object[alias(key)] = value();
                     } else {
-                        object[key] = value;
+                        object[alias(key)] = value;
                     }
                 }
             }
@@ -506,6 +507,13 @@ var DefaultFilter = FilterTree.extend('DefaultFilter', {
         return result;
     }
 });
+
+function alias(key) {
+    if (key === 'header') {
+        key = 'alias';
+    }
+    return key;
+}
 
 
 module.exports = DefaultFilter;

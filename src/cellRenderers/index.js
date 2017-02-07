@@ -1,11 +1,7 @@
-/**
- * @summary API of cell renderer object constructors, plus some access methods.
- * @module cellRenderers
- */
-
 'use strict';
 
 /**
+ * @classdesc API of cell renderer object constructors, plus some access methods.
  * @param {boolean} [privateRegistry=false] - This instance will use a private registry.
  * @constructor
  */
@@ -35,7 +31,7 @@ CellRenderers.prototype = {
      * @summary Register and instantiate a cell renderer singleton.
      * @desc Adds a custom cell renderer to the `singletons` hash using the provided name (or the class name), converted to all lower case.
      *
-     * > All native cell renderers are "preregistered" in `singletons`. Add more by calling `get`.
+     * > All native cell renderers are "preregistered" in `singletons`. Add more by calling `add`.
      *
      * @param {string} [name] - Case-insensitive renderer key. If not given, `YourCellRenderer.prototype.$$CLASS_NAME` is used.
      *
@@ -77,7 +73,14 @@ CellRenderers.prototype = {
      * @memberOf CellRenderers.prototype
      */
     get: function(name) {
-        return this.singletons[name && name.toLowerCase()];
+        var result = this.singletons[name]; // for performance reasons, do not convert to lower case
+        if (!result) {
+            result = this.singletons[name.toLowerCase()]; // name may differ in case only
+            if (result) {
+                this.singletons[name] = result; // register found name as a synonym
+            }
+        }
+        return result;
     },
 
     /**

@@ -1,6 +1,9 @@
 'use strict';
 
 var CellRenderer = require('./CellRenderer');
+var images = require('../../images/index');
+
+var WHITESPACE = /\s\s+/g;
 
 /**
  * @constructor
@@ -10,7 +13,7 @@ var SimpleCell = CellRenderer.extend('SimpleCell', {
 
     /**
      * @summary The default cell rendering function for rendering a vanilla cell.
-     * @desc Great care has been taken in crafting this function as it needs to perform extremely fast. Reads on the gc object are expensive but not quite as expensive as writes to it. We do our best to avoid writes, then avoid reads. Clipping bounds are not set here as this is also an expensive operation. Instead, we truncate overflowing text and content by filling a rectangle with background color column by column instead of cell by cell.  This column by column fill happens higher up on the stack in a calling function from fin-hypergrid-renderer.  Take note we do not do cell by cell border renderering as that is expensive.  Instead we render many fewer gridlines after all cells are rendered.
+     * @desc Great care has been taken in crafting this function as it needs to perform extremely fast. Reads on the gc object are expensive but not quite as expensive as writes to it. We do our best to avoid writes, then avoid reads. Clipping bounds are not set here as this is also an expensive operation. Instead, we truncate overflowing text and content by filling a rectangle with background color column by column instead of cell by cell.  This column by column fill happens higher up on the stack in a calling function from fin-hypergrid-renderer.  Take note we do not do cell by cell border rendering as that is expensive.  Instead we render many fewer gridlines after all cells are rendered.
      * @implements paintFunction
      * @memberOf SimpleCell.prototype
      */
@@ -21,257 +24,296 @@ var SimpleCell = CellRenderer.extend('SimpleCell', {
             y = bounds.y,
             width = bounds.width,
             height = bounds.height,
-            leftPadding = 2; //TODO: fix this
-
-        var leftIcon, rightIcon, centerIcon, ixoffset, iyoffset, font;
+            iconPadding = config.iconPadding,
+            partialRender = config.prefillColor === undefined, // signifies abort before rendering if same
+            snapshot = config.snapshot,
+            same = snapshot && partialRender,
+            valWidth = 0,
+            textColor, textFont,
+            ixoffset, iyoffset,
+            leftIcon, rightIcon, centerIcon,
+            leftPadding, rightPadding,
+            hover, hoverColor, selectColor, foundationColor, inheritsBackgroundColor,
+            c, colors;
 
         // setting gc properties are expensive, let's not do it needlessly
 
         if (val && val.constructor === Array) {
             leftIcon = val[0];
             rightIcon = val[2];
-            val = val[1];
-            if (val && typeof val === 'object') {
-                if (val.constructor.name === 'HTMLImageElement') { // must be an image
-                    centerIcon = val;
-                    val = null;
-                }
+            val = config.exec(val[1]);
+            if (val && val.naturalWidth !== undefined) { // must be an image (much faster than instanceof HTMLImageElement)
+                centerIcon = val;
+                val = null;
             }
-            if (leftIcon && leftIcon.nodeName !== 'IMG') {
-                leftIcon = null;
-            }
-            if (rightIcon && rightIcon.nodeName !== 'IMG') {
-                rightIcon = null;
-            }
-            if (centerIcon && centerIcon.nodeName !== 'IMG') {
-                centerIcon = null;
-            }
+        } else {
+            leftIcon = images[config.leftIcon];
+            centerIcon = images[config.centerIcon];
+            rightIcon = images[config.rightIcon];
         }
 
-        if (config.isUserDataArea) {
-            val = valOrFunc(val, config, config.calculator);
+        // Note: vf == 0 is fastest equivalent of vf === 0 || vf === false which excludes NaN, null, undefined
+        var renderValue = val || config.renderFalsy && val == 0; // eslint-disable-line eqeqeq
+
+        if (renderValue) {
+            val = config.formatValue(val, config);
+
+            textFont = config.isSelected ? config.foregroundSelectionFont : config.font;
+
+            textColor = gc.cache.strokeStyle = config.isSelected
+                ? config.foregroundSelectionColor
+                : config.color;
+        } else {
+            val = '';
         }
 
-        val = config.formatValue(val);
-
-        font = config.isSelected ? config.foregroundSelectionFont : config.font;
-
-        if (gc.font !== font) {
-            gc.font = font;
-        }
-
-        if (gc.textAlign !== 'left') {
-            gc.textAlign = 'left';
-        }
-        if (gc.textBaseline !== 'middle') {
-            gc.textBaseline = 'middle';
-        }
+        same = same &&
+            val === snapshot.value &&
+            textFont === snapshot.textFont &&
+            textColor === snapshot.textColor;
 
         // fill background only if our bgColor is populated or we are a selected cell
-        var backgroundColor, hover, hoverColor, selectColor,
-            colors = [];
-
+        colors = [];
+        c = 0;
         if (config.isCellHovered && config.hoverCellHighlight.enabled) {
             hoverColor = config.hoverCellHighlight.backgroundColor;
         } else if (config.isRowHovered && (hover = config.hoverRowHighlight).enabled) {
-            hoverColor = config.isGridColumn || !hover.header || hover.header.backgroundColor === undefined ? hover.backgroundColor : hover.header.backgroundColor;
+            hoverColor = config.isDataColumn || !hover.header || hover.header.backgroundColor === undefined ? hover.backgroundColor : hover.header.backgroundColor;
         } else if (config.isColumnHovered && (hover = config.hoverColumnHighlight).enabled) {
-            hoverColor = config.isGridRow || !hover.header || hover.header.backgroundColor === undefined ? hover.backgroundColor : hover.header.backgroundColor;
+            hoverColor = config.isDataRow || !hover.header || hover.header.backgroundColor === undefined ? hover.backgroundColor : hover.header.backgroundColor;
         }
-        if (alpha(hoverColor) < 1) {
+        if (gc.alpha(hoverColor) < 1) {
             if (config.isSelected) {
-                selectColor = valOrFunc(config.backgroundSelectionColor, config);
+                selectColor = config.backgroundSelectionColor;
             }
-            if (alpha(selectColor) < 1) {
-                backgroundColor = valOrFunc(config.backgroundColor, config);
-                if (alpha(backgroundColor) > 0) {
-                    colors.push(backgroundColor);
+
+            if (gc.alpha(selectColor) < 1) {
+                inheritsBackgroundColor = (config.backgroundColor === config.prefillColor);
+                if (!inheritsBackgroundColor) {
+                    foundationColor = true;
+                    colors.push(config.backgroundColor);
+                    same = same &&  foundationColor === snapshot.foundationColor &&
+                        config.backgroundColor === snapshot.colors[c++];
                 }
             }
+
             if (selectColor !== undefined) {
                 colors.push(selectColor);
+                same = same && selectColor === snapshot.colors[c++];
             }
         }
         if (hoverColor !== undefined) {
             colors.push(hoverColor);
-        }
-        layerColors(gc, colors, x, y, width, height);
-
-        // draw text
-        var theColor = valOrFunc(config.isSelected ? config.foregroundSelectionColor : config.color, config);
-        if (gc.fillStyle !== theColor) {
-            gc.fillStyle = theColor;
-            gc.strokeStyle = theColor;
+            same = same && hoverColor === snapshot.colors[c++];
         }
 
-        if (config.isHeaderRow && config.headerTextWrapping) {
-            this.renderMultiLineText(gc, config, val);
-        } else {
-            this.renderSingleLineText(gc, config, val);
+        // todo check if icons have changed
+        if (same && c === snapshot.colors.length) {
+            return;
         }
 
-        var iconWidth = 0;
-        if (leftIcon) {
-            iyoffset = Math.round((height - leftIcon.height) / 2);
-            gc.drawImage(leftIcon, x + leftPadding, y + iyoffset);
-            iconWidth = Math.max(leftIcon.width + 2);
-        }
-        if (rightIcon && width > 1.75 * height) {
-            iyoffset = Math.round((height - rightIcon.height) / 2);
-            var rightX = x + width - rightIcon.width;
-            if (backgroundColor !== undefined) {
-                layerColors(gc, colors, rightX, y, rightIcon.width, height);
-            } else {
-                gc.clearRect(rightX, y, rightIcon.width, height);
-            }
-            gc.drawImage(rightIcon, rightX, y + iyoffset);
-            iconWidth = Math.max(rightIcon.width + 2);
-        }
-        if (centerIcon) {
+        // return a snapshot to save in cellEvent for future comparisons by partial renderer
+        config.snapshot = {
+            value: val,
+            textColor: textColor,
+            textFont: textFont,
+            foundationColor: foundationColor,
+            colors: colors
+        };
+
+        layerColors(gc, colors, x, y, width, height, foundationColor);
+
+        // Measure left and right icons, needed for rendering and for return value (min width)
+        leftPadding = leftIcon ? iconPadding + leftIcon.width + iconPadding : config.cellPadding;
+        rightPadding = rightIcon ? iconPadding + rightIcon.width + iconPadding : config.cellPadding;
+
+        if (renderValue) {
+            // draw text
+            gc.cache.fillStyle = textColor;
+            gc.cache.font = textFont;
+            valWidth = config.isHeaderRow && config.headerTextWrapping
+                ? renderMultiLineText(gc, config, val, leftPadding, rightPadding)
+                : renderSingleLineText(gc, config, val, leftPadding, rightPadding);
+        } else if (centerIcon) {
+            // Measure & draw center icon
             iyoffset = Math.round((height - centerIcon.height) / 2);
             ixoffset = Math.round((width - centerIcon.width) / 2);
             gc.drawImage(centerIcon, x + width - ixoffset - centerIcon.width, y + iyoffset);
-            iconWidth = Math.max(centerIcon.width + 2);
+            valWidth = iconPadding + centerIcon.width + iconPadding;
         }
+
+        if (leftIcon) {
+            // Draw left icon
+            iyoffset = Math.round((height - leftIcon.height) / 2);
+            gc.drawImage(leftIcon, x + iconPadding, y + iyoffset);
+        }
+
+        if (rightIcon) {
+            // Repaint background before painting right icon, because text may have flowed under where it will be.
+            // This is a work-around to clipping which is too expensive to perform here.
+            var rightX = x + width - (rightIcon.width + iconPadding);
+            if (inheritsBackgroundColor) {
+                foundationColor = true;
+                colors.unshift(config.backgroundColor);
+            }
+            layerColors(gc, colors, rightX, y, rightPadding, height, foundationColor);
+
+            // Draw right icon
+            iyoffset = Math.round((height - rightIcon.height) / 2);
+            gc.drawImage(rightIcon, rightX, y + iyoffset);
+        }
+
         if (config.cellBorderThickness) {
             gc.beginPath();
             gc.rect(x, y, width, height);
-            gc.lineWidth = config.cellBorderThickness;
-            gc.strokeStyle = config.cellBorderStyle;
-
-            // animate the dashed line a bit here for fun
-
+            gc.cache.lineWidth = config.cellBorderThickness;
+            gc.cache.strokeStyle = config.cellBorderStyle;
             gc.stroke();
             gc.closePath();
         }
-        config.minWidth = config.minWidth + 2 * (iconWidth);
-    },
 
-    /**
-     * @summary Renders single line text.
-     * @param {CanvasGraphicsContext} gc
-     * @param {object} config
-     * @param {Rectangle} config.bounds - The clipping rect of the cell to be rendered.
-     * @param {*} val - The text to render in the cell.
-     * @memberOf SimpleCell.prototype
-     */
-    renderMultiLineText: function(gc, config, val) {
-        var x = config.bounds.x,
-            y = config.bounds.y,
-            width = config.bounds.width,
-            height = config.bounds.height;
-        var lines = fitText(gc, config, val, width);
-        if (lines.length === 1) {
-            return this.renderSingleLineText(gc, config, squeeze(val));
-        }
-
-        var colHEdgeOffset = config.cellPadding,
-            halignOffset = 0,
-            valignOffset = config.voffset,
-            halign = config.halign,
-            textHeight = config.getTextHeight(config.font).height;
-
-        switch (halign) {
-            case 'right':
-                halignOffset = width - colHEdgeOffset;
-                break;
-            case 'center':
-                halignOffset = width / 2;
-                break;
-            case 'left':
-                halignOffset = colHEdgeOffset;
-                break;
-        }
-
-        var hMin = 0, vMin = Math.ceil(textHeight / 2);
-
-        valignOffset += Math.ceil((height - (lines.length - 1) * textHeight) / 2);
-
-        halignOffset = Math.max(hMin, halignOffset);
-        valignOffset = Math.max(vMin, valignOffset);
-
-        gc.save(); // define a clipping region for cell
-        gc.beginPath();
-        gc.rect(x, y, width, height);
-        gc.clip();
-
-        gc.textAlign = halign;
-
-        for (var i = 0; i < lines.length; i++) {
-            gc.fillText(lines[i], x + halignOffset, y + valignOffset + (i * textHeight));
-        }
-
-        gc.restore(); // discard clipping region
-    },
-
-    /**
-     * @summary Renders single line text.
-     * @param {CanvasGraphicsContext} gc
-     * @param {object} config
-     * @param {Rectangle} config.bounds - The clipping rect of the cell to be rendered.
-     * @param {*} val - The text to render in the cell.
-     * @memberOf SimpleCell.prototype
-     */
-    renderSingleLineText: function(gc, config, val) {
-        var x = config.bounds.x,
-            y = config.bounds.y,
-            width = config.bounds.width,
-            height = config.bounds.height;
-        var colHEdgeOffset = config.cellPadding,
-            halignOffset = 0,
-            valignOffset = config.voffset,
-            halign = config.halign,
-            isCellHovered = config.isCellHovered,
-            isLink = config.link;
-
-        var fontMetrics = config.getTextHeight(config.font);
-        var textWidth = config.getTextWidth(gc, val);
-
-        //we must set this in order to compute the minimum width
-        //for column autosizing purposes
-        config.minWidth = textWidth + (2 * colHEdgeOffset);
-
-        switch (halign) {
-            case 'right':
-                //textWidth = config.getTextWidth(gc, config.value);
-                halignOffset = width - colHEdgeOffset - textWidth;
-                break;
-            case 'center':
-                //textWidth = config.getTextWidth(gc, config.value);
-                halignOffset = (width - textWidth) / 2;
-                break;
-            case 'left':
-                halignOffset = colHEdgeOffset;
-                break;
-        }
-
-        halignOffset = Math.max(0, halignOffset);
-        valignOffset += Math.ceil(height / 2);
-
-        if (val !== null) {
-            gc.fillText(val, x + halignOffset, y + valignOffset);
-        }
-
-        if (isCellHovered) {
-            gc.beginPath();
-            if (isLink) {
-                underline(config, gc, val, x + halignOffset, y + valignOffset + Math.floor(fontMetrics.height / 2), 1);
-                gc.stroke();
-            }
-            gc.closePath();
-        }
-        if (config.strikeThrough === true) {
-            gc.beginPath();
-            strikeThrough(config, gc, val, x + halignOffset, y + valignOffset + Math.floor(fontMetrics.height / 2), 1);
-            gc.stroke();
-            gc.closePath();
-        }
+        config.minWidth = leftPadding + valWidth + rightPadding;
     }
 });
 
+/**
+ * @summary Renders single line text.
+ * @param {CanvasRenderingContext2D} gc
+ * @param {object} config
+ * @param {Rectangle} config.bounds - The clipping rect of the cell to be rendered.
+ * @param {*} val - The text to render in the cell.
+ * @memberOf SimpleCell.prototype
+ */
+function renderMultiLineText(gc, config, val, leftPadding, rightPadding) {
+    var x = config.bounds.x,
+        y = config.bounds.y,
+        width = config.bounds.width,
+        height = config.bounds.height,
+        cleanVal = (val + '').trim().replace(WHITESPACE, ' '), // trim and squeeze whitespace
+        lines = findLines(gc, config, cleanVal.split(' '), width);
 
-function fitText(gc, config, string, width) {
-    return findLines(gc, config, squeeze(string).split(' '), width);
+    if (lines.length === 1) {
+        return renderSingleLineText(gc, config, cleanVal, leftPadding, rightPadding);
+    }
+
+    var halignOffset = leftPadding,
+        valignOffset = config.voffset,
+        halign = config.halign,
+        textHeight = gc.getTextHeight(config.font).height;
+
+    switch (halign) {
+        case 'right':
+            halignOffset = width - rightPadding;
+            break;
+        case 'center':
+            halignOffset = width / 2;
+            break;
+    }
+
+    var hMin = 0, vMin = Math.ceil(textHeight / 2);
+
+    valignOffset += Math.ceil((height - (lines.length - 1) * textHeight) / 2);
+
+    halignOffset = Math.max(hMin, halignOffset);
+    valignOffset = Math.max(vMin, valignOffset);
+
+    gc.cache.save(); // define a clipping region for cell
+    gc.beginPath();
+    gc.rect(x, y, width, height);
+    gc.clip();
+
+    gc.cache.textAlign = halign;
+    gc.cache.textBaseline = 'middle';
+
+    for (var i = 0; i < lines.length; i++) {
+        gc.simpleText(lines[i], x + halignOffset, y + valignOffset + (i * textHeight));
+    }
+
+    gc.cache.restore(); // discard clipping region
+
+    return width;
+}
+
+/**
+ * @summary Renders single line text.
+ * @param {CanvasRenderingContext2D} gc
+ * @param {object} config
+ * @param {Rectangle} config.bounds - The clipping rect of the cell to be rendered.
+ * @param {*} val - The text to render in the cell.
+ * @memberOf SimpleCell.prototype
+ */
+function renderSingleLineText(gc, config, val, leftPadding, rightPadding) {
+    var x = config.bounds.x,
+        y = config.bounds.y,
+        width = config.bounds.width,
+        halignOffset = leftPadding,
+        halign = config.halign,
+        minWidth,
+        metrics;
+
+    if (config.columnAutosizing) {
+        metrics = gc.getTextWidthTruncated(val, width - leftPadding, config.truncateTextWithEllipsis);
+        minWidth = metrics.width;
+        val = metrics.string || val;
+        switch (halign) {
+            case 'right':
+                halignOffset = width - rightPadding - metrics.width;
+                break;
+            case 'center':
+                halignOffset = (width - metrics.width) / 2;
+                break;
+        }
+    } else {
+        metrics = gc.getTextWidthTruncated(val, width - leftPadding, config.truncateTextWithEllipsis, true);
+        minWidth = 0;
+        if (metrics.string !== undefined) {
+            val = metrics.string;
+        } else {
+            switch (halign) {
+                case 'right':
+                    halignOffset = width - rightPadding - metrics.width;
+                    break;
+                case 'center':
+                    halignOffset = (width - metrics.width) / 2;
+                    break;
+            }
+        }
+    }
+
+    if (val !== null) {
+        x += Math.max(leftPadding, halignOffset);
+        y += config.bounds.height / 2;
+
+        if (config.isUserDataArea) {
+            if (config.link) {
+                if (config.isCellHovered || !config.linkOnHover) {
+                    if (config.linkColor) {
+                        gc.cache.strokeStyle = config.linkColor;
+                    }
+                    gc.beginPath();
+                    underline(config, gc, val, x, y, 1);
+                    gc.stroke();
+                    gc.closePath();
+                }
+                if (config.linkColor && (config.isCellHovered || !config.linkColorOnHover)) {
+                    gc.cache.fillStyle = config.linkColor;
+                }
+            }
+
+            if (config.strikeThrough === true) {
+                gc.beginPath();
+                strikeThrough(config, gc, val, x, y, 1);
+                gc.stroke();
+                gc.closePath();
+            }
+        }
+
+        gc.cache.textAlign = 'left';
+        gc.cache.textBaseline = 'middle';
+        gc.simpleText(val, x, y);
+    }
+
+    return minWidth;
 }
 
 function findLines(gc, config, words, width) {
@@ -280,118 +322,83 @@ function findLines(gc, config, words, width) {
         return words;
     }
 
-    // starting with just the first word…
+    // starting with just the first word...
     var stillFits, line = [words.shift()];
     while (
-        // so lone as line still fits within current column…
-    (stillFits = config.getTextWidth(gc, line.join(' ')) < width)
-    // …AND there are more words available…
+        // so lone as line still fits within current column...
+    (stillFits = gc.getTextWidth(line.join(' ')) < width)
+    // ...AND there are more words available...
     && words.length
         ) {
-        // …add another word to end of line and retest
+        // ...add another word to end of line and retest
         line.push(words.shift());
     }
 
     if (
-        !stillFits // if line is now too long…
-        && line.length > 1 // …AND is multiple words…
+        !stillFits // if line is now too long...
+        && line.length > 1 // ...AND is multiple words...
     ) {
-        words.unshift(line.pop()); // …back off by (i.e., remove) one word
+        words.unshift(line.pop()); // ...back off by (i.e., remove) one word
     }
 
     line = [line.join(' ')];
 
-    if (words.length) { // if there's anything left…
-        line = line.concat(findLines(gc, config, words, width)); // …break it up as well
+    if (words.length) { // if there's anything left...
+        line = line.concat(findLines(gc, config, words, width)); // ...break it up as well
     }
 
     return line;
 }
 
-// trim string; then reduce all runs of multiple spaces to a single space
-function squeeze(string) {
-    return (string + '').trim().replace(/\s\s+/g, ' ');
-}
-
 function strikeThrough(config, gc, text, x, y, thickness) {
-    var fontMetrics = config.getTextHeight(config.font);
-    var width = config.getTextWidth(gc, text);
-    y -= fontMetrics.height * 0.4;
+    var textWidth = gc.getTextWidth(text);
 
-    switch (gc.textAlign) {
+    switch (gc.cache.textAlign) {
         case 'center':
-            x -= width / 2;
+            x -= textWidth / 2;
             break;
         case 'right':
-            x -= width;
+            x -= textWidth;
             break;
     }
 
-    //gc.beginPath();
-    gc.lineWidth = thickness;
-    gc.moveTo(x + 0.5, y + 0.5);
-    gc.lineTo(x + width + 0.5, y + 0.5);
+    y = Math.round(y + 0.5) - 0.5;
+
+    gc.cache.lineWidth = thickness;
+    gc.moveTo(x - 1, y);
+    gc.lineTo(x + textWidth + 1, y);
 }
 
 function underline(config, gc, text, x, y, thickness) {
-    var width = config.getTextWidth(gc, text);
+    var textHeight = gc.getTextHeight(config.font).height,
+        textWidth = gc.getTextWidth(text);
 
-    switch (gc.textAlign) {
+    switch (gc.cache.textAlign) {
         case 'center':
-            x -= width / 2;
+            x -= textWidth / 2;
             break;
         case 'right':
-            x -= width;
+            x -= textWidth;
             break;
     }
 
+    y = Math.round(y + textHeight / 2) - 0.5;
+
     //gc.beginPath();
-    gc.lineWidth = thickness;
-    gc.moveTo(x + 0.5, y + 0.5);
-    gc.lineTo(x + width + 0.5, y + 0.5);
+    gc.cache.lineWidth = thickness;
+    gc.moveTo(x, y);
+    gc.lineTo(x + textWidth, y);
 }
 
-function layerColors(gc, colors, x, y, width, height) {
-    colors.forEach(function(color) {
-        gc.fillStyle = color;
-        gc.fillRect(x, y, width, height);
-    });
-}
-
-function valOrFunc(vf, config, calculator) {
-    var result = vf;
-    if (config.isGridColumn && config.isGridRow && config.dataRow) {
-        calculator = (typeof vf)[0] === 'f' && vf || calculator;
-        if (calculator) {
-            result = calculator(config.dataRow, config.name);
+function layerColors(gc, colors, x, y, width, height, foundationColor) {
+    for (var i = 0; i < colors.length; i++) {
+        if (foundationColor && !i) {
+            gc.clearFill(x, y, width, height, colors[i]);
+        } else {
+            gc.cache.fillStyle = colors[i];
+            gc.fillRect(x, y, width, height);
         }
     }
-    return result || result === 0 || result === false ? result : '';
 }
-
-function alpha(cssColorSpec) {
-    if (cssColorSpec === undefined) {
-        // undefined so not visible; treat as transparent
-        return 0;
-    }
-
-    var matches = cssColorSpec.match(alpha.regex);
-
-    if (matches === null) {
-        // an opaque color (a color spec with no alpha channel)
-        return 1;
-    }
-
-    var A = matches[4];
-
-    if (A === undefined) {
-        // cssColorSpec must have been 'transparent'
-        return 0;
-    }
-
-    return Number(A);
-}
-
-alpha.regex = /^(transparent|((RGB|HSL)A\(.*,\s*([\d\.]+)\)))$/i;
 
 module.exports = SimpleCell;

@@ -3,11 +3,9 @@
 'use strict';
 
 var automat = require('automat');
+var markup = require('../html');
 
-var Base = require('../Base');
-var markup = require('../../html');
-var images = require('../../images');
-var elfor = require('../lib/DOM/elfor');
+var Base = window.fin.Hypergrid.Base; // try require('fin-hypergrid/src/Base') when externalized
 
 /**
  * Creates and services a DOM element used as a cntainer for a dialog. The standard `markup.dialog` is simply a div with a _control panel_ containing a close box and a settings gear icon.
@@ -47,9 +45,11 @@ var Dialog = Base.extend('Dialog', {
             }
         }
 
-        // add background image
-        if (options.backgroundImage !== false) {
-            this.el.style.backgroundImage = 'url(\'' + (options.backgroundImage || images.dialog.src) + '\')';
+        // set alternative background image
+        if (options.backgroundImage === false) {
+            this.el.style.backgroundImage = null;
+        } else if (options.backgroundImage) {
+            this.el.style.backgroundImage = 'url(\'' + options.backgroundImage + '\')';
         }
 
         // listen for clicks
@@ -67,20 +67,18 @@ var Dialog = Base.extend('Dialog', {
      * @param {...*} [replacements] - See `automat`.
      */
     append: function(nodes, replacements/*...*/) {
-        var el = this.el;
-
         if (typeof nodes === 'string' || typeof nodes === 'function') {
             var args = Array.prototype.slice.call(arguments);
-            args.splice(1, 0, el, this.originalFirstChild);
+            args.splice(1, 0, this.el, this.originalFirstChild);
             automat.append.apply(null, args);
 
         } else if ('length' in nodes) {
             for (var i = 0; i < nodes.length; ++i) {
-                el.insertBefore(nodes[i], this.originalFirstChild);
+                this.el.insertBefore(nodes[i], this.originalFirstChild);
             }
 
         } else {
-            el.insertBefore(nodes, this.originalFirstChild);
+            this.el.insertBefore(nodes, this.originalFirstChild);
         }
     },
 
@@ -90,8 +88,8 @@ var Dialog = Base.extend('Dialog', {
      * @param {HTMLElement} [container] - If undefined, dialog is appended to body.
      *
      * If defined, dialog is appended to container. When container is not body, it will be:
-     * # made visible before append (it should initially be hidden)
-     * # made hidden after remove
+     * 0. made visible before append (it should initially be hidden)
+     * 0. made hidden after remove
      */
     open: function(container) {
         var error;
@@ -135,18 +133,16 @@ var Dialog = Base.extend('Dialog', {
             error = this.onClose();
 
             if (!error) {
-                var el = this.el;
-
                 this.closing = true;
 
                 // unhide all the hypergrids behind the dialog
                 this.appVisible('visible');
 
                 // start a hide transition of dialog revealing grids behind it
-                el.classList.remove('hypergrid-dialog-visible');
+                this.el.classList.remove('hypergrid-dialog-visible');
 
                 // at end of hide transition, remove dialog from the DOM
-                el.addEventListener('transitionend', this.removeDialogBound = removeDialog.bind(this));
+                this.el.addEventListener('transitionend', this.removeDialogBound = removeDialog.bind(this));
             }
         }
 
@@ -155,7 +151,7 @@ var Dialog = Base.extend('Dialog', {
 
     appSelector: 'canvas.hypergrid',
     appVisible: function(visibility) {
-        elfor.each(this.appSelector, function(el) {
+        Array.prototype.forEach.call(document.querySelectorAll(this.appSelector), function(el) {
             el.style.visibility = visibility;
         });
     },
@@ -171,6 +167,8 @@ function nullPattern() {}
 
 function removeDialog(evt) {
     if (evt.target === this.el && evt.propertyName === 'opacity') {
+        this.el.removeEventListener('transitionend', this.removeDialogBound);
+
         if (this.el.parentElement.tagName !== 'BODY') {
             this.el.parentElement.style.visibility = 'hidden';
         }
@@ -186,8 +184,9 @@ function removeDialog(evt) {
 
 function hideApp(evt) {
     if (evt.target === this.el && evt.propertyName === 'opacity') {
-        this.appVisible('hidden');
         this.el.removeEventListener('transitionend', this.hideAppBound);
+
+        this.appVisible('hidden');
         this.onOpened();
         this.opening = false;
         this.opened = true;

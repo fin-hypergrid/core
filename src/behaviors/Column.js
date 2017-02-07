@@ -6,8 +6,7 @@ var overrider = require('overrider');
 
 var deprecated = require('../lib/deprecated');
 var HypergridError = require('../lib/error');
-
-var warned = {};
+var images = require('../../images/index');
 
 /** @summary Create a new `Column` object.
  * @see {@link module:Cell} is mixed into Column.prototype.
@@ -26,24 +25,25 @@ var warned = {};
  *    -1   | Row header column
  *    -2   | Tree (drill-down) column
  */
-function Column(behavior, options) {
-    var index, schema;
+function Column(behavior, indexOrOptions) {
+    var index, schema, options;
 
     this.behavior = behavior;
     this.dataModel = behavior.dataModel;
 
     schema = this.behavior.dataModel.schema;
 
-    switch (typeof options) {
+    switch (typeof indexOrOptions) {
         case 'number':
-            index = options;
+            index = indexOrOptions;
             options = {};
             break;
         case 'string':
-            index = getIndexFromName(options);
+            index = getIndexFromName(indexOrOptions);
             options = {};
             break;
         case 'object':
+            options = indexOrOptions;
             index = options.index !== undefined
                 ? options.index
                 : getIndexFromName(options.name);
@@ -61,29 +61,33 @@ function Column(behavior, options) {
 
     this._index = index;
 
-    this.clearAllCellProperties();
+    this.properties = options;
 
     switch (index) {
         case -1:
+            // Width of icon + 3-pixel spacer (checked and unchecked should be same width)
+            var icon = images[Object.create(this.properties.rowHeader, { isDataRow: { value: true } }).leftIcon];
+            this.properties.minimumColumnWidth = icon ? icon.width + 3 : 0;
+            break;
         case -2:
+            // This case avoids the "out of range" error.
             break;
         default:
             if (index < 0) {
                 throw '`index` out of range';
-            } else {
-                this.properties = options;
             }
     }
 }
 
 Column.prototype = {
     constructor: Column.prototype.constructor,
+    $$CLASS_NAME: 'Column',
+    deprecated: deprecated,
 
     HypergridError: HypergridError,
 
     mixIn: overrider.mixIn,
 
-    deprecated: deprecated,
     set: function(options) {
         return this.deprecated('set(options)', 'setProperties(options)', '1.2.0', arguments);
     },
@@ -98,10 +102,11 @@ Column.prototype = {
 
     /**
      * @summary Name of this column from the `fields` array.
-     * @returns {string}
+     * @returns {string|undefined} Returns `undefined` if the column is not in the schema (such as for handle column).
      */
     get name() { // read-only (no setter)
-        return this.dataModel.schema[this._index].name;
+        var columnSchema = this.dataModel.schema[this._index];
+        return columnSchema && columnSchema.name;
     },
 
     /**
@@ -115,7 +120,7 @@ Column.prototype = {
      */
     set header(headerText) {
         this.dataModel.schema[this.index].header = headerText;
-        this.behavior.filter.prop(this.index, 'header', headerText);
+        this.dataModel.prop(null, this.index, 'header', headerText);
         this.behavior.grid.repaint();
     },
     get header() {
@@ -133,13 +138,15 @@ Column.prototype = {
      */
     set calculator(calculator) {
         var schema = this.dataModel.schema;
-        if (calculator === undefined) {
-            delete schema[this.index].calculator;
-        } else {
-            schema[this.index].calculator = calculator;
+        if (calculator !== schema[this.index].calculator) {
+            if (calculator === undefined) {
+                delete schema[this.index].calculator;
+            } else {
+                schema[this.index].calculator = calculator;
+            }
+            this.behavior.prop(null, this.index, 'calculator', calculator);
+            this.behavior.applyAnalytics();
         }
-        this.behavior.filter.prop(this.index, 'calculator', calculator);
-        this.behavior.applyAnalytics();
     },
     get calculator() {
         return this.dataModel.schema[this.index].calculator;
@@ -155,8 +162,7 @@ Column.prototype = {
     set type(type) {
         this._type = type;
         //TODO: This is calling reindex for every column during grid init. Maybe defer all reindex calls until after an grid 'ready' event
-        this.behavior.filter.prop(this.index, 'type', type);
-        this.behavior.sorter.prop(this.index, 'type', type);
+        this.dataModel.prop(null, this.index, 'type', type);
         this.behavior.reindex();
     },
     get type() {
@@ -176,36 +182,32 @@ Column.prototype = {
     },
 
     getWidth: function() {
-        return this.properties && this.properties.width || this.behavior.grid.properties.defaultColumnWidth;
+        return this.properties.width || this.behavior.grid.properties.defaultColumnWidth;
     },
 
     setWidth: function(width) {
-        this.properties.width = Math.max(5, width);
-    },
-
-    getCellRenderer: function(config, cellEvent) {
-        config.untranslatedX = cellEvent.gridCell.x;
-        config.y = cellEvent.gridCell.y;
-
-        config.x = this.index;
-        config.normalizedY = cellEvent.dataCell.y;
-
-        return this.dataModel.getCell(config, cellEvent.getCellProperty('renderer'));
+        width = Math.max(this.properties.minimumColumnWidth, width);
+        if (width !== this.properties.width) {
+            this.properties.width = width;
+            this.properties.columnAutosizing = false;
+        }
     },
 
     checkColumnAutosizing: function(force) {
-        var properties = this.properties;
-        var a, b, d, autoSized;
-        if (properties) {
-            a = properties.width;
-            b = properties.preferredWidth || a;
-            d = properties.columnAutosized && !force;
-            if (a !== b || !d) {
-                properties.width = !d ? b : Math.max(a, b);
+        var properties = this.properties,
+            width, preferredWidth, autoSized;
+
+        if (properties.columnAutosizing) {
+            width = properties.width;
+            preferredWidth = properties.preferredWidth || width;
+            force = force || !properties.columnAutosized;
+            if (width !== preferredWidth || force && preferredWidth !== undefined) {
+                properties.width = force ? preferredWidth : Math.max(width, preferredWidth);
                 properties.columnAutosized = !isNaN(properties.width);
-                autoSized = properties.width !== a;
+                autoSized = properties.width !== width;
             }
         }
+
         return autoSized;
     },
 
@@ -266,30 +268,25 @@ Column.prototype = {
     },
 
     get properties() {
-        var tableState = this.behavior.grid.properties,
-            result = tableState.columnProperties[this.index];
-
-        if (!result) {
-            result = tableState.columnProperties[this.index] = this.createColumnProperties();
-        }
-
-        return result;
+        return this._properties;
     },
-    set properties(properties) {
-        var key, descriptor, obj = this.properties;
-
-        for (key in obj) {
-            descriptor = Object.getOwnPropertyDescriptor(obj, key);
-            if (!descriptor || descriptor.configurable) {
-                delete obj[key];
-            }
-        }
-
-        this.addProperties(properties);
+    set properties(ownProperties) {
+        this._properties = this.createColumnProperties();
+        this.addProperties(ownProperties);
     },
 
     getProperties: function() {
         return this.deprecated('getProperties()', 'properties', '1.2.0');
+    },
+
+    /** This method is provided because some grid renderer optimizations require that the grid renderer be informed when column colors change. Due to performance concerns, they cannot take the time to figure it out for themselves. Along the same lines, making the property a getter/setter (in columnProperties.js), though doable, might present performance concerns as this property is possibly the most accessed of all column properties.
+     * @param color
+     */
+    setBackgroundColor: function(color) {
+        if (this.properties.backgroundColor !== color) {
+            this.properties.backgroundColor = color;
+            this.behavior.grid.renderer.rebundleGridRenderers();
+        }
     },
 
     /**
@@ -298,13 +295,10 @@ Column.prototype = {
      */
     setProperties: function(properties, preserve) {
         if (!preserve) {
-            if (!warned.setProperties) {
-                warned.setProperties = true;
-                console.warn('setProperties(properties) has been deprecated in favor of properties (setter) as of v1.2.0 and will be removed in a future version. This advice only pertains to usages of setProperties when called with a single parameter. When called with a truthy second parameter, use the new addProperties(properties) call instead.');
-            }
+            this.deprecated('setProperties', 'setProperties(properties) has been deprecated in favor of properties (setter) as of v1.2.0. (Will be removed in a future version.) This advice only pertains to usages of setProperties when called with a single parameter. When called with a truthy second parameter, use the new addProperties(properties) call instead.');
             this.properties = properties;
         } else {
-            this.deprecated('setProperties(properties, preserve)', 'addProperties(properties)', '1.2.0', arguments, 'This warning pertains to setProperties only when preserve is truthy. When preserve is faulty, use the new properties setter.');
+            this.deprecated('setPropertiesPreserve', 'setProperties(properties, preserve)', 'addProperties(properties)', '1.2.0', arguments, 'This warning pertains to setProperties only when preserve is truthy. When preserve is faulty, use the new properties setter.');
         }
     },
 
@@ -312,45 +306,37 @@ Column.prototype = {
         var key, descriptor, obj = this.properties;
 
         for (key in properties) {
-            descriptor = Object.getOwnPropertyDescriptor(obj, key);
-            if (!descriptor || descriptor.writable || descriptor.set) {
-                obj[key] = properties[key];
+            if (properties.hasOwnProperty(key)) {
+                descriptor = Object.getOwnPropertyDescriptor(obj, key);
+                if (!descriptor || descriptor.writable || descriptor.set) {
+                    obj[key] = properties[key];
+                }
             }
         }
     },
 
     /**
-     * This method determines the proposed cell editor name from the render properties. The algorithm is:
-     * 1. `editor` render property (cell editor name)
-     * 2. `format` render property (localizer name)
+     * @summary Get a new cell editor.
+     * @desc The cell editor to use must be registered with the key in the cell's `editor` property.
      *
-     * Note that "render property" means in each case the first defined property found on the cell, column, or grid.
+     * The cell's `format` property is mixed into the provided cellEvent for possible overriding by developer's override of {@link DataModel.prototype.getCellEditorAt} before being used by {@link CellEditor} to parse and format the cell value.
      *
-     * @param {number} y - The grid row index.
-     * @param {object} options - Will be decorated with `format` and `column`.
-     * @param {CellEvent} options.editPoint
-     * @returns {undefined|CellEditor} Falsy value means either no declared cell editor _or_ instantiation aborted by falsy return return from fireRequestCellEdit.
+     * @param {CellEvent} cellEvent
+     *
+     * @returns {undefined|CellEditor} Falsy value means either no declared cell editor _or_ instantiation aborted by falsy return from `fireRequestCellEdit`.
      */
-    getCellEditorAt: function(event) {
+    getCellEditorAt: function(cellEvent) {
         var columnIndex = this.index,
-            rowIndex = event.gridCell.y,
-            editorName = event.getCellProperty('editor'),
-            options = Object.defineProperties(event, {
+            rowIndex = cellEvent.gridCell.y,
+            editorName = cellEvent.properties.editor,
+            options = Object.create(cellEvent, {
                 format: {
-                    // `options.fomrat` is a copy of the cell's `format` property which is:
+                    // `options.format` is a copy of the cell's `format` property which is:
                     // 1. Subject to adjustment by the `getCellEditorAt` override.
                     // 2. Then used by the cell editor to reference the predefined localizer.
                     writable: true,
-                    value: event.getCellProperty('format')
-                },
-                editPoint: {
-                    get: function() {
-                        if (!warned.editPoint) {
-                            warned.editPoint = true;
-                            console.warn('The .editPoint property has been deprecated as of v1.2.0 in favor of .gridCell. It may be removed in a future release.');
-                        }
-                        return this.gridCell;
-                    }
+                    enumerable: true, // so cell editor will copy it to self
+                    value: cellEvent.properties.format
                 }
             }),
             cellEditor = this.dataModel.getCellEditorAt(columnIndex, rowIndex, editorName, options);

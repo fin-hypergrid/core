@@ -2,6 +2,24 @@
     position: relative;
     height: 500px;
 }
+.hypergrid-container > div:first-child {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+}
+.hypergrid-container > div:first-child > div.info {
+    position: absolute;
+    display: none; /* initially hidden */
+    margin-top: 150px; /* to place below headers */
+    color: #eee;
+    text-shadow: 1px 1px #ccc;
+    font-size: 36pt;
+    font-weight: bold;
+    text-align: center;
+    top: 0; right: 0; bottom: 0; left: 0;
+}
 .hypergrid-textfield {
     position: absolute;
     font-size: 12px;

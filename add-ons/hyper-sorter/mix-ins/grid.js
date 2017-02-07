@@ -3,7 +3,19 @@
 module.exports = {
 
     /**
-     * @memberOf Hypergrid.prototype
+     * @summary The behaviors's sorter data controller.
+     * @desc This getter/setter is syntactic sugar for calls to `getController` and `setController`.
+     * @memberOf Hypergrid#
+     */
+    get sorter() {
+        return this.getController('sorter');
+    },
+    set sorter(sorter) {
+        this.setController('sorter', sorter);
+    },
+
+    /**
+     * @memberOf Hypergrid#
      * @param event
      */
     toggleSort: function(event) {
@@ -13,14 +25,12 @@ module.exports = {
             self = this,
             c = event.detail.column,
             keys =  event.detail.keys;
+
         behavior.toggleSort(c, keys);
 
         setTimeout(function() {
             self.synchronizeScrollingBoundaries();
-            //self.behaviorChanged();
-            if (self.isColumnAutosizing()) {
-                behavior.autosizeAllColumns();
-            }
+            behavior.autosizeAllColumns();
             self.repaint();
         }, 10);
     }

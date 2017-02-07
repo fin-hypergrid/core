@@ -10,12 +10,16 @@
     <script src="data/sampledata.js"></script>
     <script src="build/add-ons/hyper-sorter.js"></script>
 
+    <script src="http://joneit.github.io/datasaur-indexed/build/0.1.1/datasaur-indexed.js"></script>
+    <script src="http://joneit.github.io/datasaur-sorter/build/0.1.2/datasaur-sorter.js"></script>
+
     <script>
         var grid = new fin.Hypergrid();
         grid.setData(window.people1);
+        // This is module is for EXAMPLE purposes only
         grid.installPlugins([[fin.Hypergrid.Hypersorter, {Column: fin.Hypergrid.behaviors.Column}]]);
+        grid.setPipeline([window.datasaur.sorter]);
         grid.sorter = grid.plugins.hypersorter;
-        grid.setPipeline([window.fin.Hypergrid.analytics.DataSourceSorterComposite]);
         grid.addProperties({
             showRowNumbers: false
         });

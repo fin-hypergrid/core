@@ -217,13 +217,14 @@ function setHeaders(headers) {
         return Math.max(column.header.split(delimiter).length, max);
     }, 0);
 
-    var headerDataModel = this.grid.behavior.subgrids.header,
+    var headerDataModel = this.grid.behavior.subgrids.lookup.header,
         headerRowHeight = levels * 4 / 3 * this.grid.properties.defaultRowHeight;
     this.grid.setRowHeight(0, headerRowHeight, headerDataModel);
 
     // 3. Set all active header cells to use the GroupHeader cell renderer
     this.columns.forEach(function(column) {
-        column.setCellProperty(0, 'renderer', CLASS_NAME, headerDataModel);
+        column.properties.columnHeader.renderer = CLASS_NAME;
+        // column.setCellProperty(0, 'renderer', CLASS_NAME, headerDataModel);
     });
 }
 
@@ -266,40 +267,46 @@ function isColumnReorderable() {
  * @memberOf groupedHeader
  */
 function paintHeaderGroups(gc, config) {
-    var paint = this.super.paint;
+    var paint = this.super.paint,
+        colIndex = config.dataCell.x;
 
-    var args = arguments,
-        values = config.value.split(this.delimiter), // each group header including column header
+    var values = config.value.split(this.delimiter), // each group header including column header
         groupCount = values.length - 1; // group header levels above column header
 
-    if (groupCount === 0 || config.x === 0) { // no group headers OR first column
+    if (groupCount === 0 || colIndex === 0) { // no group headers OR first column
         this.groups = []; // start out with no groups defined
     }
 
     if (groupCount) { // has group headers
         var group,
             groups = this.groups,
-            bounds = config.bounds,
+            rect = config.bounds,
+            bounds = Object.assign({}, rect), // save bounds for final column header render and resetting
 
-            // save bounds for final column header render
-            boundsLeft = bounds.x,
-            boundsWidth = bounds.width;
+            // save cosmetic properties for final column header render that follows this if-block
+            columnConfigStash = {
+                isColumnHovered: config.isColumnHovered,
+                isSelected: config.isSelected,
+                font: config.font,
+                backgroundColor: config.backgroundColor
+            };
 
         // height of each level is the same, 1/levels of total height
-        bounds.height /= values.length;
+        rect.height /= values.length;
 
-        for (var g = 0, y = bounds.y; g < groupCount; g++, y += bounds.height) {
+        // Always paint the group header background
+        config.prefillColor = null;
+
+        for (var g = 0, y = rect.y; g < groupCount; g++, y += rect.height) {
             if (!groups[g] || values[g] !== groups[g].value) {
                 // Level has changed so reset left position (group[g] as on the renderer and persists between calls)
                 group = groups[g] = groups[g] || {};
                 group.value = values[g];
-                group.left = boundsLeft;
-                group.width = boundsWidth;
+                group.left = bounds.x;
+                group.width = bounds.width;
 
                 // save cosmetic properties for final column header render that follows this if-block
                 group.configStash = {
-                    isColumnHovered: config.isColumnHovered,
-                    isSelected: config.isSelected,
                     font: config.font,
                     backgroundColor: config.backgroundColor
                 };
@@ -310,62 +317,65 @@ function paintHeaderGroups(gc, config) {
             } else {
                 // Continuation of same group level, so just repaint but with increased width
                 group = groups[g];
-                group.width += config.lineWidth + boundsWidth;
+                group.width += config.lineWidth + bounds.width;
             }
 
-            bounds.x = group.left;
-            bounds.y = y;
-            bounds.width = group.width;
+            rect.x = group.left;
+            rect.y = y;
+            rect.width = group.width;
 
             // Copy `group` members saved above from `group.config` to `config`
-            Object.keys(group.config).forEach(reconfig);
-
-            // Paint the group header background
-            gc.fillStyle = config.backgroundColor;
-            gc.fillRect(bounds.x, bounds.y, bounds.width, bounds.height);
+            Object.assign(config, group);
 
             if (group.value) {
                 // Decorate the group header background
                 this.groupIndex = g;
                 this.groupCount = groupCount;
-
-                var decorator = config.paintBackground || this.paintBackground;
-                if (decorator) {
-                    if (typeof decorator !== 'function') {
-                        decorator = groupedHeader[decorator];
-                        if (typeof decorator !== 'function') {
-                            throw 'Expected decorator function of name of registered decorator function.';
-                        }
-                    }
-                    decorator.apply(this, arguments);
-                }
-
                 // Suppress hover and selection effects for group headers
                 config.isColumnHovered = config.isSelected = false;
 
                 // Make group headers bold & grey
                 config.value = group.value;
                 config.font = 'bold ' + config.font;
-                config.backgroundColor = 'transparent';
+                // config.backgroundColor = 'transparent';
 
                 // Paint the group header foreground
-                paint.apply(this, arguments);
+                paint.call(this, gc, config);
+
+                var decorator = config.paintBackground || this.paintBackground;
+                if (decorator) {
+                    if (typeof decorator !== 'function') {
+                        decorator = groupedHeader[decorator];
+                        if (typeof decorator !== 'function') {
+                            throw 'Expected decorator function or name of registered decorator function.';
+                        }
+                    }
+                    decorator.call(this, gc, config);
+                }
             }
 
             // Restore `config`
-            Object.keys(group.configStash).forEach(unstash);
+            Object.assign(config, group.configStash);
         }
 
         // Restore bounds for final column header render.
         // Note that `y` and `height` have been altered from their original values.
-        bounds.x = boundsLeft;
-        bounds.y = y;
-        bounds.width = boundsWidth;
+        rect.x = bounds.x;
+        rect.y = y;
+        rect.width = bounds.width;
         config.value = values[g]; // low-order header
+
+        // restore original column cosmetic properties for actual column header
+        Object.assign(config, columnConfigStash);
     }
 
     // Render the actual column header
-    paint.apply(this, arguments);
+    paint.call(this, gc, config);
+
+    // Restore to original shape for next render
+    if (groupCount) {
+        Object.assign(rect, bounds);
+    }
 
     function stash(key) { // iteratee function for iterating over `group.config`
         if (key in config) {
@@ -377,17 +387,9 @@ function paintHeaderGroups(gc, config) {
         }
         var property = group.config[key];
         if (key !== 'paintBackground' && typeof property === 'function') {
-            property = property.apply(this, args);
+            property = property.call(this, gc, config);
         }
         group[key] = property;
-    }
-
-    function reconfig(key) { // iteratee function for iterating over `group`
-        config[key] = group[key];
-    }
-
-    function unstash(key) { // iteratee function for iterating over `group.configStash`
-        config[key] = group.configStash[key];
     }
 }
 
@@ -412,7 +414,7 @@ function decorateBackgroundWithLinearGradient(gc, config) {
         grad.addColorStop.apply(grad, stop);
     });
 
-    gc.fillStyle = grad;
+    gc.cache.fillStyle = grad;
     gc.fillRect(bounds.x + 2, bounds.y, bounds.width - 3, bounds.height);
 }
 
@@ -435,25 +437,20 @@ function decorateBackgroundWithBottomBorder(gc, config) {
         thickness = config.thickness ||
             this.groupCount - this.groupIndex; // when `thickness` undefined, higher-order groups get progressively thicker borders
 
-    gc.beginPath();
-    gc.strokeStyle = config.color;
-    gc.lineWidth = thickness;
-    gc.moveTo(bounds.x + 3, bounds.y + bounds.height - thickness);
-    gc.lineTo(bounds.x + bounds.width - 2, bounds.y + bounds.height - thickness);
-    gc.stroke();
-    gc.closePath();
+    gc.cache.fillStyle = config.color;
+    gc.fillRect(bounds.x + 3, bounds.y + bounds.height - thickness, bounds.width - 6, thickness);
 }
 
 // regexRGB - parses #rrggbb or rgb(r, g, b) or rgba(r, g, b, a)
 var regexRGB = /(^#([0-9a-f]{2,2})([0-9a-f]{2,2})([0-9a-f]{2,2})|rgba\((\d+),\s*(\d+),\s*(\d+),\s*([.\d]+)\))$/i;
 
 function lighterColor(gc, color, factor, newAlpha) {
-    var r, g, b, alpha, was = gc.fillStyle;
+    var r, g, b, alpha;
 
     // translate color name to color spec
     gc.fillStyle = color;
     color = gc.fillStyle;
-    gc.fillStyle = was;
+    gc.fillStyle = gc.cache.fillStyle;
 
     color = color.match(regexRGB);
 

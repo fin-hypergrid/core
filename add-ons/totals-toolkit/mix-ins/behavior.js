@@ -2,7 +2,7 @@
 
 module.exports = {
 
-    /** @typedef {*[]} valueList
+    /** @typedef {Array} valueList
      * @desc One of:
      * * `activeColumnsList` falsy - Array of row values semantically congruent to `this.columns`.
      * * `activeColumnsList` truthy - Array of row values semantically congruent to `this.allColumns`.
@@ -18,8 +18,8 @@ module.exports = {
     setTotalsValue: function(x, y, value, areas) {
         if (!areas) {
             areas = [];
-            if (this.subgrids.topTotals) { areas.push('top'); }
-            if (this.subgrids.bottomTotal) { areas.push('bottom'); }
+            if (this.subgrids.lookup.topTotals) { areas.push('top'); }
+            if (this.subgrids.lookup.bottomTotal) { areas.push('bottom'); }
         } else if (!Array.isArray(areas)) {
             areas = [areas];
         }
@@ -43,7 +43,7 @@ module.exports = {
      * @summary Get the top total row(s).
      * @returns {valueList[]}
      * @param {boolean} [activeColumnsList=false]
-     * @returns {valueList|*[]} Full data row object, or object containing just the "active" columns, per `activeColumnsList`.
+     * @returns {valueList|Array} Full data row object, or object containing just the "active" columns, per `activeColumnsList`.
      * @memberOf Behavior.prototype
      */
     getTopTotals: function(activeColumnsList) {
@@ -82,7 +82,7 @@ module.exports = {
     setTotals: function(key, rows, activeColumnsList) {
         key += 'Totals';
 
-        var totals = this.subgrids[key];
+        var totals = this.subgrids.lookup[key];
 
         if (!totals) {
             throw new this.HypergridError('Expected subgrids.' + key + '.');
@@ -126,7 +126,7 @@ module.exports = {
     getTotals: function(key, activeColumnsList) {
         key += 'Totals';
 
-        var rows = this.subgrids[key];
+        var rows = this.subgrids.lookup[key];
         rows = rows ? rows.getData() : [];
 
         if (activeColumnsList) {

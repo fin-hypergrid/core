@@ -10,6 +10,10 @@ window.onload = function() {
 
     var Hypergrid = fin.Hypergrid;
     var filterOptions = Hypergrid.Hyperfilter.prototype;
+    var INCLUDE_SORTER = true;
+    var INCLUDE_FILTER = true;
+
+    Hypergrid.defaults.showFilterRow = INCLUDE_FILTER;
 
     // List of properties to show as checkboxes in this demo's "dashboard"
     var toggleProps = [
@@ -30,7 +34,7 @@ window.onload = function() {
             label: 'Column header rows',
             ctrls: [
                 { name: 'showHeaderRow', label: 'header' }, // default "setter" is `setProp`
-                { name: 'showFilterRow', label: 'filter' }
+                INCLUDE_FILTER && { name: 'showFilterRow', label: 'filter' }
             ]
         },
         {
@@ -39,6 +43,14 @@ window.onload = function() {
                 { name: 'hoverCellHighlight.enabled', label: 'cell' },
                 { name: 'hoverRowHighlight.enabled', label: 'row' },
                 { name: 'hoverColumnHighlight.enabled', label: 'column' }
+            ]
+        },
+        {
+            label: 'Link style',
+            ctrls: [
+                { name: 'linkOnHover', label: 'on hover' },
+                { name: 'linkColor', type: 'text', label: 'color' },
+                { name: 'linkColorOnHover', label: 'color on hover' }
             ]
         }, {
             label: 'Cell editing',
@@ -50,9 +62,15 @@ window.onload = function() {
         }, {
             label: 'Selection',
             ctrls: [
-                { name: 'checkboxOnlyRowSelections', label: 'by row handles only', setter: setSelectionProp },
+                { name: 'checkboxOnlyRowSelections', label: 'by row handles only', setter: setSelectionProp,
+                    tooltip: 'Note that when this property is active, autoSelectRows will not work.'},
                 { name: 'singleRowSelectionMode', label: 'one row at a time', setter: setSelectionProp },
-                { name: '!multipleSelections', label: 'one cell region at a time', setter: setSelectionProp, checked: true }
+                { name: '!multipleSelections', label: 'one cell region at a time', setter: setSelectionProp, checked: true },
+                { name: 'autoSelectRows', label: 'auto-select rows', setter: setSelectionProp,
+                    tooltip: 'Notes:\n' +
+                    '1. Requires that checkboxOnlyRowSelections be set to false (so checking this box automatically unchecks that one).\n' +
+                    '2. Set singleRowSelectionMode to false to allow auto-select of multiple rows.' },
+                { name: 'autoSelectColumns', label: 'auto-select columns', setter: setSelectionProp }
             ]
         }, {
             label: 'Filtering',
@@ -93,6 +111,7 @@ window.onload = function() {
     var plugins = [
         Hypergrid.drillDown,
         Hypergrid.totalsToolkit,
+        Hypergrid.DialogUI,
         [Hypergrid.TreeView, {
             treeColumn: 'State',
             includeSorter: true,
@@ -107,24 +126,25 @@ window.onload = function() {
             includeSorter: true,
             includeFilter: true
         }],
-        Hypergrid.Hyperfilter,
-        [Hypergrid.Hypersorter, {Column: fin.Hypergrid.behaviors.Column}]
+        INCLUDE_FILTER && Hypergrid.Hyperfilter,
+        INCLUDE_SORTER && Hypergrid.Hypersorter
     ];
 
     // restore previous "opinionated" headerify behavior
     var headerify = Hypergrid.analytics.util.headerify;
-    headerify.transform = headerify.capitalize;
+    headerify.transform = fin.Hypergrid.lib.fields.titleize;
 
-    function derivedPeopleSchema(columns) {
+    function derivedPeopleSchema() {
         // create a hierarchical schema organized by alias
-        var factory = new Hypergrid.ColumnSchemaFactory(columns);
-        factory.organize(/^(one|two|three|four|five|six|seven|eight)/i, { key: 'alias' });
-        var columnSchema = factory.lookup('last_name');
-        if (columnSchema) {
-            columnSchema.defaultOp = 'IN';
+        this.organize(/^(one|two|three|four|five|six|seven|eight)/i, { key: 'alias' });
+
+        // set some column-specific properties
+        var columnSchema;
+        if ((columnSchema = this.lookup('last_name'))) {
+            columnSchema.defaultOp = 'CONTAINS';
         }
-        //factory.lookup('birthState').opMenu = ['>', '<'];
-        return factory.schema;
+
+        // this.lookup('birthState').opMenu = ['>', '<'];
     }
 
     var customSchema = [
@@ -132,45 +152,25 @@ window.onload = function() {
         { name: 'total_number_of_pets_owned', type: 'number' },
         { name: 'height', type: 'number' },
         'birthDate',
-        'birthState',
+        { name: 'birthState', defaultOp: 'CONTAINS' },
         'employed',
         { name: 'income', type: 'number' },
         { name: 'travel', type: 'number' }
     ];
 
-    var peopleSchema = customSchema;  // or try setting to derivedPeopleSchema
-
-    function capitalize(string) {
-        return (/[a-z]/.test(string) ? string : string.toLowerCase())
-            .replace(/[\s\-_]*([^\s\-_])([^\s\-_]+)/g, replacer)
-            .replace(/[A-Z]/g, ' $&')
-            .trim();
+    function superimposedCustomSchema() {
+        this.overlay(customSchema);
     }
 
-    function replacer(a, b, c) {
-        return b.toUpperCase() + c;
-    }
-
-    function getSchema(data){
-        var schema = [],
-            firstRow = Array.isArray(data) && data[0];
-
-        firstRow = (typeof firstRow === 'object') ? firstRow : {};
-        for (var p in firstRow) {
-            if (firstRow.hasOwnProperty(p)){
-                schema.push({name: p, header: capitalize(p)});
-            }
-        }
-        return schema;
-    }
+    var peopleSchema = superimposedCustomSchema;  // or customSchema or derivedPeopleSchema
 
     var gridOptions = {
             data: people1,
-            margin: { bottom: '17px' },
-            schema: getSchema(people1),
+            margin: { bottom: '17px', right: '17px'},
+            schema: Hypergrid.lib.fields.getSchema(people1),
             plugins: plugins
         },
-        grid = window.g = new Hypergrid('div#json-example', gridOptions),
+        grid = window.grid = window.g = new Hypergrid('div#json-example', gridOptions),
         behavior = window.b = grid.behavior,
         dataModel = window.m = behavior.dataModel,
         idx = behavior.columnEnum,
@@ -178,10 +178,11 @@ window.onload = function() {
         ctrlGroups = document.getElementById('ctrl-groups'),
         buttons = document.getElementById('buttons');
 
-    // Install the sorter and Filter APIs (optional).
+    // Install the sorter and Filter data sources (optional).
+    // These modules are for EXAMPLE purposes only
     grid.setPipeline([
-        window.datasaur.filter,
-        window.fin.Hypergrid.analytics.DataSourceSorterComposite
+        INCLUDE_FILTER && window.datasaur.filter,
+        INCLUDE_SORTER && window.datasaur.sorter
     ]);
     setGlobalSorter();
     resetGlobalFilter(people1);
@@ -191,14 +192,23 @@ window.onload = function() {
     console.log('Indexes:'); console.dir(idx);
 
     function setData(data, options) {
-        options = options || {schema: getSchema(data)};
+        options = !data.length ? undefined : options || {
+            schema: Hypergrid.lib.fields.getSchema(data)
+        };
         grid.setData(data, options);
         resetGlobalFilter(data);
         idx = behavior.columnEnum;
         behavior.reindex();
     }
 
-    // Preset a default dialog options object. Used by call to toggleDialog('ColumnPicker') from features/ColumnPicker.js and by toggleDialog() defined herein.
+    function reset() {
+        grid.reset();
+        addEventListeners();
+    }
+
+    // Preset a default dialog options object.
+    // Used by call to toggleDialog() defined herein.
+    // Dependent on column picker example add-on.
     grid.setDialogOptions({
         //container: document.getElementById('dialog-container'),
         settings: false
@@ -208,10 +218,11 @@ window.onload = function() {
         { label: 'Column Picker&hellip;', onclick: toggleDialog.bind(this, 'ColumnPicker') },
         { label: 'Manage Filters&hellip;', onclick: toggleDialog.bind(this, 'ManageFilters') },
         { label: 'Toggle Empty Data', onclick: toggleEmptyData },
+        { label: 'Set Data', onclick: function() { resetData(); } },
         { label: 'Set Data 1 (5000 rows)', onclick: function() { setData(people1); } },
         { label: 'Set Data 2 (10000 rows)', onclick: function() { setData(people2); } },
         { label: 'Set Data 3 (tree data)', onclick: function() { setData(treeData); } },
-        { label: 'Reset Grid', onclick: grid.reset.bind(grid) },
+        { label: 'Reset Grid', onclick: reset },
         { label: 'Toggle all drill-downs', onclick: toggleAllCtrlGroups }
 
     ].forEach(function(item) {
@@ -225,7 +236,7 @@ window.onload = function() {
     window.vent = false;
 
     //functions for showing the grouping/rollup capabilities
-    var rollups = window.fin.Hypergrid.analytics.util.aggregations,
+    var rollups = Hypergrid.analytics.util.aggregations,
         aggregates = {
             totalPets: rollups.sum(2),
             averagePets: rollups.avg(2),
@@ -239,13 +250,13 @@ window.onload = function() {
 
     function toggleAggregates() {
         grid.plugins.aggregationsView.setAggregateGroups(
-            this.checked ? aggregates : [],
+            this.checked ? aggregates : {},
             this.checked ? groups : []
         );
     }
 
     var treeViewing;
-    function toggleTreeview() {
+    function toggleTreeview(e) {
         treeViewing = grid.plugins.treeView.setRelation(this.checked);
     }
 
@@ -259,7 +270,7 @@ window.onload = function() {
     }
 
     function toggleCaseSensitivity() {
-        grid.filter.prop('caseSensitiveData', this.checked);
+        grid.prop('filter', 'caseSensitiveData', this.checked);
         this.applyAnalytics();
         this.behaviorChanged();
     }
@@ -278,35 +289,36 @@ window.onload = function() {
             ['TEN', 'NINE', '8', 'SEVEN', 'SIX', 'FIVE', 'FOUR', 'THREE', 'TWO', 'ONE']
         ];
 
-    var emptyData = false;
+    var oldData;
     function toggleEmptyData() {
-        emptyData = !emptyData;
-        if (emptyData) {
+        if (!oldData) {
+            oldData = {
+                topTotals: behavior.getTopTotals(),
+                bottomTotals: behavior.getBottomTotals(),
+                data: dataModel.getData(),
+                schema: dataModel.schema,
+                activeColumns: behavior.getActiveColumns().map(function(column) { return column.index; })
+            };
             //important to set top totals first
             behavior.setTopTotals([]);
             setData([]);
             behavior.setBottomTotals([]);
         } else {
             //important to set top totals first
-            behavior.setTopTotals(topTotals);
-            setData(people1);
-            behavior.setBottomTotals(bottomTotals);
+            behavior.setTopTotals(oldData.topTotals);
+            setData(oldData.data, oldData.schema);
+            behavior.setColumnIndexes(oldData.activeColumns);
+            behavior.setBottomTotals(oldData.bottomTotals);
+            oldData = undefined;
         }
     }
-
-    setData(people1);
 
     grid.setColumnProperties(2, {
         backgroundColor: 'maroon',
         color: 'green'
     });
 
-
     behavior.setFixedRowCount(2);
-
-    var upDown = Hypergrid.images['down-rectangle'];
-    var upDownSpin = Hypergrid.images['up-down-spin'];
-    var downArrow = Hypergrid.images.calendar;
 
     // CUSTOM CELL RENDERER
     var REGEXP_CSS_HEX6 = /^#(..)(..)(..)$/,
@@ -350,9 +362,9 @@ window.onload = function() {
             points.push(points[0]); // close the path
         }
 
-        gc.shadowColor = 'transparent';
+        gc.cache.shadowColor = 'transparent';
 
-        gc.lineJoin = 'round';
+        gc.cache.lineJoin = 'round';
         gc.beginPath();
         for (var j = 5, sx = x + 5 + outerRadius; j; --j, sx += diameter) {
             points.forEach(function(point, index) { // eslint-disable-line
@@ -363,7 +375,7 @@ window.onload = function() {
 
         val = val / domain * 5;
 
-        gc.fillStyle = color;
+        gc.cache.fillStyle = color;
         gc.save();
         gc.clip();
         gc.fillRect(x + 5, y,
@@ -371,17 +383,17 @@ window.onload = function() {
             height);
         gc.restore(); // remove clipping region
 
-        gc.strokeStyle = stroke;
-        gc.lineWidth = 1;
+        gc.cache.strokeStyle = stroke;
+        gc.cache.lineWidth = 1;
         gc.stroke();
 
         if (fgColor && fgColor !== 'transparent') {
-            gc.fillStyle = fgColor;
-            gc.font = '11px verdana';
-            gc.textAlign = 'right';
-            gc.textBaseline = 'middle';
-            gc.shadowColor = shadowColor;
-            gc.shadowOffsetX = gc.shadowOffsetY = 1;
+            gc.cache.fillStyle = fgColor;
+            gc.cache.font = '11px verdana';
+            gc.cache.textAlign = 'right';
+            gc.cache.textBaseline = 'middle';
+            gc.cache.shadowColor = shadowColor;
+            gc.cache.shadowOffsetX = gc.cache.shadowOffsetY = 1;
             gc.fillText(val.toFixed(1), x + width + 10, y + height / 2);
         }
     }
@@ -393,7 +405,7 @@ window.onload = function() {
 
     function getRGBA(gc, colorSpec) {
         // Normalize variety of CSS color spec syntaxes to one of two
-        gc.fillStyle = colorSpec;
+        gc.cache.fillStyle = colorSpec;
 
         var rgba = colorSpec.match(REGEXP_CSS_HEX6);
         if (rgba) {
@@ -426,9 +438,9 @@ window.onload = function() {
     //all formatting and rendering per cell can be overridden in here
     dataModel.getCell = function(config, rendererName) {
         if (config.isUserDataArea) {
-            var n, hex;
-            var x = config.x;
-            var y = config.y;
+            var n, hex, travel,
+                colIndex = config.dataCell.x,
+                rowIndex = config.dataCell.y;
 
             if (treeViewing) {
                 n = config.dataRow.__DEPTH;
@@ -436,82 +448,37 @@ window.onload = function() {
                 config.backgroundColor = '#' + hex + hex + hex;
                 config.color = n ? 'black' : 'white';
             } else {
-                var upDownIMG = upDown;
-                var upDownSpinIMG = upDownSpin;
-                var downArrowIMG = downArrow;
-
-                if (!grid.isEditable()) {
-                    upDownIMG = null;
-                    upDownSpinIMG = null;
-                    downArrowIMG = null;
-                }
-
-                var travel;
-
                 if (styleRowsFromData) {
-                    n = behavior.getColumn(idx.TOTAL_NUMBER_OF_PETS_OWNED).getValue(y);
+                    n = behavior.getColumn(idx.TOTAL_NUMBER_OF_PETS_OWNED).getValue(rowIndex);
                     hex = (155 + 10 * (n % 11)).toString(16);
                     config.backgroundColor = '#' + hex + hex + hex;
-                } else {
-                    switch (config.y % 6) {
-                        case 3:
-                        case 4:
-                        case 5:
-                            config.backgroundColor = '#e8ffe8';
-                            config.font = 'italic x-small verdana';
-                            if (config.color !== redIfStartsWithS) {
-                                config.color = '#070';
-                            }
-                            break;
-
-                        case 0:
-                        case 1:
-                        case 2:
-                            config.backgroundColor = 'white';
-                            config.font = 'normal small garamond';
-                            break;
-                    }
                 }
 
-                switch (x) {
+                switch (colIndex) {
                     case idx.LAST_NAME:
-                    case idx.FIRST_NAME:
-                    case idx.BIRTH_STATE:
-                    case idx.RESIDENCE_STATE:
-                        //we are a dropdown, lets provide a visual queue
-                        config.value = [null, config.value, upDownIMG];
-                }
-
-                switch (x) {
-                    case idx.LAST_NAME:
+                        config.color = config.value != null && (config.value + '')[0] === 'S' ? 'red' : '#191919';
                         config.link = true;
                         break;
 
-                    case idx.BIRTH_DATE:
-                        config.value = [null, config.value, downArrowIMG];
-                        break;
-
-                    case idx.EMPLOYED:
-                        rendererName = 'button';
-                        break;
-
                     case idx.INCOME:
-                        travel = 60 + Math.round(config.value * 150 / 100000);
-                        config.backgroundColor = '#00' + travel.toString(16) + '00';
-                        config.color = '#FFFFFF';
+                        travel = 60;
                         break;
 
                     case idx.TRAVEL:
-                        travel = 105 + Math.round(config.value * 150 / 1000);
-                        config.backgroundColor = '#' + travel.toString(16) + '0000';
-                        config.color = '#FFFFFF';
+                        travel = 105;
                         break;
                 }
 
+                if (travel) {
+                    travel += Math.round(config.value * 150 / 100000);
+                    config.backgroundColor = '#00' + travel.toString(16) + '00';
+                    config.color = '#FFFFFF';
+                }
+
                 //Testing
-                if (x === idx.TOTAL_NUMBER_OF_PETS_OWNED) {
+                if (colIndex === idx.TOTAL_NUMBER_OF_PETS_OWNED) {
                     /*
-                     * Be sure to adjust the dataset to the appropriate type and shape in widedata.js
+                     * Be sure to adjust the data set to the appropriate type and shape in widedata.js
                      */
 
                     //return simpleCell; //WORKS
@@ -690,28 +657,21 @@ window.onload = function() {
         'textfield'
     ];
 
-    var lastEditPoint;
-
-    grid.addEventListener('fin-editor-keyup', function(e) {
-        switch (e.detail.char) {
-            case 'UP': grid.editAt(lastEditPoint.plusXY(0, -1)); break;
-            case 'DOWN': grid.editAt(lastEditPoint.plusXY(0, +1)); break;
-        }
-    });
+    var editorCellEvent;
 
     // Override to assign the the cell editors.
-    dataModel.getCellEditorAt = function(x, y, declaredEditorName, options) {
+    dataModel.getCellEditorAt = function(x, y, declaredEditorName, cellEvent) {
         var editorName = declaredEditorName || editorTypes[x % editorTypes.length];
 
-        lastEditPoint = options.gridCell;
+        editorCellEvent = cellEvent;
 
         switch (x) {
             case idx.BIRTH_STATE:
-                options.textColor = 'red';
+                cellEvent.textColor = 'red';
                 break;
         }
 
-        var cellEditor = grid.cellEditors.create(editorName, options);
+        var cellEditor = grid.cellEditors.create(editorName, cellEvent);
 
         if (cellEditor) {
             switch (x) {
@@ -730,229 +690,225 @@ window.onload = function() {
         return cellEditor;
     };
 
-    grid.addEventListener('fin-click', function(e) {
-        var cell = e.detail.gridCell;
-        if (vent) { console.log('fin-click cell:', cell); }
-    });
-
-    grid.addEventListener('fin-double-click', function(e) {
-        var cell = e.detail.gridCell;
-        var rowContext = behavior.getRow(cell.y);
-        if (vent) { console.log('fin-double-click row-context:', rowContext); }
-    });
-
-    grid.addEventListener('fin-button-pressed', function(e) {
-        var cellEvent = e.detail;
-        cellEvent.value = !cellEvent.value;
-    });
-
-    grid.addEventListener('fin-scroll-x', function(e) {
-        if (vent) { console.log('fin-scroll-x ', e.detail.value); }
-    });
-
-    grid.addEventListener('fin-scroll-y', function(e) {
-        if (vent) { console.log('fin-scroll-y', e.detail.value); }
-    });
-
     grid.addProperties({
-        readOnly: false,
-        noDataMessage: 'No Date to Display',
-        showFilterRow: true
+        readOnly: false
     });
 
-    grid.addEventListener('fin-cell-enter', function(e) {
-        var cell = e.detail.gridCell;
-        //if (vent) { console.log('fin-cell-enter', cell.x, cell.y); }
+    addEventListeners();
 
-        //how to set the tooltip....
-        grid.setAttribute('title', 'fin-cell-enter(' + cell.x + ', ' + cell.y + ')');
-    });
-
-    grid.addEventListener('fin-set-totals-value', function(e) {
-        var detail = e.detail,
-            areas = detail.areas || ['top', 'bottom'];
-
-        areas.forEach(function(area) {
-            var methodName = 'get' + area[0].toUpperCase() + area.substr(1) + 'Totals',
-                totalsRow = dataModel[methodName]();
-
-            totalsRow[detail.y][detail.x] = detail.value;
+    function addEventListeners() {
+        grid.addEventListener('fin-click', function(e) {
+            var cell = e.detail.gridCell;
+            if (vent) { console.log('fin-click cell:', cell); }
         });
 
-        grid.repaint();
-    });
+        grid.addEventListener('fin-double-click', function(e) {
+            var rowContext = e.detail.dataRow;
+            if (vent) { console.log('fin-double-click row-context:', rowContext); }
+        });
 
-    grid.addEventListener('fin-filter-applied', function(e) {
-        if (vent) { console.log('fin-filter-applied', e); }
-    });
+        grid.addEventListener('fin-button-pressed', function(e) {
+            var cellEvent = e.detail;
+            cellEvent.value = !cellEvent.value;
+        });
 
-    /**
-     * @summary Listen for certain key presses from grid or cell editor.
-     * @desc NOTE: fincanvas's internal char map yields mixed case while fin-editor-key* events do not.
-     * @return {boolean} Not handled.
-     */
-    function handleCursorKey(e) {
-        var detail = e.detail;
-        var key = String.fromCharCode(detail.key).toUpperCase();
-        if (detail.ctrl) {
-            if (detail.shift) {
-                switch (key) {
-                    case 'A': grid.selectToViewportCell(0, 0); break;
-                    case 'S': grid.selectToFinalCell(); break;
-                    case 'D': grid.selectToFinalCellOfCurrentRow(); break;
-                    case 'F': grid.selectToFirstCellOfCurrentRow(); break;
-                    default: return true;
-                }
-            } else {
-                switch (key) {
-                    case 'A': grid.selectViewportCell(0, 0); break;
-                    case 'S': grid.selectFinalCell(); break;
-                    case 'D': grid.selectFinalCellOfCurrentRow(); break;
-                    case 'F': grid.selectFirstCellOfCurrentRow(); break;
-                    default: return true;
-                }
-            }
-            // break: switch statement handled it
-            return false;
-        } else {
-            var dir = detail.shift ? -1 : +1;
-            switch (key) {
-                case '\t': grid.moveSingleSelect(dir, 0); break; // move LEFT one cell
-                case '\r':
-                case '\n': grid.moveSingleSelect(0, dir); break; // move UP one cell
-                default: return true;
-            }
-            // break: switch statement handled it
-            detail.primitiveEvent.preventDefault();  // prevent TAB from moving focus off the canvas element
-            return false;
-        }
-        return true;
-    }
+        grid.addEventListener('fin-scroll-x', function(e) {
+            if (vent) { console.log('fin-scroll-x ', e.detail.value); }
+        });
 
-    grid.addEventListener('fin-keydown', handleCursorKey);
+        grid.addEventListener('fin-scroll-y', function(e) {
+            if (vent) { console.log('fin-scroll-y', e.detail.value); }
+        });
 
-    grid.addEventListener('fin-editor-keydown', function(e) {
-        var detail = e.detail,
-            ke = detail.keyEvent;
+        grid.addEventListener('fin-cell-enter', function(e) {
+            var cellEvent = e.detail;
 
-        // more detail, please
-        detail.primitiveEvent = ke;
-        detail.key = ke.keyCode;
-        detail.shift = ke.shiftKey;
+            //if (vent) { console.log('fin-cell-enter', cell.x, cell.y); }
 
-        handleCursorKey(e);
-    });
+            //how to set the tooltip....
+            grid.setAttribute('title', 'event name: "fin-cell-enter"\n' +
+                'gridCell: { x: ' + cellEvent.gridCell.x + ', y: ' + cellEvent.gridCell.y + ' }\n' +
+                'dataCell: { x: ' + cellEvent.dataCell.x + ', y: ' + cellEvent.dataCell.y + ' }\n' +
+                'subgrid type: "' + cellEvent.subgrid.type + '"\n' +
+                'subgrid name: ' + (cellEvent.subgrid.name ? '"' + cellEvent.subgrid.name + '"' : 'undefined')
+            );
+        });
 
+        grid.addEventListener('fin-set-totals-value', function(e) {
+            var detail = e.detail,
+                areas = detail.areas || ['top', 'bottom'];
 
-    grid.addEventListener('fin-selection-changed', function(e) {
+            areas.forEach(function(area) {
+                var methodName = 'get' + area[0].toUpperCase() + area.substr(1) + 'Totals',
+                    totalsRow = dataModel[methodName]();
 
-        //lets mirror the cell selection into the rows and or columns
-        grid.selectRowsFromCells();
-        //grid.selectColumnsFromCells();
+                totalsRow[detail.y][detail.x] = detail.value;
+            });
 
-        if (vent) { console.log('fin-selection-changed', grid.getSelectedRows(), grid.getSelectedColumns(), grid.getSelections()); }
-
-        if (e.detail.selections.length === 0) {
-            console.log('no selections');
-            return;
-        }
-
-        // to get the selected rows uncomment the below.....
-        // console.log(grid.getRowSelectionMatrix());
-        // console.log(grid.getRowSelection());
-
-    });
-
-    grid.addEventListener('fin-row-selection-changed', function(e) {
-        var detail = e.detail;
-
-        if (vent) { console.log('fin-row-selection-changed', detail); }
-
-        // Move cell selection with row selection
-        var rows = detail.rows,
-            selections = detail.selections;
-        if (
-            grid.properties.singleRowSelectionMode && // let's only attempt this when in this mode
-            !grid.properties.multipleSelections && // and only when in single selection mode
-            rows.length && // user just selected a row (must be single row due to mode we're in)
-            selections.length  // there was a cell region selected (must be the only one)
-        ) {
-            var rect = grid.selectionModel.getLastSelection(), // the only cell selection
-                x = rect.left,
-                y = rows[0], // we know there's only 1 row selected
-                width = rect.right - x,
-                height = 0, // collapse the new region to occupy a single row
-                fireSelectionChangedEvent = false;
-
-            grid.selectionModel.select(x, y, width, height, fireSelectionChangedEvent);
             grid.repaint();
+        });
+
+        grid.addEventListener('fin-filter-applied', function(e) {
+            if (vent) { console.log('fin-filter-applied', e); }
+        });
+
+        /**
+         * @summary Listen for certain key presses from grid or cell editor.
+         * @desc NOTE: fincanvas's internal char map yields mixed case while fin-editor-key* events do not.
+         * @return {boolean} Not handled.
+         */
+        function handleCursorKey(e) {
+            var detail = e.detail,
+                key = String.fromCharCode(detail.key).toUpperCase(),
+                result = false; // means event handled herein
+
+            if (detail.input instanceof grid.cellEditors.editors.filterbox) { // or: detail.input.$$CLASS_NAME === 'FilterBox'
+                // skip "select" calls if editing a filter cell
+            } else if (detail.ctrl) {
+                if (detail.shift) {
+                    switch (key) {
+                        case '0': if (grid.stopEditing()) { grid.selectToViewportCell(0, 0); } break;
+                        case '9': if (grid.stopEditing()) { grid.selectToFinalCell(); } break;
+                        case '8': if (grid.stopEditing()) { grid.selectToFinalCellOfCurrentRow(); } break;
+                        case '7': if (grid.stopEditing()) { grid.selectToFirstCellOfCurrentRow(); } break;
+                        default: result = true;
+                    }
+                } else {
+                    switch (key) {
+                        case '0': if (grid.stopEditing()) { grid.selectViewportCell(0, 0); } break;
+                        case '9': if (grid.stopEditing()) { grid.selectFinalCell(); } break;
+                        case '8': if (grid.stopEditing()) { grid.selectFinalCellOfCurrentRow(); } break;
+                        case '7': if (grid.stopEditing()) { grid.selectFirstCellOfCurrentRow(); } break;
+                        default: result = true;
+                    }
+                }
+            }
+
+            return result;
         }
 
-        if (rows.length === 0) {
-            console.log('no rows selected');
-            return;
-        }
-        //we have a function call to create the selection matrix because
-        //we don't want to create alot of needless garbage if the user
-        //is just navigating around
-        console.log(grid.getRowSelectionMatrix());
-        console.log(grid.getRowSelection());
-    });
+        grid.addEventListener('fin-keydown', handleCursorKey);
 
-    grid.addEventListener('fin-column-selection-changed', function(e) {
-        if (vent) { console.log('fin-column-selection-changed', e.detail); }
+        grid.addEventListener('fin-editor-keydown', function(e) {
+            // var detail = e.detail,
+            //     ke = detail.keyEvent;
+            //
+            // // more detail, please
+            // detail.primitiveEvent = ke;
+            // detail.key = ke.keyCode;
+            // detail.shift = ke.shiftKey;
+            //
+            // handleCursorKey(e);
+        });
 
-        if (e.detail.columns.length === 0) {
-            console.log('no rows selected');
-            return;
-        }
-        //we have a function call to create the selection matrix because
-        //we don't want to create alot of needless garbage if the user
-        //is just navigating around
-        console.log(grid.getColumnSelectionMatrix());
-        console.log(grid.getColumnSelection());
-    });
 
-    grid.addEventListener('fin-editor-data-change', function(e) {
-        if (vent) { console.log('fin-editor-data-change', e.detail); }
+        grid.addEventListener('fin-selection-changed', function(e) {
 
-    });
+            if (vent) {
+                console.log('fin-selection-changed', grid.getSelectedRows(), grid.getSelectedColumns(), grid.getSelections());
+            }
 
-    grid.addEventListener('fin-request-cell-edit', function(e) {
-        if (vent) { console.log('fin-request-cell-edit', e); }
-        //e.preventDefault(); //uncomment to cancel editor popping up
-    });
+            if (e.detail.selections.length === 0) {
+                console.log('no selections');
+                return;
+            }
 
-    grid.addEventListener('fin-before-cell-edit', function(e) {
-        if (vent) { console.log('fin-before-cell-edit', e); }
-        //e.preventDefault(); //uncomment to cancel updating the model with the new data
-    });
+            // to get the selected rows uncomment the below.....
+            // console.log(grid.getRowSelectionMatrix());
+            // console.log(grid.getRowSelection());
 
-    grid.addEventListener('fin-after-cell-edit', function(e) {
-        if (vent) { console.log('fin-after-cell-edit', e); }
-    });
+        });
 
-    grid.addEventListener('fin-editor-keyup', function(e) {
-        if (vent) { console.log('fin-editor-keyup', e.detail); }
-    });
+        grid.addEventListener('fin-row-selection-changed', function(e) {
+            var detail = e.detail;
 
-    grid.addEventListener('fin-editor-keypress', function(e) {
-        if (vent) { console.log('fin-editor-keypress', e.detail); }
-    });
+            if (vent) { console.log('fin-row-selection-changed', detail); }
 
-    grid.addEventListener('fin-editor-keydown', function(e) {
-        if (vent) { console.log('fin-editor-keydown', e.detail); }
-    });
+            // Move cell selection with row selection
+            var rows = detail.rows,
+                selections = detail.selections;
+            if (
+                grid.properties.singleRowSelectionMode && // let's only attempt this when in this mode
+                !grid.properties.multipleSelections && // and only when in single selection mode
+                rows.length && // user just selected a row (must be single row due to mode we're in)
+                selections.length  // there was a cell region selected (must be the only one)
+            ) {
+                var rect = grid.selectionModel.getLastSelection(), // the only cell selection
+                    x = rect.left,
+                    y = rows[0], // we know there's only 1 row selected
+                    width = rect.right - x,
+                    height = 0, // collapse the new region to occupy a single row
+                    fireSelectionChangedEvent = false;
 
-    grid.addEventListener('fin-groups-changed', function(e) {
-        if (vent) { console.log('fin-groups-changed', e.detail); }
-    });
+                grid.selectionModel.select(x, y, width, height, fireSelectionChangedEvent);
+                grid.repaint();
+            }
 
-    grid.addEventListener('fin-context-menu', function(e) {
-        var modelPoint = e.detail.gridCell;
-        var headerRowCount = grid.getHeaderRowCount();
-        if (vent) { console.log('fin-context-menu(' + modelPoint.x + ', ' + (modelPoint.y - headerRowCount) + ')'); }
-    });
+            if (rows.length === 0) {
+                console.log('no rows selected');
+                return;
+            }
+            //we have a function call to create the selection matrix because
+            //we don't want to create alot of needless garbage if the user
+            //is just navigating around
+            console.log(grid.getRowSelectionMatrix());
+            console.log(grid.getRowSelection());
+        });
+
+        grid.addEventListener('fin-column-selection-changed', function(e) {
+            if (vent) { console.log('fin-column-selection-changed', e.detail); }
+
+            if (e.detail.columns.length === 0) {
+                console.log('no rows selected');
+                return;
+            }
+            //we have a function call to create the selection matrix because
+            //we don't want to create alot of needless garbage if the user
+            //is just navigating around
+            console.log(grid.getColumnSelectionMatrix());
+            console.log(grid.getColumnSelection());
+        });
+
+        grid.addEventListener('fin-editor-data-change', function(e) {
+            if (vent) { console.log('fin-editor-data-change', e.detail); }
+
+        });
+
+        grid.addEventListener('fin-request-cell-edit', function(e) {
+            if (vent) { console.log('fin-request-cell-edit', e); }
+            //e.preventDefault(); //uncomment to cancel editor popping up
+        });
+
+        grid.addEventListener('fin-before-cell-edit', function(e) {
+            if (vent) { console.log('fin-before-cell-edit', e); }
+            //e.preventDefault(); //uncomment to cancel updating the model with the new data
+        });
+
+        grid.addEventListener('fin-after-cell-edit', function(e) {
+            if (vent) { console.log('fin-after-cell-edit', e); }
+        });
+
+        grid.addEventListener('fin-editor-keyup', function(e) {
+            if (vent) { console.log('fin-editor-keyup', e.detail); }
+        });
+
+        grid.addEventListener('fin-editor-keypress', function(e) {
+            if (vent) { console.log('fin-editor-keypress', e.detail); }
+        });
+
+        grid.addEventListener('fin-editor-keydown', function(e) {
+            if (vent) { console.log('fin-editor-keydown', e.detail); }
+        });
+
+        grid.addEventListener('fin-groups-changed', function(e) {
+            if (vent) { console.log('fin-groups-changed', e.detail); }
+        });
+
+        grid.addEventListener('fin-context-menu', function(e) {
+            var modelPoint = e.detail.gridCell;
+            if (vent) { console.log('fin-context-menu(' + modelPoint.x + ', ' + modelPoint.y + ')'); }
+        });
+    }
 
     // make buttons div absolute so buttons width of 100% doesn't stretch to width of dashboard
     ctrlGroups.style.top = ctrlGroups.getBoundingClientRect().top + 'px';
@@ -961,8 +917,33 @@ window.onload = function() {
 
     toggleProps.forEach(function(prop) { addToggle(prop); });
 
+    // reset dashboard checkboxes and radio buttons to match current values of grid properties
+    function resetDashboard() {
+        toggleProps.forEach(function(prop) {
+            prop.ctrls.forEach(function(ctrl) {
+                if (ctrl) {
+                    switch (ctrl.setter) {
+                        case setSelectionProp:
+                        case setProp:
+                        case undefined:
+                            switch (ctrl.type) {
+                                case 'radio':
+                                case 'checkbox':
+                                case undefined:
+                                    var id = ctrl.name,
+                                        polarity = (id[0] === '!');
+                                    document.getElementById(id).checked = getProperty(id) ^ polarity;
+                            }
+                    }
+                }
+            });
+        });
+    }
 
-    setTimeout(function() {
+
+    function resetData() {
+
+        setData(people1);
 
         var state = {
             columnIndexes: [
@@ -980,17 +961,28 @@ window.onload = function() {
                 // idx.SQUARE_OF_INCOME
             ],
 
+            noDataMessage: 'No Data to Display',
+            backgroundColor: 'white',
+            font: 'normal small garamond',
+            rowProperties: [
+                undefined,
+                undefined,
+                undefined,
+                { color: '#116611', backgroundColor: '#e8ffe8', font: 'italic small garamond' },
+                { color: '#116611', backgroundColor: '#e8ffe8', font: 'italic small garamond' },
+                { color: '#116611', backgroundColor: '#e8ffe8', font: 'italic small garamond' }
+            ],
+
             fixedColumnCount: 1,
             fixedRowCount: 2,
 
             showRowNumbers: true,
             showHeaderRow: true,
-            showFilterRow: !!grid.filter.prop('columnFilters'),
             columnAutosizing: false,
             headerTextWrapping: true,
 
-            filteringMode: 'onCommit', // vs. 'immediate' for every key press
-            //filterDefaultColumnFilterOperator: '<>',
+            // filteringMode: 'immediate', // 'immediate' for every key press vs. 'onCommit' to wait till RETURN
+            // filterDefaultColumnFilterOperator: '<>',
             cellSelection: true,
             columnSelection: true,
             rowSelection: true,
@@ -1000,7 +992,7 @@ window.onload = function() {
 
         grid.setState(state);
 
-        grid.setRowHeight(0, 40, behavior.subgrids.header);
+        grid.setRowHeight(0, 40, behavior.subgrids.lookup.header);
 
         // decorate "Height" cell in 17th row
         var rowIndex = 17 - 1;
@@ -1022,7 +1014,8 @@ window.onload = function() {
         grid.addProperties({
             fixedRowCount: 4,
             showRowNumbers: true,
-            checkboxOnlyRowSelections: true
+            checkboxOnlyRowSelections: true,
+            autoSelectRows: true
         });
         // properties that can be set
         // use a function or a value
@@ -1054,13 +1047,13 @@ window.onload = function() {
         //                    });
 
         behavior.setColumnProperties(idx.LAST_NAME, {
-            color: redIfStartsWithS,
             columnHeaderBackgroundColor: '#142B6F', //dark blue
             columnHeaderColor: 'white'
         });
 
         behavior.setColumnProperties(idx.LAST_NAME, {
             columnHeaderHalign: 'left',
+            rightIcon: 'down-rectangle',
             link: true
         });
 
@@ -1069,6 +1062,7 @@ window.onload = function() {
         });
 
         behavior.setColumnProperties(idx.TOTAL_NUMBER_OF_PETS_OWNED, {
+            renderFalsy: true,
             halign: 'center',
             format: 'number'
         });
@@ -1080,6 +1074,7 @@ window.onload = function() {
 
         behavior.setColumnProperties(idx.BIRTH_DATE, {
             format: 'singdate',
+            rightIcon: 'calendar',
             //strikeThrough: true
         });
 
@@ -1090,11 +1085,17 @@ window.onload = function() {
         });
 
         behavior.setColumnProperties(idx.BIRTH_STATE, {
-            editor: 'colortext'
+            editor: 'colortext',
+            rightIcon: 'down-rectangle'
+        });
+
+        behavior.setColumnProperties(idx.RESIDENCE_STATE, {
+            rightIcon: 'down-rectangle'
         });
 
         behavior.setColumnProperties(idx.EMPLOYED, {
             halign: 'right',
+            renderer: 'button',
             backgroundColor: 'white'
         });
 
@@ -1109,7 +1110,7 @@ window.onload = function() {
         });
 
         console.log('visible rows = ' + grid.renderer.visibleRows.map(function(vr){
-            return (vr.subgrid.type || 'data')[0] + vr.rowIndex;
+            return vr.subgrid.type[0] + vr.rowIndex;
         }));
         console.log('visible columns = ' + grid.renderer.visibleColumns.map(function(vc){
             return vc.columnIndex;
@@ -1132,7 +1133,10 @@ window.onload = function() {
             behavior.setAggregates(aggregates, [idx.BIRTH_STATE, idx.LAST_NAME, idx.FIRST_NAME]);
         }
 
-    }, 50);
+        resetDashboard();
+    }
+
+    setTimeout(resetData, 50);
 
     //});
 
@@ -1201,7 +1205,7 @@ window.onload = function() {
 
             switch (type) {
                 case 'text':
-                    input.value = ctrl.value || '';
+                    input.value = ctrl.value || getProperty(ctrl.name) || '';
                     input.style.width = '25px';
                     input.style.marginLeft = '4px';
                     input.style.marginRight = '4px';
@@ -1211,13 +1215,13 @@ window.onload = function() {
                 case 'radio':
                     input.checked = 'checked' in ctrl
                         ? ctrl.checked
-                        : resolveGridProperty(ctrl.name);
+                        : getProperty(ctrl.name);
                     referenceElement = null; // label goes before input
                     break;
             }
 
-            input.onchange = function() {
-                handleRadioClick.call(this, ctrl.setter || setProp);
+            input.onchange = function(event) {
+                handleRadioClick.call(this, ctrl.setter || setProp, event);
             };
 
             label = document.createElement('label');
@@ -1229,15 +1233,35 @@ window.onload = function() {
             );
 
             choices.appendChild(label);
+
+            if (ctrl.name === 'treeview') {
+                label.onmousedown = input.onmousedown = function(event) {
+                    if (!input.checked && dataModel.source.data !== treeData) {
+                        alert('Load tree data first ("Set Data 3" button).');
+                        event.preventDefault();
+                    }
+                };
+            }
         });
 
         ctrlGroups.appendChild(container);
     }
 
-    function resolveGridProperty(key) {
+    function getProperty(key) {
         var keys = key.split('.');
-        var prop = grid.properties;
-        while (keys.length) { prop = prop[keys.shift()]; }
+        var prop;
+
+        if (keys[0] === 'filterOptions') {
+            keys.shift();
+            prop = filterOptions;
+        } else {
+            prop = grid.properties;
+        }
+
+        while (keys.length) {
+            prop = prop[keys.shift()];
+        }
+
         return prop;
     }
 
@@ -1336,7 +1360,7 @@ window.onload = function() {
 
     var radioGroup = {};
 
-    function handleRadioClick(handler) {
+    function handleRadioClick(handler, event) {
         if (this.type === 'radio') {
             var lastRadio = radioGroup[this.name];
             if (lastRadio) {
@@ -1344,7 +1368,7 @@ window.onload = function() {
             }
             radioGroup[this.name] = { ctrl: this, handler: handler };
         }
-        handler.call(this);
+        handler.call(this, event);
     }
 
     function setProp() { // standard checkbox click handler
@@ -1377,9 +1401,37 @@ window.onload = function() {
     }
 
     function setSelectionProp() { // alternate checkbox click handler
+        var ctrl;
+
         grid.selectionModel.clear();
         dataModel.clearSelectedData();
+
         setProp.call(this);
+
+        if (this.checked) {
+            if (
+                this.id === 'checkboxOnlyRowSelections' &&
+                (ctrl = document.getElementById('autoSelectRows')).checked
+            ) {
+                alert('Note that autoSelectRows is ineffectual when checkboxOnlyRowSelections is on.');
+            } else if (this.id === 'autoSelectRows') {
+                if (
+                    (ctrl = document.getElementById('checkboxOnlyRowSelections')).checked &&
+                    confirm('Note that autoSelectRows is ineffectual when checkboxOnlyRowSelections is on.\n\nTurn off checkboxOnlyRowSelections?')
+                ) {
+                    ctrl.checked = false;
+                    setProp.call(ctrl);
+                }
+
+                if (
+                    (ctrl = document.getElementById('singleRowSelectionMode')).checked &&
+                    confirm('Note that auto-selecting a range of rows by selecting a range of cells (with click + drag or shift + click) is not possible with singleRowSelectionMode is on.\n\nTurn off singleRowSelectionMode?')
+                ) {
+                    ctrl.checked = false;
+                    setProp.call(ctrl);
+                }
+            }
+        }
     }
 
     function resetFilterWithNewPropValue() {
@@ -1414,17 +1466,17 @@ window.onload = function() {
     }
 
     function resetGlobalFilter(data) {
-        var schema = (data === people1 || data === people2) && peopleSchema;
-        grid.filter = grid.plugins.hyperfilter.create(schema); // new filter with new derived column schema
+        if (grid.plugins.hyperfilter) {
+            // Inform data model of external filter data controller. (This data controller is for EXAMPLE purposes only.)
+            var schema = (data === people1 || data === people2) && peopleSchema;
+            grid.filter = grid.plugins.hyperfilter.create(schema); // new filter with new derived column schema
+        }
     }
 
     function setGlobalSorter() {
-        grid.sorter = grid.plugins.hypersorter;
-    }
-
-    function redIfStartsWithS(dataRow, columnName) {
-        //does the data start with an 'S'?
-        var value = dataRow[columnName];
-        return value != null && (value + '')[0] === 'S' ? 'red' : '#191919';
+        if (grid.plugins.hypersorter) {
+            // Inform data model of external sorter data controller. (This data controller is for EXAMPLE purposes only.)
+            grid.sorter = grid.plugins.hypersorter;
+        }
     }
 };

@@ -15,9 +15,10 @@
         *
         * */
         var grid = new fin.Hypergrid(),
-            DataSourceBase = fin.Hypergrid.DataSourceBase,
+            DataSourceBase = window.datasaur.base, // Pipeline Interface
             UPWARDS_BLACK_ARROW = '\u25b2'; //icon to indicate toggle state
 
+        //Provide some basic data
         grid.setData([
             { symbol: 'APPL', name: 'Apple Inc.', prevclose: 93.13 },
             { symbol: 'TSLA', name: 'Tesla Motors Inc.', prevclose: 196.40 },
@@ -25,25 +26,18 @@
             { symbol: 'IBM', name: 'International Business Machines Corp', prevclose: 155.35 }
         ]);
 
-        //All custom pipelines should extend from pipelineBase
+        //All custom pipelines should extend from DataSourceBase
+        // A pipeline object are designed to be chained pipelines of data retrieval
+        // Where each pipe in the chain encapsulates and composes the chain before it.
+        // Pipes can be removed from the chain at any time.
+        // By Default
+        //The core pieces are the user defined type of
         var MySorterDataSource = DataSourceBase.extend('MySorterDataSource',  {
-            //The `get` and `set` are two functions are use by HyperGrid core if there if the DataSource has the type "sorter"
             type: 'sorter',
             data: [],
-            set: function(sorter) {
-                if (sorter) {
-                    this.sorter = sorter; // Will become a ref to MySorterAPI
-                } else {
-                    delete this.sorter;
-                }
-            },
-
-            get: function() {
-                return this.sorter;
-            },
-            // This function is called on every reIndex call if this object is in the pipelne
+            // This function is called on every reIndex call in Hypergrid if this object is in the pipelne
             apply: function (){
-                var c = this.sorter.columnIndex;
+                var c = this.controller.columnIndex;
                 if (c === null) {
                     this.data.length = 0;
                     return;
@@ -135,33 +129,14 @@
                     this.columnIndex = c;
                 }
             }
-//            sorted = [],
-//            toggleSort: function (col){
-//                var idx,
-//                    column = this.sorted.find(function(c, index){
-//                        if (col === c){
-//                            idx = index;
-//                            return true;
-//                        };
-//                    });
-//
-//                //Remove column
-//                if (column){
-//                    sorted.splice(idx, 1);
-//                } else {
-//                    //Add column
-//                    sorted.push(col);
-//                }
-//            }
         };
 
-
-        grid.installPlugins([MySorterAPI]);
-        grid.sorter = grid.plugins.mysorterapi;
         grid.setPipeline([MySorterDataSource], {
             stash: 'default',
             apply: false //  Set the new pipeline without calling reindex.
         });
+        grid.installPlugins([MySorterAPI]);
+        grid.setController('sorter', grid.plugins.mySorterAPI);
         //Miscellaneous
         grid.addProperties({
             showRowNumbers: false

@@ -1,7 +1,7 @@
 'use strict';
 
 module.exports = {
-    Behavior: require('./Behavior'), // abstract base class
+    Behavior: require('./Behavior'),
     JSON: require('./JSON'),
     Column: require('./Column')
 };

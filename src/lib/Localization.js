@@ -376,6 +376,8 @@ function Localization(locale, numberOptions, dateOptions) {
 
 Localization.prototype = {
     constructor: Localization.prototype.constructor,
+    $$CLASS_NAME: 'Localization',
+    deprecated: deprecated,
 
     /** @summary Creates a localizer from a localizer factory object using the default locale.
      * @desc Performs the following actions:
@@ -387,7 +389,7 @@ Localization.prototype = {
      * @param {string} localizerName
      * @param {Constructor
      * @param {object} {factoryOptions}
-     * @returns {localizeInerface} The new localizer.
+     * @returns {localizerInterface} The new localizer.
      */
     construct: function(localizerName, Constructor, factoryOptions) {
         var constructorName = localizerName[0].toUpperCase() + localizerName.substr(1).toLowerCase() + 'Formatter',
@@ -405,7 +407,7 @@ Localization.prototype = {
      * @param {string} name
      * @param {localizerInterface} localizer
      * @memberOf Localization.prototype
-     * @returns {localizeInerface} The provided localizer.
+     * @returns {localizerInterface} The provided localizer.
      */
     add: function(name, localizer) {
         if (typeof name === 'object') {
@@ -429,7 +431,7 @@ Localization.prototype = {
 
         return localizer;
     },
-    deprecated: deprecated,
+
     set: function(name) {
         return this.deprecated('set(name, localizer)', 'add(name, localizer)', '1.0.6', arguments);
     },

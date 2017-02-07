@@ -2,8 +2,6 @@
 
 var Base = require('../Base');
 
-var warned = {};
-
 /**
  * Instances of features are connected to one another to make a chain of responsibility for handling all the input to the hypergrid.
  * @constructor
@@ -143,6 +141,8 @@ var Feature = Base.extend('Feature', {
     handleKeyDown: function(grid, event) {
         if (this.next) {
             this.next.handleKeyDown(grid, event);
+        } else {
+            return true;
         }
     },
 
@@ -235,10 +235,7 @@ var Feature = Base.extend('Feature', {
      * @param {Object} event - the event details
      */
     isFixedRow: function(grid, event) {
-        if (!warned.isFixedRow) {
-            warned.isFixedRow = true;
-            console.warn('isFixedRow(grid, event) has been deprecated as of v1.2.0 in favor of event.isRowFixed and will be removed in a future version.');
-        }
+        this.deprecated('isFixedRow', 'isFixedRow(grid, event) has been deprecated as of v1.2.0 in favor of event.isRowFixed. (Will be removed in a future version.)');
         return event.isRowFixed;
     },
 
@@ -257,10 +254,7 @@ var Feature = Base.extend('Feature', {
      * @param {Object} event - the event details
      */
     isFixedColumn: function(grid, event) {
-        if (!warned.isFixedColumn) {
-            warned.isFixedColumn = true;
-            console.warn('isFixedColumn(grid, event) has been deprecated as of v1.2.0 in favor of event.isColumnFixed and will be removed in a future version.');
-        }
+        this.deprecated('isFixedColumn', 'isFixedColumn(grid, event) has been deprecated as of v1.2.0 in favor of event.isColumnFixed. (Will be removed in a future version.)');
         return event.isColumnFixed;
     },
 
@@ -279,10 +273,7 @@ var Feature = Base.extend('Feature', {
      * @param {Object} event - the event details
      */
     isTopLeft: function(grid, event) {
-        if (!warned.isTopLeft) {
-            warned.isTopLeft = true;
-            console.warn('isTopLeft(grid, event) has been deprecated as of v1.2.0 in favor of event.isCellFixed and will be removed in a future version.');
-        }
+        this.deprecated('isTopLeft', 'isTopLeft(grid, event) has been deprecated as of v1.2.0 in favor of event.isCellFixed. (Will be removed in a future version.)');
         return event.isCellFixed;
     },
 

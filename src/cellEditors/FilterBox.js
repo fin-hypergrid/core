@@ -5,7 +5,7 @@
 var popMenu = require('pop-menu');
 
 var ComboBox = require('./ComboBox');
-var prototype = require('./CellEditor').prototype;
+var CellEditor = require('./CellEditor');
 
 
 /**
@@ -71,7 +71,7 @@ var FilterBox = ComboBox.extend('FilterBox', {
 
     },
 
-    abortEditing: prototype.cancelEditing,
+    abortEditing: CellEditor.prototype.cancelEditing,
 
     /**
      * When there's only one mode defined here, the control area portion of the UI is hidden.
@@ -102,10 +102,13 @@ var FilterBox = ComboBox.extend('FilterBox', {
             name: 'columnNames',
             label: 'Column Names',
             selector: 'optgroup.submenu-columnNames',
+            tooltip: '(Hold down alt/option key while clicking to include hidden column names.)',
             symbol: 'A',
             backgroundColor: '#eff',
             appendOptions: function(optgroup) {
-                var columns = this.grid.behavior.columns,
+                var columns = window.event.altKey
+                        ? this.grid.behavior.getColumns()
+                        : this.grid.behavior.getActiveColumns(),
                     x = this.event.gridCell.x;
 
                 while (optgroup.firstElementChild) {
@@ -152,13 +155,15 @@ var FilterBox = ComboBox.extend('FilterBox', {
         ComboBox.prototype.hideEditor.call(this);
     },
 
-    keyup: function(e) {
-        if (e) {
-            prototype.keyup.call(this, e);
-
-            if (this.grid.properties.filteringMode === 'immediate') {
+    keyup: function(event) {
+        if (
+            !CellEditor.prototype.keyup.call(this, event) &&
+            this.grid.properties.filteringMode === 'immediate'
+        ) {
+            try {
                 this.saveEditorValue(this.getEditorValue());
-                this.moveEditor();
+            } catch (err) {
+                // ignore syntax errors in immediate mode
             }
         }
     },
@@ -207,11 +212,20 @@ var FilterBox = ComboBox.extend('FilterBox', {
     },
 
     saveEditorValue: function(value) {
-        prototype.saveEditorValue.call(this, value);
-        this.grid.behavior.applyAnalytics();
+        CellEditor.prototype.saveEditorValue.call(this, value);
+        this.grid.behavior.reindex();
+    },
+
+    stopEditing: function(feedbackCount) {
+        var result = CellEditor.prototype.stopEditing.call(this, feedbackCount);
+
+        if (result) {
+            this.grid.clearSelections();
+        }
+
+        return result;
     }
 
 });
-
 
 module.exports = FilterBox;

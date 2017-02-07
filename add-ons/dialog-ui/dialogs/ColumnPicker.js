@@ -3,9 +3,9 @@
 'use strict';
 
 var ListDragon = require('list-dragon');
+var injectCSS = require('inject-stylesheet-template').bind(require('../css'));
 
 var Dialog = require('./Dialog');
-var stylesheet = require('../lib/stylesheet');
 
 /**
  * @constructor
@@ -23,7 +23,7 @@ var ColumnPicker = Dialog.extend('ColumnPicker', {
 
         if (behavior.isColumnReorderable()) {
             // parse & add the drag-and-drop stylesheet addendum
-            var stylesheetAddendum = stylesheet.inject('list-dragon-addendum');
+            var stylesheetAddendum = injectCSS('list-dragon-addendum');
 
             // grab the group lists from the behavior
             if (behavior.setGroups) {
@@ -55,10 +55,10 @@ var ColumnPicker = Dialog.extend('ColumnPicker', {
 
             this.activeColumns = {
                 title: 'Active Columns',
-                models: behavior.getActiveColumns()
+                models: grid.getActiveColumns()
             };
 
-            this.sortOnHiddenColumns = this.wasSortOnHiddenColumns = grid.properties.sortOnHiddenColumns;
+            this.sortOnHiddenColumns = this.wasSortOnHiddenColumns = true;
 
             var columnPicker = new ListDragon([
                 this.inactiveColumns,
@@ -110,7 +110,7 @@ var ColumnPicker = Dialog.extend('ColumnPicker', {
 
     onClosed: function() {
         var behavior = this.grid.behavior,
-            columns = behavior.columns;
+            columns = behavior.getActiveColumns();
 
         if (this.activeColumns) {
             var tree = columns[0];
@@ -125,7 +125,6 @@ var ColumnPicker = Dialog.extend('ColumnPicker', {
             });
 
             if (this.sortOnHiddenColumns !== this.wasSortOnHiddenColumns) {
-                this.grid.addProperties({ sortOnHiddenColumns: this.sortOnHiddenColumns });
                 behavior.sortChanged(this.inactiveColumns.models);
             }
 
@@ -138,6 +137,9 @@ var ColumnPicker = Dialog.extend('ColumnPicker', {
             });
             behavior.setGroups(groupBys);
         }
+
+        this.grid.takeFocus();
+        this.grid.allowEvents(true);
     }
 });
 

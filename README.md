@@ -60,6 +60,32 @@ We are also maintaining [online API documentation](http://openfin.github.io/fin-
 
 Hypergrid global configurations can be found [here](http://openfin.github.io/fin-hypergrid/doc/module-defaults.html). 
 
+### Roadmap
+
+Documentation - Wiki
+ * Selection Model
+ * Merge Cells
+ * Hierarchical rows/columns
+ * Localization & Formatter
+ * Scroll bars
+ * Freezing Columns
+ * Columns Object
+ * Calculated Columns
+ * Column Oriented DataSource
+ * Rendering strategies 
+ * Handle Extra Space
+ * Hidden Column Rows
+ * Serialized State Format and Usage
+
+Development
+ * Configurable mouse wheel scrolling sensitivity 
+ * Complete API get/set State
+ * Consume Native CSS Styling
+ * Remove Filter Cell from core and provide example
+ * Remove Column Picker from core and provide example
+ * Bugs
+
+
 ### Contributors
 
 Developers interested in contributing to this project should review our [contributing guide](CONTRIBUTING.md) before making pull requests.

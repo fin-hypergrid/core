@@ -1,3 +1,5 @@
+/* globals alert */
+
 'use strict';
 
 /**
@@ -13,13 +15,21 @@ var Base = require('extend-me').Base;
 Base.prototype.deprecated = require('./lib/deprecated');
 Base.prototype.HypergridError = require('./lib/error');
 
+Base.prototype.notify = function(message, onerror) {
+    switch (onerror) {
+        case 'warn': console.warn(message); break;
+        case 'alert': alert(message); break; // eslint-disable-line no-alert
+        default: throw new this.HypergridError(message);
+    }
+};
+
 /**
  * Convenience function for getting the value when that value can be defined as a function that needs to be called to get the actual (primitive) value.
  * @param value
  * @returns {*}
  */
 Base.prototype.unwrap = function(value) {
-    if (typeof value === 'function') {
+    if ((typeof value)[0] === 'f') {
         value = value();
     }
     return value;
@@ -41,6 +51,26 @@ Base.prototype.unwrap = function(value) {
  * @param {object} source
  */
 Base.prototype.mixIn = require('overrider').mixIn;
+
+
+/**
+ * @method
+ * @summary Instantiate an object with discrete + variable args.
+ * @desc The discrete args are passed first, followed by the variable args.
+ * @param {function} Constructor
+ * @param {Array} variableArgArray
+ * @param {...*} discreteArgs
+ * @returns {object} Object of type `Constructor` newly constructor using the arguments in `arrayOfArgs`.
+ */
+Base.prototype.createApply = function(Constructor, variableArgArray, discreteArgs) {
+    var discreteArgArray = Array.prototype.slice.call(arguments, 2),
+        args = [null] // null is context for `bind` call below
+            .concat(discreteArgArray) // discrete arguments
+            .concat(variableArgArray), // variable arguments
+        BoundConstructor = Constructor.bind.apply(Constructor, args);
+
+    return new BoundConstructor;
+};
 
 
 module.exports = Base;

@@ -3,11 +3,26 @@
 module.exports = {
 
     /**
+     * @summary The behaviors's filter data controller.
+     * @desc This getter/setter is syntactic sugar for calls to `getController` and `setController`.
+     * @param {dataControlInterface|undefined|null} filter - One of:
+     * * A filter object, turning filter *ON*.
+     * * `undefined`, the null filter is reassigned to the grid, turning filtering *OFF.*
+     * @memberOf Behavior#
+     */
+    get filter() {
+        return this.getController('filter');
+    },
+    set filter(filter) {
+        this.setController('filter', filter);
+    },
+
+    /**
      * @param {number|string} columnIndexOrName - The _column filter_ to set.
      * @param {FilterTreeGetStateOptionsObject} [options] - Passed to the filter's {@link DefaultFilter#getState|getState} method.
      * @param {boolean} [options.syntax='CQL'] - The syntax to use to describe the filter state. Note that `getFilter`'s default syntax, `'CQL'`, differs from the other get state methods.
      * @returns {FilterTreeStateObject}
-     * @memberOf Behavior.prototype
+     * @memberOf Behavior#
      */
     getFilter: function(columnIndexOrName, options) {
         return this.dataModel.getFilter(columnIndexOrName, options);
@@ -23,7 +38,7 @@ module.exports = {
      * @param {FilterTreeSetStateOptionsObject} [options] - Passed to the filter's [setState]{@link http://joneit.github.io/filter-tree/FilterTree.html#setState} method. You may mix in members of the {@link http://joneit.github.io/filter-tree/global.html#FilterTreeValidationOptionsObject|FilterTreeValidationOptionsObject}
      * @param {string} [options.syntax='CQL'] - The syntax to use to describe the filter state. Note that `setFilter`'s default syntax, `'CQL'`, differs from the other get state methods.
      * @returns {undefined|Error|string} `undefined` indicates success.
-     * @memberOf Behavior.prototype
+     * @memberOf Behavior#
      */
     setFilter: function(columnIndexOrName, state, options) {
         this.dataModel.setFilter(columnIndexOrName, state, options);
@@ -32,7 +47,7 @@ module.exports = {
     /**
      * @param {FilterTreeGetStateOptionsObject} [options] - Passed to the filter's {@link DefaultFilter#getState|getState} method.
      * @returns {FilterTreeStateObject}
-     * @memberOf Behavior.prototype
+     * @memberOf Behavior#
      */
     getFilters: function(options) {
         return this.dataModel.getFilters(options);
@@ -42,7 +57,7 @@ module.exports = {
      * @param {FilterTreeStateObject} state
      * @param {FilterTreeSetStateOptionsObject} [options] - Passed to the filter's [setState]{@link http://joneit.github.io/filter-tree/FilterTree.html#setState} method. You may mix in members of the {@link http://joneit.github.io/filter-tree/global.html#FilterTreeValidationOptionsObject|FilterTreeValidationOptionsObject}
      * @returns {undefined|Error|string} `undefined` indicates success.
-     * @memberOf Behavior.prototype
+     * @memberOf Behavior#
      */
     setFilters: function(state, options) {
         this.dataModel.setFilters(state, options);
@@ -51,7 +66,7 @@ module.exports = {
     /**
      * @param {FilterTreeGetStateOptionsObject} [options] - Passed to the filter's {@link DefaultFilter#getState|getState} method.
      * @returns {FilterTreeStateObject}
-     * @memberOf Behavior.prototype
+     * @memberOf Behavior#
      */
     getTableFilter: function(options) {
         return this.dataModel.getTableFilter(options);
@@ -61,7 +76,7 @@ module.exports = {
      * @param {FilterTreeStateObject} state
      * @param {FilterTreeSetStateOptionsObject} [options] - Passed to the filter's [setState]{@link http://joneit.github.io/filter-tree/FilterTree.html#setState} method. You may mix in members of the {@link http://joneit.github.io/filter-tree/global.html#FilterTreeValidationOptionsObject|FilterTreeValidationOptionsObject}
      * @returns {undefined|Error|string} `undefined` indicates success.
-     * @memberOf Behavior.prototype
+     * @memberOf Behavior#
      */
     setTableFilter: function(state, options) {
         this.dataModel.setTableFilter(state, options);

@@ -45,7 +45,7 @@ function AggregationsView(grid, options) {
     this.options = options || {};
 }
 
-AggregationsView.prototype.$$CLASS_NAME = 'AggregationsView';
+AggregationsView.prototype.name = 'AggregationsView';
 
 /**
  * @summary Build/unbuild the group view.

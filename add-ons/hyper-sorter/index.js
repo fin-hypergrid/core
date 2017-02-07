@@ -1,68 +1,68 @@
+/* eslint-env browser */
+
 'use strict';
 
-function Hypersorter(grid, objects) {
+var Column = window.fin.Hypergrid.behaviors.Column; // try require('fin-hypergrid/src/behaviors/Column') when externalized
+
+function Hypersorter(grid, targets) {
     this.grid = grid;
-    objects = objects || {};
 
-    getPrototype('Hypergrid', grid).mixIn(require('./mix-ins/grid'));
-    getPrototype('Behavior', grid.behavior).mixIn(require('./mix-ins/behavior'));
-    getPrototype('Column', grid.behavior.allColumns.length && grid.behavior.allColumns[0]).mixIn(require('./mix-ins/column'));
-    getPrototype('DataModel', grid.behavior.dataModel).mixIn(require('./mix-ins/dataModel'));
+    this.install(targets);
 
-    this.grid.addEventListener('fin-column-sort', function(c, keys){
-        grid.toggleSort(c, keys);
+    this.sorts = [];
+
+    grid.behavior.dataModel.charMap.mixIn({
+        ASC: '\u25b2', // UPWARDS_BLACK_ARROW, aka '▲'
+        DESC: '\u25bc' // DOWNWARDS_BLACK_ARROW, aka '▼'
     });
 
-    function getPrototype(name, instance, mixin) {
-        var object = objects[name];
-        return object && object.prototype || Object.getPrototypeOf(instance);
-    }
+    grid.addInternalEventListener('fin-column-sort', function(c, keys){
+        grid.toggleSort(c, keys);
+    });
 }
 
-Hypersorter.prototype = {
-    constructor: Hypersorter,
-    $$CLASS_NAME: 'hypersorter',
-    state: {
-        sorts: []
-    },
-    /**
-     * @implements sorterAPI
-     * @desc Notes regarding specific properties:
-     * * `sorts` The array of objects describe the sort state of each column including type, direction and column index
-     * * `type` Notification that a column within the sorts type has changed
-     * @memberOf Hypersorter.prototype
-     */
-    properties: function(properties) {
-        var result, value, object,
-            dm = this.grid.behavior.dataModel;
-        if (properties && properties.column) {
-            object = dm.getColumnSortState(properties.column.index);
-        }  else {
-            object = this.state;
-        }
+Hypersorter.prototype.name = 'Hypersorter';
 
-        if (properties && object) {
-            if (properties.getPropName) {
-                result = object[properties.getPropName];
-                if (result === undefined) {
-                    result = null;
-                }
-            } else {
-                for (var key in properties) {
-                    value = properties[key];
-                    if (value === undefined) {
-                        delete object[key];
-                    } else if (typeof value === 'function') {
-                        object[key] = value();
-                    } else {
-                        object[key] = value;
-                    }
-                }
+Hypersorter.prototype.install = function(targets) {
+    var Hypergrid = this.grid.constructor;
+    Hypergrid.defaults.mixIn(require('./mix-ins/defaults'));
+    Hypergrid.prototype.mixIn(require('./mix-ins/grid'));
+    targets = targets || {};
+    (targets.Behavior && targets.Behavior.prototype || Object.getPrototypeOf(this.grid.behavior)).mixIn(require('./mix-ins/behavior'));
+    (targets.Column || Column).prototype.mixIn(require('./mix-ins/column'));
+    (targets.DataModel && targets.DataModel.prototype || Object.getPrototypeOf(this.grid.behavior.dataModel)).mixIn(require('./mix-ins/dataModel'));
+};
+
+/** @typedef {object} sortSpecInterface
+ * @property {number} columnIndex
+ * @property {number} direction
+ * @property {string} [type]
+ */
+
+/**
+ * @implements dataControlInterface#properties
+ * @desc See {@link sortSpecInterface} for available sort properties.
+ * @memberOf Hypersorter.prototype
+ */
+Hypersorter.prototype.properties = function(properties) {
+    var result, value,
+        columnSort = this.grid.behavior.dataModel.getColumnSortState(properties.COLUMN.index);
+
+    if (columnSort) {
+        if (properties.GETTER) {
+            result = columnSort[properties.GETTER];
+            if (result === undefined) {
+                result = null;
+            }
+        } else {
+            for (var key in properties) {
+                value = properties[key];
+                columnSort[key] = typeof value === 'function' ? value() : value;
             }
         }
-
-        return result;
     }
+
+    return result;
 };
 
 module.exports = Hypersorter;

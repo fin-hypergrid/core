@@ -2,6 +2,7 @@
 
 var DefaultFilter = require('./js/DefaultFilter');
 var ColumnSchemaFactory = require('./js/ColumnSchemaFactory');
+var FilterSubgrid = require('./js/FilterSubgrid');
 
 /**
  * @param {Hypergrid} grid
@@ -10,74 +11,83 @@ var ColumnSchemaFactory = require('./js/ColumnSchemaFactory');
  */
 function Hyperfilter(grid, targets) {
     this.grid = grid;
-    targets = targets || {};
-
-    mixInTo('Hypergrid', grid, require('./mix-ins/grid'));
-    mixInTo('Behavior', grid.behavior, require('./mix-ins/behavior'));
-    mixInTo('DataModel', grid.behavior.dataModel, require('./mix-ins/dataModel'));
-
-    function mixInTo(target, instance, mixin) {
-        var object = targets[target];
-        var prototype = object && object.prototype || Object.getPrototypeOf(instance);
-
-        prototype.mixIn(mixin);
-    }
+    this.install(targets);
 }
 
 Hyperfilter.prototype = {
     constructor: Hyperfilter.prototype.constructor,
 
-    $$CLASS_NAME: 'Hyperfilter',
+    name: 'Hyperfilter',
+
+    install: function(targets) {
+        targets = targets || {};
+
+        var behavior = this.grid.behavior,
+            BehaviorPrototype = targets.BehaviorPrototype || targets.Behavior && targets.Behavior.prototype,
+            DataModelPrototype = targets.DataModelPrototype || targets.DataModel && targets.DataModel.prototype || Object.getPrototypeOf(behavior.dataModel),
+            subgrids = behavior.subgrids;
+
+        if (!BehaviorPrototype) {
+            BehaviorPrototype = behavior;
+            do {
+                BehaviorPrototype = Object.getPrototypeOf(BehaviorPrototype);
+            }
+                while (BehaviorPrototype.$$CLASS_NAME !== 'Behavior');
+        }
+
+        // Register in case a subgrid list is included in state object of a subsequent grid instantiation
+        behavior.dataModels.FilterSubgrid = FilterSubgrid;
+
+        if (!subgrids.lookup.filter) {
+            var index = subgrids.indexOf(subgrids.lookup.header) + 1,
+                subgrid = behavior.createSubgrid(FilterSubgrid);
+            subgrids.splice(index, 0, subgrid);
+        }
+
+        Object.getPrototypeOf(this.grid).mixIn(require('./mix-ins/grid'));
+
+        BehaviorPrototype.mixIn(require('./mix-ins/behavior'));
+        DataModelPrototype.mixIn(require('./mix-ins/dataModel'));
+    },
 
     /**
+     * May be adjusted before calling {@link HyperFilter#create|create}.
+     * @default
      * @type {boolean}
      */
     caseSensitiveData: true,
 
     /**
+     * May be adjusted before calling {@link HyperFilter#create|create}.
+     * @default
      * @type {boolean}
      */
     caseSensitiveColumnNames: true,
 
     /**
+     * May be adjusted before calling {@link HyperFilter#create|create}.
+     * @default
      * @type {boolean}
      */
     resolveAliases: false,
 
     /**
+     * May be adjusted before calling {@link HyperFilter#create|create}.
+     * @default
      * @type {string}
      */
     defaultColumnFilterOperator: '', // blank means use default ('=')
 
     /**
-     * Call this before calling `create` if you want to organize and/or sort your schema.
-     */
-    deriveSchema: function() {
-        this.factory = new ColumnSchemaFactory(this.grid.behavior.columns);
-    },
-    organizeSchema: function(columnGroupsRegex, options) {
-        this.factory.organize(columnGroupsRegex, options);
-    },
-    sortSchema: function(submenuPlacement) {
-        this.factory.sort(submenuPlacement);
-    },
-    lookupInSchema: function(findOptions, value) {
-        return this.factory.lookup(findOptions, value);
-    },
-    walkSchema: function(iteratee) {
-        return this.factory.walk(iteratee);
-    },
-
-    /**
-     * @param {menuItem[]} [schema] - If omitted, use derived schema. If no derived schema, derive it now.
+     * @param {function|menuItem[]} [schema] - If omitted, derives a schema. If a function, derives a schema and calls it with for possible modifications
      */
     create: function(schema) {
         if (!schema) {
-            if (!this.factory) {
-                this.deriveSchema();
-            }
-            schema = this.factory.schema;
-            delete this.factory; // force new schema each call to create
+            schema = new ColumnSchemaFactory(this.grid.behavior.allColumns).schema;
+        } else if (typeof schema === 'function') {
+            var factory = new ColumnSchemaFactory(this.grid.behavior.allColumns);
+            schema.call(factory);
+            schema = factory.schema;
         }
         return new DefaultFilter({
             schema: schema,

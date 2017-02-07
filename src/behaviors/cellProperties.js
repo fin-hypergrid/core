@@ -2,8 +2,6 @@
 
 'use strict';
 
-var _ = require('object-iterators');
-
 /**
  * Column.js mixes this module into its prototype.
  * @module
@@ -30,7 +28,7 @@ var cell = {
      * @memberOf Column#
      */
     setCellProperties: function(rowIndex, properties, dataModel) {
-        return _(newCellPropertiesObject.call(this, rowIndex, dataModel)).extendOwn(properties);
+        return Object.assign(newCellPropertiesObject.call(this, rowIndex, dataModel), properties);
     },
 
     /**
@@ -41,7 +39,7 @@ var cell = {
      * @memberOf Column#
      */
     addCellProperties: function(rowIndex, properties, dataModel) {
-        return _(getCellPropertiesObject.call(this, rowIndex, dataModel)).extendOwn(properties);
+        return Object.assign(getCellPropertiesObject.call(this, rowIndex, dataModel), properties);
     },
 
     /**
@@ -57,16 +55,24 @@ var cell = {
      *
      * Call this method only when you need to know if the the cell has its own properties object; otherwise call {@link Column#getCellProperties|getCellProperties}.
      * @param {number} rowIndex - Data row coordinate.
-     * @returns {undefined|object} The "own" properties of the cell at x,y in the grid. If the cell does not own a properties object, returns `undefined`.
+     * @returns {null|object} The "own" properties of the cell at x,y in the grid. If the cell does not own a properties object, returns `undefined`.
      * @memberOf Column#
      */
     getCellOwnProperties: function(rowIndex, dataModel) {
         var rowData;
         return (
-            this.index >= 0 && // no cell props on row handle cells
-            (rowData = (dataModel || this.dataModel).getRow(rowIndex)) && // no cell props on non-existant rows
-            rowData.__META && rowData.__META[this.name] // undefined if not previously created
+            // this.index >= 0 && // no cell props on row handle cells
+            (rowData = (dataModel || this.dataModel).getRow(rowIndex)) && // no cell props on non-existent rows
+            rowData.__META && rowData.__META[this.name] ||
+            null // null means not previously created
         );
+    },
+
+    deleteCellOwnProperties: function(rowIndex, dataModel) {
+        var rowData = (dataModel || this.dataModel).getRow(rowIndex);
+        if (rowData.__META) {
+            delete rowData.__META[this.name];
+        }
     },
 
     /**
@@ -89,14 +95,34 @@ var cell = {
      * @memberOf Column#
      */
     setCellProperty: function(rowIndex, key, value, dataModel) {
-        var propertiesObject = getCellPropertiesObject.call(this, rowIndex, dataModel);
-        propertiesObject[key] = value;
-        return propertiesObject;
+        var cellProps = getCellPropertiesObject.call(this, rowIndex, dataModel);
+        cellProps[key] = value;
+        return cellProps;
+    },
+
+    deleteCellProperty: function(rowIndex, key, dataModel) {
+        var cellProps = this.getCellOwnProperties(rowIndex, dataModel);
+        if (cellProps) {
+            delete cellProps[key];
+        }
     },
 
     clearAllCellProperties: function() {
-        // Unimplemented!
-        // Need to undefine all `dataModel.getData(*).__META[this.name]`.
+        var key = this.name;
+        this.behavior.subgrids.forEach(function(dataModel) {
+            for (var i = dataModel.getRowCount(); i--;) {
+                var rowData = dataModel.getRow(i),
+                    meta = rowData.__META;
+                if (meta) {
+                    if (Object.keys(meta).length === 1) {
+                        delete rowData.__META;
+                    }
+                    if (meta) {
+                        delete meta[key];
+                    }
+                }
+            }
+        });
     }
 };
 
@@ -112,6 +138,7 @@ function getCellPropertiesObject(rowIndex, dataModel) {
 
 /**
  * @todo: For v8 optimization, consider setting the new `__META` object to a "regularly shaped object" (i.e., with all the columns) instead of simply to `{}`. Considerations include how many of these objects are there, how often are they referenced, etc.
+ * @todo: We need a function to reset the prototypes of pre-existing __META members to their respective column properties objects.
  * @this {Column}
  * @param {number} rowIndex - Data row coordinate.
  * @returns {object}
@@ -120,7 +147,7 @@ function getCellPropertiesObject(rowIndex, dataModel) {
 function newCellPropertiesObject(rowIndex, dataModel) {
     var rowData = (dataModel || this.dataModel).getRow(rowIndex),
         metaData = rowData.__META = rowData.__META || {};
-    return (metaData[this.name] = Object.create(this.properties));
+    return (metaData[this.name] = Object.create(this._index >= 0 ? this.properties : this.properties.rowHeader));
 }
 
 module.exports = cell;
