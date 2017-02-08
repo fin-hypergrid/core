@@ -98,6 +98,7 @@ git commit -m 'roll-up of PRs …'
 git tag v0.0.0-alpha -m 'MM/DD/YYYY'
 git push —follow-tags upstream alpha
 ```
+* This candidate branch is open for community testing. 
 * Once we decide to go to **master** the following occurs
 
 ```
@@ -115,8 +116,7 @@ git push —follow-tags upstream master
 ./gh-pages.sh #update CDN Demos
 npm publish
 ```
-* This candidate branch is open for community testing. 
-
+* Rinse and Repeat!
 
 ## Additional Resources
 
