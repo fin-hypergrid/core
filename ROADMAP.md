@@ -46,16 +46,10 @@
  - Column Schema
  - Hidden Column Rows
 
-## EPIC Backlog
-<sup>[2](#myfootnote2) For brevity, we list the outstanding major tasks left</sup>
+## Project Backlog
+<sup>[2](#myfootnote2)</sup>
 
-- Continual Wikis and JSDoc updates https://github.com/openfin/fin-hypergrid/issues/256
-- Remaining extractions from the [add-ons](https://github.com/openfin/fin-hypergrid/tree/master/add-ons) folder
-- Consume Native CSS Styling (Theming re-implemented)
-- Montior FPS rate with new rendering strategies
-- Eventing cleanup [522](https://github.com/openfin/fin-hypergrid/issues/522)
-- Cross Platform Support for the Evergreen Browsers
-- Community Growth
+- [projects](https://github.com/openfin/fin-hypergrid/projects)
 
 <a name="myfootnote1">1</a>: 
 *Please note that we are dropping support for our treeview, aggregations, grouping, filtering, sorting and analytics services in general. Our reasoning is defined [here](https://github.com/openfin/fin-hypergrid/blob/master/OVERVIEW.md). These existing services are being exported out of Openfin's github domain, but they will still be available for private forking by those interested.*
