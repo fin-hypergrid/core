@@ -98,23 +98,6 @@ git commit -m 'roll-up of PRs …'
 git tag v0.0.0-alpha -m 'MM/DD/YYYY'
 git push —follow-tags upstream alpha
 ```
-* Once we decide to go to **master** the following occurs
-
-```
-git chekout master
-git fetch upstream master
-git checkout alpha
-git fetch upstream alpha
-git merge master #-s ours may override Readme changes on master
-git upstream alpha
-# PR is merged occurs!
-git checkout master
-git pull upstream master
-git tag v0.0.0 -m 'MM/DD/YYYY'
-git push —follow-tags upstream master
-./gh-pages.sh #update CDN Demos
-npm publish
-```
 * This candidate branch is open for community testing. 
 * Once we decide to go to **master** the following occurs
 
