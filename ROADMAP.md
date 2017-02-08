@@ -59,5 +59,5 @@
 *Please note that we are dropping support for our treeview, aggregations, grouping, filtering, sorting and analytics services in general. Our reasoning is defined [here](https://github.com/openfin/fin-hypergrid/blob/master/OVERVIEW.md). These existing services are being exported out of Openfin's github domain, but they will still be available for private forking by those interested.*
 
 <a name="myfootnote2">2</a>:
-If you would like to work on on these ideas or suggest your own, feel free to browse through our [githuib issues](https://github.com/openfin/fin-hypergrid/issues)
+If you would like to work on on these ideas or suggest your own, feel free to browse through our [github issues](https://github.com/openfin/fin-hypergrid/issues)
 and read our [contributing guide](./CONTRIBUTING.md).
