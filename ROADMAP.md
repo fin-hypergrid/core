@@ -49,11 +49,11 @@
 ## EPIC Backlog
 <sup>[2](#myfootnote2) For brevity, we list the outstanding major tasks left</sup>
 
-- Continual Wikis and JSDoc updates
+- Continual Wikis and JSDoc updates https://github.com/openfin/fin-hypergrid/issues/256
 - Remaining extractions from the [add-ons](https://github.com/openfin/fin-hypergrid/tree/master/add-ons) folder
 - Consume Native CSS Styling (Theming re-implemented)
 - Montior FPS rate with new rendering strategies
-- Eventing cleanup
+- Eventing cleanup [522](https://github.com/openfin/fin-hypergrid/issues/522)
 - Cross Platform Support for the Evergreen Browsers
 - Community Growth
 
