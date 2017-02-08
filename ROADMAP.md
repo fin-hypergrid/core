@@ -6,9 +6,9 @@
 
 - Column Picker / Manage Filters 
 - Sorting
- - Will Investigate [504](https://github.com/openfin/fin-hypergrid/issues/504) as support is dropped
+ - Will Investigate [504](https://github.com/openfin/fin-hypergrid/issues/504) & [505](https://github.com/openfin/fin-hypergrid/issues/505) as support is dropped
 - Filtering
- - Will Close [309](https://github.com/openfin/fin-hypergrid/issues/309) as support is dropped
+ - Will Close [310](https://github.com/openfin/fin-hypergrid/issues/310) as support is dropped
 
 #### Features
 
