@@ -4,7 +4,7 @@ Thank you in advance for being a part of this project and for helping to make Hy
 
 ## Beginners
 
-We have several beginner help wanted [tickets](https://github.com/openfin/fin-hypergrid/issues) open for community involvement.
+We have several beginner [issues](https://github.com/openfin/fin-hypergrid/issues) open for community involvement. Feel free to look all issues, especially those with the label "help wanted". Please ignore those with the label "on-hold" as the scope of these issues may change.
 
 ## HyperGrid Core vs UserLand
 
