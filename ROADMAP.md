@@ -18,6 +18,7 @@
 #### Bugs
 
 - [492](https://github.com/openfin/fin-hypergrid/issues/492)
+- [515](https://github.com/openfin/fin-hypergrid/issues/515)
 
 ### Documentation
 
