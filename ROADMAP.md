@@ -1,50 +1,18 @@
 ## Current Sprint Agenda 2/6/2017 - 2/27/2017
 
-### Development
+### Queue
 
-#### First Extractions <sup>[1](#myfootnote1)</sup>
+You can find the current sprint [here](https://github.com/openfin/fin-hypergrid/projects/5)
 
-- Column Picker / Manage Filters 
-- Sorting
- - Will Investigate [504](https://github.com/openfin/fin-hypergrid/issues/504) & [505](https://github.com/openfin/fin-hypergrid/issues/505) as support is dropped
-- Filtering
- - Will Close [310](https://github.com/openfin/fin-hypergrid/issues/310) as support is dropped
+### JSDOC
 
-#### Features
+Continual Cleanup of API notes on [JSDOC](http://openfin.github.io/fin-hypergrid/doc/Hypergrid.html)
 
-- Serializable State
- - Addressing [309](https://github.com/openfin/fin-hypergrid/issues/309)
-
-#### Bugs
-
-- [492](https://github.com/openfin/fin-hypergrid/issues/492)
-- [515](https://github.com/openfin/fin-hypergrid/issues/515)
-- [521](https://github.com/openfin/fin-hypergrid/issues/521)
-
-### Documentation
-
-#### JSDOC
-
-- Continual Cleanup of API notes on [JSDOC](http://openfin.github.io/fin-hypergrid/doc/Hypergrid.html)
-
-#### WIKIS
-
-- Technical Architecture Overview "Birds-eye View"
-- Hypergrid Example Full Walkthrough
+### WIKIS
+- [Main Ticket](https://github.com/openfin/fin-hypergrid/issues/256)
+- Hypergrid Full Walkthrough from Simple Binding to Virtual Scrolling
 - Navigation on Wiki Home Page
-- Virtual Scrolling
-- DrillDown Column Usage
- - Addressing [483](https://github.com/openfin/fin-hypergrid/issues/483)
- - Addressing [488](https://github.com/openfin/fin-hypergrid/issues/488)
- - Addressing [501](https://github.com/openfin/fin-hypergrid/issues/501)
-- Virtual DrillDown Column Usage
 - Rendering strategies
-- Cleanup Columns Wiki
- - Freezing Columns
- - Columns Object
- - Calculated Columns
- - Column Schema
- - Hidden Column Rows
 
 ## Project Backlog
 
