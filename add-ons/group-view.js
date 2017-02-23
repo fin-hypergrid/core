@@ -212,7 +212,7 @@ function getCell(defaultGetCell, config, rendererName) {
 
     if (config.isUserDataArea && this.getRow(config.y).hasChildren) {
         // Override renderer on parent rows
-        cellRenderer = this.grid.cellRenderers.get('EmptyCell');
+        //cellRenderer = this.grid.cellRenderers.get('EmptyCell');
     }
 
     return cellRenderer;
