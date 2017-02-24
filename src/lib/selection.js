@@ -375,12 +375,14 @@ module.exports = {
     selectViewportCell: function(x, y) {
         var headerRowCount = this.getHeaderRowCount();
         x = this.renderer.visibleColumns[x].columnIndex;
-        y = this.renderer.visibleRows[y + headerRowCount].rowIndex;
-        this.clearSelections();
-        this.select(x, y, 0, 0);
-        this.setMouseDown(this.newPoint(x, y));
-        this.setDragExtent(this.newPoint(0, 0));
-        this.repaint();
+        if (this.getRowCount() > 0) {
+            y = this.renderer.visibleRows[y + headerRowCount].rowIndex;
+            this.clearSelections();
+            this.select(x, y, 0, 0);
+            this.setMouseDown(this.newPoint(x, y));
+            this.setDragExtent(this.newPoint(0, 0));
+            this.repaint();
+        }
     },
 
     selectToViewportCell: function(x, y) {
