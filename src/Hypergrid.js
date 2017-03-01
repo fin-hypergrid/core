@@ -1176,7 +1176,7 @@ var Hypergrid = Base.extend('Hypergrid', {
 
                 // target is to right of scrollable columns; positive delta scrolls right
                 // Note: The +1 forces right-most column to scroll left (just in case it was only partially in view)
-                (delta = c - dw.corner.x + 1) > 0
+                (delta = c - dw.origin.x + 1) > 0
             )
         ) {
             this.sbHScroller.index += delta;
