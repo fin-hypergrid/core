@@ -17,8 +17,8 @@
 
 var Hypergrid = require('./Hypergrid');
 
-Hypergrid.analytics = require('hyper-analytics'); // npm
-// Hypergrid.analytics = require('../../hyper-analytics'); // developer
+// Hypergrid.analytics = require('hyper-analytics'); // npm
+Hypergrid.analytics = require('../../hyper-analytics'); // developer
 
 // Expose some namespaces to users of the hypergrid.js file through `fin.Hypergrid`:
 Hypergrid.images = require('../images');

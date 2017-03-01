@@ -31,7 +31,8 @@ function paintCellsByColumnsAndRows(gc) {
         columnBundle, columnBundles,
         vc, visibleColumns = this.visibleColumns,
         visibleRows = this.visibleRows,
-        c, C = visibleColumns.length, c0 = gridProps.showRowNumbers ? -1 : 0, cLast = C - 1,
+        c, C = visibleColumns.length, c0 = 0,
+        cLast = C - 1,
         r, R = visibleRows.length,
         p, pool = this.cellEventPool,
         preferredWidth,
@@ -40,6 +41,11 @@ function paintCellsByColumnsAndRows(gc) {
         viewWidth = C ? visibleColumns[C - 1].right : 0,
         viewHeight = R ? visibleRows[R - 1].bottom : 0;
 
+    if (gridProps.showRowNumbers) {
+        c0 = -2;
+    }  else if (grid.behavior.dataModel.hasHeirarchyColumn()){
+        c0 = -1;
+    }
     gc.clearRect(0, 0, this.bounds.width, this.bounds.height);
 
     if (!C || !R) { return; }
