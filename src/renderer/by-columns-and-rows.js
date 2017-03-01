@@ -49,13 +49,13 @@ function paintCellsByColumnsAndRows(gc) {
         gc.fillRect(0, 0, viewWidth, viewHeight);
     }
 
-    if (paintCellsByColumnsAndRows.reset) {
+    if (this.gridRenderer.reset) {
         this.resetAllGridRenderers();
-        paintCellsByColumnsAndRows.reset = false;
+        this.gridRenderer.reset = false;
         bundleRows.call(this, false);
         bundleColumns.call(this, true);
-    } else if (paintCellsByColumnsAndRows.rebundle) {
-        paintCellsByColumnsAndRows.rebundle = false;
+    } else if (this.gridRenderer.rebundle) {
+        this.gridRenderer.rebundle = false;
         bundleColumns.call(this);
     }
 
@@ -114,6 +114,6 @@ function paintCellsByColumnsAndRows(gc) {
 }
 
 paintCellsByColumnsAndRows.key = 'by-columns-and-rows';
-paintCellsByColumnsAndRows.rebundle = false; // see rebundleGridRenderers
+paintCellsByColumnsAndRows.rebundle = true; // see rebundleGridRenderers
 
 module.exports = paintCellsByColumnsAndRows;

@@ -48,10 +48,10 @@ function paintCellsAsNeeded(gc) {
 
     if (!C || !R) { return; }
 
-    if (paintCellsAsNeeded.reset) {
+    if (this.gridRenderer.reset) {
         this.resetAllGridRenderers();
         paintCellsByColumnsAndRows.call(this, gc);
-        paintCellsAsNeeded.reset = false;
+        this.gridRenderer.reset = false;
     }
 
     // gc.clipSave(clipToGrid, 0, 0, viewWidth, viewHeight);

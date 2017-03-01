@@ -44,9 +44,9 @@ function paintCellsByColumnsDiscrete(gc) {
 
     if (!C || !R) { return; }
 
-    if (paintCellsByColumnsDiscrete.reset) {
+    if (this.gridRenderer.reset) {
         this.resetAllGridRenderers(['by-columns']);
-        paintCellsByColumnsDiscrete.reset = false;
+        this.gridRenderer.reset = false;
         bundleColumns.call(this, true);
     }
 
