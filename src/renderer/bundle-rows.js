@@ -2,9 +2,7 @@
 
 function bundleRows(resetCellEvents) {
     var gridProps = this.grid.properties,
-        vc, visibleColumns = this.visibleColumns,
         vr, visibleRows = this.visibleRows,
-        c, C = visibleColumns.length, c0 = gridProps.showRowNumbers ? -1 : 0,
         r, R = visibleRows.length,
         p, pool;
 
@@ -12,11 +10,11 @@ function bundleRows(resetCellEvents) {
         pool = this.cellEventPool;
         for (p = 0, r = 0; r < R; r++) {
             vr = visibleRows[r];
-            for (c = c0; c < C; c++, p++) {
-                vc = visibleColumns[c];
+            this.visibleColumns.forEachWithNeg(function(vc) { // eslint-disable-line no-loop-func
+                p++;
                 // reset pool member to reflect coordinates of cell in newly shaped grid
                 pool[p].reset(vc, vr);
-            }
+            });
         }
     }
 

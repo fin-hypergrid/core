@@ -34,16 +34,17 @@ function paintCellsByColumns(gc) {
         prefillColor, gridPrefillColor = gridProps.backgroundColor,
         cellEvent,
         columnBundle, columnBundles,
-        vc, visibleColumns = this.visibleColumns,
+        visibleColumns = this.visibleColumns,
         visibleRows = this.visibleRows,
-        c, C = visibleColumns.length, c0 = gridProps.showRowNumbers ? -1 : 0, cLast = C - 1,
+        c, C = visibleColumns.length, cLast = C - 1,
         r, R = visibleRows.length,
-        p, pool = this.cellEventPool,
+        pool = this.cellEventPool,
         preferredWidth,
         columnClip,
         // clipToGrid,
         viewWidth = C ? visibleColumns[cLast].right : 0,
         viewHeight = R ? visibleRows[R - 1].bottom : 0;
+
 
     gc.clearRect(0, 0, this.bounds.width, this.bounds.height);
 
@@ -71,7 +72,8 @@ function paintCellsByColumns(gc) {
     // gc.clipSave(clipToGrid, 0, 0, viewWidth, viewHeight);
 
     // For each column...
-    for (p = 0, c = c0; c < C; c++) {
+    var p = 0;
+    this.visibleColumns.forEachWithNeg(function(vc, c) {
         cellEvent = pool[p]; // first cell in column c
         vc = cellEvent.visibleColumn;
 
@@ -95,7 +97,7 @@ function paintCellsByColumns(gc) {
         gc.clipRestore(columnClip);
 
         cellEvent.column.properties.preferredWidth = Math.round(preferredWidth);
-    }
+    }.bind(this));
 
     // gc.clipRestore(clipToGrid);
 

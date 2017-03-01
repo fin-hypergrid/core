@@ -48,6 +48,7 @@ function include(dataSource, defaultDataSource) {
 function TreeView(grid, options) {
     this.grid = grid;
     this.options = options || {};
+    grid.properties.showTreeColumn = false;
 }
 
 TreeView.prototype.name = 'TreeView';

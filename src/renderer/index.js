@@ -7,19 +7,44 @@ var Base = require('../Base');
 var images = require('../../images/index');
 
 
-var visibleColumnPropertiesDescriptor = {
-    find: {
-        // Like Array.prototype.find except searches negative indexes as well.
-        value: function(iteratee, context) {
-            for (var i = -1; i in this; --i); // eslint-disable-line curly
-            while (++i) {
-                if (iteratee.call(context, this[i], i, this)) {
-                    return this[i];
+var visibleColumnPropertiesDescriptorFn = function(grid) {
+    return {
+        findWithNeg: {
+            // Like the Array.prototype version except searches negative indexes as well.
+            value: function(iteratee, context) {
+                for (var i = grid.behavior.leftMostColIndex; i in this; --i); // eslint-disable-line curly
+                while (++i) {
+                    if (!this[i]) {
+                        continue;
+                    }
+                    if (iteratee.call(context, this[i], i, this)) {
+                        return this[i];
+                    }
                 }
+                return Array.prototype.find.call(this, iteratee, context);
             }
-            return Array.prototype.find.call(this, iteratee, context);
+        },
+        forEachWithNeg: {
+            // Like the Array.prototype version except it iterates negative indexes as well.
+            value: function(iteratee, context) {
+                for (var i = grid.behavior.leftMostColIndex; i in this; --i); // eslint-disable-line curly
+                while (++i) {
+                    if (!this[i]) {
+                        continue;
+                    }
+                    iteratee.call(context, this[i], i, this);
+                }
+                return Array.prototype.forEach.call(this, iteratee, context);
+            }
+
+        },
+
+        totalLength: {
+            get: function() {
+                return Math.abs(grid.behavior.leftMostColIndex) + this.length;
+            }
         }
-    }
+    };
 };
 
 
@@ -109,7 +134,7 @@ var Renderer = Base.extend('Renderer', {
          * 3. An n-based list of consecutive of integers representing the scrollable columns (where n = number of fixed columns + the number of columns scrolled off to the left).
          * @type {visibleColumnDescriptor}
          */
-        this.visibleColumns = Object.defineProperties([], visibleColumnPropertiesDescriptor);
+        this.visibleColumns = Object.defineProperties([], visibleColumnPropertiesDescriptorFn(this.grid));
 
         /**
          * Represents the ordered set of visible rows. Array size is always the exact number of visible rows.
@@ -219,7 +244,8 @@ var Renderer = Base.extend('Renderer', {
 
             lineWidth = grid.properties.lineWidth,
 
-            start = grid.properties.showRowNumbers ? -1 : 0,
+            start = 0,
+            numOfInternalCols = 0,
             x, X, // horizontal pixel loop index and limit
             y, Y, // vertical pixel loop index and limit
             c, C, // column loop index and limit
@@ -245,6 +271,10 @@ var Renderer = Base.extend('Renderer', {
             yEd = editorCellEvent.dataCell.y;
             sgEd = editorCellEvent.subgrid;
         }
+        if (grid.properties.showRowNumbers) {
+            start = behavior.rowColumnIndex;
+            numOfInternalCols = Math.abs(start);
+        }
 
         this.scrollHeight = 0;
 
@@ -257,10 +287,16 @@ var Renderer = Base.extend('Renderer', {
         this.insertionBounds = [];
 
         for (
-            x = 0, c = start, C = this.grid.getColumnCount(), X = bounds.width || grid.canvas.width;
+            x = 0, c = start, C = grid.getColumnCount(), X = bounds.width || grid.canvas.width;
             c < C && x <= X;
             c++
         ) {
+            if (c === behavior.treeColumnIndex && !behavior.dataModel.hasHierarchyColumn()) {
+                numOfInternalCols = (numOfInternalCols > 0) ? numOfInternalCols - 1 : 0;
+                this.visibleColumns[c] = undefined;
+                continue;
+            }
+
             vx = c;
             if (c >= fixedColumnCount) {
                 lastVX = vx += scrollLeft;
@@ -375,7 +411,7 @@ var Renderer = Base.extend('Renderer', {
         // Resize CellEvent pool
         var pool = this.cellEventPool,
             previousLength = pool.length,
-            P = (this.visibleColumns.length - start) * this.visibleRows.length;
+            P = (this.visibleColumns.length + numOfInternalCols) * this.visibleRows.length;
 
         if (P > previousLength) {
             pool.length = P; // grow pool to accommodate more cells
@@ -522,9 +558,9 @@ var Renderer = Base.extend('Renderer', {
             isPseudoCol = false,
             vrs = this.visibleRows,
             vcs = this.visibleColumns,
-            firstColumn = vcs[this.properties.showRowNumbers ? -1 : 0],
+            firstColumn = vcs[this.grid.behavior.leftMostColIndex],
             inFirstColumn = x < firstColumn.right,
-            vc = inFirstColumn ? firstColumn : vcs.find(function(vc) { return x < vc.right; }),
+            vc = inFirstColumn ? firstColumn : vcs.findWithNeg(function(vc) { return x < vc.right; }),
             vr = vrs.find(function(vr) { return y < vr.bottom; }),
             result = {fake: false};
 
@@ -580,7 +616,7 @@ var Renderer = Base.extend('Renderer', {
      * @returns {object|undefined} The given column if visible or `undefined` if not.
      */
     getVisibleColumn: function(columnIndex) {
-        return this.visibleColumns.find(function(vc) {
+        return this.visibleColumns.findWithNeg(function(vc) {
             return vc.columnIndex === columnIndex;
         });
     },
@@ -606,7 +642,7 @@ var Renderer = Base.extend('Renderer', {
      * @returns {object|undefined} The given column if visible or `undefined` if not.
      */
     getVisibleDataColumn: function(columnIndex) {
-        return this.visibleColumns.find(function(vc) {
+        return this.visibleColumns.findWithNeg(function(vc) {
             return vc.column.index === columnIndex;
         });
     },
@@ -831,7 +867,7 @@ var Renderer = Base.extend('Renderer', {
      */
     isLastColumnVisible: function() {
         var lastColumnIndex = this.grid.getColumnCount() - 1;
-        return !!this.visibleColumns.find(function(vc) { return vc.columnIndex === lastColumnIndex; });
+        return !!this.visibleColumns.findWithNeg(function(vc) { return vc.columnIndex === lastColumnIndex; });
     },
 
     /**
@@ -943,15 +979,18 @@ var Renderer = Base.extend('Renderer', {
             if (gridProps.gridLinesV) {
                 gc.cache.fillStyle = lineColor;
                 var viewHeight = visibleRows[R - 1].bottom,
-                    c = gridProps.showRowNumbers ? -1 : 0;
+                    c = this.grid.behavior.leftMostColIndex;
                 if (gridProps.gridBorderLeft) {
                     gc.fillRect(visibleColumns[c].left, 0, lineWidth, viewHeight);
                 }
-                for (c += 1; c < C; c++) {
-                    gc.fillRect(visibleColumns[c].left - lineWidth, 0, lineWidth, viewHeight);
-                }
+                //Don't Paint LeftMost Border
+                var first = true;
+                this.visibleColumns.forEachWithNeg(function(vc) {
+                    first = false;
+                    if (!first) { gc.fillRect(vc.left - lineWidth, 0, lineWidth, viewHeight); }
+                });
                 if (gridProps.gridBorderRight) {
-                    gc.fillRect(visibleColumns[c - 1].right + 1 - lineWidth, 0, lineWidth, viewHeight);
+                    gc.fillRect(visibleColumns[C - 1].right + 1 - lineWidth, 0, lineWidth, viewHeight);
                 }
             }
 
@@ -1065,10 +1104,10 @@ var Renderer = Base.extend('Renderer', {
         // * For all cells: set `config.value` (writable property)
         // * For cells outside of row handle column: also set `config.dataRow` for use by valOrFunc
         if (!isHandleColumn) {
+            //Including hierarchyColumn
             config.dataRow = cellEvent.dataRow;
             config.value = cellEvent.value;
         } else {
-            config.isHandleColumn = true;
             if (isDataRow) {
                 // row handle for a data row
                 config.value = r + 1; // row number is 1-based
@@ -1210,7 +1249,7 @@ var Renderer = Base.extend('Renderer', {
 
 function resetNumberColumnWidth(gc, behavior) {
     var rowCount = behavior.dataModel.getRowCount(),
-        columnProperties = behavior.getColumnProperties(-1),
+        columnProperties = behavior.getColumnProperties(behavior.rowColumnIndex),
         cellProperties = columnProperties.rowHeader,
         padding = 2 * columnProperties.cellPadding,
         iconWidth = columnProperties.preferredWidth = Math.max(

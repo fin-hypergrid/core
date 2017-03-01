@@ -108,9 +108,6 @@ AggregationsView.prototype.setAggregateGroups = function(aggregations, groups) {
         dataSource.setAggregateGroups({}, []);
     }
 
-    behavior.createColumns(); // columns changed
-    behavior.changed(); // number of rows changed
-
     // 3. SAVE OR RESTORE SOME RENDER PROPERTIES
 
     if (aggregated) {
@@ -124,6 +121,8 @@ AggregationsView.prototype.setAggregateGroups = function(aggregations, groups) {
         // save value of grid's checkboxOnlyRowSelections property and set it to true so drill-down clicks don't select the row they are in
         this.checkboxOnlyRowSelectionsWas = state.checkboxOnlyRowSelections;
         state.checkboxOnlyRowSelections = true;
+        //Turn on Tree Column
+        grid.properties.showTreeColumn = true;
     } else {
         // restore the saved render props
         columnProps.editable = this.editableWas;
@@ -132,8 +131,12 @@ AggregationsView.prototype.setAggregateGroups = function(aggregations, groups) {
 
         // 3a. ON UNGROUPING: RESTORE PIPELINE
         behavior.unstashPipeline();
+        //Turn off Tree Column
+        grid.properties.showTreeColumn = false;
     }
 
+    behavior.createColumns(); // columns changed
+    behavior.changed(); // number of rows changed
     grid.selectionModel.clear();
     grid.clearMouseDown();
 

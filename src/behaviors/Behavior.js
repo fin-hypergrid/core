@@ -131,7 +131,21 @@ var Behavior = Base.extend('Behavior', {
         return this.grid.renderer.visibleRows.length;
     },
 
+    get treeColumnIndex() {
+        return -1;
+    },
+
+    get rowColumnIndex() {
+        return -2;
+    },
+
+    get leftMostColIndex() {
+        return this.grid.properties.showRowNumbers ? this.rowColumnIndex : (this.hasHierarchyColumn() ? this.treeColumnIndex : 0);
+    },
+
     clearColumns: function() {
+        var tc = this.treeColumnIndex;
+        var rc = this.rowColumnIndex;
         /**
          * @type {Column[]}
          * @memberOf Behavior#
@@ -144,8 +158,16 @@ var Behavior = Base.extend('Behavior', {
          */
         this.allColumns = [];
 
-        this.allColumns[-1] = this.columns[-1] = this.newColumn({ index: -1 });
-        this.allColumns[-2] = this.columns[-2] = this.newColumn({ index: -2 });
+        this.allColumns[tc] = this.columns[tc] = this.newColumn({
+            index: tc,
+            header: this.dataModel.schema[tc].header,
+            calculator: this.dataModel.schema[tc].calculator
+        });
+        this.allColumns[rc] = this.columns[rc] = this.newColumn({
+            index: rc,
+            header: this.dataModel.schema[rc].header,
+            calculator: this.dataModel.schema[rc].calculator
+        });
 
         this.columnEnum = {};
     },
@@ -721,9 +743,11 @@ var Behavior = Base.extend('Behavior', {
      * @return {number} The width of the fixed column area in the hypergrid.
      */
     getFixedColumnsWidth: function() {
-        var count = this.getFixedColumnCount();
-        var total = 0;
-        for (var i = this.grid.properties.showRowNumbers ? -1 : 0; i < count; i++) {
+        var count = this.getFixedColumnCount(),
+            total = 0,
+            i = this.leftMostColIndex;
+
+        for (; i < count; i++) {
             total += this.getColumnWidth(i);
         }
         return total;
@@ -1260,7 +1284,7 @@ var Behavior = Base.extend('Behavior', {
     checkColumnAutosizing: function(force) {
         force = force === true;
         var autoSized = this.autoSizeRowNumberColumn() ||
-            this.hasHierarchyColumn() && this.allColumns[-2].checkColumnAutosizing(force);
+            this.hasHierarchyColumn() && this.allColumns[this.rowColumnIndex].checkColumnAutosizing(force);
         this.allColumns.forEach(function(column) {
             autoSized = column.checkColumnAutosizing(force) || autoSized;
         });
@@ -1269,7 +1293,7 @@ var Behavior = Base.extend('Behavior', {
 
     autoSizeRowNumberColumn: function() {
         if (this.grid.properties.showRowNumbers && this.grid.properties.rowNumberAutosizing) {
-            return this.allColumns[-1].checkColumnAutosizing(true);
+            return this.allColumns[this.rowColumnIndex].checkColumnAutosizing(true);
         }
     },
 

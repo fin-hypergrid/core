@@ -154,11 +154,10 @@ GroupView.prototype = {
 
             // 2a. ON GROUPING: OVERRIDE `getCell` TO FORCE `EmptyCell` RENDERER FOR PARENT ROWS
             this.defaultGetCell = dataModel.getCell;
+            this.defaultGetCellEditorAt = dataModel.getCellEditorAt;
+            dataModel.getCellEditorAt = getCellEditorAt.bind(dataModel, this.defaultGetCellEditorAt);
             dataModel.getCell = getCell.bind(dataModel, this.defaultGetCell);
         }
-
-        //behavior.createColumns(); // columns changed
-        behavior.changed(); // number of rows changed
 
         this.fireSyntheticGroupsChangedEvent();
 
@@ -175,6 +174,9 @@ GroupView.prototype = {
             // save value of grid's checkboxOnlyRowSelections property and set it to true so drill-down clicks don't select the row they are in
             this.checkboxOnlyRowSelectionsWas = state.checkboxOnlyRowSelections;
             state.checkboxOnlyRowSelections = true;
+            //Turn On Tree Column
+            grid.properties.showTreeColumn = true;
+
         } else {
             // restore the saved render props
             columnProps.editable = this.editableWas;
@@ -184,10 +186,16 @@ GroupView.prototype = {
             // 3a. ON UNGROUPING: RESTORE PIPELINE
             behavior.unstashPipeline();
 
-            // 3b. ON UNGROUPING: REMOVE `getCell` OVERRIDE
+            // 3b. ON UNGROUPING: REMOVE `getCell` AND `getCellEditorAt` OVERRIDE
             grid.behavior.dataModel.getCell = this.defaultGetCell;
+            grid.behavior.dataModel.getCellEditorAt = this.defaultGetCellEditorAt;
+            //Turn Off Tree Column
+            grid.properties.showTreeColumn = false;
         }
 
+
+        //behavior.createColumns(); // columns changed
+        behavior.changed(); // number of rows changed
         grid.selectionModel.clear();
         grid.clearMouseDown();
 
@@ -216,6 +224,19 @@ function getCell(defaultGetCell, config, rendererName) {
     }
 
     return cellRenderer;
+}
+
+function getCellEditorAt(defaultGetCellEditorAt, x, y, declaredEditorName, cellEvent) {
+
+    // First call the default getCellEditorAt in case developer overrode it.
+    var cellEditor = defaultGetCellEditorAt.call(this, x, y, declaredEditorName, cellEvent);
+
+    if (cellEvent.isDataCell && !this.grid.behavior.dataModel.dataSource.isLeafNode(cellEvent.dataCell.y)) {
+        // Override renderer on parent rows
+        cellEditor = undefined;
+    }
+
+    return cellEditor;
 }
 
 module.exports = GroupView;
