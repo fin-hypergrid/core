@@ -19,7 +19,7 @@
     "chai": "^3.5.0",
     "extend-me": "^2.3",
     "filter-tree": "0.4.0",
-    "fin-hypergrid-data-source-base": "^0.4.8",
+    "fin-hypergrid-data-source-base": "^0.4.10",
     "finbars": "1.5.2",
     "hyper-analytics": "^0.13.0",
     "inject-stylesheet-template": "^1.0.1",

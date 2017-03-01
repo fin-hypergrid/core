@@ -691,7 +691,8 @@ window.onload = function() {
     };
 
     grid.addProperties({
-        readOnly: false
+        readOnly: false,
+        renderFalsy: true
     });
 
     addEventListeners();

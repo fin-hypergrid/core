@@ -157,7 +157,7 @@ GroupView.prototype = {
             dataModel.getCell = getCell.bind(dataModel, this.defaultGetCell);
         }
 
-        behavior.createColumns(); // columns changed
+        //behavior.createColumns(); // columns changed
         behavior.changed(); // number of rows changed
 
         this.fireSyntheticGroupsChangedEvent();
@@ -210,9 +210,9 @@ function getCell(defaultGetCell, config, rendererName) {
     // This will decorate `config` and return a renderer which we might override below.
     var cellRenderer = defaultGetCell.call(this, config, rendererName);
 
-    if (config.isUserDataArea && this.getRow(config.y).hasChildren) {
+    if (config.isUserDataArea && !this.grid.behavior.dataModel.dataSource.isLeafNode(config.dataCell.y)) {
         // Override renderer on parent rows
-        //cellRenderer = this.grid.cellRenderers.get('EmptyCell');
+        cellRenderer = this.grid.cellRenderers.get('EmptyCell');
     }
 
     return cellRenderer;

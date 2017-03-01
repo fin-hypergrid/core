@@ -37,6 +37,10 @@ window.onload = function() {
         sorter: grid.plugins.hypersorter
     });
 
+    grid.addProperties({
+        renderFalsy: true
+    });
+
     // show filter row as per `options`
     grid.setState({
         // columnAutosizing: false,
