@@ -8,15 +8,9 @@ You can find the current sprint [here](https://github.com/openfin/fin-hypergrid/
 
 Continual Cleanup of API notes on [JSDOC](http://openfin.github.io/fin-hypergrid/doc/Hypergrid.html)
 
-### WIKIS
-- [Main Ticket](https://github.com/openfin/fin-hypergrid/issues/256)
-- Hypergrid Full Walkthrough from Simple Binding to Virtual Scrolling
-- Navigation on Wiki Home Page
-- Rendering strategies
+## How YOU can help!
 
-## Project Backlog
-
-- [projects](https://github.com/openfin/fin-hypergrid/projects) <sup>[2](#myfootnote2)</sup>
+- See our [projects backlog](https://github.com/openfin/fin-hypergrid/projects) <sup>[2](#myfootnote2)</sup>
 
 <a name="myfootnote1">1</a>: 
 *Please note that we are dropping support for our treeview, aggregations, grouping, filtering, sorting and analytics services in general. Our reasoning is defined [here](https://github.com/openfin/fin-hypergrid/blob/master/OVERVIEW.md). These existing services are being exported out of Openfin's github domain, but they will still be available for private forking by those interested.*
