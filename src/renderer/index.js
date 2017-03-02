@@ -23,6 +23,16 @@ var visibleColumnPropertiesDescriptor = {
 };
 
 
+/**
+ * @summary List of grid renderers available to new grid instances.
+ * @desc Developer may augment this list with additional grid renderers before grid instantiation by calling @link {Renderer.registerGridRenderer}.
+ * @memberOf Renderer~
+ * @private
+ * @type {function[]}
+ */
+var paintCellsFunctions = [];
+
+
 /** @typedef {object} CanvasRenderingContext2D
  * @see [CanvasRenderingContext2D](https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D)
  */
@@ -129,28 +139,33 @@ var Renderer = Base.extend('Renderer', {
     initialize: function(grid) {
         this.grid = grid;
 
+        this.gridRenderers = {};
+        paintCellsFunctions.forEach(function(paintCellsFunction) {
+            this.registerGridRenderer(paintCellsFunction);
+        }, this);
+
         // typically grid properties won't exist yet
         this.setGridRenderer(this.properties.gridRenderer || 'by-columns-and-rows');
 
         this.reset();
     },
 
-    gridRenderers: {},
-
-    registerGridRenderer: function(gridRenderer, name) {
-        this.gridRenderers[name || gridRenderer.key] = gridRenderer;
+    registerGridRenderer: function(paintCellsFunction) {
+        this.gridRenderers[paintCellsFunction.key] = {
+            paintCells: paintCellsFunction
+        };
     },
 
     setGridRenderer: function(key) {
-        var paintCells = this.gridRenderers[key];
+        var gridRenderer = this.gridRenderers[key];
 
-        if (!paintCells) {
+        if (!gridRenderer) {
             throw new this.HypergridError('Unregistered grid renderer "' + key + '"');
         }
 
-        if (paintCells !== this.paintCells) {
-            this.paintCells = paintCells;
-            this.paintCells.reset = true;
+        if (gridRenderer !== this.gridRenderer) {
+            this.gridRenderer = gridRenderer;
+            this.gridRenderer.reset = true;
         }
     },
 
@@ -166,7 +181,7 @@ var Renderer = Base.extend('Renderer', {
      */
     rebundleGridRenderers: function() {
         Object.keys(this.gridRenderers).forEach(function(key) {
-            if ('rebundle' in this.gridRenderers[key]) {
+            if (this.gridRenderers[key].paintCells.rebundle) {
                 this.gridRenderers[key].rebundle = true;
             }
         }, this);
@@ -679,7 +694,7 @@ var Renderer = Base.extend('Renderer', {
         gc.beginPath();
 
         this.buttonCells = {};
-        this.paintCells(gc);
+        this.gridRenderer.paintCells.call(this, gc);
         resetNumberColumnWidth(gc, this.grid.behavior);
 
         this.renderOverrides(gc);
@@ -739,12 +754,12 @@ var Renderer = Base.extend('Renderer', {
                 width: vcCorner.right - vcOrigin.left,
                 height: vrCorner.bottom - vrOrigin.top
             },
-            selectionRegionOverlayColor: this.paintCells.partial ? 'transparent' : gridProps.selectionRegionOverlayColor,
+            selectionRegionOverlayColor: this.gridRenderer.paintCells.partial ? 'transparent' : gridProps.selectionRegionOverlayColor,
             selectionRegionOutlineColor: gridProps.selectionRegionOutlineColor
         };
         this.grid.cellRenderers.get('lastselection').paint(gc, config);
-        if (this.paintCells.key === 'by-cells') {
-            this.paintCells.reset = true; // fixes GRID-490
+        if (this.gridRenderer.paintCells.key === 'by-cells') {
+            this.gridRenderer.reset = true; // fixes GRID-490
         }
     },
 
@@ -1213,10 +1228,18 @@ function resetNumberColumnWidth(gc, behavior) {
     }
 }
 
-Renderer.prototype.registerGridRenderer(require('./by-cells'));
-Renderer.prototype.registerGridRenderer(require('./by-columns'));
-Renderer.prototype.registerGridRenderer(require('./by-columns-discrete'));
-Renderer.prototype.registerGridRenderer(require('./by-columns-and-rows'));
-Renderer.prototype.registerGridRenderer(require('./by-rows'));
+function registerGridRenderer(paintCellsFunction) {
+    if (paintCellsFunctions.indexOf(paintCellsFunction) < 0) {
+        paintCellsFunctions.push(paintCellsFunction);
+    }
+}
+
+registerGridRenderer(require('./by-cells'));
+registerGridRenderer(require('./by-columns'));
+registerGridRenderer(require('./by-columns-discrete'));
+registerGridRenderer(require('./by-columns-and-rows'));
+registerGridRenderer(require('./by-rows'));
+
+Renderer.registerGridRenderer = registerGridRenderer;
 
 module.exports = Renderer;

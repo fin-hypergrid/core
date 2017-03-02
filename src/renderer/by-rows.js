@@ -49,9 +49,9 @@ function paintCellsByRows(gc) {
         gc.fillRect(0, 0, viewWidth, viewHeight);
     }
 
-    if (paintCellsByRows.reset) {
+    if (this.gridRenderer.reset) {
         this.resetAllGridRenderers();
-        paintCellsByRows.reset = false;
+        this.gridRenderer.reset = false;
         bundleRows.call(this, true);
     }
 

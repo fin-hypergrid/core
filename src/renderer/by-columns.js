@@ -54,12 +54,12 @@ function paintCellsByColumns(gc) {
         gc.fillRect(0, 0, viewWidth, viewHeight);
     }
 
-    if (paintCellsByColumns.reset) {
+    if (this.gridRenderer.reset) {
         this.resetAllGridRenderers(['by-columns-discrete']);
-        paintCellsByColumns.reset = false;
+        this.gridRenderer.reset = false;
         bundleColumns.call(this, true);
-    } else if (paintCellsByColumns.rebundle) {
-        paintCellsByColumns.rebundle = false;
+    } else if (this.gridRenderer.rebundle) {
+        this.gridRenderer.rebundle = false;
         bundleColumns.call(this);
     }
 
@@ -103,6 +103,6 @@ function paintCellsByColumns(gc) {
 }
 
 paintCellsByColumns.key = 'by-columns';
-paintCellsByColumns.rebundle = false; // see rebundleGridRenderers
+paintCellsByColumns.rebundle = true; // see rebundleGridRenderers
 
 module.exports = paintCellsByColumns;
