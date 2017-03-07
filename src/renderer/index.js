@@ -1210,7 +1210,7 @@ var Renderer = Base.extend('Renderer', {
 
 function resetNumberColumnWidth(gc, behavior) {
     var rowCount = behavior.dataModel.getRowCount(),
-        columnProperties = behavior.getColumnProperties(-1),
+        columnProperties = behavior.getColumnProperties(-2),
         cellProperties = columnProperties.rowHeader,
         padding = 2 * columnProperties.cellPadding,
         iconWidth = columnProperties.preferredWidth = Math.max(

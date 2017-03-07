@@ -723,7 +723,15 @@ var Behavior = Base.extend('Behavior', {
     getFixedColumnsWidth: function() {
         var count = this.getFixedColumnCount();
         var total = 0;
-        for (var i = this.grid.properties.showRowNumbers ? -1 : 0; i < count; i++) {
+        var i;
+
+        if (this.grid.properties.showRowNumbers) {
+            i = -2;
+        } else if (this.dataModel.hasHierarchyColumn()) {
+            i = -1;
+        }
+
+        for (; i < count; i++) {
             total += this.getColumnWidth(i);
         }
         return total;
