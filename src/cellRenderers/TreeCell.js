@@ -9,7 +9,7 @@ var CellRenderer = require('./CellRenderer');
 var TreeCell = CellRenderer.extend('TreeCell', {
 
     /**
-     * @desc A simple implementation of a tree cell renderer for use mainly with the qtree.
+     * @desc A simple implementation of a tree cell renderer for use mainly with the tree column.
      * @implements paintFunction
      * @memberOf TreeCell.prototype
      */

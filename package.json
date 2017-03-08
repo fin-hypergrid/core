@@ -21,7 +21,7 @@
     "filter-tree": "0.4.0",
     "fin-hypergrid-data-source-base": "^0.4.10",
     "finbars": "1.5.2",
-    "hyper-analytics": "^0.13.0",
+    "hyper-analytics": "^0.15.0",
     "inject-stylesheet-template": "^1.0.1",
     "list-dragon": "1.3.3",
     "mustache": "2.2.0",

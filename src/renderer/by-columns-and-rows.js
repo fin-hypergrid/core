@@ -29,11 +29,12 @@ function paintCellsByColumnsAndRows(gc) {
         cellEvent,
         rowBundle, rowBundles,
         columnBundle, columnBundles,
-        vc, visibleColumns = this.visibleColumns,
+        visibleColumns = this.visibleColumns,
         visibleRows = this.visibleRows,
-        c, C = visibleColumns.length, c0 = gridProps.showRowNumbers ? -1 : 0, cLast = C - 1,
+        c, C = visibleColumns.length,
+        cLast = C - 1,
         r, R = visibleRows.length,
-        p, pool = this.cellEventPool,
+        pool = this.cellEventPool,
         preferredWidth,
         columnClip,
         // clipToGrid,
@@ -76,7 +77,9 @@ function paintCellsByColumnsAndRows(gc) {
     // gc.clipSave(clipToGrid, 0, 0, viewWidth, viewHeight);
 
     // For each column...
-    for (p = 0, c = c0; c < C; c++) {
+    var p = 0;
+    this.visibleColumns.forEachWithNeg(function(vc, c) {
+
         cellEvent = pool[p];
         vc = cellEvent.visibleColumn;
 
@@ -106,7 +109,7 @@ function paintCellsByColumnsAndRows(gc) {
         gc.clipRestore(columnClip);
 
         cellEvent.column.properties.preferredWidth = Math.round(preferredWidth);
-    }
+    }.bind(this));
 
     // gc.clipRestore(clipToGrid);
 

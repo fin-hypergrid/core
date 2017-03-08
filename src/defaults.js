@@ -730,6 +730,13 @@ var defaults = {
 
     /**
      * @default
+     * @type {string}
+     * @memberOf module:defaults
+     */
+    treeRenderer: 'SimpleCell',
+
+    /**
+     * @default
      * @type {boolean}
      * @memberOf module:defaults
      */

@@ -2010,7 +2010,7 @@ var Hypergrid = Base.extend('Hypergrid', {
      * @memberOf Hypergrid#
      */
     isGridRow: function(y) {
-        return new this.beahvior.CellEvent(0, y).isDataRow;
+        return new this.behavior.CellEvent(0, y).isDataRow;
     },
 
     isShowHeaderRow: function() {
@@ -2033,7 +2033,7 @@ var Hypergrid = Base.extend('Hypergrid', {
         return this.behavior.hasHierarchyColumn();
     },
     isHierarchyColumn: function(x) {
-        return this.hasHierarchyColumn() && x === 0;
+        return this.hasHierarchyColumn() && x === this.behavior.treeColumnIndex;
     },
     checkScrollbarVisibility: function() {
         // var hoverClassOver = this.properties.scrollbarHoverOver;

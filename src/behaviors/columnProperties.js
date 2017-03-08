@@ -159,6 +159,16 @@ createColumnProperties.treeHeaderDescriptors = {
             this.rowHeaderForegroundSelectionColor = value;
         }
     },
+    renderer: {
+        configurable: true,
+        enumerable: true,
+        get: function() {
+            return this.treeRenderer;
+        },
+        set: function(value) {
+            this.treeRenderer = value;
+        }
+    },
     backgroundSelectionColor: {
         configurable: true,
         enumerable: true,

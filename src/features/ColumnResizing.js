@@ -42,7 +42,7 @@ var ColumnResizing = Feature.extend('ColumnResizing', {
      * @param {Object} event - the event details
      */
     overAreaDivider: function(grid, event) {
-        var leftMostColumnIndex = grid.properties.showRowNumbers ? -1 : 0;
+        var leftMostColumnIndex = grid.behavior.leftMostColIndex;
         return event.gridCell.x !== leftMostColumnIndex && event.mousePoint.x <= 3 ||
             event.mousePoint.x >= event.bounds.width - 3;
     },
@@ -81,9 +81,9 @@ var ColumnResizing = Feature.extend('ColumnResizing', {
                 var columnIndex = event.gridCell.x - 1;
                 this.dragColumn = grid.behavior.getActiveColumn(columnIndex);
                 //this.dragStartWidth = grid.renderer.visibleColumns[columnIndex].width;
-                var visibleColIndex = -1;
+                var visibleColIndex = grid.behavior.rowColumnIndex;
                 var dragColumn = this.dragColumn;
-                grid.renderer.visibleColumns.forEach(function(vCol, vIndex){
+                grid.renderer.visibleColumns.forEachWithNeg(function(vCol, vIndex){
                     var col = vCol.column;
                     if (col.index === dragColumn.index){
                         visibleColIndex = vIndex;

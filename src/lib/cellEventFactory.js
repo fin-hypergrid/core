@@ -201,10 +201,10 @@ factory.prototypeDescriptors = Object.defineProperties({}, {
     isColumnFixed: { get: function() { return this.isDataColumn && this.gridCell.x < this.grid.properties.fixedColumnCount; } },
     isCellFixed:   { get: function() { return this.isRowFixed && this.isColumnFixed; } },
 
-    isHandleColumn: { get: function() { return !this.isDataColumn; } },
+    isHandleColumn: { get: function() { return this.gridCell.x === this.grid.behavior.rowColumnIndex && this.grid.properties.showRowNumbers; } },
     isHandleCell:   { get: function() { return this.isHandleColumn && this.isDataRow; } },
 
-    isHierarchyColumn: { get: function() { return this.gridCell.x === 0 && this.grid.properties.showTreeColumn && this.dataModel.isDrillDown(this.dataCell.x); } },
+    isHierarchyColumn: { get: function() { return this.gridCell.x === this.grid.behavior.treeColumnIndex; } },
 
     isHeaderRow:    { get: function() { return this.visibleRow.subgrid.isHeader; } },
     isHeaderHandle: { get: function() { return this.isHeaderRow && this.isHandleColumn; } },

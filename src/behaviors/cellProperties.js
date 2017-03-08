@@ -146,8 +146,18 @@ function getCellPropertiesObject(rowIndex, dataModel) {
  */
 function newCellPropertiesObject(rowIndex, dataModel) {
     var rowData = (dataModel || this.dataModel).getRow(rowIndex),
-        metaData = rowData.__META = rowData.__META || {};
-    return (metaData[this.name] = Object.create(this._index >= 0 ? this.properties : this.properties.rowHeader));
+        metaData = rowData.__META = rowData.__META || {},
+        props;
+
+    if (this._index >= 0) {
+        props = this.properties;
+    } else if (this._index === this.behavior.treeColumnIndex) {
+        props = this.properties.treeHeader;
+    } else if (this._index === this.behavior.rowColumnIndex) {
+        props = this.properties.rowHeader;
+    }
+
+    return (metaData[this.name] = Object.create(props));
 }
 
 module.exports = cell;

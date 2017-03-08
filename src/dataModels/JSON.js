@@ -61,7 +61,9 @@ var JSON = DataModel.extend('dataModels.JSON', {
         options = options || {};
         this.source = new this.DataSourceOrigin(
             options.data,
-            options.schema
+            options.schema,
+            this.grid.behavior.treeColumnIndex,
+            this.grid.behavior.rowColumnIndex
         );
 
         this.setPipeline({
@@ -123,13 +125,6 @@ var JSON = DataModel.extend('dataModels.JSON', {
      * @memberOf dataModels.JSON.prototype
      */
     getValue: function(x, y) {
-        if (this.hasHierarchyColumn()) {
-            if (x === -2) {
-                x = 0;
-            }
-        } else if (this.isDrillDown()) {
-            x += 1;
-        }
         return this.dataSource.getValue(x, y);
     },
 
@@ -149,13 +144,6 @@ var JSON = DataModel.extend('dataModels.JSON', {
      * @param value
      */
     setValue: function(x, r, value) {
-        if (this.hasHierarchyColumn()) {
-            if (x === -2) {
-                x = 0;
-            }
-        } else if (this.isDrillDown()) {
-            x += 1;
-        }
         this.dataSource.setValue(x, r, value);
     },
 
@@ -175,8 +163,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
      * @returns {number}
      */
     getColumnCount: function() {
-        var showTree = this.grid.properties.showTreeColumn === true;
-        var offset = (this.isDrillDown() && !showTree) ? -1 : 0;
+        var offset = this.hasHierarchyColumn() ? -1 : 0;
         return this.dataSource.getColumnCount() + offset;
     },
 
@@ -391,9 +378,12 @@ var JSON = DataModel.extend('dataModels.JSON', {
         return this.deprecated('truncatePipeline(newLength)', 'setPipeline()', '1.2.0', arguments, 'Build a local pipeline (array of data source constructors) and pass it to setPipeline.');
     },
 
-    isDrillDown: function(event) {
-        var colIndex = event && event.gridCell && event.gridCell.x;
-        return this.dataSource.isDrillDown(colIndex);
+    isDrillDown: function() {
+        return this.dataSource.isDrillDown();
+    },
+
+    isDrillDownCol: function(event) {
+        return this.dataSource.isDrillDownCol(event);
     },
 
     /**
@@ -465,8 +455,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
      * @returns {boolean}
      */
     hasHierarchyColumn: function() {
-        var showTree = this.grid.properties.showTreeColumn === true;
-        return this.isDrillDown() && showTree;
+        return this.isDrillDown() && this.grid.properties.showTreeColumn;
     },
 
     /**
@@ -513,7 +502,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
     toggleRow: function(y, expand, event) {
         //TODO: fire a row toggle event
         var changed;
-        if (this.isDrillDown(event)) {
+        if (this.isDrillDownCol(event)) {
             changed = this.dataSource.click(y, expand);
             if (changed) {
                 this.reindex({rowClick: true});
