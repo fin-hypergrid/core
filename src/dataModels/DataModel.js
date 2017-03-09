@@ -1,13 +1,15 @@
 'use strict';
 
 var Base = require('../Base');
+var overrider = require('overrider');
 
 /**
  * @constructor
  */
 var DataModel = Base.extend('DataModel', {
     grid: null,
-    initialize: function(grid, options) {
+    mixIn: overrider.mixIn,
+    initialize: function(grid) {
         this.grid = grid;
     },
 

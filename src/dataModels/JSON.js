@@ -1,13 +1,7 @@
 'use strict';
 
 var DataModel = require('./DataModel');
-var DataSourceOrigin = require('../lib/DataSourceOrigin');
-
-/** @typedef {object} dataSourcePipelineObject
- * @property {string} type - A "DataSourceOrigin" style constructor name.
- * @property {*} [options] - When defined, passed as 2nd argument to constructor.
- * @property {string} [parent] - Defines a branch off the main sequence.
- */
+var getFieldNames = require('../lib/fields').getFieldNames;
 
 /**
  * @name dataModels.JSON
@@ -17,68 +11,45 @@ var DataSourceOrigin = require('../lib/DataSourceOrigin');
 var JSON = DataModel.extend('dataModels.JSON', {
 
     initialize: function(grid, options) {
-        /**
-         * @summary Hash of controllers.
-         * @desc Keyed by data source type.
-         * Data controller are only accepted by data sources that have a defined `type` property.
-         * @see {@link dataControlInterface}
-         * @type {object}
-         * @memberOf dataModels.JSON.prototype
-         */
-        this.controllers = {};
-
-        this.charMap = new CharMap(this);
-
         this.reset(options);
     },
-
     /**
-     * Override to use a different origin.
-     * @type(DataSourceBase}
+     * @deprecated
      * @memberOf dataModels.JSON.prototype
      */
-    DataSourceOrigin: DataSourceOrigin,
-
+    get DataSourceOrigin() {
+        return this.deprecated('.DataSourceOrigin', '', '1.4.0', 'No Longer Supported');
+    },
     /**
-     * @type {dataSourcePipelineObject[][]}
-     * @summary Pipeline stash push-down list.
-     * @desc The pipeline stash may be shared or instanced. This is the shared stash. An instance may override this with an instance stash variable (of the same name). See {@link dataModels.JSON#getPipelineSchemaStash}.
+     * @deprecated
      * @memberOf dataModels.JSON.prototype
      */
-    pipelineSchemaStash: [],
+    get pipelineSchemaStash() {
+        return this.deprecated('.pipelineSchemaStash', '', '1.4.0', 'No Longer Supported');
+    },
 
     /**
      * @param {object} [options]
-     * @param {object} [options.pipeline] - Consumed by {@link dataModels.JSON#setPipeline}.
-     * If omitted, previously established pipeline is reused.
-     * @param {object} [options.controllers] - Consumed by {@link dataModels.JSON#setPipeline}.
-     * If omitted, previously established controllers.
-     * * @memberOf dataModels.JSON.prototype
+     * @memberOf dataModels.JSON.prototype
      */
     reset: function(options) {
-        delete this.pipelineSchemaStash; // remove existing "own" version if any
-
         options = options || {};
-        this.source = new this.DataSourceOrigin(
-            options.data,
-            options.schema,
-            this.grid.behavior.treeColumnIndex,
-            this.grid.behavior.rowColumnIndex
-        );
-
-        this.setPipeline({
-            pipeline: options.pipeline,
-            controllers: options.controllers
-        });
+        this._schema = setInternalColSchema.call(this, []);
+        this.setData(options.data, options.schema);
     },
 
     /**
-     * Application developer should override to set up a default pipeline.
-     * @type {pipelineSchema}
+     * @deprecated
      * @memberOf dataModels.JSON.prototype
      */
-    defaultPipelineSchema: [],
+    get  defaultPipelineSchema() {
+        return this.deprecated('. defaultPipelineSchema', '', '1.4.0', 'No Longer Supported');
+    },
 
+    /**
+     * @deprecated
+     * @memberOf dataModels.JSON.prototype
+     */
     clearSelectedData: function() {
         var key = 'clearSelectedData()',
             warned = this.$$DEPRECATION_WARNED = this.$$DEPRECATION_WARNED || {};
@@ -89,34 +60,33 @@ var JSON = DataModel.extend('dataModels.JSON', {
     },
 
     /**
-     * @deprecated As of v1.0.7, reference the `dataSource` property instead.
-     * @returns {*}
+     * @deprecated
      * @memberOf dataModels.JSON.prototype
      */
     getDataSource: function() {
         return this.deprecated('getDataSource()', 'dataSource', '1.0.7');
     },
 
+    /**
+     * @memberOf dataModels.JSON.prototype
+     */
     getData: function() {
-        return this.source.data;
+        return this.data;
     },
 
     /**
-     * @deprecated As of v1.1.0, use `getIndexedData()` instead.
+     * @deprecated
      * @memberOf dataModels.JSON.prototype
      */
     getFilteredData: function() {
-        return this.deprecated('getFilteredData()', 'getIndexedData()', '1.2.0', arguments);
+        return this.deprecated('getFilteredData()', 'getIndexedData()', '1.2.0', arguments, 'No Longer Supported');
     },
-
+    /**
+     * @deprecated
+     * @memberOf dataModels.JSON.prototype
+     */
     getIndexedData: function() {
-        var ds = this.dataSource;
-        var count = ds.getRowCount();
-        var result = new Array(count);
-        for (var y = 0; y < count; y++) {
-            result[y] = ds.getRow(y);
-        }
-        return result;
+        return this.deprecated('getIndexedData()', '', '1.4.0', 'No Longer Supported');
     },
 
     /**
@@ -125,16 +95,18 @@ var JSON = DataModel.extend('dataModels.JSON', {
      * @memberOf dataModels.JSON.prototype
      */
     getValue: function(x, y) {
-        return this.dataSource.getValue(x, y);
+        var row = this.getRow(y);
+        if (!row) {
+            return null;
+        }
+        return row[this.schema[x].name];
     },
-
     /**
-     * @param {number} y - Data row coordinate.
-     * @returns {nunber} Row index in raw data array after dereferencing all data source indexing.
+     * @deprecated
      * @memberOf dataModels.JSON.prototype
      */
     getDataIndex: function(y) {
-        return this.dataSource.getDataIndex(y);
+        return this.deprecated('getDataIndex()', '', '1.4.0', 'No Longer Supported');
     },
 
     /**
@@ -144,7 +116,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
      * @param value
      */
     setValue: function(x, r, value) {
-        this.dataSource.setValue(x, r, value);
+        this.getRow(r)[this.schema[x].name] = value;
     },
 
     /**
@@ -172,7 +144,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
      * @returns {number}
      */
     getRowCount: function() {
-        return this.dataSource.getRowCount();
+        return this.data.length;
     },
 
     /**
@@ -188,7 +160,12 @@ var JSON = DataModel.extend('dataModels.JSON', {
      * @param {string[]} headers
      */
     setHeaders: function(headers) {
-        this.dataSource.setHeaders(headers);
+        if (!(Array.isArray(headers) && headers.length === this.schema.length)) {
+            throw new Error('Expected argument to be an array with correct length.');
+        }
+        headers.forEach(function(header, i) {
+            this.schema[i].header = header;
+        }, this);
     },
 
     /**
@@ -196,7 +173,12 @@ var JSON = DataModel.extend('dataModels.JSON', {
      * @param {string[]} fields
      */
     setFields: function(fields) {
-        this.dataSource.setFields(fields);
+        if (!(Array.isArray(fields) && fields.length === this.schema.length)) {
+            throw new Error('Expected argument to be an array with correct length.');
+        }
+        fields.forEach(function(field, i) {
+            this.schema[i].field = field;
+        }, this);
     },
 
     /**
@@ -216,157 +198,77 @@ var JSON = DataModel.extend('dataModels.JSON', {
     },
 
     /**
+     * @deprecated
+     * @memberOf dataModels.JSON.prototype
+     */
+    applyAnalytics: function() {
+        return this.deprecated('applyAnalytics', '', '1.4.0', arguments, 'No longer supported');
+    },
+
+    /**
+     * @deprecated
      * @memberOf dataModels.JSON.prototype
      */
     reindex: function(options) {
-        var selectedRowSourceIndexes = getUnderlyingIndexesOfSelectedRows.call(this);
-
-        this.pipeline.forEach(function(dataSource) {
-            if (dataSource) {
-                if (dataSource.apply) {
-                    dataSource.apply(options);
-                }
-            }
-        });
-
-        reselectRowsByUnderlyingIndexes.call(this, selectedRowSourceIndexes);
+        return this.deprecated('reindex', '', '1.4.0', arguments, 'No longer supported');
     },
 
-    /**
-     * @summary Set or reset grid data.
-     * See {@link DataSourceOrigin#setData} for details.
-     * @memberOf dataModels.JSON.prototype
-     */
-    setData: function(dataSource, schema) {
-        this.source.setData(dataSource, schema);
-    },
-
-    /** @typedef {DataSourceBase[]} pipelineSchema
-     * @summary Describes a new pipeline.
-     * @desc Consists of an ordered list of data source constructors, descendants of `DataSourceBase`.
-     * May contain `undefined` elements, which are ignored.
+    /** @typedef {object} columnSchemaObject
+     * @property {string} name - The required column name.
+     * @property {string} [header] - An override for derived header
+     * @property {function} [calculator] - A function for a computed column. Undefined for normal data columns.
+     * @property {string} [type] - Used for sorting when and only when comparator not given.
      */
 
     /**
-     * @summary Instantiates the data source pipeline.
-     * @desc Each new pipe is created from the list of supplied constructors, each taking a reference to the previous data source in the pipeline.
-     *
-     * A reference to each new pipe is added to `this.sources` dataModel using the pipe's derived name.
-     *
-     * Will clear out any filtering and sorting state.
-     *
-     * The last pipe is assigned the synonym `this.dataSource`.
-     * @param {pipelineSchema} [DataSources] - New pipeline description. If not given, uses the default {@link dataModels.JSON#DataSources|this.defaultPipelineSchema}.
-     * @param {object} [options] - Takes first argument position when `DataSources` omitted.
-     * @param {string} [options.stash] - See {@link dataModels.JSON#getPipelineSchemaStash}. If given, saves the currently defined pipeline onto the indicated stash stack and then resets it with the given `DataSources`.
+     * @param {object[]} [data=[]] - Array of uniform objects containing the grid data.
+     * @param {columnSchemaObject[]} [schema=[]]
      * @memberOf dataModels.JSON.prototype
      */
-    setPipeline: function(DataSources, options) {
-        if (!Array.isArray(DataSources)) {
-            options = DataSources;
-            DataSources = options.pipeline;
-        }
-
-        options = options || {};
-
-        if (DataSources) {
-            DataSources = DataSources.slice();
-        } else if (this.DataSources) {
-            DataSources = this.DataSources;
-        } else {
-            DataSources = this.defaultPipelineSchema.slice();
-        }
-
-        this.DataSources = DataSources;
-
-        var pipeline = [],
-            dataSource = this.source;
-        if (DataSources.length) {
-            if (options.stash) {
-                this.getPipelineSchemaStash(options.stash).push(DataSources);
-            }
-
-            DataSources.forEach(function(DataSource) {
-                if (DataSource) {
-                    dataSource = new DataSource(dataSource);
-                    pipeline.push(dataSource);
-                }
-            }, this);
-        }
-        this.dataSource = dataSource;
-
+    setData: function(data, schema) {
         /**
-         * @summary Currently defined pipeline.
-         * @desc Each instance has its own pipeline.
-         * (Pipelines cannot be shared because they contain indexes specific to the data in the grid.)
-         * @name pipeline
-         * @type {dataSourcePipelineObject[]}
+         * @summary The array of uniform data objects.
+         * @name schema
+         * @type {columnSchemaObject[]}
          * @memberOf dataModels.JSON.prototype
          */
-        this.pipeline = pipeline;
+        this.data = data || [];
 
-        this.setController(options.controllers || this.controllers); // set the new or previously set data controller(s) on the new pipeline
-    },
-
-    /**
-     * Find the last data source in the pipeline of specified type.
-     * @param {string} type
-     * @returns {DataSourceBase}
-     * @memberOf dataModels.JSON.prototype
-     */
-    findDataSourceByType: function(type) {
-        var dataSource;
-        for (var i = this.pipeline.length - 1; i >= 0; i--) {
-            dataSource = this.pipeline[i];
-            if (dataSource.type === type) {
-                return dataSource;
-            }
+        if (schema) {
+            this.setSchema(schema);
+        } else if (this.data.length && !this.schema.length) {
+            this.setSchema([]);
         }
     },
 
     /**
-     * @summary The pipeline stash currently in use (either shared or instance).
-     * @desc Instance stash is created here when requested and instance doesn't yet have its "own" version.
-     * @param {string} [whichStash='default'] - One of:
-     * * `'shared'` - Use shared stash.
-     * * `'own'' or `'instance'` - Use instance stash, creating it if it does not exist.
-     * * `'default'` - Use instance stash if previously created; otherwise use shared stash.
-     * @returns The pipeline stash push-down list.
+     * @deprecated
      * @memberOf dataModels.JSON.prototype
      */
-    getPipelineSchemaStash: function(whichStash) {
-        var stash;
-        switch (whichStash) {
-
-            case 'shared':
-                stash = DataModel.prototype.stash;
-                break;
-
-            case 'own':
-            case 'instance':
-                if (!this.hasOwnProperty('pipelineSchemaStash')) {
-                    this.pipelineSchemaStash = [];
-                }
-            // disable eslint no-fallthrough
-            case 'default':
-            case undefined:
-                stash = this.pipelineSchemaStash;
-                break;
-
-        }
-        return stash;
+    setPipeline: function() {
+        return this.deprecated('setPipeline', '', '1.4.0', arguments, 'No longer supported');
+    },
+    /**
+     * @deprecated
+     * @memberOf dataModels.JSON.prototype
+     */
+    findDataSourceByType: function() {
+        return this.deprecated('findDataSourceByType', '', '1.4.0', arguments, 'No longer supported');
+    },
+    /**
+     * @deprecated
+     * @memberOf dataModels.JSON.prototype
+     */
+    getPipelineSchemaStash: function() {
+        return this.deprecated('getPipelineSchemaStash', '', '1.4.0', arguments, 'No longer supported');
     },
 
     /**
-     * Pops the last stashed pipeline off the stash stack, making it the currently defined pipeline.
-     * @param {string} [whichStash] - See {@link dataModels.JSON#getPipelineSchemaStash}.
+     * @deprecated
      * @memberOf dataModels.JSON.prototype
      */
-    unstashPipeline: function(whichStash) {
-        var pipelineSchemaStash = this.getPipelineSchemaStash(whichStash);
-        if (pipelineSchemaStash.length) {
-            this.setPipeline(pipelineSchemaStash.pop());
-        }
+    unstashPipeline: function() {
+        return this.deprecated('unstashPipeline', '', '1.4.0', arguments, 'No longer supported');
     },
 
     /**
@@ -445,6 +347,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
 
     /**
      * @memberOf dataModels.JSON.prototype
+     * @deprecated
      * @returns {object[]}
      */
     getHiddenColumns: function() {
@@ -497,16 +400,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
      * @memberOf dataModels.JSON.prototype
      */
     toggleRow: function(y, expand, event) {
-        //TODO: fire a row toggle event
-        var changed;
-        if (this.isTreeCol(event)) {
-            changed = this.dataSource.click(y, expand);
-            if (changed) {
-                this.reindex({rowClick: true});
-                this.grid.behavior.changed();
-            }
-        }
-        return changed;
+       //To Be Implemented
     },
 
     /**
@@ -515,178 +409,47 @@ var JSON = DataModel.extend('dataModels.JSON', {
      * @memberOf dataModels.JSON.prototype
      */
     getRow: function(r) {
-        return this.dataSource.getRow(r);
+        return this.data[r];
     },
 
     /**
-     * @summary Get the given data controller.
-     * @param {string} type
-     * @returns {undefined|*} The data controller; or `undefined` if data controller unknown to data model.
-     * @memberOf dataModels.JSON#
+     * @memberOf dataModels.JSON.prototype
+     * @deprecated
      */
     getController: function(type) {
-        return this.controllers[type]; // alternatively: this.dataSource.getController(type)
+        return this.deprecated('getController()', '', '1.4.0', arguments, 'Not Supported');
     },
 
     /**
-     * @summary Set the given data controller(s).
-     * @param {string} typeOrHashOfTypes - One of:
-     * * **object** - Hash of multiple data controllers, by type.
-     * * **string** - Type of the single data controller given in `controller`.
-     * @param {dataControlInterface} [controller] - Only required when 'hash' is a string; omit when `hash` is an object.
-     * @returns {object} - Hash of all results, by type. Each member will be:
-     * * The given data controller for that type when defined.
-     * * A new "null" data controller, generated by the data model when the given data controller for that type was `undefined`.
-     * * `undefined` - The data controller was unknown to the data model.
-     * @memberOf dataModels.JSON#
+     * @memberOf dataModels.JSON.prototype
+     * @deprecated
      */
     setController: function(typeOrHashOfTypes, controller) {
-        var dataSource = this.dataSource,
-            controllers = this.controllers,
-            result, results = {},
-            atLeastOneAccepted,
-            hash;
-
-        if (typeof typeOrHashOfTypes === 'string') {
-            var type = typeOrHashOfTypes;
-            hash = {};
-            hash[type] = controller;
-        } else {
-            hash = typeOrHashOfTypes;
-        }
-
-        Object.keys(hash).forEach(function(type) {
-            result = dataSource.setController(type, hash[type]);
-            atLeastOneAccepted = atLeastOneAccepted || result;
-            results[type] = result;
-        });
-
-        // add in the results to the active list including rejections
-        Object.assign(controllers, results);
-
-        // prune rejections from the active list
-        Object.keys(controllers).forEach(function(type) {
-            if (!controllers[type]) {
-                delete controllers[type];
-            }
-        });
-
-        if (atLeastOneAccepted) {
-            this.reindex();
-        }
-
-        return results;
+        return this.deprecated('setController()', '', '1.4.0', arguments, 'Not Supported');
     },
 
     /**
-     * @summary Digests `(columnIndex, propName, value)` and calls specified data controllers `properties()` method.
-     * @desc Digests the three parameters `(columnIndex, propName, value)` detailed below, creating a single {@link dataControlInterface} object with which it then calls the `properties` method of the data controller specified by `type`.
-     *
-     * This method is overloaded in the jQuery style: You can both set a data controller prop (when value give) and a get a data controller prop (when value omitted); or you can give a hash in place of the property name to set several properties at once. Whichever way you use it, you can in addition specify a column index for column-specific properties.
-     *
-     * @param {null|string} type - The controller type from which to get or to which to set the given property value(s). `null` in a setter operation applies the value(s) to all data controllers; `null` has questionable usefulness in a getter operation.
-     *
-     * @param {number} [columnIndex] - If given, this is a property on a specific column. If omitted, this is a property on the whole data controller properties object.
-     *
-     * @param {string|object} propNameOrPropHash - _If `columnIndex` is omitted, this arg takes its place._
-     *
-     * One of these types:
-     * * **string** - Property name. The name of the explicit property to either get or (if `value` also given) set on the properties object.
-     * * **object** - Hash of properties to set on the properties object.
-     *
-     * @param [value] - _If `columnIndex` is omitted, this arg takes its place._
-     *
-     * One of:
-     * * If omitted when `propNameOrPropHash` is a string, this is the "getter" action:
-     * Return the value from the properties object of the key in `property`.
-     * * Provided when `propNameOrPropHash` is a string, this is the "setter" action:
-     * Copy this value to properties object using the key in `property`.
-     * * When `propNameOrPropHash` is a hash and `value` is given: Unexpected; throws an error.
-     *
-     * @returns {propObject}
-     *
-     * @memberOf dataModels.JSON#
+     * @memberOf dataModels.JSON.prototype
+     * @deprecated
      */
     prop: function(type, columnIndex, propNameOrPropHash, value) {
-        var result, invalid,
-            properties = {},
-            argCount = arguments.length,
-            controllers = this.controllers,
-            types = (type !== null) ? [type] : Object.keys(controllers);
-
-        controllers = types
-            .map(function(type) { return controllers[type]; })
-            .filter(function(controller) { return controller; });
-
-        if (controllers.length) {
-            if (typeof columnIndex === 'number') {
-                argCount--;
-            } else {
-                value = propNameOrPropHash;
-                propNameOrPropHash = columnIndex;
-                columnIndex = undefined;
-            }
-
-            switch (argCount) {
-
-                case 2: // getter propName name or setter hash
-                    if (typeof propNameOrPropHash === 'object') {
-                        properties = propNameOrPropHash; // prop is object
-                    } else {
-                        properties.GETTER = propNameOrPropHash; // prop is name
-                    }
-                    break;
-
-                case 3: // setter for value
-                    if (typeof propNameOrPropHash === 'string') {
-                        properties[propNameOrPropHash] = value; // prop is name
-                    } else {
-                        invalid = true;
-                    }
-                    break;
-
-                default: // too few or too many args
-                    invalid = true;
-
-            }
-
-            if (invalid) {
-                throw 'Invalid overload.';
-            }
-
-            if (columnIndex !== undefined) {
-                // non-enumerable propName:
-                Object.defineProperty(properties, 'COLUMN', {
-                    value: {
-                        index: columnIndex,
-                        name: this.schema[columnIndex].name
-                    }
-                });
-            }
-
-            // Use the prepared propObject to get or set the properties on the controller
-            controllers.forEach(function(controller) {
-                result = controller.properties(properties);
-            });
-        }
-
-        return result;
+        return this.deprecated('prop()', '', '1.4.0', arguments, 'Not Supported');
     },
 
     /**
-     * @deprecated As of v1.1.0, use `this.reindex` instead.
+     * @deprecated
      * @memberOf dataModels.JSON.prototype
      */
     applyState: function() {
-        return this.deprecated('applyState()', 'reindex()', '1.2.0', arguments);
+        return this.deprecated('applyState()', '', '1.4.0', arguments, 'No longer supported');
     },
 
     getUnfilteredValue: function(x, y) {
-        return this.deprecated('getUnfilteredValue(x, y)', null, '1.2.0', arguments, 'No longer supported');
+        return this.deprecated('getUnfilteredValue(x, y)', '', '1.2.0', arguments, 'No longer supported');
     },
 
     getUnfilteredRowCount: function() {
-        return this.deprecated('getUnfilteredValue(x, y)', null, '1.2.0', arguments, 'No longer supported');
+        return this.deprecated('getUnfilteredValue(x, y)', '', '1.2.0', arguments, 'No longer supported');
     },
 
     /**
@@ -705,72 +468,61 @@ var JSON = DataModel.extend('dataModels.JSON', {
         return newDataRow;
     },
 
-    get schema() { return this.dataSource.schema; },
+    get schema() { return this._schema;},
 
     set schema(schema) {
-        this.dataSource.setSchema(schema);
+        schema = setInternalColSchema.call(this, schema);
+        this._schema = schema;
+    },
+
+    /**
+     * @memberOf dataModels.JSON.prototype
+     */
+    getSchema:  function(){
+        return this._schema;
+    },
+
+    /**
+     * @memberOf dataModels.JSON.prototype
+     * @returns {columnSchemaObject[]}
+     */
+    setSchema: function(schema){
+        if (!schema.length) {
+            var fields = getFieldNames(this.data[0]);
+
+            schema = Array(fields.length);
+
+            for (var i = 0; i < fields.length; i++) {
+                schema[i] = { name: fields[i] };
+            }
+        }
+        schema = setInternalColSchema.call(this, schema);
+        /**
+         * @summary The array of column schema objects.
+         * @name schema
+         * @type {columnSchemaObject[]}
+         * @memberOf dataModels.JSON.prototype
+         */
+        this._schema = schema;
     }
+
 });
 
 // LOCAL METHODS -- to be called with `.call(this`
 
-/**
- * Save underlying data row indexes backing current grid row selections.
- * This call should be paired with a subsequent call to `reselectGridRowsBackedBySelectedDataRows`.
- * @private
- * @this {dataModels.JSON}
- * @memberOf dataModels.JSON~
- */
-function getUnderlyingIndexesOfSelectedRows() {
-    var sourceIndexes = [],
-        dataSource = this.dataSource;
-
-    if (this.grid.properties.checkboxOnlyRowSelections) {
-        this.grid.getSelectedRows().forEach(function(selectedRowIndex) {
-            sourceIndexes.push(dataSource.getDataIndex(selectedRowIndex));
-        });
+function setInternalColSchema(schema) {
+    if (!schema[this.grid.behavior.treeColumnIndex]) {
+        schema[this.grid.behavior.treeColumnIndex] = {name: 'Tree', header: 'Tree'}; //Tree Column
     }
-
-    return sourceIndexes;
-}
-
-/**
- * Re-establish grid row selections based on underlying data row indexes saved by `getSelectedDataRowsBackingSelectedGridRows` which should be called first.
- * @private
- * @this {dataModels.JSON}
- * @memberOf dataModels.JSON~
- */
-function reselectRowsByUnderlyingIndexes(sourceIndexes) {
-    var i, r,
-        rowCount = this.getRowCount(),
-        selectedRowCount = sourceIndexes.length,
-        rowIndexes = [],
-        selectionModel = this.grid.selectionModel;
-
-    selectionModel.clearRowSelection();
-
-    if (this.grid.properties.checkboxOnlyRowSelections) {
-        for (r = 0; selectedRowCount && r < rowCount; ++r) {
-            i = sourceIndexes.indexOf(this.dataSource.getDataIndex(r));
-            if (i >= 0) {
-                rowIndexes.push(r);
-                delete sourceIndexes[i]; // might make indexOf increasingly faster as deleted elements are not enumerable
-                selectedRowCount--; // count down so we can bail early if all found
-            }
-        }
-
-        rowIndexes.forEach(function(rowIndex) {
-            selectionModel.selectRow(rowIndex);
-        });
+    if (!schema[this.grid.behavior.rowColumnIndex]) {
+        schema[this.grid.behavior.rowColumnIndex] = {name: '', header: ''}; //Row Handle Column
     }
-
-    return rowIndexes.length;
+    return schema;
 }
-
 /**
  * @private
  * @param {string} propName
- * @this DataSourceOrigin#
+ * @this DataModel#
  * @returns {Array}
  * @memberOf dataModels.JSON~
  */
@@ -780,26 +532,5 @@ function getSchemaPropArr(propName, deprecatedMethodName) {
         return columnSchema[propName];
     }, this);
 }
-
-function CharMap(dataModel) {
-    this.dataModel = dataModel;
-}
-CharMap.prototype = {
-    mixIn: require('overrider').mixIn,
-
-    get OPEN() { return this.dataModel.dataSource.drillDownCharMap.OPEN; },
-    set OPEN(s) { this.dataModel.dataSource.drillDownCharMap.OPEN = s; },
-
-    get CLOSE() { return this.dataModel.dataSource.drillDownCharMap.CLOSE; },
-    set CLOSE(s) { this.dataModel.dataSource.drillDownCharMap.CLOSE = s; },
-};
-
-/**
- * Synonym of {@link JSON.prototype.reindex}.
- * @name applyAnalytics
- * @deprecated
- * @memberOf dataModels.JSON.prototype
- */
-JSON.prototype.applyAnalytics = JSON.prototype.reindex; // eslint-disable-line no-extend-native
 
 module.exports = JSON;

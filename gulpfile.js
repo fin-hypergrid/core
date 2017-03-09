@@ -29,6 +29,8 @@ function gulpTaskAddOn(name, exportName) {
     ));
 }
 
+gulpTaskAddOn('datasource-pipelines', 'DataSourcePipelines');
+
 gulp.task('lint', lint);
 gulp.task('test', test);
 gulp.task('doc', doc);
@@ -61,6 +63,7 @@ gulp.task('build', function(callback) {
         'css-templates',
         'test',
         'add-ons',
+        'browserify-add-on-datasource-pipelines',
         //'beautify',
         'browserify',
         'browserify-demo',
