@@ -140,7 +140,7 @@ var Behavior = Base.extend('Behavior', {
     },
 
     get leftMostColIndex() {
-        return this.grid.properties.showRowNumbers ? this.rowColumnIndex : (this.hasHierarchyColumn() ? this.treeColumnIndex : 0);
+        return this.grid.properties.showRowNumbers ? this.rowColumnIndex : (this.hasTreeColumn() ? this.treeColumnIndex : 0);
     },
 
     clearColumns: function() {
@@ -1266,7 +1266,7 @@ var Behavior = Base.extend('Behavior', {
         );
     },
 
-    hasHierarchyColumn: function() {
+    hasTreeColumn: function() {
         return false;
     },
 
@@ -1284,7 +1284,7 @@ var Behavior = Base.extend('Behavior', {
     checkColumnAutosizing: function(force) {
         force = force === true;
         var autoSized = this.autoSizeRowNumberColumn() ||
-            this.hasHierarchyColumn() && this.allColumns[this.rowColumnIndex].checkColumnAutosizing(force);
+            this.hasTreeColumn() && this.allColumns[this.rowColumnIndex].checkColumnAutosizing(force);
         this.allColumns.forEach(function(column) {
             autoSized = column.checkColumnAutosizing(force) || autoSized;
         });

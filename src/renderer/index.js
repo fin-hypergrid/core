@@ -291,7 +291,7 @@ var Renderer = Base.extend('Renderer', {
             c < C && x <= X;
             c++
         ) {
-            if (c === behavior.treeColumnIndex && !behavior.dataModel.hasHierarchyColumn()) {
+            if (c === behavior.treeColumnIndex && !behavior.dataModel.hasTreeColumn()) {
                 numOfInternalCols = (numOfInternalCols > 0) ? numOfInternalCols - 1 : 0;
                 this.visibleColumns[c] = undefined;
                 continue;
@@ -1055,7 +1055,7 @@ var Renderer = Base.extend('Renderer', {
             subgrid = cellEvent.subgrid,
 
             isHandleColumn = cellEvent.isHandleColumn,
-            isHierarchyColumn = cellEvent.isHierarchyColumn,
+            isTreeColumn = cellEvent.isTreeColumn,
             isColumnSelected = cellEvent.isColumnSelected,
 
             isDataRow = cellEvent.isDataRow,
@@ -1065,7 +1065,7 @@ var Renderer = Base.extend('Renderer', {
             isHeaderRow = cellEvent.isHeaderRow,
             isFilterRow = cellEvent.isFilterRow,
 
-            isRowHandleOrHierarchyColumn = isHandleColumn || isHierarchyColumn,
+            isRowHandleOrHierarchyColumn = isHandleColumn || isTreeColumn,
             isUserDataArea = !isRowHandleOrHierarchyColumn && isDataRow,
 
             config = Object.assign(Object.create(cellEvent.columnProperties), cellEvent.cellOwnProperties), // SEE IMPORTANT NOTE ABOVE
@@ -1078,7 +1078,7 @@ var Renderer = Base.extend('Renderer', {
         if (isHandleColumn) {
             isSelected = isRowSelected || selectionModel.isCellSelectedInRow(r);
             config.halign = 'right';
-        } else if (isHierarchyColumn) {
+        } else if (isTreeColumn) {
             isSelected = isRowSelected || selectionModel.isCellSelectedInRow(r);
             config.halign = 'left';
         } else if (isDataRow) {
@@ -1119,6 +1119,8 @@ var Renderer = Base.extend('Renderer', {
 
         config.isSelected = isSelected;
         config.isDataColumn = !isRowHandleOrHierarchyColumn;
+        config.isHandleColumn = isHandleColumn;
+        config.isTreeColumn = isTreeColumn;
         config.isDataRow = isDataRow;
         config.isHeaderRow = isHeaderRow;
         config.isFilterRow = isFilterRow;

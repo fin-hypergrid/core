@@ -38,7 +38,7 @@ factory.prototypeDescriptors = Object.defineProperties({}, {
             cp = this.column.properties;
             if (this.isHandleColumn){
                 cp = cp.rowHeader;
-            } else if (this.isHierarchyColumn) {
+            } else if (this.isTreeColumn) {
                 cp = cp.treeHeader;
             } else if (this.isDataRow) {
                 // cp already set to basic props
@@ -204,7 +204,7 @@ factory.prototypeDescriptors = Object.defineProperties({}, {
     isHandleColumn: { get: function() { return this.gridCell.x === this.grid.behavior.rowColumnIndex && this.grid.properties.showRowNumbers; } },
     isHandleCell:   { get: function() { return this.isHandleColumn && this.isDataRow; } },
 
-    isHierarchyColumn: { get: function() { return this.gridCell.x === this.grid.behavior.treeColumnIndex; } },
+    isTreeColumn: { get: function() { return this.gridCell.x === this.grid.behavior.treeColumnIndex; } },
 
     isHeaderRow:    { get: function() { return this.visibleRow.subgrid.isHeader; } },
     isHeaderHandle: { get: function() { return this.isHeaderRow && this.isHandleColumn; } },

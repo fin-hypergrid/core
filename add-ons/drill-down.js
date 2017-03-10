@@ -88,7 +88,7 @@ var drillDown = {
      */
     toggleAllRows: function(expand, depth, smartApply) {
         var changed = false;
-        if (this.dataSource.isDrillDown()) {
+        if (this.isTree()) {
             var initial, limit = this.dataSource.getRowCount(), increment;
             if (expand) {
                 // work down from top

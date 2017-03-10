@@ -241,7 +241,11 @@ var JSON = Behavior.extend('behaviors.JSON', {
     },
 
     hasHierarchyColumn: function() {
-        return this.dataModel.hasHierarchyColumn();
+        return this.deprecated('hasHierarchyColumn()', 'hasTreeColumn()', '1.3.3', arguments);
+    },
+
+    hasTreeColumn: function() {
+        return this.dataModel.hasTreeColumn();
     },
 
     getVisibleColumns: function() {

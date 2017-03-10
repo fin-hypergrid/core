@@ -163,7 +163,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
      * @returns {number}
      */
     getColumnCount: function() {
-        var offset = this.hasHierarchyColumn() ? -1 : 0;
+        var offset = this.hasTreeColumn() ? -1 : 0;
         return this.dataSource.getColumnCount() + offset;
     },
 
@@ -378,11 +378,11 @@ var JSON = DataModel.extend('dataModels.JSON', {
         return this.deprecated('truncatePipeline(newLength)', 'setPipeline()', '1.2.0', arguments, 'Build a local pipeline (array of data source constructors) and pass it to setPipeline.');
     },
 
-    isDrillDown: function() {
+    isTree: function() {
         return this.dataSource.isDrillDown();
     },
 
-    isDrillDownCol: function(event) {
+    isTreeCol: function(event) {
         return this.dataSource.isDrillDownCol(event);
     },
 
@@ -454,8 +454,12 @@ var JSON = DataModel.extend('dataModels.JSON', {
      * @memberOf dataModels.JSON.prototype
      * @returns {boolean}
      */
+    hasTreeColumn: function() {
+        return this.isTree() && this.grid.properties.showTreeColumn;
+    },
+
     hasHierarchyColumn: function() {
-        return this.isDrillDown() && this.grid.properties.showTreeColumn;
+        return this.deprecated('hasHierarchyColumn()', 'hasTreeColumn()', 'v1.3.3');
     },
 
     /**
@@ -502,7 +506,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
     toggleRow: function(y, expand, event) {
         //TODO: fire a row toggle event
         var changed;
-        if (this.isDrillDownCol(event)) {
+        if (this.isTreeCol(event)) {
             changed = this.dataSource.click(y, expand);
             if (changed) {
                 this.reindex({rowClick: true});
