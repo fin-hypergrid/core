@@ -75,11 +75,11 @@
             /* DRILLDOWN COLUMN INTERNAL API */
             grid.mixIn.call(grid.behavior.dataModel, {
 
-                isDrillDown : function () {
+                isTree : function () {
                     return self.ageGrouped;
                 },
 
-                isDrillDownCol : function (x) {
+                isTreeCol : function (x) {
                     return x === this.grid.behavior.treeColumnIndex;
                 },
 
@@ -87,7 +87,7 @@
                     return self.view[y] instanceof DataNodeLeaf;
                 },
                 getValue: function (x, y) {
-                    if (!this.isDrillDownCol(x)) {
+                    if (!this.isTreeCol(x)) {
                         var view = self.view[y];
                         return view.getRowArray()[x];
                     }
@@ -102,7 +102,7 @@
                 toggleRow: function (y, expand, event) {
                     var changed = false,
                         view;
-                    if (this.isDrillDown(event.dataCell.x) && !this.isLeafNode(event.dataCell.y)){
+                    if (this.isTree(event.dataCell.x) && !this.isLeafNode(event.dataCell.y)){
                         view = self.view[event.dataCell.y];
                         self.groups[view.key].__EXPANDED = !self.groups[view.key].__EXPANDED;
                         self.buildView();

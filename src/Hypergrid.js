@@ -2029,11 +2029,14 @@ var Hypergrid = Base.extend('Hypergrid', {
         return this.deprecated('isShowFilterRow()', 'properties.showFilterRow', 'v1.2.10');
     },
 
-    hasHierarchyColumn: function() {
-        return this.behavior.hasHierarchyColumn();
+    hasTreeColumn: function() {
+        return this.behavior.hasTreeColumn();
+    },
+    isTreeColumn: function(x) {
+        return this.hasTreeColumn() && x === this.behavior.treeColumnIndex;
     },
     isHierarchyColumn: function(x) {
-        return this.hasHierarchyColumn() && x === this.behavior.treeColumnIndex;
+        return this.deprecated('isHierarchyColumn(x)', 'isTreeColumn(x)', 'v1.3.3');
     },
     checkScrollbarVisibility: function() {
         // var hoverClassOver = this.properties.scrollbarHoverOver;

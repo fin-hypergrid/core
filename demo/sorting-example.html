@@ -75,13 +75,8 @@
         this.index = new Array(this.data.length);
         this.unsort();
 
-        //Override getRow from the dataModel abstraction to make it aware of our index
-        grid.behavior.dataModel.getRow = function(y){
-            return self.data[self.index[y]];
-        };
-
         grid.behavior.dataModel.getValue = function (c, r){
-            var row = this.getRow(r);
+            var row = self.data[self.index[r]];
             if (!row) {
                 return null;
             }
@@ -156,16 +151,16 @@
 
     //API Usage
     var grid = new fin.Hypergrid();
-    myyAPI = new MySorterAPI(grid);
+
+
+     grid.installPlugins(MySorterAPI);
 
     //MISC
     grid.addProperties({
         foregroundSelectionFont: '13px Tahoma, Geneva, sans-serif',
         backgroundColor: 'white',
         columnClip: false,
-        showRowNumbers: false,
-        editor: 'textfield',
-        enableContinuousRepaint: true
+        editor: 'textfield'
     });
 </script>
 </body>

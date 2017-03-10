@@ -29,11 +29,6 @@ function gulpTaskAddOn(name, exportName) {
     ));
 }
 
-gulpTaskAddOn('hyper-filter', 'Hyperfilter');
-gulpTaskAddOn('hyper-sorter', 'Hypersorter');
-gulpTaskAddOn('totals-toolkit', 'totalsToolkit');
-gulpTaskAddOn('dialog-ui', 'DialogUI');
-
 gulp.task('lint', lint);
 gulp.task('test', test);
 gulp.task('doc', doc);
@@ -44,6 +39,11 @@ gulp.task('browserify', browserify.bind(null,
     srcDir,
     buildDir
 ));
+gulp.task('browserify-demo', browserify.bind(null,
+    'index',
+    './demo/js/demo/',
+    './demo/js/demo/build/'
+));
 
 gulp.task('reloadBrowsers', reloadBrowsers);
 gulp.task('serve', browserSyncLaunchServer);
@@ -53,30 +53,17 @@ gulp.task('css-templates', function() {
     return templates('./css/*.css', 'css');
 });
 
-gulp.task('dialogs-css-templates', function() {
-    return templates(addOnsDir + 'dialog-ui/css/*.css', 'css');
-});
-
-gulp.task('dialogs-html-templates', function() {
-    return templates(addOnsDir + 'dialog-ui/html/*.html', 'html');
-});
-
 gulp.task('build', function(callback) {
     clearBashScreen();
     runSequence(
         'lint',
         'images',
         'css-templates',
-        'dialogs-css-templates',
-        'dialogs-html-templates',
         'test',
         'add-ons',
-        'browserify-add-on-hyper-filter',
-        'browserify-add-on-hyper-sorter',
-        'browserify-add-on-totals-toolkit',
-        'browserify-add-on-dialog-ui',
         //'beautify',
         'browserify',
+        'browserify-demo',
         //'doc',
         callback
     );
