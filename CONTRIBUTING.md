@@ -4,7 +4,7 @@ Thank you in advance for being a part of this project and for helping to make Hy
 
 ## Beginners
 
-We have several beginner help wanted [tickets](https://github.com/openfin/fin-hypergrid/issues) open for community involvement.
+We have several beginner [issues](https://github.com/openfin/fin-hypergrid/issues) open for community involvement. Feel free to look all issues, especially those with the label "help wanted". Please ignore those with the label "on-hold" as the scope of these issues may change.
 
 ## HyperGrid Core vs UserLand
 
@@ -95,11 +95,28 @@ git checkout alpha
 git diff old-develop develop | git apply
 git add .
 git commit -m 'roll-up of PRs …'
-git tag v0.0.0-alpha -m `1/19/2017'
+git tag v0.0.0-alpha -m 'MM/DD/YYYY'
 git push —follow-tags upstream alpha
 ```
 * This candidate branch is open for community testing. 
+* Once we decide to go to **master** the following occurs
 
+```
+git chekout master
+git fetch upstream master
+git checkout alpha
+git fetch upstream alpha
+git merge master #-s ours may override Readme changes on master
+git upstream alpha
+# PR is merged occurs!
+git checkout master
+git pull upstream master
+git tag v0.0.0 -m 'MM/DD/YYYY'
+git push —follow-tags upstream master
+./gh-pages.sh #update CDN Demos
+npm publish
+```
+* Rinse and Repeat!
 
 ## Additional Resources
 

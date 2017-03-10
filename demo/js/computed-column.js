@@ -9,14 +9,6 @@ window.onload = function() {
     var Hypergrid = fin.Hypergrid;
 
     grid = new Hypergrid('div#example', {
-        plugins: [
-            Hypergrid.Hyperfilter,
-            [Hypergrid.Hypersorter, {Column: fin.Hypergrid.behaviors.Column}]
-        ],
-        pipeline: [
-            window.datasaur.filter,
-            window.fin.Hypergrid.analytics.DataSourceSorterComposite
-        ],
         data: [
             { value: 3 },
             { value: 4 },
@@ -33,25 +25,8 @@ window.onload = function() {
     // recreate to include new column
     grid.behavior.createColumns();
 
-    // Install the sorter and Filter data sources (optional).
-    // These modules are for EXAMPLE purposes only
-    grid.setPipeline([
-        window.datasaur.filter,
-        window.datasaur.sorter
-    ]);
-
-    // Inform data model of external DCIs. (These DCIs are for EXAMPLE purposes only.)
-    grid.setController({
-        filter: grid.plugins.hyperfilter.create(),
-        sorter: grid.plugins.hypersorter
-    });
-
     // force type of new column to 'number' because current auto-detect does not know about calculated columns
     grid.behavior.getColumn(1).type = 'number';
-
-    grid.installPlugins([
-        window.datasaur.filter
-    ]);
 
     grid.setState({ showFilterRow: true });
 

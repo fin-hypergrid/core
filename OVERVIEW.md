@@ -1,5 +1,7 @@
 # What Hypergrid is and isn't 
 
+##  Hypergrid is a View
+
 It's sole functionality is as a high performant rendering API, with a robust event-driven plug-in architecture. 
 The core grid definition encompasses:
 
@@ -21,7 +23,7 @@ The core grid definition encompasses:
 ## What is expected of the User
 
 Any feature built on top of the above list functionalities is deemed specific to the user's codebase. 
-The core tenet is that the user listens to grid events, transforms their data outside of the grid (whether it be local in the same Javascript thread or on a remote server) and then re-binds the new data sets to grid for extremely fast rendering and viewing.
+The core tenet is that the user listens to grid events, transforms their data outside of the grid (whether it be local in the same Javascript thread or on a remote server) and then re-binds the new data sets to grid for extremely fast rendering and viewing. Even with regards to aggregations/treeview/grouping/etc, post your data transformation, we have facilities to help you view the inherent hierarchy of such data but not build it.
 
 Hypergrid must assume no knowledge of the data's source or shape other than to know how to present it. 
 Truly a View in the Model-View-Controller sense of the word. *Users must provide their own analytics engine*. 
