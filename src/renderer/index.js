@@ -291,7 +291,7 @@ var Renderer = Base.extend('Renderer', {
             c < C && x <= X;
             c++
         ) {
-            if (c === behavior.treeColumnIndex && !behavior.dataModel.hasTreeColumn()) {
+            if (c === behavior.treeColumnIndex && !behavior.hasTreeColumn()) {
                 numOfInternalCols = (numOfInternalCols > 0) ? numOfInternalCols - 1 : 0;
                 this.visibleColumns[c] = undefined;
                 continue;

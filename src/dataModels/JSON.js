@@ -163,7 +163,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
      * @returns {number}
      */
     getColumnCount: function() {
-        var offset = this.hasTreeColumn() ? -1 : 0;
+        var offset = this.grid.behavior.hasTreeColumn() ? -1 : 0;
         return this.dataSource.getColumnCount() + offset;
     },
 
@@ -450,16 +450,9 @@ var JSON = DataModel.extend('dataModels.JSON', {
     getHiddenColumns: function() {
         return this.deprecated('getHiddenColumns()', 'grid.behavior.getHiddenColumns()', '1.2.14', arguments);
     },
-    /**
-     * @memberOf dataModels.JSON.prototype
-     * @returns {boolean}
-     */
-    hasTreeColumn: function() {
-        return this.isTree() && this.grid.properties.showTreeColumn;
-    },
 
     hasHierarchyColumn: function() {
-        return this.deprecated('hasHierarchyColumn()', 'hasTreeColumn()', 'v1.3.3');
+        return this.deprecated('hasHierarchyColumn()', '', 'v1.3.3');
     },
 
     /**
