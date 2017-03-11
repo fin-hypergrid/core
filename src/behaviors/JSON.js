@@ -245,7 +245,7 @@ var JSON = Behavior.extend('behaviors.JSON', {
     },
 
     hasTreeColumn: function() {
-        return this.dataModel.hasTreeColumn();
+        return this.dataModel.isTree() && this.grid.properties.showTreeColumn;
     },
 
     getVisibleColumns: function() {

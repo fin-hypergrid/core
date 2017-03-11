@@ -2032,11 +2032,8 @@ var Hypergrid = Base.extend('Hypergrid', {
     hasTreeColumn: function() {
         return this.behavior.hasTreeColumn();
     },
-    isTreeColumn: function(x) {
-        return this.hasTreeColumn() && x === this.behavior.treeColumnIndex;
-    },
     isHierarchyColumn: function(x) {
-        return this.deprecated('isHierarchyColumn(x)', 'isTreeColumn(x)', 'v1.3.3');
+        return this.deprecated('isHierarchyColumn(x)', '', 'v1.3.3');
     },
     checkScrollbarVisibility: function() {
         // var hoverClassOver = this.properties.scrollbarHoverOver;
