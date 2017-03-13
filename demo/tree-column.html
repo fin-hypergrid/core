@@ -143,7 +143,6 @@
                     });
                 }
                 this.buildView();
-                this.grid.behavior.changed();
             },
 
             buildView: function () {
@@ -173,6 +172,7 @@
                         }
                     }
                 }
+                this.grid.behavior.changed();
             }
         };
 

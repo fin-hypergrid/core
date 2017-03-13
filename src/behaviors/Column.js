@@ -123,7 +123,6 @@ Column.prototype = {
      */
     set header(headerText) {
         this.dataModel.schema[this.index].header = headerText;
-        this.dataModel.prop(null, this.index, 'header', headerText);
         this.behavior.grid.repaint();
     },
     get header() {
@@ -147,8 +146,6 @@ Column.prototype = {
             } else {
                 schema[this.index].calculator = calculator;
             }
-            this.behavior.prop(null, this.index, 'calculator', calculator);
-            this.behavior.applyAnalytics();
         }
     },
     get calculator() {
@@ -164,9 +161,6 @@ Column.prototype = {
      */
     set type(type) {
         this._type = type;
-        //TODO: This is calling reindex for every column during grid init. Maybe defer all reindex calls until after an grid 'ready' event
-        this.dataModel.prop(null, this.index, 'type', type);
-        this.behavior.reindex();
     },
     get type() {
         return this._type;

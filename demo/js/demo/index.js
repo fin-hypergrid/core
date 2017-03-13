@@ -26,6 +26,8 @@ window.onload = function() {
         dataModel = window.m = behavior.dataModel,
         initial = true,
         idx = behavior.columnEnum;
+    
+    grid.installPlugins(Hypergrid.DataSourcePipelines);
 
 
     console.log('Fields:');  console.dir(behavior.dataModel.schema.map(function(cs) { return cs.name; }));

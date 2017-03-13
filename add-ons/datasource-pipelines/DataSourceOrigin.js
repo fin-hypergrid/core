@@ -4,7 +4,7 @@
 
 var DataSourceBase = require('fin-hypergrid-data-source-base');
 
-var getFieldNames = require('./fields').getFieldNames;
+var getFieldNames = require('./../../src/lib/fields').getFieldNames;
 
 /**
  * See {@link DataSourceOrigin#initialize} for constructor parameters.
@@ -345,6 +345,3 @@ function setInternalColSchema(schema) {
 
 module.exports = DataSourceOrigin;
 
-
-// Create the `datasaur` namespace and the `datasaur.base` object for use by data sources included via <script> tags:
-(window.datasaur = window.datasaur || {}).base = require('fin-hypergrid-data-source-base');
