@@ -186,7 +186,12 @@ var defaults = {
      * @memberOf module:defaults
      */
     rowHeaderBackgroundSelectionColor: 'rgba(255, 220, 97, 0.45)',
-
+    /**
+     * @default
+     * @type {cssColor}
+     * @memberOf module:defaults
+     */
+    backgroundColor2: 'rgb(201, 201, 201)',
 
     /********** SECTION: FILTER ROW COLORS **********/
 
@@ -241,10 +246,17 @@ var defaults = {
 
     /**
      * @default
-     * @type {cssColor}
+     * @type {boolean}
      * @memberOf module:defaults
      */
-    backgroundColor2: 'rgb(201, 201, 201)',
+    filterable: true,
+
+    /**
+     * @default
+     * @type {boolean}
+     * @memberOf module:defaults
+     */
+    showFilterRow: false,
 
     /**
      * @default
@@ -742,14 +754,6 @@ var defaults = {
      */
     showHeaderRow: true,
 
-    /**
-     * @default
-     * @type {boolean}
-     * @memberOf module:defaults
-     */
-    showFilterRow: false,
-
-
     /** Clicking in a cell "selects" it; it is added to the select region and repainted with "cell selection" colors.
      * @default
      * @type {boolean}
@@ -829,24 +833,6 @@ var defaults = {
      * @memberOf module:defaults
      */
     editable: true,
-
-    /**
-     * @default
-     * @type {boolean}
-     * @memberOf module:defaults
-     */
-    filterable: true,
-
-    /**
-     * This is used only by FilterBox cell editor.
-     * One of:
-     * * **`'onCommit'`** - Column filter state not set until keyup === `\r` (return/enter key)
-     * * **`'immediate'`** - Column filter state set on each key press
-     * @default
-     * @type {boolean}
-     * @memberOf module:defaults
-     */
-    filteringMode: 'onCommit',
 
     /**
      * @default
@@ -1076,20 +1062,6 @@ var defaults = {
      * @memberOf module:defaults
      */
     strikeThrough: false,
-
-    /** Ignore sort interaction (double-click).
-     * @type {boolean}
-     * @default
-     * @memberOf module:defaults
-     */
-    unsortable: false,
-
-    /**
-     * @default
-     * @type {boolean}
-     * @memberOf module:defaults
-     */
-    sortOnHiddenColumns: true,
 
     /** Allow multiple cell region selections.
      * @type {boolean}

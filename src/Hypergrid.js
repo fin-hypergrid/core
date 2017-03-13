@@ -1637,7 +1637,7 @@ var Hypergrid = Base.extend('Hypergrid', {
     },
 
     getUnfilteredRowCount: function() {
-        return this.deprecated('getUnfilteredRowCount()', null, '1.2.0', arguments, 'No longer supported');
+        return this.deprecated('getUnfilteredRowCount()', '', '1.2.0', arguments, 'No longer supported');
     },
 
     /**

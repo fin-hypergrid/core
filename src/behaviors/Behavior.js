@@ -521,8 +521,7 @@ var Behavior = Base.extend('Behavior', {
     },
 
     getUnfilteredValue: function(x, y) {
-        var column = this.getActiveColumn(x);
-        return column && column.getUnfilteredValue(y);
+        return this.deprecated('getUnfilteredValue()', '', '1.4.0', arguments, 'No longer supported');
     },
 
     /**
@@ -676,7 +675,7 @@ var Behavior = Base.extend('Behavior', {
     },
 
     getUnfilteredRowCount: function() {
-        return this.deprecated('getUnfilteredRowCount()', null, '1.2.0', arguments, 'No longer supported');
+        return this.deprecated('getUnfilteredRowCount()', '', '1.2.0', arguments, 'No longer supported');
     },
 
     /**
@@ -1179,11 +1178,7 @@ var Behavior = Base.extend('Behavior', {
      * @param {CellEvent} editPoint - The grid cell coordinates.
      */
     getCellEditorAt: function(event) {
-        return event.isDataColumn && (
-            event.isFilterCell
-                ? this.grid.cellEditors.create('filterbox', event)
-                : event.column.getCellEditorAt(event)
-        );
+        return event.isDataColumn && event.column.getCellEditorAt(event);
     },
 
     /**

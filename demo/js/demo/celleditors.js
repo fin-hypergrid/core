@@ -64,11 +64,11 @@ module.exports = function (grid){
     // Used by the cellProvider.
     // `null` means column's data cells are not editable.
     var editorTypes = [
-        'combobox',
+        null,
         'textfield',
         'textfield',
         'textfield',
-        'combobox',
+        null,
         'time',
         'choice',
         'choice',

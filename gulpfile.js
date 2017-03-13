@@ -78,7 +78,6 @@ gulp.task('watch', function () {
         './html/*.html',
         demoDir + 'js/*.js',
         testDir + '**',
-        //'../../filter-tree/src/**' // comment off this line and the one below when filter tree on npm
     ], [
         'build'
     ]);
@@ -104,7 +103,6 @@ function lint() {
         '!' + srcDir + '**/old/**/',
         demoDir + 'js/*.js',
         testDir + jsFiles,
-        //'../../filter-tree/src/' + jsFiles // comment off this line and the one above when filter tree on npm
     ])
         .pipe($$.excludeGitignore())
         .pipe($$.eslint())

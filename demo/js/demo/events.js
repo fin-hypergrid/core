@@ -1,7 +1,7 @@
 "use strict";
 
 module.exports = function (grid){
-    
+
     grid.addEventListener('fin-click', function(e) {
         var cell = e.detail.gridCell;
         if (vent) { console.log('fin-click cell:', cell); }
@@ -67,9 +67,7 @@ module.exports = function (grid){
             key = String.fromCharCode(detail.key).toUpperCase(),
             result = false; // means event handled herein
 
-        if (detail.input instanceof grid.cellEditors.editors.filterbox) { // or: detail.input.$$CLASS_NAME === 'FilterBox'
-            // skip "select" calls if editing a filter cell
-        } else if (detail.ctrl) {
+        if (detail.ctrl) {
             if (detail.shift) {
                 switch (key) {
                     case '0': if (grid.stopEditing()) { grid.selectToViewportCell(0, 0); } break;
@@ -213,5 +211,5 @@ module.exports = function (grid){
         var modelPoint = e.detail.gridCell;
         if (vent) { console.log('fin-context-menu(' + modelPoint.x + ', ' + modelPoint.y + ')'); }
     });
-    
+
 };
