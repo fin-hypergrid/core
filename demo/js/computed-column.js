@@ -28,8 +28,6 @@ window.onload = function() {
     // force type of new column to 'number' because current auto-detect does not know about calculated columns
     grid.behavior.getColumn(1).type = 'number';
 
-    grid.setState({ showFilterRow: true });
-
     grid.repaint();
 
     function square(dataRow, columnName) {

@@ -221,14 +221,7 @@ module.exports = function (grid) {
 
     function getProperty(key) {
         var keys = key.split('.');
-        var prop;
-
-        if (keys[0] === 'filterOptions') {
-            keys.shift();
-            prop = filterOptions;
-        } else {
-            prop = grid.properties;
-        }
+        var prop = grid.properties;
 
         while (keys.length) {
             prop = prop[keys.shift()];

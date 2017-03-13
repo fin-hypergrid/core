@@ -51,22 +51,16 @@ window.onload = function() {
     window.toggleEmptyData = function() {
         if (!oldData) {
             oldData = {
-                topTotals: behavior.getTopTotals(),
-                bottomTotals: behavior.getBottomTotals(),
                 data: dataModel.getData(),
                 schema: dataModel.schema,
                 activeColumns: behavior.getActiveColumns().map(function(column) { return column.index; })
             };
             //important to set top totals first
-            behavior.setTopTotals([]);
             setData([]);
-            behavior.setBottomTotals([]);
         } else {
             //important to set top totals first
-            behavior.setTopTotals(oldData.topTotals);
             setData(oldData.data, oldData.schema);
             behavior.setColumnIndexes(oldData.activeColumns);
-            behavior.setBottomTotals(oldData.bottomTotals);
             oldData = undefined;
         }
     };
@@ -82,7 +76,7 @@ window.onload = function() {
 
     window.NOON = 12 * 60;
     window.styleRowsFromData;
-    
+
     resetData();
     cellRenderers(grid);
     formatters(grid);

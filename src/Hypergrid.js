@@ -506,10 +506,6 @@ var Hypergrid = Base.extend('Hypergrid', {
             options.numberOptions || Hypergrid.localization.numberOptions,
             options.dateOptions || Hypergrid.localization.dateOptions
         );
-
-        this.localization.header = {
-            format: headerFormatter.bind(this)
-        };
     },
 
     getFormatter: function(localizerName) {
@@ -1641,7 +1637,7 @@ var Hypergrid = Base.extend('Hypergrid', {
     },
 
     getUnfilteredRowCount: function() {
-        return this.deprecated('getUnfilteredRowCount()', null, '1.2.0', arguments, 'No longer supported');
+        return this.deprecated('getUnfilteredRowCount()', '', '1.2.0', arguments, 'No longer supported');
     },
 
     /**
@@ -2163,25 +2159,6 @@ function setStyles(el, style, keys) {
     }
 }
 
-function headerFormatter(value, config) {
-    var colIndex = config.dataCell.x,
-        sortString = this.behavior.dataModel.getSortImageForColumn(colIndex);
-
-    if (sortString) {
-        var groups = value.lastIndexOf(this.behavior.groupHeaderDelimiter) + 1;
-
-        // if grouped header, prepend group headers to sort direction indicator
-        if (groups) {
-            sortString = value.substr(0, groups) + sortString;
-            value = value.substr(groups);
-        }
-
-        // prepend sort direction indicator to column header
-        value = sortString + value;
-    }
-
-    return value;
-}
 
 /**
  * @name plugins

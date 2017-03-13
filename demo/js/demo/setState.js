@@ -40,8 +40,6 @@ module.exports = function (grid) {
         columnAutosizing: false,
         headerTextWrapping: true,
 
-        // filteringMode: 'immediate', // 'immediate' for every key press vs. 'onCommit' to wait till RETURN
-        // filterDefaultColumnFilterOperator: '<>',
         cellSelection: true,
         columnSelection: true,
         rowSelection: true,
