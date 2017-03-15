@@ -87,7 +87,7 @@ module.exports = function (grid){
         editorCellEvent = cellEvent;
 
         switch (x) {
-            case idx.BIRTH_STATE:
+            case idx.birthState:
                 cellEvent.textColor = 'red';
                 break;
         }
@@ -96,11 +96,11 @@ module.exports = function (grid){
 
         if (cellEditor) {
             switch (x) {
-                case idx.EMPLOYED:
+                case idx.employed:
                     cellEditor = null;
                     break;
 
-                case idx.TOTAL_NUMBER_OF_PETS_OWNED:
+                case idx.totalNumberOfPetsOwned:
                     cellEditor.input.setAttribute('min', 0);
                     cellEditor.input.setAttribute('max', 10);
                     cellEditor.input.setAttribute('step', 0.01);

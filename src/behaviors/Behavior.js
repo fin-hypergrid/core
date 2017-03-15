@@ -168,8 +168,6 @@ var Behavior = Base.extend('Behavior', {
             header: this.dataModel.schema[rc].header,
             calculator: this.dataModel.schema[rc].calculator
         });
-
-        this.columnEnum = {};
     },
 
     getActiveColumn: function(x) {
@@ -315,7 +313,7 @@ var Behavior = Base.extend('Behavior', {
     setState: function(memento) {
 
         if (memento.rowHeights) {
-            this.deprecated('rowHeights', 'rowHeights, the hash of row heights you provided to setState method, is no longer supported as of v1.2.0 and will be ignored. Instead use individual calls to setRowHeight(y, height, dataModel) for each row height you wish to set, where y is local zero-based row index within dataModel. The dataModel arg is optional and defaults to this.dataModel; specify to set row heights in other data models, such as header row, filter cell row, individual summary rows, etc.');
+            this.deprecated('rowHeights', 'rowHeights, the hash of row heights you provided to setState method, is no longer supported as of v1.2.0 and will be ignored. Instead, for each row height you wish to set, use `rows: { subgrid: { y: { height: heightInPixels } } }` substituting the name (or type) of the subgrid for `subgrid`, the local zero-based rowIndex within the subgrid for `y`, and the row height in pixels for `heightInPixels`; or make individual calls to `setRowHeight(y, heightInPixels, dataModel)`. The dataModel arg is optional and defaults to this.dataModel (the data subgrid); specify to set row heights in other data models, such as header row, filter cell row, individual summary rows, etc.');
         }
 
         this.createColumns();
@@ -323,7 +321,20 @@ var Behavior = Base.extend('Behavior', {
         var state = this.grid.properties;
         for (var key in memento) {
             if (memento.hasOwnProperty(key)) {
-                state[key] = memento[key];
+                var value = memento[key];
+                switch (key) {
+                    case 'rows':
+                        this.setRowHeights(value);
+                        break;
+                    case 'columns':
+                        this.setAllColumnPropertiesByName(value);
+                        break;
+                    case 'cells':
+                        this.setAllCellProperties(value);
+                        break;
+                    default:
+                        state[key] = value;
+                }
             }
         }
 
@@ -337,6 +348,54 @@ var Behavior = Base.extend('Behavior', {
             columnProperties.forEach(function(properties, i) {
                 this.getColumn(i).properties = properties;
             }, this);
+        }
+    },
+
+    setAllColumnPropertiesByName: function(columns) {
+        var columnName;
+
+        if (columns) {
+            for (columnName in columns) {
+                if (columns.hasOwnProperty(columnName)) {
+                    var column = this.columns.find(nameMatches);
+                    if (column) {
+                        column.properties = columns[columnName];
+                    }
+                }
+            }
+        }
+
+        function nameMatches(column) {
+            return column.name === columnName;
+        }
+    },
+
+    setAllCellProperties: function(cells) {
+        for (var subgridName in cells) {
+            if (cells.hasOwnProperty(subgridName)) {
+                var subgrid = this.subgrids.lookup[subgridName];
+                if (subgrid) {
+                    var subgridHash = cells[subgridName];
+                    for (var rowIndex in subgridHash) {
+                        if (subgridHash.hasOwnProperty(rowIndex)) {
+                            var columnProps = subgridHash[rowIndex];
+                            for (var columnName in columnProps) {
+                                if (columnProps.hasOwnProperty(columnName)) {
+                                    var column = this.columns.find(nameMatches);
+                                    if (column) {
+                                        var properties = columnProps[columnName];
+                                        column.addCellProperties(rowIndex, properties, subgrid);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        function nameMatches(column) {
+            return column.name === columnName;
         }
     },
 
@@ -725,7 +784,7 @@ var Behavior = Base.extend('Behavior', {
     /**
      * @memberOf Behavior#
      * @desc set the pixel height of a specific row
-     * @param {number} rowIndex - Data row coordinate local to datsModel.
+     * @param {number} rowIndex - Data row coordinate local to dataModel.
      * @param {number} height - pixel height
      * @param {dataModelAPI} [dataModel=this.dataModel]
      */
@@ -734,6 +793,34 @@ var Behavior = Base.extend('Behavior', {
         if (rowData) {
             rowData.__ROW_HEIGHT = Math.max(5, Math.ceil(height));
             this.stateChanged();
+        }
+    },
+
+    setRowHeights: function(rowHeights) {
+        for (var subgridName in rowHeights) {
+            if (rowHeights.hasOwnProperty(subgridName)) {
+                var subgrid = this.subgrids.lookup[subgridName];
+                if (subgrid) {
+                    var subgridHash = rowHeights[subgridName];
+                    for (var rowIndex in subgridHash) {
+                        if (subgridHash.hasOwnProperty(rowIndex)) {
+                            var properties = subgridHash[rowIndex];
+                            for (var propName in properties) {
+                                if (properties.hasOwnProperty(propName)) {
+                                    var propValue = properties[propName];
+                                    switch (propName) {
+                                        case 'height':
+                                            this.setRowHeight(rowIndex, Number(propValue), subgrid);
+                                            break;
+                                        default:
+                                            console.warn('Unexpected row property "' + propName + '" ignored. (The only row property currently implemented is "height").');
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
     },
 

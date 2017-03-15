@@ -16,6 +16,37 @@ window.onload = function() {
         dom = require('./DOM'),
         events = require('./events');
 
+    // convert field names containing underscore to camel case by overriding column enum decorator
+    Hypergrid.behaviors.JSON.prototype.columnEnumKey = Hypergrid.behaviors.JSON.columnEnumDecorators.toCamelCase;
+
+    if (false) { // eslint-disable-line no-constant-condition
+        // Following demonstrates setting a property to a getter.
+        // The getter's context is the renderer's config object.
+
+        // Note: Getters have access to a backing store, `this.var`, not demonstrated here, but see dynamicProperties.js for details.
+
+        // Method #1: Override default property by defining the getter in `defaults`. This method affects all grid instances.
+        Object.defineProperty(Hypergrid.defaults, 'columnHeaderColor', {
+            get: function() {
+                return this.gridCell.x & 1 ? 'red' : 'green';
+            }
+        });
+
+        // Method #2: Define more formally in `fin.Hypergrid.lib.dynamicPropertyDescriptors`. This method affects all grid instances. Has the advantage of keeping the definition in `defaults` intact (to serve as an actual default). A setter is not shown here, but generally you would also define a setter -- unless property is meant to be read-only. Or you could use a "deflate" pattern: I.e., define a setter that, if invoked, replaces the getter/setter with a simple value. (To do this you would also need to include `configurable: true`.)
+        Object.defineProperty(Hypergrid.lib.dynamicPropertyDescriptors, 'columnHeaderColor', {
+            get: function() {
+                return this.gridCell.x & 1 ? Hypergrid.defaults.columnHeaderColor : 'green';
+            }
+        });
+
+        // Method #3: Define in `grid.properties` layer, which also has access to the default value, but which affects only the one instance. (This would actually need to be placed _after_ the grid instantiation, hence the eslint directive just to get this to pass linter.)
+        Object.defineProperty(grid.properties, 'columnHeaderColor', { // eslint-disable-line no-use-before-define
+            get: function() {
+                return this.gridCell.x & 1 ? Hypergrid.defaults.columnHeaderColor : 'green';
+            }
+        });
+    }
+
     var gridOptions = {
             data: people1,
             margin: { bottom: '17px', right: '17px'},
@@ -37,7 +68,6 @@ window.onload = function() {
             schema: Hypergrid.lib.fields.getSchema(data)
         };
         grid.setData(data, options);
-        idx = behavior.columnEnum;
         behavior.reindex();
     };
 

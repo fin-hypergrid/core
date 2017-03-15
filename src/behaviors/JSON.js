@@ -1,10 +1,9 @@
 'use strict';
 
 var Behavior = require('./Behavior');
+var columnEnumDecorators = require('./columnEnumDecorators');
 var DataModelJSON = require('../dataModels/JSON');
 var features = require('../features');
-
-var REGEX_CAMEL_CASE = /([^_A-Z])([A-Z]+)/g; // all instances of xX or _X within a "word"
 
 /**
  * @name behaviors.JSON
@@ -13,6 +12,10 @@ var REGEX_CAMEL_CASE = /([^_A-Z])([A-Z]+)/g; // all instances of xX or _X within
  * @extends Behavior
  */
 var JSON = Behavior.extend('behaviors.JSON', {
+
+    preInitialize: function(grid, options) {
+        this.columnEnum = {};
+    },
 
     /**
      * @summary Constructor logic, called _after_{@link Behavior#initialize|Behavior.initialize()}.
@@ -46,6 +49,12 @@ var JSON = Behavior.extend('behaviors.JSON', {
     createColumns: function() {
         Behavior.prototype.createColumns.call(this);
 
+        var columnEnum = this.columnEnum;
+
+        Object.keys(columnEnum).forEach(function(propName) {
+            delete columnEnum[propName];
+        });
+
         this.dataModel.schema.forEach(function(columnSchema, index) {
             this.addColumn({
                 index: index,
@@ -53,21 +62,19 @@ var JSON = Behavior.extend('behaviors.JSON', {
                 calculator: columnSchema.calculator
             });
 
-            this.columnEnum[this.columnEnumKey(columnSchema.name)] = index; // todo: move columnEnum code from core to demo
+            columnEnum[this.columnEnumKey(columnSchema.name)] = index;
         }, this);
     },
 
     /**
      * @summary Style enum keys.
      * @desc Override this method to style your keys to your liking.
+     * @see {@columnEnumDecorators} or roll your own
      * @param key
-     * @todo move columnEnum code from core to demo
      * @returns {string}
      * @memberOf behaviors.JSON.prototype
      */
-    columnEnumKey: function(key) {
-        return key.replace(REGEX_CAMEL_CASE, '$1_$2').toUpperCase();
-    },
+    columnEnumKey: columnEnumDecorators.toAllCaps,
 
     getNewDataModel: function(options) {
         return new DataModelJSON(this.grid, options);
@@ -256,5 +263,7 @@ var JSON = Behavior.extend('behaviors.JSON', {
         return this.grid.selectionModel.getSelections();
     },
 });
+
+JSON.columnEnumDecorators = columnEnumDecorators;
 
 module.exports = JSON;

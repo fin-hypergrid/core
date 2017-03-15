@@ -12,7 +12,7 @@ var injectCSS = require('inject-stylesheet-template').bind(require('../css'));
 
 var Base = require('./Base');
 var defaults = require('./defaults');
-var dynamicProperties = require('./lib/dynamicProperties');
+var dynamicPropertyDescriptors = require('./lib/dynamicProperties');
 var Canvas = require('./lib/Canvas');
 var Renderer = require('./renderer');
 var SelectionModel = require('./lib/SelectionModel');
@@ -278,13 +278,25 @@ var Hypergrid = Base.extend('Hypergrid', {
      * @memberOf Hypergrid#
      */
     clearState: function() {
+        var dynamicProperties = Object.create(defaults, dynamicPropertyDescriptors);
+
+        /**
+         * @name theme
+         * @type {object}
+         * @summary The prototype layer where theme look and feel properties are defined.
+         * @desc Theme props share the same layer as dynamic props (just to reduce number of layers).
+         * @type {object}
+         * @memberOf Hypergrid#
+         */
+        this.theme = dynamicProperties;
+
         /**
          * @name properties
          * @type {object}
          * @summary Object containing the properties of the grid.
          * @desc Grid properties objects have the following structure:
          * 1. User-configured properties are in the "own" layer.
-         * 2. Extends from (has as its prototype) the {@link module:dynamicProperties|dynamicProperties} object.
+         * 2. Extends from (has as its prototype) the {@link module:dynamicPropertyDescriptors|dynamicProperties} object.
          * 3. The dynamic properties object extends from the {@link module:defaults|defaults} object.
          *
          * Note: Any changes the application developer may wish to make to the {@link module:defaults|defaults} object should be made _before_ reaching this point (_i.e.,_ prior to any grid instantiations).
@@ -2111,6 +2123,23 @@ var Hypergrid = Base.extend('Hypergrid', {
 
     get charMap() {
         return this.behavior.charMap;
+    },
+
+    applyTheme: function(theme) {
+        var descriptor, themeLayer = this.theme;
+
+        // First delete all the theme layer's own enumerables (members defined by previous apply)
+        Object.keys(themeLayer).forEach(function(propName) {
+            delete themeLayer[propName];
+        });
+
+        // Add all new members, ensuring they are enumerable and configurable so they can be deleted next time around.
+        for (var key in theme) {
+            if ((descriptor = Object.getOwnPropertyDescriptor(theme, key))) {
+                descriptor.enumerable = descriptor.configurable = true;
+                Object.defineProperty(themeLayer, key, descriptor);
+            }
+        }
     }
 });
 
@@ -2122,14 +2151,14 @@ function hasVar(descriptor) {
     );
 }
 /**
- * Creates an instance variable backer for use by the getters and setters in {@link dynamicProperties}.
+ * Creates an instance variable backer for use by the getters and setters described in {@link dynamicPropertyDescriptors}.
  * @constructor
  * @memberOf Hypergrid~
  * @private
  */
 function Var() {
-    Object.getOwnPropertyNames(dynamicProperties).forEach(function(name) {
-        if (hasVar(Object.getOwnPropertyDescriptor(dynamicProperties, name))) {
+    Object.getOwnPropertyNames(dynamicPropertyDescriptors).forEach(function(name) {
+        if (hasVar(Object.getOwnPropertyDescriptor(dynamicPropertyDescriptors, name))) {
             this[name] = defaults[name];
         }
     }, this);

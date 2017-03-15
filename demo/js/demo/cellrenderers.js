@@ -12,22 +12,22 @@ module.exports = function(grid){
                 rowIndex = config.dataCell.y;
 
             if (window.styleRowsFromData) {
-                n = grid.behavior.getColumn(idx.TOTAL_NUMBER_OF_PETS_OWNED).getValue(rowIndex);
+                n = grid.behavior.getColumn(idx.totalNumberOfPetsOwned).getValue(rowIndex);
                 hex = (155 + 10 * (n % 11)).toString(16);
                 config.backgroundColor = '#' + hex + hex + hex;
             }
 
             switch (colIndex) {
-                case idx.LAST_NAME:
+                case idx.lastName:
                     config.color = config.value != null && (config.value + '')[0] === 'S' ? 'red' : '#191919';
                     config.link = true;
                     break;
 
-                case idx.INCOME:
+                case idx.income:
                     travel = 60;
                     break;
 
-                case idx.TRAVEL:
+                case idx.travel:
                     travel = 105;
                     break;
             }
@@ -39,7 +39,7 @@ module.exports = function(grid){
             }
 
             //Testing
-            if (colIndex === idx.TOTAL_NUMBER_OF_PETS_OWNED) {
+            if (colIndex === idx.totalNumberOfPetsOwned) {
                 /*
                  * Be sure to adjust the data set to the appropriate type and shape in widedata.js
                  */
