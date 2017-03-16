@@ -1,5 +1,8 @@
-"use strict"
-module.exports = function(grid){
+/* eslint-env browser */
+
+'use strict';
+
+module.exports = function(demo, grid) {
 
     var idx = grid.behavior.columnEnum;
 
@@ -11,7 +14,7 @@ module.exports = function(grid){
                 colIndex = config.dataCell.x,
                 rowIndex = config.dataCell.y;
 
-            if (window.styleRowsFromData) {
+            if (demo.styleRowsFromData) {
                 n = grid.behavior.getColumn(idx.totalNumberOfPetsOwned).getValue(rowIndex);
                 hex = (155 + 10 * (n % 11)).toString(16);
                 config.backgroundColor = '#' + hex + hex + hex;
@@ -70,19 +73,16 @@ module.exports = function(grid){
                 //     return starry;
                 // }
             }
-        };
+        }
 
         return grid.cellRenderers.get(rendererName);
     };
 
-
     //END OF GET CELL
 
 
-
-
-
     // CUSTOM CELL RENDERER
+
     var REGEXP_CSS_HEX6 = /^#(..)(..)(..)$/,
         REGEXP_CSS_RGB = /^rgba\((\d+),(\d+),(\d+),\d+\)$/;
 
@@ -97,10 +97,10 @@ module.exports = function(grid){
             darkenFactor = options.darkenFactor || config.darkenFactor || 0.75,
             color = options.color || config.color || 'gold',
             stroke = this.stroke = color === this.color ? this.stroke : getDarkenedColor(gc, this.color = color, darkenFactor),
-            bgColor = config.isSelected ? (options.bgSelColor || config.bgSelColor) : (options.bgColor || config.bgColor),
+            // bgColor = config.isSelected ? (options.bgSelColor || config.bgSelColor) : (options.bgColor || config.bgColor),
             fgColor = config.isSelected ? (options.fgSelColor || config.fgSelColor) : (options.fgColor || config.fgColor),
             shadowColor = options.shadowColor || config.shadowColor || 'transparent',
-            font = options.font || config.font || '11px verdana',
+            // font = options.font || config.font || '11px verdana',
             middle = height / 2,
             diameter = sizeFactor * height,
             outerRadius = sizeFactor * middle,

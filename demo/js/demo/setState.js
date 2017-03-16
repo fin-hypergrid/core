@@ -1,8 +1,8 @@
-module.exports = function (grid) {
+'use strict';
 
-    var idx = grid.behavior.columnEnum,
-        behavior = grid.behavior;
+module.exports = function(demo, grid) {
 
+    var idx = grid.behavior.columnEnum;
 
     var state = {
         columnIndexes: [
@@ -46,7 +46,6 @@ module.exports = function (grid) {
         columnHeaderBackgroundColor: 'pink',
 
         checkboxOnlyRowSelections: true,
-        autoSelectRows: true,
 
         autoSelectRows: true,
 
@@ -186,4 +185,12 @@ module.exports = function (grid) {
     //grid.addProperties(myThemes.three);
 
     grid.takeFocus();
+    //see myThemes.js file for how to create a theme
+    //grid.addProperties(myThemes.one);
+    //grid.addProperties(myThemes.two);
+    //grid.addProperties(myThemes.three);
+
+    grid.takeFocus();
+
+    demo.resetDashboard();
 };

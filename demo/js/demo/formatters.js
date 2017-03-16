@@ -1,7 +1,11 @@
-"use strict";
+/* eslint-env browser */
 
-module.exports = function (grid){
+'use strict';
+
+module.exports = function(demo, grid) {
+
     var footInchPattern = /^\s*((((\d+)')?\s*((\d+)")?)|\d+)\s*$/;
+
     var footInchLocalizer = {
         format: function(value) {
             if (value != null) {
@@ -53,7 +57,7 @@ module.exports = function (grid){
         format: function(mins) {
             var hh = Math.floor(mins / 60) % 12 || 12, // modulo 12 hrs with 0 becoming 12
                 mm = (mins % 60 + 100 + '').substr(1, 2),
-                AmPm = mins < window.NOON ? 'AM' : 'PM';
+                AmPm = mins < demo.NOON ? 'AM' : 'PM';
             return hh + ':' + mm + ' ' + AmPm;
         },
 

@@ -1,6 +1,8 @@
-"use strict";
+/* globals vent */
 
-module.exports = function (grid){
+'use strict';
+
+module.exports = function(demo, grid) {
 
     grid.addEventListener('fin-click', function(e) {
         var cell = e.detail.gridCell;

@@ -72,12 +72,10 @@ gulp.task('build', function(callback) {
 gulp.task('watch', function () {
     gulp.watch([
         addOnsDir + jsFiles,
-        srcDir + '**',
-        '!' + srcDir + 'jsdoc/**',
+        srcDir + '**', '!' + srcDir + 'jsdoc/**',
         './css/*.css',
         './html/*.html',
-        demoDir + 'js/**',
-        '!' + demoDir + 'js/demo/build/**',
+        demoDir + 'js/' + jsFiles, '!' + demoDir + 'js/demo/build/' + jsFiles,
         testDir + '**'
     ], [
         'build'
@@ -100,9 +98,8 @@ function lint() {
     return gulp.src([
         'index.js',
         addOnsDir + jsFiles,
-        srcDir + jsFiles,
-        '!' + srcDir + '**/old/**/',
-        demoDir + 'js/*.js',
+        srcDir + jsFiles, '!' + srcDir + '**/old/**/',
+        demoDir + 'js/' + jsFiles, '!' + demoDir + 'js/demo/build/' + jsFiles,
         testDir + jsFiles,
     ])
         .pipe($$.excludeGitignore())

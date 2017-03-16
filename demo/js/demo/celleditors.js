@@ -1,6 +1,8 @@
-"use strict";
+/* eslint-env browser */
 
-module.exports = function (grid){
+'use strict';
+
+module.exports = function(demo, grid) {
 
     var idx = grid.behavior.columnEnum;
 
@@ -53,7 +55,7 @@ module.exports = function (grid){
         getEditorValue: function(value) {
             value = CellEditor.prototype.getEditorValue.call(this, value);
             if (this.meridian.textContent === 'PM') {
-                value += window.NOON;
+                value += demo.NOON;
             }
             return value;
         }
@@ -78,13 +80,9 @@ module.exports = function (grid){
         'textfield'
     ];
 
-    var editorCellEvent;
-
     // Override to assign the the cell editors.
     grid.behavior.dataModel.getCellEditorAt = function(x, y, declaredEditorName, cellEvent) {
         var editorName = declaredEditorName || editorTypes[x % editorTypes.length];
-
-        editorCellEvent = cellEvent;
 
         switch (x) {
             case idx.birthState:

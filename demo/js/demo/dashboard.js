@@ -1,11 +1,16 @@
-"use strict";
+/* eslint-env browser */
 
+/* globals people1, people2 */
+
+/* eslint-disable no-alert */
+
+'use strict';
 
 // Some DOM support functions...
 // Besides the canvas, this test harness only has a handful of buttons and checkboxes.
 // The following functions service these controls.
 
-module.exports = function (grid) {
+module.exports = function(demo, grid) {
 
     // make buttons div absolute so buttons width of 100% doesn't stretch to width of dashboard
     var ctrlGroups = document.getElementById('ctrl-groups'),
@@ -17,7 +22,7 @@ module.exports = function (grid) {
     dashboard.style.display = 'none';
 
     function toggleRowStylingMethod() {
-        window.styleRowsFromData = !window.styleRowsFromData;
+        demo.styleRowsFromData = !demo.styleRowsFromData;
     }
 
     // List of properties to show as checkboxes in this demo's "dashboard"
@@ -82,31 +87,31 @@ module.exports = function (grid) {
     ];
 
 
-    toggleProps.forEach(function (prop) {
+    toggleProps.forEach(function(prop) {
         addToggle(prop);
     });
 
 
     [
-        {label: 'Toggle Empty Data', onclick: toggleEmptyData},
+        {label: 'Toggle Empty Data', onclick: demo.toggleEmptyData},
         {
-            label: 'Set Data', onclick: function () {
-                resetData();
+            label: 'Set Data', onclick: function() {
+            demo.resetData();
             }
         },
         {
-            label: 'Set Data 1 (5000 rows)', onclick: function () {
-                setData(people1);
+            label: 'Set Data 1 (5000 rows)', onclick: function() {
+            demo.setData(people1);
             }
         },
         {
-            label: 'Set Data 2 (10000 rows)', onclick: function () {
-                setData(people2);
+            label: 'Set Data 2 (10000 rows)', onclick: function() {
+            demo.setData(people2);
             }
         },
-        {label: 'Reset Grid', onclick: reset}
+        {label: 'Reset Grid', onclick: demo.reset}
 
-    ].forEach(function (item) {
+    ].forEach(function(item) {
         var button = document.createElement('button');
         button.innerHTML = item.label;
         button.onclick = item.onclick;
@@ -134,7 +139,7 @@ module.exports = function (grid) {
         choices.className = 'choices';
         container.appendChild(choices);
 
-        ctrlGroup.ctrls.forEach(function (ctrl) {
+        ctrlGroup.ctrls.forEach(function(ctrl) {
             if (!ctrl) {
                 return;
             }
@@ -169,7 +174,7 @@ module.exports = function (grid) {
                     break;
             }
 
-            input.onchange = function (event) {
+            input.onchange = function(event) {
                 handleRadioClick.call(this, ctrl.setter || setProp, event);
             };
 
@@ -184,8 +189,8 @@ module.exports = function (grid) {
             choices.appendChild(label);
 
             if (ctrl.name === 'treeview') {
-                label.onmousedown = input.onmousedown = function (event) {
-                    if (!input.checked && dataModel.source.data !== treeData) {
+                label.onmousedown = input.onmousedown = function(event) {
+                    if (!input.checked && grid.behavior.dataModel.source.data !== demo.treeData) {
                         alert('Load tree data first ("Set Data 3" button).');
                         event.preventDefault();
                     }
@@ -197,9 +202,9 @@ module.exports = function (grid) {
     }
 
     // reset dashboard checkboxes and radio buttons to match current values of grid properties
-    function resetDashboard() {
-        toggleProps.forEach(function (prop) {
-            prop.ctrls.forEach(function (ctrl) {
+    demo.resetDashboard = function() {
+        toggleProps.forEach(function(prop) {
+            prop.ctrls.forEach(function(ctrl) {
                 if (ctrl) {
                     switch (ctrl.setter) {
                         case setSelectionProp:
@@ -217,7 +222,7 @@ module.exports = function (grid) {
                 }
             });
         });
-    }
+    };
 
     function getProperty(key) {
         var keys = key.split('.');
@@ -230,13 +235,13 @@ module.exports = function (grid) {
         return prop;
     }
 
-    document.getElementById('tab-dashboard').addEventListener('click', function (event) {
+    document.getElementById('tab-dashboard').addEventListener('click', function(event) {
         if (dashboard.style.display === 'none') {
             dashboard.style.display = 'block';
             grid.div.style.transition = 'margin-left .75s';
             grid.div.style.marginLeft = Math.max(180, dashboard.getBoundingClientRect().right + 8) + 'px';
         } else {
-            setTimeout(function () {
+            setTimeout(function() {
                 dashboard.style.display = 'none';
             }, 800);
             grid.div.style.marginLeft = '30px';
@@ -244,7 +249,7 @@ module.exports = function (grid) {
     });
 
     var fpsTimer, secs, frames;
-    document.getElementById('tab-fps').addEventListener('click', function (event) {
+    document.getElementById('tab-fps').addEventListener('click', function(event) {
         var el = this, st = el.style;
         if ((grid.properties.enableContinuousRepaint ^= true)) {
             st.backgroundColor = '#666';
@@ -289,7 +294,7 @@ module.exports = function (grid) {
     });
 
     var height;
-    document.getElementById('tab-grow-shrink').addEventListener('click', function (event) {
+    document.getElementById('tab-grow-shrink').addEventListener('click', function(event) {
         var label;
         if (!height) {
             height = window.getComputedStyle(grid.div).height;
@@ -302,12 +307,12 @@ module.exports = function (grid) {
             label = 'Grow';
         }
         this.innerHTML += ' ...';
-        setTimeout(function () {
+        setTimeout(function() {
             this.innerHTML = label;
         }.bind(this), 1500);
     });
 
-    document.getElementById('dashboard').addEventListener('click', function (event) {
+    document.getElementById('dashboard').addEventListener('click', function(event) {
         var ctrl = event.target;
         if (ctrl.classList.contains('twister')) {
             ctrl.nextElementSibling.style.display = ctrl.classList.toggle('open') ? 'block' : 'none';
