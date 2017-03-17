@@ -1,6 +1,6 @@
 /* eslint-env browser */
 
-/* globals fin, people1, people2, vent */
+/* globals fin, people1 */
 
 /* eslint-disable no-alert*/
 
@@ -8,13 +8,24 @@
 
 window.onload = function() {
 
+    var demo = window.demo = {
+        vent: false,
+        reset: reset,
+        setData: setData,
+        toggleEmptyData: toggleEmptyData,
+        resetData: resetData
+    };
+
     var Hypergrid = fin.Hypergrid,
-        state = require('./setState'),
-        cellRenderers = require('./cellrenderers'),
-        formatters = require('./formatters'),
-        cellEditors = require('./cellEditors'),
-        dom = require('./DOM'),
-        events = require('./events');
+        initState = require('./setState'),
+        initCellRenderers = require('./cellrenderers'),
+        initFormatters = require('./formatters'),
+        initCellEditors = require('./cellEditors'),
+        initDashboard = require('./dashboard'),
+        initEvents = require('./events');
+
+    // convert field names containing underscore to camel case by overriding column enum decorator
+    Hypergrid.behaviors.JSON.prototype.columnEnumKey = Hypergrid.behaviors.JSON.columnEnumDecorators.toCamelCase;
 
     var gridOptions = {
             data: people1,
@@ -32,23 +43,21 @@ window.onload = function() {
     console.log('Headers:'); console.dir(behavior.dataModel.schema.map(function(cs) { return cs.header; }));
     console.log('Indexes:'); console.dir(idx);
 
-    window.setData = function (data, options) {
+    function setData(data, options) {
         options = !data.length ? undefined : options || {
             schema: Hypergrid.lib.fields.getSchema(data)
         };
         grid.setData(data, options);
-        idx = behavior.columnEnum;
         behavior.reindex();
-    };
+    }
 
-    window.reset = function() {
+    function reset() {
         grid.reset();
-        events(grid);
-    };
+        initEvents(demo, grid);
+    }
 
-    window.vent = false;
     var oldData;
-    window.toggleEmptyData = function() {
+    function toggleEmptyData() {
         if (!oldData) {
             oldData = {
                 data: dataModel.getData(),
@@ -63,24 +72,21 @@ window.onload = function() {
             behavior.setColumnIndexes(oldData.activeColumns);
             oldData = undefined;
         }
-    };
+    }
 
-    window.resetData = function () {
+    function resetData() {
         setData(people1);
         if (initial) {
-            dom(grid);
+            initDashboard(demo, grid);
             initial = false;
         }
-        setTimeout(function () {state(grid)}, 50);
-    };
-
-    window.NOON = 12 * 60;
-    window.styleRowsFromData;
+        setTimeout(function() { initState(demo, grid); }, 50);
+    }
 
     resetData();
-    cellRenderers(grid);
-    formatters(grid);
-    cellEditors(grid);
-    events(grid);
 
+    initCellRenderers(demo, grid);
+    initFormatters(demo, grid);
+    initCellEditors(demo, grid);
+    initEvents(demo, grid);
 };

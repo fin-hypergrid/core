@@ -1,7 +1,5 @@
 'use strict';
 
-var defaults = require('../defaults');
-
 /**
  * @summary Dynamic property getter/setters.
  * @desc ### Backing store
@@ -10,14 +8,18 @@ var defaults = require('../defaults');
  * The members of the backing store have the same names as the dynamic properties that utilize them.
  * They are initialized by {@link Hypergrid#clearState|clearState} to the default values from {@link module:defaults|defaults} object members (also) of the same name.
  *
+ * Note that all dynamic properties must not be enumerable and configurable to protect them from being deleted when a theme is applied.
+ *
  * ### Themes
  * This layer is also where themes are applied.
- * @name dynamicProperties
+ *
+ * Note that {@link Hypergrid#applyTheme} ensures that all thematic members are defined as enumerable and configurable so they can be deleted when a new theme is applied.
+ * @name dynamicPropertyDescriptors
  * @module
  */
-var dynamicProperties = Object.create(defaults, {
+var dynamicPropertyDescriptors = {
     /**
-     * @memberOf module:dynamicProperties
+     * @memberOf module:dynamicPropertyDescriptors
      */
     gridRenderer: {
         get: function() {
@@ -30,7 +32,7 @@ var dynamicProperties = Object.create(defaults, {
     },
 
     /**
-     * @memberOf module:dynamicProperties
+     * @memberOf module:dynamicPropertyDescriptors
      */
     columnIndexes: {
         get: function() {
@@ -41,6 +43,6 @@ var dynamicProperties = Object.create(defaults, {
             this.grid.behavior.changed();
         }
     },
-});
+};
 
-module.exports = dynamicProperties;
+module.exports = dynamicPropertyDescriptors;

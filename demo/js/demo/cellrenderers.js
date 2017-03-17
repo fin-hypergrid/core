@@ -1,5 +1,8 @@
-"use strict"
-module.exports = function(grid){
+/* eslint-env browser */
+
+'use strict';
+
+module.exports = function(demo, grid) {
 
     var idx = grid.behavior.columnEnum;
 
@@ -11,23 +14,23 @@ module.exports = function(grid){
                 colIndex = config.dataCell.x,
                 rowIndex = config.dataCell.y;
 
-            if (window.styleRowsFromData) {
-                n = grid.behavior.getColumn(idx.TOTAL_NUMBER_OF_PETS_OWNED).getValue(rowIndex);
+            if (demo.styleRowsFromData) {
+                n = grid.behavior.getColumn(idx.totalNumberOfPetsOwned).getValue(rowIndex);
                 hex = (155 + 10 * (n % 11)).toString(16);
                 config.backgroundColor = '#' + hex + hex + hex;
             }
 
             switch (colIndex) {
-                case idx.LAST_NAME:
+                case idx.lastName:
                     config.color = config.value != null && (config.value + '')[0] === 'S' ? 'red' : '#191919';
                     config.link = true;
                     break;
 
-                case idx.INCOME:
+                case idx.income:
                     travel = 60;
                     break;
 
-                case idx.TRAVEL:
+                case idx.travel:
                     travel = 105;
                     break;
             }
@@ -39,7 +42,7 @@ module.exports = function(grid){
             }
 
             //Testing
-            if (colIndex === idx.TOTAL_NUMBER_OF_PETS_OWNED) {
+            if (colIndex === idx.totalNumberOfPetsOwned) {
                 /*
                  * Be sure to adjust the data set to the appropriate type and shape in widedata.js
                  */
@@ -70,19 +73,16 @@ module.exports = function(grid){
                 //     return starry;
                 // }
             }
-        };
+        }
 
         return grid.cellRenderers.get(rendererName);
     };
 
-
     //END OF GET CELL
 
 
-
-
-
     // CUSTOM CELL RENDERER
+
     var REGEXP_CSS_HEX6 = /^#(..)(..)(..)$/,
         REGEXP_CSS_RGB = /^rgba\((\d+),(\d+),(\d+),\d+\)$/;
 
@@ -97,10 +97,10 @@ module.exports = function(grid){
             darkenFactor = options.darkenFactor || config.darkenFactor || 0.75,
             color = options.color || config.color || 'gold',
             stroke = this.stroke = color === this.color ? this.stroke : getDarkenedColor(gc, this.color = color, darkenFactor),
-            bgColor = config.isSelected ? (options.bgSelColor || config.bgSelColor) : (options.bgColor || config.bgColor),
+            // bgColor = config.isSelected ? (options.bgSelColor || config.bgSelColor) : (options.bgColor || config.bgColor),
             fgColor = config.isSelected ? (options.fgSelColor || config.fgSelColor) : (options.fgColor || config.fgColor),
             shadowColor = options.shadowColor || config.shadowColor || 'transparent',
-            font = options.font || config.font || '11px verdana',
+            // font = options.font || config.font || '11px verdana',
             middle = height / 2,
             diameter = sizeFactor * height,
             outerRadius = sizeFactor * middle,

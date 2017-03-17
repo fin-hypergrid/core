@@ -1,23 +1,23 @@
-module.exports = function (grid) {
+'use strict';
 
-    var idx = grid.behavior.columnEnum,
-        behavior = grid.behavior;
+module.exports = function(demo, grid) {
 
+    var idx = grid.behavior.columnEnum;
 
     var state = {
         columnIndexes: [
-            idx.LAST_NAME,
-            idx.TOTAL_NUMBER_OF_PETS_OWNED,
-            idx.HEIGHT,
-            idx.BIRTH_DATE,
-            idx.BIRTH_TIME,
-            idx.BIRTH_STATE,
-            // idx.RESIDENCE_STATE,
-            idx.EMPLOYED,
-            // idx.FIRST_NAME,
-            idx.INCOME,
-            idx.TRAVEL,
-            // idx.SQUARE_OF_INCOME
+            idx.lastName,
+            idx.totalNumberOfPetsOwned,
+            idx.height,
+            idx.birthDate,
+            idx.birthTime,
+            idx.birthState,
+            // idx.residenceState,
+            idx.employed,
+            // idx.firstName,
+            idx.income,
+            idx.travel,
+            // idx.squareOfIncome
         ],
 
         noDataMessage: 'No Data to Display',
@@ -33,60 +33,116 @@ module.exports = function (grid) {
         ],
 
         fixedColumnCount: 1,
-        fixedRowCount: 2,
+        fixedRowCount: 4,
 
-        showRowNumbers: true,
-        showHeaderRow: true,
         columnAutosizing: false,
         headerTextWrapping: true,
 
-        cellSelection: true,
-        columnSelection: true,
-        rowSelection: true,
+        halign: 'left',
+        renderFalsy: true,
 
-        halign: 'left'
+        scrollbarHoverOff: 'visible',
+        scrollbarHoverOver: 'visible',
+        columnHeaderBackgroundColor: 'pink',
+
+        checkboxOnlyRowSelections: true,
+
+        autoSelectRows: true,
+
+        rows: {
+            header: {
+                0: {
+                    height: 40
+                }
+            }
+        },
+
+        columns: {
+            height: {
+                halign: 'right',
+                format: 'foot'
+            },
+
+            /* eslint-disable camelcase */
+            last_name: {
+                columnHeaderBackgroundColor: '#142B6F', //dark blue
+                columnHeaderColor: 'white',
+                columnHeaderHalign: 'left',
+                rightIcon: 'down-rectangle',
+                link: true
+            },
+
+            first_name: {
+
+            },
+
+            total_number_of_pets_owned: {
+                halign: 'center',
+                format: 'number',
+                backgroundColor: 'maroon',
+                color: 'green'
+            },
+
+            birthDate: {
+                format: 'singdate',
+                rightIcon: 'calendar',
+                //strikeThrough: true
+            },
+
+            birthTime: {
+                halign: 'right',
+                editor: 'time',
+                format: 'hhmm'
+            },
+
+            birthState: {
+                editor: 'colortext',
+                rightIcon: 'down-rectangle'
+            },
+
+            residenceState: {
+                rightIcon: 'down-rectangle'
+            },
+
+            employed: {
+                halign: 'right',
+                renderer: 'button',
+                backgroundColor: 'white'
+            },
+
+            income: {
+                halign: 'right',
+                format: 'pounds'
+            },
+
+            travel: {
+                halign: 'right',
+                format: 'francs'
+            }
+        },
+
+        // Following `cells` example sets properties for a cell in the data subgrid.
+        // Specifying cell properties here in grid state may be useful for static data subgrids
+        // where cell coordinates are permanently assigned. Otherwise, for my dynamic grid data,
+        // cell properties might more properly accompany the data itself as metadata
+        // (i.e., as a hash in dataRow.__META[fieldName]).
+        cells: {
+            data: {
+                16: {
+                    height: {
+                        font: '10pt Tahoma',
+                        color: 'lightblue',
+                        backgroundColor: 'red',
+                        halign: 'left',
+                        reapplyCellProperties: true
+                    }
+                }
+            }
+        }
     };
 
     grid.setState(state);
 
-    grid.setRowHeight(0, 40, behavior.subgrids.lookup.header);
-
-
-    grid.setColumnProperties(2, {
-        backgroundColor: 'maroon',
-        color: 'green'
-    });
-
-    grid.addProperties({
-        readOnly: false,
-        renderFalsy: true
-    });
-
-    behavior.setFixedRowCount(2);
-
-    // decorate "Height" cell in 17th row
-    var rowIndex = 17 - 1;
-    behavior.setCellProperties(idx.HEIGHT, rowIndex, {
-        font: '10pt Tahoma',
-        color: 'lightblue',
-        backgroundColor: 'red',
-        halign: 'left',
-        reapplyCellProperties: true
-    });
-
-    grid.addProperties({
-        scrollbarHoverOff: 'visible',
-        scrollbarHoverOver: 'visible',
-        columnHeaderBackgroundColor: 'pink',
-        repaintIntervalRate: 60
-    });
-
-    grid.addProperties({
-        fixedRowCount: 4,
-        showRowNumbers: true,
-        checkboxOnlyRowSelections: true,
-        autoSelectRows: true
-    });
     // properties that can be set
     // use a function or a value
 
@@ -108,7 +164,7 @@ module.exports = function (grid) {
     // rowHeaderForegroundSelectionColor
     // rowHeaderBackgroundSelectionColor
 
-    //                behavior.setCellProperties(idx.TOTAL_NUMBER_OF_PETS_OWNED, 0,
+    //                behavior.setCellProperties(idx.totalNumberOfPetsOwned, 0,
     //                    {
     //                        font: '10pt Tahoma',
     //                        color: 'red',
@@ -116,75 +172,12 @@ module.exports = function (grid) {
     //                        halign: 'left'
     //                    });
 
-    behavior.setColumnProperties(idx.LAST_NAME, {
-        columnHeaderBackgroundColor: '#142B6F', //dark blue
-        columnHeaderColor: 'white'
-    });
-
-    behavior.setColumnProperties(idx.LAST_NAME, {
-        columnHeaderHalign: 'left',
-        rightIcon: 'down-rectangle',
-        link: true
-    });
-
-    behavior.setColumnProperties(idx.FIRST_NAME, {
-
-    });
-
-    behavior.setColumnProperties(idx.TOTAL_NUMBER_OF_PETS_OWNED, {
-        renderFalsy: true,
-        halign: 'center',
-        format: 'number'
-    });
-
-    behavior.setColumnProperties(idx.HEIGHT, {
-        halign: 'right',
-        format: 'foot'
-    });
-
-    behavior.setColumnProperties(idx.BIRTH_DATE, {
-        format: 'singdate',
-        rightIcon: 'calendar',
-        //strikeThrough: true
-    });
-
-    behavior.setColumnProperties(idx.BIRTH_TIME, {
-        halign: 'right',
-        editor: 'time',
-        format: 'hhmm'
-    });
-
-    behavior.setColumnProperties(idx.BIRTH_STATE, {
-        editor: 'colortext',
-        rightIcon: 'down-rectangle'
-    });
-
-    behavior.setColumnProperties(idx.RESIDENCE_STATE, {
-        rightIcon: 'down-rectangle'
-    });
-
-    behavior.setColumnProperties(idx.EMPLOYED, {
-        halign: 'right',
-        renderer: 'button',
-        backgroundColor: 'white'
-    });
-
-    behavior.setColumnProperties(idx.INCOME, {
-        halign: 'right',
-        format: 'pounds'
-    });
-
-    behavior.setColumnProperties(idx.TRAVEL, {
-        halign: 'right',
-        format: 'francs'
-    });
-
     console.log('visible rows = ' + grid.renderer.visibleRows.map(function(vr){
-            return vr.subgrid.type[0] + vr.rowIndex;
-        }));
+        return vr.subgrid.type[0] + vr.rowIndex;
+    }));
     console.log('visible columns = ' + grid.renderer.visibleColumns.map(function(vc){
-            return vc.columnIndex;
-        }));
+        return vc.columnIndex;
+    }));
 
     //see myThemes.js file for how to create a theme
     //grid.addProperties(myThemes.one);
@@ -192,4 +185,12 @@ module.exports = function (grid) {
     //grid.addProperties(myThemes.three);
 
     grid.takeFocus();
+    //see myThemes.js file for how to create a theme
+    //grid.addProperties(myThemes.one);
+    //grid.addProperties(myThemes.two);
+    //grid.addProperties(myThemes.three);
+
+    grid.takeFocus();
+
+    demo.resetDashboard();
 };
