@@ -113,50 +113,50 @@ createColumnProperties.treeHeaderDescriptors = {
         configurable: true,
         enumerable: true,
         get: function() {
-            return this.rowHeaderFont;
+            return this.treeHeaderFont;
         },
         set: function(value) {
-            this.rowHeaderFont = value;
+            this.treeHeaderFont = value;
         }
     },
     color: {
         configurable: true,
         enumerable: true,
         get: function() {
-            return this.rowHeaderColor;
+            return this.treeHeaderColor;
         },
         set: function(value) {
-            this.rowHeaderColor = value;
+            this.treeHeaderColor = value;
         }
     },
     backgroundColor: {
         configurable: true,
         enumerable: true,
         get: function() {
-            return this.rowHeaderBackgroundColor;
+            return this.treeHeaderBackgroundColor;
         },
         set: function(value) {
-            this.rowHeaderBackgroundColor = value;
+            this.treeHeaderBackgroundColor = value;
         }
     },
     foregroundSelectionFont: {
         configurable: true,
         enumerable: true,
         get: function() {
-            return this.rowHeaderForegroundSelectionFont;
+            return this.treeHeaderForegroundSelectionFont;
         },
         set: function(value) {
-            this.rowHeaderForegroundSelectionFont = value;
+            this.treeHeaderForegroundSelectionFont = value;
         }
     },
     foregroundSelectionColor: {
         configurable: true,
         enumerable: true,
         get: function() {
-            return this.rowHeaderForegroundSelectionColor;
+            return this.treeHeaderForegroundSelectionColor;
         },
         set: function(value) {
-            this.rowHeaderForegroundSelectionColor = value;
+            this.treeHeaderForegroundSelectionColor = value;
         }
     },
     renderer: {
@@ -173,10 +173,10 @@ createColumnProperties.treeHeaderDescriptors = {
         configurable: true,
         enumerable: true,
         get: function() {
-            return this.rowHeaderBackgroundSelectionColor;
+            return this.treeHeaderBackgroundSelectionColor;
         },
         set: function(value) {
-            this.rowHeaderBackgroundSelectionColor = value;
+            this.treeHeaderBackgroundSelectionColor = value;
         }
     }
     //leftIcon: undefined
