@@ -408,6 +408,17 @@ var Behavior = Base.extend('Behavior', {
         }
     },
 
+    setColumnOrderByName: function(columnNames) {
+        if (Array.isArray(columnNames)){
+            this.columns.length = columnNames.length;
+            columnNames.forEach(function(columnName, i) {
+                this.columns[i] = this.allColumns.find(function(column) {
+                    return column.name === columnName;
+                });
+            }, this);
+        }
+    },
+
     _setColumnOrder: function(columnIndexes) {
         this.deprecated('_setColumnOrder(columnIndexes)', 'setColumnOrder(columnIndexes)', '1.2.10', arguments);
     },
