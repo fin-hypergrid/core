@@ -193,6 +193,51 @@ var defaults = {
      */
     backgroundColor2: 'rgb(201, 201, 201)',
 
+
+    /********** SECTION: TREE HEADER COLORS **********/
+
+    /**
+     * @default
+     * @type {cssFont}
+     * @memberOf module:defaults
+     */
+    treeHeaderFont: '12px Tahoma, Geneva, sans-serif',
+
+    /**
+     * @default
+     * @type {cssColor}
+     * @memberOf module:defaults
+     */
+    treeHeaderColor: 'rgb(25, 25, 25)',
+
+    /**
+     * @default
+     * @type {cssColor}
+     * @memberOf module:defaults
+     */
+    treeHeaderBackgroundColor: 'rgb(223, 227, 232)',
+
+    /**
+     * @default
+     * @type {cssColor}
+     * @memberOf module:defaults
+     */
+    treeHeaderForegroundSelectionColor: 'rgb(80, 80, 80)',
+
+    /**
+     * Font style for selected rows' headers.
+     * @default
+     * @type {string}
+     * @memberOf module:defaults
+     */
+    treeHeaderForegroundSelectionFont: 'bold 12px Tahoma, Geneva, sans-serif',
+
+    /**
+     * @default
+     * @type {cssColor}
+     * @memberOf module:defaults
+     */
+    treeHeaderBackgroundSelectionColor: 'rgba(255, 220, 97, 0.45)',
     /********** SECTION: FILTER ROW COLORS **********/
 
     /**
