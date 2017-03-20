@@ -1,8 +1,8 @@
-## Current Sprint Agenda 2/6/2017 - 2/27/2017
+## Current Agenda
 
 ### Queue
 
-You can find the current sprint [here](https://github.com/openfin/fin-hypergrid/projects/5)
+You can find the current issues queue [here](https://github.com/openfin/fin-hypergrid/projects/5)
 
 ### JSDOC
 
