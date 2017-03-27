@@ -120,7 +120,7 @@ var Behavior = Base.extend('Behavior', {
          * @type {subgridSpec[]}
          * @memberOf Hypergrid#
          */
-        this.subgrids = options.subgrids || this.subgrids || this.defaultSubgridSpecs;
+        this.subgrids = options.subgrids || this.subgrids || this.grid.properties.subgrids;
     },
 
     get renderedColumnCount() {
@@ -404,6 +404,17 @@ var Behavior = Base.extend('Behavior', {
             this.columns.length = columnIndexes.length;
             columnIndexes.forEach(function(index, i) {
                 this.columns[i] = this.allColumns[index];
+            }, this);
+        }
+    },
+
+    setColumnOrderByName: function(columnNames) {
+        if (Array.isArray(columnNames)){
+            this.columns.length = columnNames.length;
+            columnNames.forEach(function(columnName, i) {
+                this.columns[i] = this.allColumns.find(function(column) {
+                    return column.name === columnName;
+                });
             }, this);
         }
     },

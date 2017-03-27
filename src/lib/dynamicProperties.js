@@ -21,6 +21,18 @@ var dynamicPropertyDescriptors = {
     /**
      * @memberOf module:dynamicPropertyDescriptors
      */
+    subgrids: {
+        get: function() {
+            return this.var.subgrids;
+        },
+        set: function(subgrids) {
+            this.grid.behavior.subgrids = this.var.subgrids = subgrids;
+        }
+    },
+
+    /**
+     * @memberOf module:dynamicPropertyDescriptors
+     */
     gridRenderer: {
         get: function() {
             return this.var.gridRenderer;
@@ -36,13 +48,30 @@ var dynamicPropertyDescriptors = {
      */
     columnIndexes: {
         get: function() {
-            return this.grid.behavior.getActiveColumns().map(function(column) { return column.index; });
+            return this.grid.behavior.getActiveColumns().map(function(column) {
+                return column.index;
+            });
         },
         set: function(columnIndexes) {
             this.grid.behavior.setColumnOrder(columnIndexes);
             this.grid.behavior.changed();
         }
     },
+
+    /**
+     * @memberOf module:dynamicPropertyDescriptors
+     */
+    columnNames: {
+        get: function() {
+            return this.grid.behavior.getActiveColumns().map(function(column) {
+                return column.name;
+            });
+        },
+        set: function(columnNames) {
+            this.grid.behavior.setColumnOrderByName(columnNames);
+            this.grid.behavior.changed();
+        }
+    }
 };
 
 module.exports = dynamicPropertyDescriptors;

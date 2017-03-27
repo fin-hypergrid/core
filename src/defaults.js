@@ -31,6 +31,17 @@ var defaults = {
      */
     noDataMessage: '',
 
+    /**
+     * @summary List of subgrids by
+     * @desc Restrict usage here to strings (naming data models) or arrays consisting of such a string + constructor arguments. That is, avoid {@link subgridSpec}'s function and object overloads and {@link subgridConstructorRef} function overload.
+     * @default "[ 'HeaderSubgrid', 'data' ]"
+     * @type {subgridSpec[]}
+     * @memberOf module:defaults
+     */
+    subgrids: [
+        'HeaderSubgrid',
+        'data'
+    ],
 
     /**
      * The font for data cells.

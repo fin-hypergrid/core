@@ -2143,13 +2143,6 @@ var Hypergrid = Base.extend('Hypergrid', {
     }
 });
 
-var VAR = '.var.';
-function hasVar(descriptor) {
-    return (
-        descriptor.get && descriptor.get.toString().indexOf(VAR) >= 0 ||
-        descriptor.set && descriptor.set.toString().indexOf(VAR) >= 0
-    );
-}
 /**
  * Creates an instance variable backer for use by the getters and setters described in {@link dynamicPropertyDescriptors}.
  * @constructor
@@ -2157,11 +2150,20 @@ function hasVar(descriptor) {
  * @private
  */
 function Var() {
+    var BACKING_STORE = '.var.';
     Object.getOwnPropertyNames(dynamicPropertyDescriptors).forEach(function(name) {
-        if (hasVar(Object.getOwnPropertyDescriptor(dynamicPropertyDescriptors, name))) {
+        var descriptor = dynamicPropertyDescriptors[name];
+        if (
+            methodContains(descriptor.get, BACKING_STORE) ||
+            methodContains(descriptor.set, BACKING_STORE)
+        ) {
             this[name] = defaults[name];
         }
     }, this);
+}
+
+function methodContains(method, sarg) {
+    return method && method.toString().indexOf(sarg) !== -1;
 }
 
 function findOrCreateContainer(boundingRect) {
