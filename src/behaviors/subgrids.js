@@ -21,15 +21,6 @@ var dataModels = require('../dataModels');
  */
 
 module.exports = {
-    dataModels: {
-        HeaderSubgrid: dataModels.HeaderSubgrid
-    },
-
-    defaultSubgridSpecs: [
-        'HeaderSubgrid',
-        'data'
-    ],
-
     /**
      * An array where each element represents a subgrid to be rendered in the hypergrid.
      *
@@ -137,7 +128,7 @@ function derefSubgridRef(ref) {
     var Constructor;
     switch (typeof ref) {
         case 'string':
-            Constructor = this.dataModels[ref];
+            Constructor = dataModels[ref];
             break;
         case 'function':
             Constructor = ref;

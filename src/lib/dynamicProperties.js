@@ -21,6 +21,18 @@ var dynamicPropertyDescriptors = {
     /**
      * @memberOf module:dynamicPropertyDescriptors
      */
+    subgrids: {
+        get: function() {
+            return this.var.subgrids;
+        },
+        set: function(subgrids) {
+            this.grid.behavior.subgrids = this.var.subgrids = subgrids;
+        }
+    },
+
+    /**
+     * @memberOf module:dynamicPropertyDescriptors
+     */
     gridRenderer: {
         get: function() {
             return this.var.gridRenderer;

@@ -120,7 +120,7 @@ var Behavior = Base.extend('Behavior', {
          * @type {subgridSpec[]}
          * @memberOf Hypergrid#
          */
-        this.subgrids = options.subgrids || this.subgrids || this.defaultSubgridSpecs;
+        this.subgrids = options.subgrids || this.subgrids || this.grid.properties.subgrids;
     },
 
     get renderedColumnCount() {
