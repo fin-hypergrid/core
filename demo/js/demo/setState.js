@@ -185,12 +185,6 @@ module.exports = function(demo, grid) {
     //grid.addProperties(myThemes.three);
 
     grid.takeFocus();
-    //see myThemes.js file for how to create a theme
-    //grid.addProperties(myThemes.one);
-    //grid.addProperties(myThemes.two);
-    //grid.addProperties(myThemes.three);
-
-    grid.takeFocus();
 
     demo.resetDashboard();
 };
