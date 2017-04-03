@@ -83,7 +83,32 @@ function createColumnProperties() {
                 if (this !== column.properties) {
                     throw new column.HypergridError(COLUMN_ONLY_PROPERTY);
                 }
-                column.calculator = toFunction(calculator);
+
+                if (!calculator) {
+                    column.calculator = undefined;
+                    return;
+                }
+
+                if (typeof calculator === 'function') {
+                    calculator = calculator.toString();
+                } else if (typeof calculator !== 'string') {
+                    throw new this.grid.HypergridError('Expected function or string containing function or function name.');
+                }
+
+                var matches, key = calculator,
+                    calculators = this.grid.properties.calculators = this.grid.properties.calculators || {};
+
+                if (/^\w+$/.test(calculator)) { // just a function name?
+                    calculator = calculators[calculator];
+                } else {
+                    matches = calculator.match(/^function\s*(\w+)\(/);
+                    if (matches) {
+                        key = matches[1];
+                    }
+                }
+
+                column.calculator = calculators[key] = typeof calculators[key] === 'function'
+                    ? calculators[key] : toFunction(calculator);
             }
         }
 

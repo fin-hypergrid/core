@@ -614,6 +614,21 @@ var Hypergrid = Base.extend('Hypergrid', {
     getState: function() {
         return this.behavior.getState();
     },
+
+    loadState: function(state) {
+        this.behavior.setState(state);
+    },
+
+    saveState: function(space) {
+        if (this.properties.calculators) {
+            this.properties.calculators.toJSON = stringifyFunctions;
+        }
+        if (arguments.length === 0) {
+            space = '\t';
+        }
+        return JSON.stringify(this.properties, undefined, space); //todo: needs the rows, columns, and cells arrays
+    },
+
     /**
      * @memberOf Hypergrid#
      * @returns {object} The initial mouse position on a mouse down event for cell editing or a drag operation.
@@ -2190,6 +2205,15 @@ function setStyles(el, style, keys) {
     }
 }
 
+function stringifyFunctions() {
+    var self = this;
+    return Object.keys(this).reduce(function(obj, key) {
+        if (key !== 'toJSON') {
+            obj[key] = self[key].toString();
+        }
+        return obj;
+    }, {});
+}
 
 /**
  * @name plugins

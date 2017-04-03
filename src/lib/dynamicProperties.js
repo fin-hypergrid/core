@@ -3,8 +3,8 @@
 /**
  * @summary Dynamic property getter/setters.
  * @desc ### Backing store
- * Dynamic properties can make use of a backing store.
- * This backing store is created in the "own" layer by {@link Hypergrid#clearState|clearState}.
+ * Dynamic grid properties can make use of a backing store.
+ * This backing store is created in the "own" layer by {@link Hypergrid#clearState|clearState} and backs grid-only properties. We currently do not create one for derived (column and cell) properties objects.
  * The members of the backing store have the same names as the dynamic properties that utilize them.
  * They are initialized by {@link Hypergrid#clearState|clearState} to the default values from {@link module:defaults|defaults} object members (also) of the same name.
  *

@@ -160,13 +160,11 @@ var Behavior = Base.extend('Behavior', {
 
         this.allColumns[tc] = this.columns[tc] = this.newColumn({
             index: tc,
-            header: this.dataModel.schema[tc].header,
-            calculator: this.dataModel.schema[tc].calculator
+            header: this.dataModel.schema[tc].header
         });
         this.allColumns[rc] = this.columns[rc] = this.newColumn({
             index: rc,
-            header: this.dataModel.schema[rc].header,
-            calculator: this.dataModel.schema[rc].calculator
+            header: this.dataModel.schema[rc].header
         });
     },
 
