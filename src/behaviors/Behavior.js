@@ -317,24 +317,19 @@ var Behavior = Base.extend('Behavior', {
         this.createColumns();
 
         var state = this.grid.properties;
-        for (var key in memento) {
-            if (memento.hasOwnProperty(key)) {
-                var value = memento[key];
-                switch (key) {
-                    case 'rows':
-                        this.setRowHeights(value);
-                        break;
-                    case 'columns':
-                        this.setAllColumnPropertiesByName(value);
-                        break;
-                    case 'cells':
-                        this.setAllCellProperties(value);
-                        break;
-                    default:
-                        state[key] = value;
-                }
+        Object.keys(memento).forEach(function(key) {
+            var value = memento[key];
+            switch (key) {
+                case 'rows':
+                    this.setRowHeights(value);
+                    break;
+                case 'cells':
+                    this.setCellPropertiesByColumnNameAndRowIndex(value);
+                    break;
+                default:
+                    state[key] = value;
             }
-        }
+        }, this);
 
         this.setAllColumnProperties(memento.columnProperties);
 
@@ -349,26 +344,7 @@ var Behavior = Base.extend('Behavior', {
         }
     },
 
-    setAllColumnPropertiesByName: function(columns) {
-        var columnName;
-
-        if (columns) {
-            for (columnName in columns) {
-                if (columns.hasOwnProperty(columnName)) {
-                    var column = this.columns.find(nameMatches);
-                    if (column) {
-                        column.properties = columns[columnName];
-                    }
-                }
-            }
-        }
-
-        function nameMatches(column) {
-            return column.name === columnName;
-        }
-    },
-
-    setAllCellProperties: function(cells) {
+    setCellPropertiesByColumnNameAndRowIndex: function(cells) {
         for (var subgridName in cells) {
             if (cells.hasOwnProperty(subgridName)) {
                 var subgrid = this.subgrids.lookup[subgridName];

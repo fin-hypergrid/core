@@ -71,7 +71,63 @@ var dynamicPropertyDescriptors = {
             this.grid.behavior.setColumnOrderByName(columnNames);
             this.grid.behavior.changed();
         }
+    },
+
+    /**
+     * @memberOf module:dynamicPropertyDescriptors
+     */
+    columns: {
+        get: function() {
+            return getColumnPropertiesByColumnName(this.grid.behavior.getColumns(), this.grid.headerify);
+        },
+        set: function(columnPropsHash) {
+            if (columnPropsHash) {
+                setColumnPropertiesByColumnName(this.grid.behavior.getColumns(), columnPropsHash);
+                this.grid.behavior.changed();
+            }
+        }
     }
 };
+
+function getColumnPropertiesByColumnName(columns, headerify) {
+    return columns.reduce(function(obj, column) {
+        var properties = Object.keys(column.properties).reduce(function(properties, key) {
+            switch (key) {
+                case 'preferredWidth': // not a public property
+                    break;
+                case 'header':
+                    if (headerify && column.properties.header === headerify(column.properties.name)) {
+                        break;
+                    }
+                // eslint-disable-line no-fallthrough
+                default:
+                    var value = column.properties[key];
+                    if (value !== undefined) {
+                        properties[key] = value;
+                    }
+            }
+            return properties;
+        }, {});
+        if (Object.keys(properties).length) {
+            obj[column.name] = properties;
+        }
+        return obj;
+    }, {});
+}
+
+function setColumnPropertiesByColumnName(columns, columnPropsHash) {
+    for (var columnName in columnPropsHash) {
+        if (columnPropsHash.hasOwnProperty(columnName)) {
+            var column = columns.find(nameMatches);
+            if (column) {
+                column.properties = columnPropsHash[columnName];
+            }
+        }
+    }
+
+    function nameMatches(column) {
+        return column.name === columnName;
+    }
+}
 
 module.exports = dynamicPropertyDescriptors;

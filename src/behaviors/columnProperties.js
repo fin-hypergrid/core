@@ -19,21 +19,18 @@ function createColumnProperties() {
     properties = Object.create(tableState, {
 
         index: { // read-only (no setter)
-            enumerable: true,
             get: function() {
                 return column.index;
             }
         },
 
         name: { // read-only (no setter)
-            enumerable: true,
-            get: function() {
+           get: function() {
                 return column.name;
             }
         },
 
         field: { // read-only (no setter)
-            enumerable: true,
             get: function() {
                 if (FIELD) { console.warn(FIELD); FIELD = undefined; }
                 return column.name;
@@ -41,7 +38,6 @@ function createColumnProperties() {
         },
 
         columnName: { // read-only (no setter)
-            enumerable: true,
             get: function() {
                 if (COLUMN_NAME) { console.warn(COLUMN_NAME); COLUMN_NAME = undefined; }
                 return column.name;
