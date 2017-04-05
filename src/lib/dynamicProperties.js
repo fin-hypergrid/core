@@ -76,20 +76,76 @@ var dynamicPropertyDescriptors = {
     /**
      * @memberOf module:dynamicPropertyDescriptors
      */
+    rows: {
+        get: getRowPropertiesBySubgridAndRowIndex,
+        set: function(rowsHash) {
+            if (rowsHash) {
+                setRowPropertiesBySubgridAndRowIndex.call(this, rowsHash);
+                this.grid.behavior.changed();
+            }
+        }
+    },
+
+    /**
+     * @memberOf module:dynamicPropertyDescriptors
+     */
     columns: {
-        get: function() {
-            return getColumnPropertiesByColumnName(this.grid.behavior.getColumns(), this.grid.headerify);
-        },
+        get: getColumnPropertiesByColumnName,
         set: function(columnPropsHash) {
             if (columnPropsHash) {
-                setColumnPropertiesByColumnName(this.grid.behavior.getColumns(), columnPropsHash);
+                setColumnPropertiesByColumnName.call(this, columnPropsHash);
                 this.grid.behavior.changed();
             }
         }
     }
 };
 
-function getColumnPropertiesByColumnName(columns, headerify) {
+function getRowPropertiesBySubgridAndRowIndex() { // to be called with grid.properties as context
+    var rows = {};
+    this.grid.behavior.subgrids.forEach(function(dataModel) {
+        var key = dataModel.name || dataModel.type;
+        for (var rowIndex = 0, rowCount = dataModel.getRowCount(); rowIndex < rowCount; ++rowIndex) {
+            var height = dataModel.getRow(rowIndex).__ROW_HEIGHT;
+            if (height !== undefined) {
+                (rows[key] = rows[key] || {})[rowIndex] = { height: height };
+            }
+        }
+    });
+    return rows;
+}
+
+function setRowPropertiesBySubgridAndRowIndex(rowsHash) { // to be called with grid.properties as context
+    var behavior = this.grid.behavior;
+    for (var subgridName in rowsHash) {
+        if (rowsHash.hasOwnProperty(subgridName)) {
+            var subgrid = behavior.subgrids.lookup[subgridName];
+            if (subgrid) {
+                var subgridHash = rowsHash[subgridName];
+                for (var rowIndex in subgridHash) {
+                    if (subgridHash.hasOwnProperty(rowIndex)) {
+                        var properties = subgridHash[rowIndex];
+                        for (var propName in properties) {
+                            if (properties.hasOwnProperty(propName)) {
+                                var propValue = properties[propName];
+                                switch (propName) {
+                                    case 'height':
+                                        behavior.setRowHeight(rowIndex, Number(propValue), subgrid);
+                                        break;
+                                    default:
+                                        console.warn('Unexpected row property "' + propName + '" ignored. (The only row property currently implemented is "height").');
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+function getColumnPropertiesByColumnName() { // to be called with grid.properties as context
+    var columns = this.grid.behavior.getColumns(),
+        headerify = this.grid.headerify;
     return columns.reduce(function(obj, column) {
         var properties = Object.keys(column.properties).reduce(function(properties, key) {
             switch (key) {
@@ -115,7 +171,9 @@ function getColumnPropertiesByColumnName(columns, headerify) {
     }, {});
 }
 
-function setColumnPropertiesByColumnName(columns, columnPropsHash) {
+function setColumnPropertiesByColumnName(columnPropsHash) { // to be called with grid.properties as context
+    var columns = this.grid.behavior.getColumns();
+
     for (var columnName in columnPropsHash) {
         if (columnPropsHash.hasOwnProperty(columnName)) {
             var column = columns.find(nameMatches);

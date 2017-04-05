@@ -320,9 +320,6 @@ var Behavior = Base.extend('Behavior', {
         Object.keys(memento).forEach(function(key) {
             var value = memento[key];
             switch (key) {
-                case 'rows':
-                    this.setRowHeights(value);
-                    break;
                 case 'cells':
                     this.setCellPropertiesByColumnNameAndRowIndex(value);
                     break;
@@ -778,34 +775,6 @@ var Behavior = Base.extend('Behavior', {
         if (rowData) {
             rowData.__ROW_HEIGHT = Math.max(5, Math.ceil(height));
             this.stateChanged();
-        }
-    },
-
-    setRowHeights: function(rowHeights) {
-        for (var subgridName in rowHeights) {
-            if (rowHeights.hasOwnProperty(subgridName)) {
-                var subgrid = this.subgrids.lookup[subgridName];
-                if (subgrid) {
-                    var subgridHash = rowHeights[subgridName];
-                    for (var rowIndex in subgridHash) {
-                        if (subgridHash.hasOwnProperty(rowIndex)) {
-                            var properties = subgridHash[rowIndex];
-                            for (var propName in properties) {
-                                if (properties.hasOwnProperty(propName)) {
-                                    var propValue = properties[propName];
-                                    switch (propName) {
-                                        case 'height':
-                                            this.setRowHeight(rowIndex, Number(propValue), subgrid);
-                                            break;
-                                        default:
-                                            console.warn('Unexpected row property "' + propName + '" ignored. (The only row property currently implemented is "height").');
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
         }
     },
 

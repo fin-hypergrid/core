@@ -638,9 +638,10 @@ var Hypergrid = Base.extend('Hypergrid', {
 
         // Temporarily copy values from dynamic properties layer as own members (stringify ignores prototype chain)
         var dynaPropDescriptors = {
+            rows: { configurable: true, enumerable: true, value: properties.rows },
             columns: { configurable: true, enumerable: true, value: properties.columns }
         };
-        Object.defineProperties(properties, dynaPropDescriptors);
+        Object.defineProperties(properties, dynaPropDescriptors); //must use descriptors because can't override a prop when it is a setter
 
         var json = JSON.stringify(properties, undefined, space); //todo: still needs the rows and cells arrays
 
