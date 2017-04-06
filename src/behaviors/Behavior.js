@@ -4,7 +4,7 @@ var Point = require('rectangular').Point;
 
 var Base = require('../Base');
 var Column = require('./Column');
-var cellEventFactory = require('./../lib/cellEventFactory');
+var cellEventFactory = require('../lib/cellEventFactory');
 var noExportProperties = [
     'columnHeader',
     'columnHeaderColumnSelection',

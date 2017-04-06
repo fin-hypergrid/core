@@ -104,7 +104,8 @@ function createColumnProperties() {
                 }
 
                 column.calculator = calculators[key] = typeof calculators[key] === 'function'
-                    ? calculators[key] : toFunction(calculator);
+                    ? calculators[key] || key //null calculators use the key itself (anonymous functions)
+                    : toFunction(calculator);
             }
         }
 
