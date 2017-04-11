@@ -91,9 +91,22 @@ var dynamicPropertyDescriptors = {
      */
     columns: {
         get: getColumnPropertiesByColumnName,
-        set: function(columnPropsHash) {
-            if (columnPropsHash) {
-                setColumnPropertiesByColumnName.call(this, columnPropsHash);
+        set: function(columnsHash) {
+            if (columnsHash) {
+                setColumnPropertiesByColumnName.call(this, columnsHash);
+                this.grid.behavior.changed();
+            }
+        }
+    },
+
+    /**
+     * @memberOf module:dynamicPropertyDescriptors
+     */
+    cells: {
+        get: getCellPropertiesByColumnNameAndRowIndex,
+        set: function(cellsHash) {
+            if (cellsHash) {
+                setCellPropertiesByColumnNameAndRowIndex.call(this, cellsHash);
                 this.grid.behavior.changed();
             }
         }
@@ -101,17 +114,18 @@ var dynamicPropertyDescriptors = {
 };
 
 function getRowPropertiesBySubgridAndRowIndex() { // to be called with grid.properties as context
-    var rows = {};
+    var subgrids = {};
     this.grid.behavior.subgrids.forEach(function(dataModel) {
         var key = dataModel.name || dataModel.type;
         for (var rowIndex = 0, rowCount = dataModel.getRowCount(); rowIndex < rowCount; ++rowIndex) {
             var height = dataModel.getRow(rowIndex).__ROW_HEIGHT;
             if (height !== undefined) {
-                (rows[key] = rows[key] || {})[rowIndex] = { height: height };
+                var subgrid = subgrids[key] = subgrids[key] || {};
+                subgrid[rowIndex] = { height: height };
             }
         }
     });
-    return rows;
+    return subgrids;
 }
 
 function setRowPropertiesBySubgridAndRowIndex(rowsHash) { // to be called with grid.properties as context
@@ -171,14 +185,71 @@ function getColumnPropertiesByColumnName() { // to be called with grid.propertie
     }, {});
 }
 
-function setColumnPropertiesByColumnName(columnPropsHash) { // to be called with grid.properties as context
+function setColumnPropertiesByColumnName(columnsHash) { // to be called with grid.properties as context
     var columns = this.grid.behavior.getColumns();
 
-    for (var columnName in columnPropsHash) {
-        if (columnPropsHash.hasOwnProperty(columnName)) {
+    for (var columnName in columnsHash) {
+        if (columnsHash.hasOwnProperty(columnName)) {
             var column = columns.find(nameMatches);
             if (column) {
-                column.properties = columnPropsHash[columnName];
+                column.properties = columnsHash[columnName];
+            }
+        }
+    }
+
+    function nameMatches(column) {
+        return column.name === columnName;
+    }
+}
+
+function getCellPropertiesByColumnNameAndRowIndex() {
+    var behavior = this.grid.behavior,
+        columns = behavior.getColumns(),
+        subgrids = {};
+
+    behavior.subgrids.forEach(function(dataModel) {
+        var key = dataModel.name || dataModel.type;
+
+        for (var rowIndex = 0, rowCount = dataModel.getRowCount(); rowIndex < rowCount; ++rowIndex) {
+            columns.forEach(copyCellOwnProperties);
+        }
+
+        function copyCellOwnProperties(column) {
+            var properties = behavior.getCellOwnProperties(column.index, rowIndex, dataModel);
+            if (properties) {
+                var subgrid = subgrids[key] = subgrids[key] || {},
+                    row = subgrid[rowIndex] = subgrid[rowIndex] = {};
+                row[column.name] = Object.assign({}, properties);
+            }
+        }
+    });
+
+    return subgrids;
+}
+
+function setCellPropertiesByColumnNameAndRowIndex(cellsHash) { // to be called with grid.properties as context
+    var subgrids = this.grid.behavior.subgrids,
+        columns = this.grid.behavior.getColumns();
+
+    for (var subgridName in cellsHash) {
+        if (cellsHash.hasOwnProperty(subgridName)) {
+            var subgrid = subgrids.lookup[subgridName];
+            if (subgrid) {
+                var subgridHash = cellsHash[subgridName];
+                for (var rowIndex in subgridHash) {
+                    if (subgridHash.hasOwnProperty(rowIndex)) {
+                        var columnProps = subgridHash[rowIndex];
+                        for (var columnName in columnProps) {
+                            if (columnProps.hasOwnProperty(columnName)) {
+                                var column = columns.find(nameMatches);
+                                if (column) {
+                                    var properties = columnProps[columnName];
+                                    column.addCellProperties(rowIndex, properties, subgrid);
+                                }
+                            }
+                        }
+                    }
+                }
             }
         }
     }

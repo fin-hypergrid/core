@@ -270,8 +270,8 @@ function factory(grid) {
      * * Excludes `this.gridCell`, `this.dataCell`, `this.visibleRow.subgrid` defined by constructor (as non-enumerable).
      * * Any additional (enumerable) members mixed in by application's `getCellEditorAt` override.
      *
-     * Omit params to defer the convenience call to {CellEvent#resetGridCY}.
-     * (See also the alternative {@link CellEvent#resetGridXY}; and {@link CellEvent#resetDataXY} which accepts `dataX`, `dataY`.)
+     * Including params calls {CellEvent#resetGridCY}.
+     * (See also the alternatives {@link CellEvent#resetGridXY}, {@link CellEvent#resetDataXY}, and {@link CellEvent#resetGridXDataY}.)
      *
      * @param {number} [gridX] - grid cell coordinate (adjusted for horizontal scrolling after fixed columns).
      * @param {number} [gridY] - grid cell coordinate, adjusted (adjusted for vertical scrolling if data subgrid)

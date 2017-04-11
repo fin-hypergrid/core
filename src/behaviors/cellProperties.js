@@ -51,7 +51,7 @@ var cell = {
      * * has the column properties object as its prototype
      * * is returned
      *
-     * If the cell does not have its own properties object, this method simply returns `undefined`.
+     * If the cell does not have its own properties object, this method returns `null`.
      *
      * Call this method only when you need to know if the the cell has its own properties object; otherwise call {@link Column#getCellProperties|getCellProperties}.
      * @param {number} rowIndex - Data row coordinate.
