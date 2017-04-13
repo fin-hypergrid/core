@@ -1,19 +1,13 @@
 'use strict';
 
 /**
- * @summary Dynamic property getter/setters.
- * @desc ### Backing store
- * Dynamic grid properties can make use of a backing store.
- * This backing store is created in the "own" layer by {@link Hypergrid#clearState|clearState} and backs grid-only properties. We currently do not create one for derived (column and cell) properties objects.
+ * @summary Dynamic grid property getter/setters.
+ * @desc  Dynamic grid properties can make use of a _backing store._
+ * This backing store is created in the same layer (the grid properties layer) by {@link Hypergrid#clearState|clearState} and backs grid-only properties. We currently do not create one for descendant objects, such as column and cell properties objects.
  * The members of the backing store have the same names as the dynamic properties that utilize them.
- * They are initialized by {@link Hypergrid#clearState|clearState} to the default values from {@link module:defaults|defaults} object members (also) of the same name.
+ * They are initialized by {@link Hypergrid#clearState|clearState} to the default values from {@link module:defaults|defaults} object members, (also) of the same name.
  *
- * Note that all dynamic properties must not be enumerable and configurable to protect them from being deleted when a theme is applied.
- *
- * ### Themes
- * This layer is also where themes are applied.
- *
- * Note that {@link Hypergrid#applyTheme} ensures that all thematic members are defined as enumerable and configurable so they can be deleted when a new theme is applied.
+ * Note that dynamic properties must enumerable to be visible to {@link Hypergrid#saveState}.
  * @name dynamicPropertyDescriptors
  * @module
  */
@@ -22,6 +16,7 @@ var dynamicPropertyDescriptors = {
      * @memberOf module:dynamicPropertyDescriptors
      */
     subgrids: {
+        enumerable: true,
         get: function() {
             return this.var.subgrids;
         },
@@ -34,6 +29,7 @@ var dynamicPropertyDescriptors = {
      * @memberOf module:dynamicPropertyDescriptors
      */
     gridRenderer: {
+        enumerable: true,
         get: function() {
             return this.var.gridRenderer;
         },
@@ -47,6 +43,7 @@ var dynamicPropertyDescriptors = {
      * @memberOf module:dynamicPropertyDescriptors
      */
     columnIndexes: {
+        enumerable: true,
         get: function() {
             return this.grid.behavior.getActiveColumns().map(function(column) {
                 return column.index;
@@ -62,6 +59,7 @@ var dynamicPropertyDescriptors = {
      * @memberOf module:dynamicPropertyDescriptors
      */
     columnNames: {
+        enumerable: true,
         get: function() {
             return this.grid.behavior.getActiveColumns().map(function(column) {
                 return column.name;
@@ -77,6 +75,7 @@ var dynamicPropertyDescriptors = {
      * @memberOf module:dynamicPropertyDescriptors
      */
     rows: {
+        enumerable: true,
         get: getRowPropertiesBySubgridAndRowIndex,
         set: function(rowsHash) {
             if (rowsHash) {
@@ -90,6 +89,7 @@ var dynamicPropertyDescriptors = {
      * @memberOf module:dynamicPropertyDescriptors
      */
     columns: {
+        enumerable: true,
         get: getColumnPropertiesByColumnName,
         set: function(columnsHash) {
             if (columnsHash) {
@@ -103,6 +103,7 @@ var dynamicPropertyDescriptors = {
      * @memberOf module:dynamicPropertyDescriptors
      */
     cells: {
+        enumerable: true,
         get: getCellPropertiesByColumnNameAndRowIndex,
         set: function(cellsHash) {
             if (cellsHash) {

@@ -57,6 +57,10 @@ module.exports = function(demo, grid) {
             }
         },
 
+        calculators: {
+            Add10: 'function(dataRow,columnName) { return dataRow[columnName] + 10; }'
+        },
+
         columns: {
             height: {
                 halign: 'right',
@@ -79,7 +83,7 @@ module.exports = function(demo, grid) {
             total_number_of_pets_owned: {
                 halign: 'center',
                 format: 'number',
-                backgroundColor: 'maroon',
+                calculator: 'Add10',
                 color: 'green'
             },
 

@@ -30,7 +30,8 @@ window.onload = function() {
     var gridOptions = {
             data: people1,
             margin: { bottom: '17px', right: '17px'},
-            schema: Hypergrid.lib.fields.getSchema(people1)
+            schema: Hypergrid.lib.fields.getSchema(people1),
+            state: { color: 'orange' }
         },
         grid = window.grid = window.g = new Hypergrid('div#json-example', gridOptions),
         behavior = window.b = grid.behavior,
