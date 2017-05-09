@@ -347,7 +347,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
                 if (!this.hasOwnProperty('pipelineSchemaStash')) {
                     this.pipelineSchemaStash = [];
                 }
-            // disable eslint no-fallthrough
+                // fallthrough
             case 'default':
             case undefined:
                 stash = this.pipelineSchemaStash;
