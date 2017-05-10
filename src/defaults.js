@@ -44,6 +44,15 @@ var defaults = {
     ],
 
     /**
+     * @summary The global theme name.
+     * @desc Note that local themes (applied to grid instances) will have an overriding `themeName` property in their theme layer in the properties hierarchy.
+     * @default
+     * @type {string}
+     * @memberOf module:defaults
+     */
+    themeName: 'default',
+
+    /**
      * The font for data cells.
      * @default
      * @type {cssFont}

@@ -13,6 +13,23 @@
  */
 var dynamicPropertyDescriptors = {
     /**
+     * @returns {string|undefined|object} One of:
+     * * **string:** When theme name is registered (except 'default').
+     * * **undefined:** When theme layer is empty (or theme name is 'default').
+     * * **object:** When theme name is not registered.
+     * @memberOf module:dynamicPropertyDescriptors
+     */
+    theme: {
+        enumerable: true,
+        get: function() {
+            return this.grid.getTheme();
+        },
+        set: function(theme) {
+            this.grid.applyTheme(theme);
+        }
+    },
+
+    /**
      * @memberOf module:dynamicPropertyDescriptors
      */
     subgrids: {
@@ -170,7 +187,7 @@ function getColumnPropertiesByColumnName() { // to be called with grid.propertie
                     if (headerify && column.properties.header === headerify(column.properties.name)) {
                         break;
                     }
-                // eslint-disable-line no-fallthrough
+                    // fallthrough
                 default:
                     var value = column.properties[key];
                     if (value !== undefined) {
