@@ -38,7 +38,7 @@ factory.prototypeDescriptors = Object.defineProperties({}, {
             cp = this.column.properties;
             if (this.isHandleColumn){
                 cp = cp.rowHeader;
-            } else if (this.isHierarchyColumn) {
+            } else if (this.isTreeColumn) {
                 cp = cp.treeHeader;
             } else if (this.isDataRow) {
                 // cp already set to basic props
@@ -201,10 +201,10 @@ factory.prototypeDescriptors = Object.defineProperties({}, {
     isColumnFixed: { get: function() { return this.isDataColumn && this.gridCell.x < this.grid.properties.fixedColumnCount; } },
     isCellFixed:   { get: function() { return this.isRowFixed && this.isColumnFixed; } },
 
-    isHandleColumn: { get: function() { return !this.isDataColumn; } },
+    isHandleColumn: { get: function() { return this.gridCell.x === this.grid.behavior.rowColumnIndex && this.grid.properties.showRowNumbers; } },
     isHandleCell:   { get: function() { return this.isHandleColumn && this.isDataRow; } },
 
-    isHierarchyColumn: { get: function() { return this.gridCell.x === 0 && this.grid.properties.showTreeColumn && this.dataModel.isDrillDown(this.dataCell.x); } },
+    isTreeColumn: { get: function() { return this.gridCell.x === this.grid.behavior.treeColumnIndex; } },
 
     isHeaderRow:    { get: function() { return this.visibleRow.subgrid.isHeader; } },
     isHeaderHandle: { get: function() { return this.isHeaderRow && this.isHandleColumn; } },
@@ -270,8 +270,8 @@ function factory(grid) {
      * * Excludes `this.gridCell`, `this.dataCell`, `this.visibleRow.subgrid` defined by constructor (as non-enumerable).
      * * Any additional (enumerable) members mixed in by application's `getCellEditorAt` override.
      *
-     * Omit params to defer the convenience call to {CellEvent#resetGridCY}.
-     * (See also the alternative {@link CellEvent#resetGridXY}; and {@link CellEvent#resetDataXY} which accepts `dataX`, `dataY`.)
+     * Including params calls {CellEvent#resetGridCY}.
+     * (See also the alternatives {@link CellEvent#resetGridXY}, {@link CellEvent#resetDataXY}, and {@link CellEvent#resetGridXDataY}.)
      *
      * @param {number} [gridX] - grid cell coordinate (adjusted for horizontal scrolling after fixed columns).
      * @param {number} [gridY] - grid cell coordinate, adjusted (adjusted for vertical scrolling if data subgrid)

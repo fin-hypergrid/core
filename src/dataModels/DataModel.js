@@ -41,7 +41,7 @@ var DataModel = Base.extend('DataModel', {
      *
      * @param {number} columnIndex - Absolute column index. I.e., the position of the column in the data source's original `fields` array, as echoed in `behavior.allColumns[]`.
      *
-     * @param {number} rowIndex - Row index of the data row in the currently filtered and sorted list of rows, regardless of vertical scroll position, offset by the number of header rows (all the rows above the first data row including the filter row). I.e., after subtracting out the number of header rows, this is the position of the data row in the `index` array of the data source (i.e., the last data source pipeline).
+     * @param {number} rowIndex - Row index of the data row in the current list of rows, regardless of vertical scroll position, offset by the number of header rows (all the rows above the first data row including the filter row). I.e., after subtracting out the number of header rows, this is the position of the data row in the `index` array of the data source (i.e., the last data source pipeline).
      *
      * @param {string} declaredEditorName - The proposed cell editor name (from the render properties).
      *

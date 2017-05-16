@@ -19,21 +19,18 @@ function createColumnProperties() {
     properties = Object.create(tableState, {
 
         index: { // read-only (no setter)
-            enumerable: true,
             get: function() {
                 return column.index;
             }
         },
 
         name: { // read-only (no setter)
-            enumerable: true,
-            get: function() {
+           get: function() {
                 return column.name;
             }
         },
 
         field: { // read-only (no setter)
-            enumerable: true,
             get: function() {
                 if (FIELD) { console.warn(FIELD); FIELD = undefined; }
                 return column.name;
@@ -41,7 +38,6 @@ function createColumnProperties() {
         },
 
         columnName: { // read-only (no setter)
-            enumerable: true,
             get: function() {
                 if (COLUMN_NAME) { console.warn(COLUMN_NAME); COLUMN_NAME = undefined; }
                 return column.name;
@@ -83,7 +79,33 @@ function createColumnProperties() {
                 if (this !== column.properties) {
                     throw new column.HypergridError(COLUMN_ONLY_PROPERTY);
                 }
-                column.calculator = toFunction(calculator);
+
+                if (!calculator) {
+                    column.calculator = undefined;
+                    return;
+                }
+
+                if (typeof calculator === 'function') {
+                    calculator = calculator.toString();
+                } else if (typeof calculator !== 'string') {
+                    throw new this.grid.HypergridError('Expected function or string containing function or function name.');
+                }
+
+                var matches, key = calculator,
+                    calculators = this.grid.properties.calculators = this.grid.properties.calculators || {};
+
+                if (/^\w+$/.test(calculator)) { // just a function name?
+                    calculator = calculators[calculator];
+                } else {
+                    matches = calculator.match(/^function\s*(\w+)\(/);
+                    if (matches) {
+                        key = matches[1];
+                    }
+                }
+
+                column.calculator = calculators[key] = typeof calculators[key] === 'function'
+                    ? calculators[key] || key //null calculators use the key itself (anonymous functions)
+                    : toFunction(calculator);
             }
         }
 
@@ -113,60 +135,70 @@ createColumnProperties.treeHeaderDescriptors = {
         configurable: true,
         enumerable: true,
         get: function() {
-            return this.rowHeaderFont;
+            return this.treeHeaderFont;
         },
         set: function(value) {
-            this.rowHeaderFont = value;
+            this.treeHeaderFont = value;
         }
     },
     color: {
         configurable: true,
         enumerable: true,
         get: function() {
-            return this.rowHeaderColor;
+            return this.treeHeaderColor;
         },
         set: function(value) {
-            this.rowHeaderColor = value;
+            this.treeHeaderColor = value;
         }
     },
     backgroundColor: {
         configurable: true,
         enumerable: true,
         get: function() {
-            return this.rowHeaderBackgroundColor;
+            return this.treeHeaderBackgroundColor;
         },
         set: function(value) {
-            this.rowHeaderBackgroundColor = value;
+            this.treeHeaderBackgroundColor = value;
         }
     },
     foregroundSelectionFont: {
         configurable: true,
         enumerable: true,
         get: function() {
-            return this.rowHeaderForegroundSelectionFont;
+            return this.treeHeaderForegroundSelectionFont;
         },
         set: function(value) {
-            this.rowHeaderForegroundSelectionFont = value;
+            this.treeHeaderForegroundSelectionFont = value;
         }
     },
     foregroundSelectionColor: {
         configurable: true,
         enumerable: true,
         get: function() {
-            return this.rowHeaderForegroundSelectionColor;
+            return this.treeHeaderForegroundSelectionColor;
         },
         set: function(value) {
-            this.rowHeaderForegroundSelectionColor = value;
+            this.treeHeaderForegroundSelectionColor = value;
+        }
+    },
+    renderer: {
+        configurable: true,
+        enumerable: true,
+        get: function() {
+            return this.treeRenderer;
+        },
+        set: function(value) {
+            this.treeRenderer = value;
         }
     },
     backgroundSelectionColor: {
         configurable: true,
         enumerable: true,
         get: function() {
-            return this.rowHeaderBackgroundSelectionColor;
+            return this.treeHeaderBackgroundSelectionColor;
         },
         set: function(value) {
-            this.rowHeaderBackgroundSelectionColor = value;
+            this.treeHeaderBackgroundSelectionColor = value;
         }
     }
     //leftIcon: undefined

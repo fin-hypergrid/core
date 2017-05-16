@@ -25,15 +25,13 @@ var bundleColumns = require('./bundle-columns');
  * @memberOf Renderer.prototype
  */
 function paintCellsByColumnsDiscrete(gc) {
-    var grid = this.grid,
-        gridProps = grid.properties,
-        prefillColor,
+    var prefillColor,
         cellEvent,
-        vc, visibleColumns = this.visibleColumns,
+        visibleColumns = this.visibleColumns,
         visibleRows = this.visibleRows,
-        c, C = visibleColumns.length, c0 = gridProps.showRowNumbers ? -1 : 0, cLast = C - 1,
+        C = visibleColumns.length, cLast = C - 1,
         r, R = visibleRows.length,
-        p, pool = this.cellEventPool,
+        pool = this.cellEventPool,
         preferredWidth,
         columnClip,
         // clipToGrid,
@@ -44,16 +42,17 @@ function paintCellsByColumnsDiscrete(gc) {
 
     if (!C || !R) { return; }
 
-    if (paintCellsByColumnsDiscrete.reset) {
+    if (this.gridRenderer.reset) {
         this.resetAllGridRenderers(['by-columns']);
-        paintCellsByColumnsDiscrete.reset = false;
+        this.gridRenderer.reset = false;
         bundleColumns.call(this, true);
     }
 
     // gc.clipSave(clipToGrid, 0, 0, viewWidth, viewHeight);
 
     // For each column...
-    for (p = 0, c = c0; c < C; c++) {
+    var p = 0;
+    this.visibleColumns.forEachWithNeg(function(vc, c) {
         cellEvent = pool[p]; // first cell in column c
         vc = cellEvent.visibleColumn;
 
@@ -78,7 +77,7 @@ function paintCellsByColumnsDiscrete(gc) {
         gc.clipRestore(columnClip);
 
         cellEvent.column.properties.preferredWidth = Math.round(preferredWidth);
-    }
+    }.bind(this));
 
     // gc.clipRestore(clipToGrid);
 
