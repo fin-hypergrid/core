@@ -7,20 +7,55 @@ var Base = require('../Base');
 var images = require('../../images/index');
 
 
-var visibleColumnPropertiesDescriptor = {
-    find: {
-        // Like Array.prototype.find except searches negative indexes as well.
-        value: function(iteratee, context) {
-            for (var i = -1; i in this; --i); // eslint-disable-line curly
-            while (++i) {
-                if (iteratee.call(context, this[i], i, this)) {
-                    return this[i];
+var visibleColumnPropertiesDescriptorFn = function(grid) {
+    return {
+        findWithNeg: {
+            // Like the Array.prototype version except searches negative indexes as well.
+            value: function(iteratee, context) {
+                for (var i = grid.behavior.leftMostColIndex; i in this; --i); // eslint-disable-line curly
+                while (++i) {
+                    if (!this[i]) {
+                        continue;
+                    }
+                    if (iteratee.call(context, this[i], i, this)) {
+                        return this[i];
+                    }
                 }
+                return Array.prototype.find.call(this, iteratee, context);
             }
-            return Array.prototype.find.call(this, iteratee, context);
+        },
+        forEachWithNeg: {
+            // Like the Array.prototype version except it iterates negative indexes as well.
+            value: function(iteratee, context) {
+                for (var i = grid.behavior.leftMostColIndex; i in this; --i); // eslint-disable-line curly
+                while (++i) {
+                    if (!this[i]) {
+                        continue;
+                    }
+                    iteratee.call(context, this[i], i, this);
+                }
+                return Array.prototype.forEach.call(this, iteratee, context);
+            }
+
+        },
+
+        totalLength: {
+            get: function() {
+                return Math.abs(grid.behavior.leftMostColIndex) + this.length;
+            }
         }
-    }
+    };
 };
+
+
+/**
+ * @summary List of grid renderers available to new grid instances.
+ * @desc Developer may augment this list with additional grid renderers before grid instantiation by calling @link {Renderer.registerGridRenderer}.
+ * @memberOf Renderer~
+ * @private
+ * @type {function[]}
+ */
+var paintCellsFunctions = [];
 
 
 /** @typedef {object} CanvasRenderingContext2D
@@ -99,7 +134,7 @@ var Renderer = Base.extend('Renderer', {
          * 3. An n-based list of consecutive of integers representing the scrollable columns (where n = number of fixed columns + the number of columns scrolled off to the left).
          * @type {visibleColumnDescriptor}
          */
-        this.visibleColumns = Object.defineProperties([], visibleColumnPropertiesDescriptor);
+        this.visibleColumns = Object.defineProperties([], visibleColumnPropertiesDescriptorFn(this.grid));
 
         /**
          * Represents the ordered set of visible rows. Array size is always the exact number of visible rows.
@@ -129,28 +164,33 @@ var Renderer = Base.extend('Renderer', {
     initialize: function(grid) {
         this.grid = grid;
 
+        this.gridRenderers = {};
+        paintCellsFunctions.forEach(function(paintCellsFunction) {
+            this.registerGridRenderer(paintCellsFunction);
+        }, this);
+
         // typically grid properties won't exist yet
         this.setGridRenderer(this.properties.gridRenderer || 'by-columns-and-rows');
 
         this.reset();
     },
 
-    gridRenderers: {},
-
-    registerGridRenderer: function(gridRenderer, name) {
-        this.gridRenderers[name || gridRenderer.key] = gridRenderer;
+    registerGridRenderer: function(paintCellsFunction) {
+        this.gridRenderers[paintCellsFunction.key] = {
+            paintCells: paintCellsFunction
+        };
     },
 
     setGridRenderer: function(key) {
-        var paintCells = this.gridRenderers[key];
+        var gridRenderer = this.gridRenderers[key];
 
-        if (!paintCells) {
+        if (!gridRenderer) {
             throw new this.HypergridError('Unregistered grid renderer "' + key + '"');
         }
 
-        if (paintCells !== this.paintCells) {
-            this.paintCells = paintCells;
-            this.paintCells.reset = true;
+        if (gridRenderer !== this.gridRenderer) {
+            this.gridRenderer = gridRenderer;
+            this.gridRenderer.reset = true;
         }
     },
 
@@ -166,7 +206,7 @@ var Renderer = Base.extend('Renderer', {
      */
     rebundleGridRenderers: function() {
         Object.keys(this.gridRenderers).forEach(function(key) {
-            if ('rebundle' in this.gridRenderers[key]) {
+            if (this.gridRenderers[key].paintCells.rebundle) {
                 this.gridRenderers[key].rebundle = true;
             }
         }, this);
@@ -204,7 +244,8 @@ var Renderer = Base.extend('Renderer', {
 
             lineWidth = grid.properties.lineWidth,
 
-            start = grid.properties.showRowNumbers ? -1 : 0,
+            start = 0,
+            numOfInternalCols = 0,
             x, X, // horizontal pixel loop index and limit
             y, Y, // vertical pixel loop index and limit
             c, C, // column loop index and limit
@@ -230,6 +271,10 @@ var Renderer = Base.extend('Renderer', {
             yEd = editorCellEvent.dataCell.y;
             sgEd = editorCellEvent.subgrid;
         }
+        if (grid.properties.showRowNumbers) {
+            start = behavior.rowColumnIndex;
+            numOfInternalCols = Math.abs(start);
+        }
 
         this.scrollHeight = 0;
 
@@ -242,10 +287,16 @@ var Renderer = Base.extend('Renderer', {
         this.insertionBounds = [];
 
         for (
-            x = 0, c = start, C = this.grid.getColumnCount(), X = bounds.width || grid.canvas.width;
+            x = 0, c = start, C = grid.getColumnCount(), X = bounds.width || grid.canvas.width;
             c < C && x <= X;
             c++
         ) {
+            if (c === behavior.treeColumnIndex && !behavior.hasTreeColumn()) {
+                numOfInternalCols = (numOfInternalCols > 0) ? numOfInternalCols - 1 : 0;
+                this.visibleColumns[c] = undefined;
+                continue;
+            }
+
             vx = c;
             if (c >= fixedColumnCount) {
                 lastVX = vx += scrollLeft;
@@ -360,7 +411,7 @@ var Renderer = Base.extend('Renderer', {
         // Resize CellEvent pool
         var pool = this.cellEventPool,
             previousLength = pool.length,
-            P = (this.visibleColumns.length - start) * this.visibleRows.length;
+            P = (this.visibleColumns.length + numOfInternalCols) * this.visibleRows.length;
 
         if (P > previousLength) {
             pool.length = P; // grow pool to accommodate more cells
@@ -507,9 +558,9 @@ var Renderer = Base.extend('Renderer', {
             isPseudoCol = false,
             vrs = this.visibleRows,
             vcs = this.visibleColumns,
-            firstColumn = vcs[this.properties.showRowNumbers ? -1 : 0],
+            firstColumn = vcs[this.grid.behavior.leftMostColIndex],
             inFirstColumn = x < firstColumn.right,
-            vc = inFirstColumn ? firstColumn : vcs.find(function(vc) { return x < vc.right; }),
+            vc = inFirstColumn ? firstColumn : vcs.findWithNeg(function(vc) { return x < vc.right; }),
             vr = vrs.find(function(vr) { return y < vr.bottom; }),
             result = {fake: false};
 
@@ -565,7 +616,7 @@ var Renderer = Base.extend('Renderer', {
      * @returns {object|undefined} The given column if visible or `undefined` if not.
      */
     getVisibleColumn: function(columnIndex) {
-        return this.visibleColumns.find(function(vc) {
+        return this.visibleColumns.findWithNeg(function(vc) {
             return vc.columnIndex === columnIndex;
         });
     },
@@ -591,7 +642,7 @@ var Renderer = Base.extend('Renderer', {
      * @returns {object|undefined} The given column if visible or `undefined` if not.
      */
     getVisibleDataColumn: function(columnIndex) {
-        return this.visibleColumns.find(function(vc) {
+        return this.visibleColumns.findWithNeg(function(vc) {
             return vc.column.index === columnIndex;
         });
     },
@@ -679,7 +730,7 @@ var Renderer = Base.extend('Renderer', {
         gc.beginPath();
 
         this.buttonCells = {};
-        this.paintCells(gc);
+        this.gridRenderer.paintCells.call(this, gc);
         resetNumberColumnWidth(gc, this.grid.behavior);
 
         this.renderOverrides(gc);
@@ -739,12 +790,12 @@ var Renderer = Base.extend('Renderer', {
                 width: vcCorner.right - vcOrigin.left,
                 height: vrCorner.bottom - vrOrigin.top
             },
-            selectionRegionOverlayColor: this.paintCells.partial ? 'transparent' : gridProps.selectionRegionOverlayColor,
+            selectionRegionOverlayColor: this.gridRenderer.paintCells.partial ? 'transparent' : gridProps.selectionRegionOverlayColor,
             selectionRegionOutlineColor: gridProps.selectionRegionOutlineColor
         };
         this.grid.cellRenderers.get('lastselection').paint(gc, config);
-        if (this.paintCells.key === 'by-cells') {
-            this.paintCells.reset = true; // fixes GRID-490
+        if (this.gridRenderer.paintCells.key === 'by-cells') {
+            this.gridRenderer.reset = true; // fixes GRID-490
         }
     },
 
@@ -816,7 +867,7 @@ var Renderer = Base.extend('Renderer', {
      */
     isLastColumnVisible: function() {
         var lastColumnIndex = this.grid.getColumnCount() - 1;
-        return !!this.visibleColumns.find(function(vc) { return vc.columnIndex === lastColumnIndex; });
+        return !!this.visibleColumns.findWithNeg(function(vc) { return vc.columnIndex === lastColumnIndex; });
     },
 
     /**
@@ -928,15 +979,18 @@ var Renderer = Base.extend('Renderer', {
             if (gridProps.gridLinesV) {
                 gc.cache.fillStyle = lineColor;
                 var viewHeight = visibleRows[R - 1].bottom,
-                    c = gridProps.showRowNumbers ? -1 : 0;
+                    c = this.grid.behavior.leftMostColIndex;
                 if (gridProps.gridBorderLeft) {
                     gc.fillRect(visibleColumns[c].left, 0, lineWidth, viewHeight);
                 }
-                for (c += 1; c < C; c++) {
-                    gc.fillRect(visibleColumns[c].left - lineWidth, 0, lineWidth, viewHeight);
-                }
+                //Don't Paint LeftMost Border
+                var first = true;
+                this.visibleColumns.forEachWithNeg(function(vc) {
+                    first = false;
+                    if (!first) { gc.fillRect(vc.left - lineWidth, 0, lineWidth, viewHeight); }
+                });
                 if (gridProps.gridBorderRight) {
-                    gc.fillRect(visibleColumns[c - 1].right + 1 - lineWidth, 0, lineWidth, viewHeight);
+                    gc.fillRect(visibleColumns[C - 1].right + 1 - lineWidth, 0, lineWidth, viewHeight);
                 }
             }
 
@@ -1001,7 +1055,7 @@ var Renderer = Base.extend('Renderer', {
             subgrid = cellEvent.subgrid,
 
             isHandleColumn = cellEvent.isHandleColumn,
-            isHierarchyColumn = cellEvent.isHierarchyColumn,
+            isTreeColumn = cellEvent.isTreeColumn,
             isColumnSelected = cellEvent.isColumnSelected,
 
             isDataRow = cellEvent.isDataRow,
@@ -1011,7 +1065,7 @@ var Renderer = Base.extend('Renderer', {
             isHeaderRow = cellEvent.isHeaderRow,
             isFilterRow = cellEvent.isFilterRow,
 
-            isRowHandleOrHierarchyColumn = isHandleColumn || isHierarchyColumn,
+            isRowHandleOrHierarchyColumn = isHandleColumn || isTreeColumn,
             isUserDataArea = !isRowHandleOrHierarchyColumn && isDataRow,
 
             config = Object.assign(Object.create(cellEvent.columnProperties), cellEvent.cellOwnProperties), // SEE IMPORTANT NOTE ABOVE
@@ -1024,7 +1078,7 @@ var Renderer = Base.extend('Renderer', {
         if (isHandleColumn) {
             isSelected = isRowSelected || selectionModel.isCellSelectedInRow(r);
             config.halign = 'right';
-        } else if (isHierarchyColumn) {
+        } else if (isTreeColumn) {
             isSelected = isRowSelected || selectionModel.isCellSelectedInRow(r);
             config.halign = 'left';
         } else if (isDataRow) {
@@ -1050,10 +1104,10 @@ var Renderer = Base.extend('Renderer', {
         // * For all cells: set `config.value` (writable property)
         // * For cells outside of row handle column: also set `config.dataRow` for use by valOrFunc
         if (!isHandleColumn) {
+            //Including hierarchyColumn
             config.dataRow = cellEvent.dataRow;
             config.value = cellEvent.value;
         } else {
-            config.isHandleColumn = true;
             if (isDataRow) {
                 // row handle for a data row
                 config.value = r + 1; // row number is 1-based
@@ -1065,6 +1119,8 @@ var Renderer = Base.extend('Renderer', {
 
         config.isSelected = isSelected;
         config.isDataColumn = !isRowHandleOrHierarchyColumn;
+        config.isHandleColumn = isHandleColumn;
+        config.isTreeColumn = isTreeColumn;
         config.isDataRow = isDataRow;
         config.isHeaderRow = isHeaderRow;
         config.isFilterRow = isFilterRow;
@@ -1195,7 +1251,7 @@ var Renderer = Base.extend('Renderer', {
 
 function resetNumberColumnWidth(gc, behavior) {
     var rowCount = behavior.dataModel.getRowCount(),
-        columnProperties = behavior.getColumnProperties(-1),
+        columnProperties = behavior.getColumnProperties(behavior.rowColumnIndex),
         cellProperties = columnProperties.rowHeader,
         padding = 2 * columnProperties.cellPadding,
         iconWidth = columnProperties.preferredWidth = Math.max(
@@ -1213,10 +1269,18 @@ function resetNumberColumnWidth(gc, behavior) {
     }
 }
 
-Renderer.prototype.registerGridRenderer(require('./by-cells'));
-Renderer.prototype.registerGridRenderer(require('./by-columns'));
-Renderer.prototype.registerGridRenderer(require('./by-columns-discrete'));
-Renderer.prototype.registerGridRenderer(require('./by-columns-and-rows'));
-Renderer.prototype.registerGridRenderer(require('./by-rows'));
+function registerGridRenderer(paintCellsFunction) {
+    if (paintCellsFunctions.indexOf(paintCellsFunction) < 0) {
+        paintCellsFunctions.push(paintCellsFunction);
+    }
+}
+
+registerGridRenderer(require('./by-cells'));
+registerGridRenderer(require('./by-columns'));
+registerGridRenderer(require('./by-columns-discrete'));
+registerGridRenderer(require('./by-columns-and-rows'));
+registerGridRenderer(require('./by-rows'));
+
+Renderer.registerGridRenderer = registerGridRenderer;
 
 module.exports = Renderer;

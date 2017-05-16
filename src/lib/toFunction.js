@@ -16,7 +16,7 @@ module.exports = function(string) {
             throw 'Expected string, function, or undefined.';
     }
 
-    var args = string.match(/function\s*\(([^]*?)\)/);
+    var args = string.match(/^function\s*\w*\s*\(([^]*?)\)/);
     if (!args) {
         throw 'Expected function keyword with formal parameter list.';
     }

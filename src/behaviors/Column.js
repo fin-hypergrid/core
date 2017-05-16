@@ -26,7 +26,7 @@ var images = require('../../images/index');
  *    -2   | Tree (drill-down) column
  */
 function Column(behavior, indexOrOptions) {
-    var index, schema, options;
+    var index, schema, options, icon;
 
     this.behavior = behavior;
     this.dataModel = behavior.dataModel;
@@ -64,12 +64,15 @@ function Column(behavior, indexOrOptions) {
     this.properties = options;
 
     switch (index) {
-        case -1:
+        case this.behavior.treeColumnIndex:
             // Width of icon + 3-pixel spacer (checked and unchecked should be same width)
-            var icon = images[Object.create(this.properties.rowHeader, { isDataRow: { value: true } }).leftIcon];
+            icon = images[Object.create(this.properties.treeHeader, { isDataRow: { value: true } }).leftIcon];
             this.properties.minimumColumnWidth = icon ? icon.width + 3 : 0;
             break;
-        case -2:
+        case this.behavior.rowColumnIndex:
+            // Width of icon + 3-pixel spacer (checked and unchecked should be same width)
+            icon = images[Object.create(this.properties.rowHeader, { isDataRow: { value: true } }).leftIcon];
+            this.properties.minimumColumnWidth = icon ? icon.width + 3 : 0;
             // This case avoids the "out of range" error.
             break;
         default:

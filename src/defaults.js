@@ -31,6 +31,26 @@ var defaults = {
      */
     noDataMessage: '',
 
+    /**
+     * @summary List of subgrids by
+     * @desc Restrict usage here to strings (naming data models) or arrays consisting of such a string + constructor arguments. That is, avoid {@link subgridSpec}'s function and object overloads and {@link subgridConstructorRef} function overload.
+     * @default "[ 'HeaderSubgrid', 'data' ]"
+     * @type {subgridSpec[]}
+     * @memberOf module:defaults
+     */
+    subgrids: [
+        'HeaderSubgrid',
+        'data'
+    ],
+
+    /**
+     * @summary The global theme name.
+     * @desc Note that local themes (applied to grid instances) will have an overriding `themeName` property in their theme layer in the properties hierarchy.
+     * @default
+     * @type {string}
+     * @memberOf module:defaults
+     */
+    themeName: 'default',
 
     /**
      * The font for data cells.
@@ -186,8 +206,58 @@ var defaults = {
      * @memberOf module:defaults
      */
     rowHeaderBackgroundSelectionColor: 'rgba(255, 220, 97, 0.45)',
+    /**
+     * @default
+     * @type {cssColor}
+     * @memberOf module:defaults
+     */
+    backgroundColor2: 'rgb(201, 201, 201)',
 
 
+    /********** SECTION: TREE HEADER COLORS **********/
+
+    /**
+     * @default
+     * @type {cssFont}
+     * @memberOf module:defaults
+     */
+    treeHeaderFont: '12px Tahoma, Geneva, sans-serif',
+
+    /**
+     * @default
+     * @type {cssColor}
+     * @memberOf module:defaults
+     */
+    treeHeaderColor: 'rgb(25, 25, 25)',
+
+    /**
+     * @default
+     * @type {cssColor}
+     * @memberOf module:defaults
+     */
+    treeHeaderBackgroundColor: 'rgb(223, 227, 232)',
+
+    /**
+     * @default
+     * @type {cssColor}
+     * @memberOf module:defaults
+     */
+    treeHeaderForegroundSelectionColor: 'rgb(80, 80, 80)',
+
+    /**
+     * Font style for selected rows' headers.
+     * @default
+     * @type {string}
+     * @memberOf module:defaults
+     */
+    treeHeaderForegroundSelectionFont: 'bold 12px Tahoma, Geneva, sans-serif',
+
+    /**
+     * @default
+     * @type {cssColor}
+     * @memberOf module:defaults
+     */
+    treeHeaderBackgroundSelectionColor: 'rgba(255, 220, 97, 0.45)',
     /********** SECTION: FILTER ROW COLORS **********/
 
     /**
@@ -241,10 +311,17 @@ var defaults = {
 
     /**
      * @default
-     * @type {cssColor}
+     * @type {boolean}
      * @memberOf module:defaults
      */
-    backgroundColor2: 'rgb(201, 201, 201)',
+    filterable: true,
+
+    /**
+     * @default
+     * @type {boolean}
+     * @memberOf module:defaults
+     */
+    showFilterRow: false,
 
     /**
      * @default
@@ -730,18 +807,17 @@ var defaults = {
 
     /**
      * @default
-     * @type {boolean}
+     * @type {string}
      * @memberOf module:defaults
      */
-    showHeaderRow: true,
+    treeRenderer: 'SimpleCell',
 
     /**
      * @default
      * @type {boolean}
      * @memberOf module:defaults
      */
-    showFilterRow: false,
-
+    showHeaderRow: true,
 
     /** Clicking in a cell "selects" it; it is added to the select region and repainted with "cell selection" colors.
      * @default
@@ -822,24 +898,6 @@ var defaults = {
      * @memberOf module:defaults
      */
     editable: true,
-
-    /**
-     * @default
-     * @type {boolean}
-     * @memberOf module:defaults
-     */
-    filterable: true,
-
-    /**
-     * This is used only by FilterBox cell editor.
-     * One of:
-     * * **`'onCommit'`** - Column filter state not set until keyup === `\r` (return/enter key)
-     * * **`'immediate'`** - Column filter state set on each key press
-     * @default
-     * @type {boolean}
-     * @memberOf module:defaults
-     */
-    filteringMode: 'onCommit',
 
     /**
      * @default
@@ -1069,20 +1127,6 @@ var defaults = {
      * @memberOf module:defaults
      */
     strikeThrough: false,
-
-    /** Ignore sort interaction (double-click).
-     * @type {boolean}
-     * @default
-     * @memberOf module:defaults
-     */
-    unsortable: false,
-
-    /**
-     * @default
-     * @type {boolean}
-     * @memberOf module:defaults
-     */
-    sortOnHiddenColumns: true,
 
     /** Allow multiple cell region selections.
      * @type {boolean}

@@ -2,6 +2,6 @@
 /.idea
 /doc
 /node_modules*
-/demo/build
+build
 ~*.*x
 /v*.*.*

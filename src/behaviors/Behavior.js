@@ -4,7 +4,7 @@ var Point = require('rectangular').Point;
 
 var Base = require('../Base');
 var Column = require('./Column');
-var cellEventFactory = require('./../lib/cellEventFactory');
+var cellEventFactory = require('../lib/cellEventFactory');
 var noExportProperties = [
     'columnHeader',
     'columnHeaderColumnSelection',
@@ -120,7 +120,7 @@ var Behavior = Base.extend('Behavior', {
          * @type {subgridSpec[]}
          * @memberOf Hypergrid#
          */
-        this.subgrids = options.subgrids || this.subgrids || this.defaultSubgridSpecs;
+        this.subgrids = options.subgrids || this.subgrids || this.grid.properties.subgrids;
     },
 
     get renderedColumnCount() {
@@ -131,7 +131,21 @@ var Behavior = Base.extend('Behavior', {
         return this.grid.renderer.visibleRows.length;
     },
 
+    get treeColumnIndex() {
+        return -1;
+    },
+
+    get rowColumnIndex() {
+        return -2;
+    },
+
+    get leftMostColIndex() {
+        return this.grid.properties.showRowNumbers ? this.rowColumnIndex : (this.hasTreeColumn() ? this.treeColumnIndex : 0);
+    },
+
     clearColumns: function() {
+        var tc = this.treeColumnIndex;
+        var rc = this.rowColumnIndex;
         /**
          * @type {Column[]}
          * @memberOf Behavior#
@@ -144,10 +158,14 @@ var Behavior = Base.extend('Behavior', {
          */
         this.allColumns = [];
 
-        this.allColumns[-1] = this.columns[-1] = this.newColumn({ index: -1 });
-        this.allColumns[-2] = this.columns[-2] = this.newColumn({ index: -2 });
-
-        this.columnEnum = {};
+        this.allColumns[tc] = this.columns[tc] = this.newColumn({
+            index: tc,
+            header: this.dataModel.schema[tc].header
+        });
+        this.allColumns[rc] = this.columns[rc] = this.newColumn({
+            index: rc,
+            header: this.dataModel.schema[rc].header
+        });
     },
 
     getActiveColumn: function(x) {
@@ -293,17 +311,15 @@ var Behavior = Base.extend('Behavior', {
     setState: function(memento) {
 
         if (memento.rowHeights) {
-            this.deprecated('rowHeights', 'rowHeights, the hash of row heights you provided to setState method, is no longer supported as of v1.2.0 and will be ignored. Instead use individual calls to setRowHeight(y, height, dataModel) for each row height you wish to set, where y is local zero-based row index within dataModel. The dataModel arg is optional and defaults to this.dataModel; specify to set row heights in other data models, such as header row, filter cell row, individual summary rows, etc.');
+            this.deprecated('rowHeights', 'rowHeights, the hash of row heights you provided to setState method, is no longer supported as of v1.2.0 and will be ignored. Instead, for each row height you wish to set, use `rows: { subgrid: { y: { height: heightInPixels } } }` substituting the name (or type) of the subgrid for `subgrid`, the local zero-based rowIndex within the subgrid for `y`, and the row height in pixels for `heightInPixels`; or make individual calls to `setRowHeight(y, heightInPixels, dataModel)`. The dataModel arg is optional and defaults to this.dataModel (the data subgrid); specify to set row heights in other data models, such as header row, filter cell row, individual summary rows, etc.');
         }
 
         this.createColumns();
 
         var state = this.grid.properties;
-        for (var key in memento) {
-            if (memento.hasOwnProperty(key)) {
-                state[key] = memento[key];
-            }
-        }
+        Object.keys(memento).forEach(function(key) {
+            state[key] = memento[key];
+        }, this);
 
         this.setAllColumnProperties(memento.columnProperties);
 
@@ -323,6 +339,17 @@ var Behavior = Base.extend('Behavior', {
             this.columns.length = columnIndexes.length;
             columnIndexes.forEach(function(index, i) {
                 this.columns[i] = this.allColumns[index];
+            }, this);
+        }
+    },
+
+    setColumnOrderByName: function(columnNames) {
+        if (Array.isArray(columnNames)){
+            this.columns.length = columnNames.length;
+            columnNames.forEach(function(columnName, i) {
+                this.columns[i] = this.allColumns.find(function(column) {
+                    return column.name === columnName;
+                });
             }, this);
         }
     },
@@ -479,15 +506,19 @@ var Behavior = Base.extend('Behavior', {
     /**
      * @param {CellEvent|number} xOrCellEvent - Grid column coordinate.
      * @param {number} [y] - Grid row coordinate. Omit if `xOrCellEvent` is a CellEvent.
+     * @param {dataModelAPI} [dataModel] - For use only when `xOrCellEvent` is _not_ a `CellEvent`: Provide a subgrid. If given, x and y are interpreted as data cell coordinates (unadjusted for scrolling). Does not default to the data subgrid, although you can provide it explicitly (`this.subgrids.lookup.data`).
      * @memberOf Behavior#
      */
-    getValue: function(xOrCellEvent, y) {
-        switch (arguments.length) {
-            case 1:
-                return xOrCellEvent.value;
-            case 2:
-                return new this.CellEvent(xOrCellEvent, y).value;
+    getValue: function(xOrCellEvent, y, dataModel) {
+        if (typeof xOrCellEvent !== 'object') {
+            xOrCellEvent = new this.CellEvent;
+            if (dataModel) {
+                xOrCellEvent.resetDataXY(xOrCellEvent, y, dataModel);
+            } else {
+                xOrCellEvent.resetGridCY(xOrCellEvent, y);
+            }
         }
+        return xOrCellEvent.value;
     },
 
     /**
@@ -499,8 +530,7 @@ var Behavior = Base.extend('Behavior', {
     },
 
     getUnfilteredValue: function(x, y) {
-        var column = this.getActiveColumn(x);
-        return column && column.getUnfilteredValue(y);
+        return this.deprecated('getUnfilteredValue()', '', '1.4.0', arguments, 'No longer supported');
     },
 
     /**
@@ -510,14 +540,20 @@ var Behavior = Base.extend('Behavior', {
      * @param {CellEvent|number} xOrCellEvent - Grid column coordinate.
      * @param {number} [y] - Grid row coordinate. Omit if `xOrCellEvent` is a CellEvent.
      * @param {Object} value - The value to use. _When `y` omitted, promoted to 2nd arg._
+     * @param {dataModelAPI} [dataModel] - For use only when `xOrCellEvent` is _not_ a `CellEvent`: Provide a subgrid. If given, x and y are interpreted as data cell coordinates (unadjusted for scrolling). Does not default to the data subgrid, although you can provide it explicitly (`this.subgrids.lookup.data`).
      * @return {boolean} Consumed.
      */
-    setValue: function(xOrCellEvent, y, value) {
-        switch (arguments.length) {
-            case 3: xOrCellEvent = new this.CellEvent(xOrCellEvent, y); break;
-            case 2: value = y; break;
+    setValue: function(xOrCellEvent, y, value, dataModel) {
+        if (typeof xOrCellEvent === 'object') {
+            value = y;
+        } else {
+            xOrCellEvent = new this.CellEvent;
+            if (dataModel) {
+                xOrCellEvent.resetDataXY(xOrCellEvent, y, dataModel);
+            } else {
+                xOrCellEvent.resetGridCY(xOrCellEvent, y);
+            }
         }
-
         xOrCellEvent.value = value;
     },
 
@@ -534,17 +570,16 @@ var Behavior = Base.extend('Behavior', {
      * @desc May be undefined because cells only have their own properties object when at lest one own property has been set.
      * @param {CellEvent|number} xOrCellEvent - Data x coordinate.
      * @param {number} [y] - Grid row coordinate. _Omit when `xOrCellEvent` is a `CellEvent`._
+     * @param {dataModelAPI} [dataModel=this.subgrids.lookup.data] - For use only when `xOrCellEvent` is _not_ a `CellEvent`: Provide a subgrid.
      * @returns {undefined|object} The "own" properties of the cell at x,y in the grid. If the cell does not own a properties object, returns `undefined`.
      * @memberOf Behavior#
      */
-    getCellOwnProperties: function(xOrCellEvent, y) {
+    getCellOwnProperties: function(xOrCellEvent, y, dataModel) {
         switch (arguments.length) {
-            case 1:
-                return xOrCellEvent.column // xOrCellEvent is cellEvent
-                    .getCellOwnProperties(xOrCellEvent.dataCell.y, xOrCellEvent.visibleRow.subgrid);
-            case 2:
-                return this.getColumn(xOrCellEvent) // xOrCellEvent is x
-                    .getCellOwnProperties(y);
+            case 1: // xOrCellEvent is cellEvent
+                return xOrCellEvent.column.getCellOwnProperties(xOrCellEvent.dataCell.y, xOrCellEvent.visibleRow.subgrid);
+            case 2: case 3: // xOrCellEvent is x
+                return this.getColumn(xOrCellEvent).getCellOwnProperties(y, dataModel);
         }
     },
 
@@ -555,16 +590,16 @@ var Behavior = Base.extend('Behavior', {
      * If you are seeking a single specific property, consider calling {@link Behavior#getCellProperty} instead.
      * @param {CellEvent|number} xOrCellEvent - Data x coordinate.
      * @param {number} [y] - Grid row coordinate. _Omit when `xOrCellEvent` is a `CellEvent`._
+     * @param {dataModelAPI} [dataModel=this.subgrids.lookup.data] - For use only when `xOrCellEvent` is _not_ a `CellEvent`: Provide a subgrid.
      * @return {object} The properties of the cell at x,y in the grid.
      * @memberOf Behavior#
      */
-    getCellProperties: function(xOrCellEvent, y) {
+    getCellProperties: function(xOrCellEvent, y, dataModel) {
         switch (arguments.length) {
-            case 1:
-                return xOrCellEvent.properties; // xOrCellEvent is cellEvent
-            case 2:
-                return this.getColumn(xOrCellEvent) // xOrCellEvent is x
-                    .getCellProperties(y);
+            case 1: // xOrCellEvent is cellEvent
+                return xOrCellEvent.properties;
+            case 2: case 3: // xOrCellEvent is x
+                return this.getColumn(xOrCellEvent).getCellProperties(y, dataModel);
         }
     },
 
@@ -574,16 +609,16 @@ var Behavior = Base.extend('Behavior', {
      * @param {CellEvent|number} xOrCellEvent - Data x coordinate.
      * @param {number} [y] - Grid row coordinate._ Omit when `xOrCellEvent` is a `CellEvent`._
      * @param {string} key - Name of property to get. _When `y` omitted, this param promoted to 2nd arg._
+     * @param {dataModelAPI} [dataModel=this.subgrids.lookup.data] - For use only when `xOrCellEvent` is _not_ a `CellEvent`: Provide a subgrid.
      * @return {object} The specified property for the cell at x,y in the grid.
      * @memberOf Behavior#
      */
-    getCellProperty: function(xOrCellEvent, y, key) {
-        switch (arguments.length) {
-            case 2:
-                return xOrCellEvent.properties[y]; // xOrCellEvent is cellEvent and y omitted so y here is actually key
-            case 3:
-                return this.getColumn(xOrCellEvent) // xOrCellEvent is x
-                    .getCellProperty(y, key);
+    getCellProperty: function(xOrCellEvent, y, key, dataModel) {
+        if (typeof xOrCellEvent === 'object') {
+            key = y;
+            return xOrCellEvent.properties[key];
+        } else {
+            return this.getColumn(xOrCellEvent).getCellProperty(y, key, dataModel);
         }
     },
 
@@ -593,14 +628,14 @@ var Behavior = Base.extend('Behavior', {
      * @param {CellEvent|number} xOrCellEvent - Data x coordinate.
      * @param {number} [y] - Grid row coordinate. _Omit when `xOrCellEvent` is a `CellEvent`._
      * @param {Object} properties - Hash of cell properties. _When `y` omitted, this param promoted to 2nd arg._
+     * @param {dataModelAPI} [dataModel=this.subgrids.lookup.data] - For use only when `xOrCellEvent` is _not_ a `CellEvent`: Provide a subgrid.
      */
-    setCellProperties: function(xOrCellEvent, y, properties) {
-        if (typeof y === 'object') {
-            xOrCellEvent.column // xOrCellEvent is cellEvent
-                .setCellProperties(xOrCellEvent.dataCell.y, y, xOrCellEvent.visibleRow.subgrid); // y omitted so y here is actually properties
+    setCellProperties: function(xOrCellEvent, y, properties, dataModel) {
+        if (typeof xOrCellEvent === 'object') {
+            properties = y;
+            xOrCellEvent.column.setCellProperties(xOrCellEvent.dataCell.y, properties, xOrCellEvent.visibleRow.subgrid);
         } else {
-            this.getColumn(xOrCellEvent) // xOrCellEvent is x
-                .setCellProperties(y, properties);
+            this.getColumn(xOrCellEvent).setCellProperties(y, properties, dataModel);
         }
     },
 
@@ -610,14 +645,14 @@ var Behavior = Base.extend('Behavior', {
      * @param {CellEvent|number} xOrCellEvent - Data x coordinate.
      * @param {number} [y] - Grid row coordinate. _Omit when `xOrCellEvent` is a `CellEvent`._
      * @param {Object} properties - Hash of cell properties. _When `y` omitted, this param promoted to 2nd arg._
+     * @param {dataModelAPI} [dataModel=this.subgrids.lookup.data] - For use only when `xOrCellEvent` is _not_ a `CellEvent`: Provide a subgrid.
      */
-    addCellProperties: function(xOrCellEvent, y, properties) {
-        if (typeof y === 'object') {
-            xOrCellEvent.column // xOrCellEvent is cellEvent
-                .addCellProperties(xOrCellEvent.dataCell.y, y, xOrCellEvent.visibleRow.subgrid); // y omitted so y here is actually properties
+    addCellProperties: function(xOrCellEvent, y, properties, dataModel) {
+        if (typeof xOrCellEvent === 'object') {
+            properties = y;
+            xOrCellEvent.column.addCellProperties(xOrCellEvent.dataCell.y, properties, xOrCellEvent.visibleRow.subgrid); // y omitted so y here is actually properties
         } else {
-            this.getColumn(xOrCellEvent) // xOrCellEvent is x
-                .addCellProperties(y, properties);
+            this.getColumn(xOrCellEvent).addCellProperties(y, properties, dataModel);
         }
     },
 
@@ -634,27 +669,24 @@ var Behavior = Base.extend('Behavior', {
      * @param {number} [y] - Grid row coordinate. _Omit when `xOrCellEvent` is a `CellEvent`._
      * @param {string} key - Name of property to get. _When `y` omitted, this param promoted to 2nd arg._
      * @param value
-     * @parsam {dataModelAPI} [dataModel=this.subgrids.lookup.data] - For use only when `xOrCellEvent` is _not_ a `CellEvent`: Provide a subgrid.
+     * @param {dataModelAPI} [dataModel=this.subgrids.lookup.data] - For use only when `xOrCellEvent` is _not_ a `CellEvent`: Provide a subgrid.
      * @memberOf Behavior#
      */
     setCellProperty: function(xOrCellEvent, y, key, value, dataModel) {
         var cellOwnProperties;
-        switch (arguments.length) {
-            case 3:
-                // xOrCellEvent is cellEvent, y is key, key is value
-                cellOwnProperties = xOrCellEvent.setCellProperty(y, key);
-                break;
-            case 4:
-            case 5:
-                cellOwnProperties = this.getColumn(xOrCellEvent) // xOrCellEvent is x
-                    .setCellProperty(y, key, value, dataModel);
-                this.grid.renderer.resetCellPropertiesCache(xOrCellEvent, y, dataModel);
+        if (typeof xOrCellEvent === 'object') {
+            value = key;
+            key = y;
+            cellOwnProperties = xOrCellEvent.setCellProperty(key, value);
+        } else {
+            cellOwnProperties = this.getColumn(xOrCellEvent).setCellProperty(y, key, value, dataModel);
+            this.grid.renderer.resetCellPropertiesCache(xOrCellEvent, y, dataModel);
         }
         return cellOwnProperties;
     },
 
     getUnfilteredRowCount: function() {
-        return this.deprecated('getUnfilteredRowCount()', null, '1.2.0', arguments, 'No longer supported');
+        return this.deprecated('getUnfilteredRowCount()', '', '1.2.0', arguments, 'No longer supported');
     },
 
     /**
@@ -704,7 +736,7 @@ var Behavior = Base.extend('Behavior', {
     /**
      * @memberOf Behavior#
      * @desc set the pixel height of a specific row
-     * @param {number} rowIndex - Data row coordinate local to datsModel.
+     * @param {number} rowIndex - Data row coordinate local to dataModel.
      * @param {number} height - pixel height
      * @param {dataModelAPI} [dataModel=this.dataModel]
      */
@@ -721,9 +753,11 @@ var Behavior = Base.extend('Behavior', {
      * @return {number} The width of the fixed column area in the hypergrid.
      */
     getFixedColumnsWidth: function() {
-        var count = this.getFixedColumnCount();
-        var total = 0;
-        for (var i = this.grid.properties.showRowNumbers ? -1 : 0; i < count; i++) {
+        var count = this.getFixedColumnCount(),
+            total = 0,
+            i = this.leftMostColIndex;
+
+        for (; i < count; i++) {
             total += this.getColumnWidth(i);
         }
         return total;
@@ -1155,11 +1189,7 @@ var Behavior = Base.extend('Behavior', {
      * @param {CellEvent} editPoint - The grid cell coordinates.
      */
     getCellEditorAt: function(event) {
-        return event.isDataColumn && (
-            event.isFilterCell
-                ? this.grid.cellEditors.create('filterbox', event)
-                : event.column.getCellEditorAt(event)
-        );
+        return event.isDataColumn && event.column.getCellEditorAt(event);
     },
 
     /**
@@ -1242,7 +1272,7 @@ var Behavior = Base.extend('Behavior', {
         );
     },
 
-    hasHierarchyColumn: function() {
+    hasTreeColumn: function() {
         return false;
     },
 
@@ -1260,7 +1290,7 @@ var Behavior = Base.extend('Behavior', {
     checkColumnAutosizing: function(force) {
         force = force === true;
         var autoSized = this.autoSizeRowNumberColumn() ||
-            this.hasHierarchyColumn() && this.allColumns[-2].checkColumnAutosizing(force);
+            this.hasTreeColumn() && this.allColumns[this.rowColumnIndex].checkColumnAutosizing(force);
         this.allColumns.forEach(function(column) {
             autoSized = column.checkColumnAutosizing(force) || autoSized;
         });
@@ -1269,7 +1299,7 @@ var Behavior = Base.extend('Behavior', {
 
     autoSizeRowNumberColumn: function() {
         if (this.grid.properties.showRowNumbers && this.grid.properties.rowNumberAutosizing) {
-            return this.allColumns[-1].checkColumnAutosizing(true);
+            return this.allColumns[this.rowColumnIndex].checkColumnAutosizing(true);
         }
     },
 

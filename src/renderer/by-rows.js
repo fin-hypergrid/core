@@ -27,9 +27,9 @@ function paintCellsByRows(gc) {
         prefillColor, rowPrefillColors, gridPrefillColor = gridProps.backgroundColor,
         cellEvent,
         rowBundle, rowBundles = this.rowBundles,
-        vc, visibleColumns = this.visibleColumns,
+        visibleColumns = this.visibleColumns,
         vr, visibleRows = this.visibleRows,
-        c, C = visibleColumns.length, c0 = gridProps.showRowNumbers ? -1 : 0, cLast = C - 1,
+        c, C = visibleColumns.length, c0 = 0, cLast = C - 1,
         r, R = visibleRows.length,
         p, pool = this.cellEventPool,
         preferredWidth = Array(C - c0).fill(0),
@@ -49,9 +49,9 @@ function paintCellsByRows(gc) {
         gc.fillRect(0, 0, viewWidth, viewHeight);
     }
 
-    if (paintCellsByRows.reset) {
+    if (this.gridRenderer.reset) {
         this.resetAllGridRenderers();
-        paintCellsByRows.reset = false;
+        this.gridRenderer.reset = false;
         bundleRows.call(this, true);
     }
 
@@ -74,7 +74,8 @@ function paintCellsByRows(gc) {
         }
 
         // For each column (of each row)...
-        for (c = c0; c < C; c++, p++) {
+        this.visibleColumns.forEachWithNeg(function(vc) {  // eslint-disable-line no-loop-func
+            p++;
             cellEvent = pool[p]; // next cell across the row (redundant for first cell in row)
             vc = cellEvent.visibleColumn;
 
@@ -89,16 +90,16 @@ function paintCellsByRows(gc) {
             }
 
             gc.clipRestore(columnClip);
-        }
+        }.bind(this));
     }
 
     // gc.clipRestore(clipToGrid);
 
     this.paintGridlines(gc);
 
-    for (c = c0; c < C; c++) {
-        visibleColumns[c].column.properties.preferredWidth = Math.round(preferredWidth[c]);
-    }
+    this.visibleColumns.forEachWithNeg(function(vc, c) {
+        vc.column.properties.preferredWidth = Math.round(preferredWidth[c]);
+    });
 }
 
 paintCellsByRows.key = 'by-rows';

@@ -51,7 +51,7 @@ var cell = {
      * * has the column properties object as its prototype
      * * is returned
      *
-     * If the cell does not have its own properties object, this method simply returns `undefined`.
+     * If the cell does not have its own properties object, this method returns `null`.
      *
      * Call this method only when you need to know if the the cell has its own properties object; otherwise call {@link Column#getCellProperties|getCellProperties}.
      * @param {number} rowIndex - Data row coordinate.
@@ -146,8 +146,18 @@ function getCellPropertiesObject(rowIndex, dataModel) {
  */
 function newCellPropertiesObject(rowIndex, dataModel) {
     var rowData = (dataModel || this.dataModel).getRow(rowIndex),
-        metaData = rowData.__META = rowData.__META || {};
-    return (metaData[this.name] = Object.create(this._index >= 0 ? this.properties : this.properties.rowHeader));
+        metaData = rowData.__META = rowData.__META || {},
+        props;
+
+    if (this._index >= 0) {
+        props = this.properties;
+    } else if (this._index === this.behavior.treeColumnIndex) {
+        props = this.properties.treeHeader;
+    } else if (this._index === this.behavior.rowColumnIndex) {
+        props = this.properties.rowHeader;
+    }
+
+    return (metaData[this.name] = Object.create(props));
 }
 
 module.exports = cell;
