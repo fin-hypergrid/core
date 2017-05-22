@@ -595,6 +595,7 @@ var Hypergrid = Base.extend('Hypergrid', {
      * @param {object} properties - An object of various key value pairs.
      */
     refreshProperties: function() {
+        this.synchronizeScrollingBoundaries();
         this.computeCellsBounds();
         this.checkScrollbarVisibility();
         this.behavior.defaultRowHeight = null;
