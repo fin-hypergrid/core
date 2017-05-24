@@ -648,8 +648,6 @@ module.exports = {
      * @memberOf Hypergrid#
      */
     extendSelect: function(offsetX, offsetY) {
-        console.log('extendSelect...', offsetX, offsetY);
-
         var maxColumns = this.getColumnCount() - 1,
             maxRows = this.getRowCount() - 1,
 

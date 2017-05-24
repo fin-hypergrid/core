@@ -1193,7 +1193,7 @@ var Hypergrid = Base.extend('Hypergrid', {
      */
     insureModelRowIsVisible: function(rowIndex, offsetY) {
         var maxRows = this.getRowCount() - 1, // -1 excludes partially visible rows
-            scrollOffset = (offsetY > -1) ? 2 : -1, // 2 and -1 means there's always 1 visible row above/below the active one
+            scrollOffset = (offsetY > -1) ? 2 : 0, // 2 to keep one blank line below active cell, 0 to keep zero lines above active cell
             indexToCheck = rowIndex + scrollOffset,
             visible = !this.isDataRowVisible(indexToCheck) || rowIndex === maxRows;
 
