@@ -648,6 +648,8 @@ module.exports = {
      * @memberOf Hypergrid#
      */
     extendSelect: function(offsetX, offsetY) {
+        console.log('extendSelect...', offsetX, offsetY);
+
         var maxColumns = this.getColumnCount() - 1,
             maxRows = this.getRowCount() - 1,
 
@@ -669,8 +671,8 @@ module.exports = {
         newY = Math.min(maxRows - origin.y, Math.max(-origin.y, newY));
 
         this.clearMostRecentSelection();
-        this.select(origin.x, origin.y, newX, newY);
 
+        this.select(origin.x, origin.y, newX, newY);
         this.setDragExtent(this.newPoint(newX, newY));
 
         var colScrolled = this.insureModelColIsVisible(newX + origin.x, offsetX),
