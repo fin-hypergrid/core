@@ -683,15 +683,16 @@ module.exports = {
 
     /**
      * @returns {undefined|CellEvent}
+     * @param {boolean} [useAllCells] - Search in all rows and columns instead of only rendered ones.
      * @memberOf Hypergrid#
      */
-    getGridCellFromLastSelection: function() {
+    getGridCellFromLastSelection: function(useAllCells) {
         var cellEvent,
             sel = this.selectionModel.getLastSelection();
 
         if (sel) {
             cellEvent = new this.behavior.CellEvent;
-            cellEvent.resetGridXDataY(sel.origin.x, sel.origin.y);
+            cellEvent.resetGridXDataY(sel.origin.x, sel.origin.y, null, useAllCells);
         }
 
         return cellEvent;
