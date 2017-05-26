@@ -1255,12 +1255,11 @@ var Hypergrid = Base.extend('Hypergrid', {
             // target is to left of scrollable columns; negative delta scrolls left
             if ((delta = c - dw.origin.x) < 0) {
                 this.sbHScroller.index += delta;
-            }
 
             // target is to right of scrollable columns; positive delta scrolls right
             // Note: The +1 forces right-most column to scroll left (just in case it was only partially in view)
-            if ((c - dw.corner.x + 1) > 0) {
-                this.sbHScroller.index = this.getMinimumLeftPositionForColumn(c);
+            } else if ((c - dw.corner.x + 1) > 0) {
+                this.sbHScroller.index = this.getMinimumLeftPositionToShowColumn(c);
             }
         }
 
@@ -1280,34 +1279,29 @@ var Hypergrid = Base.extend('Hypergrid', {
 
     /**
      * @desc Calculate the minimum left column index so the target column shows up in viewport (we need to be aware of viewport's width, number of fixed columns and each column's width)
-     * @param  {Number} targetColIdx  Target column index
-     * @return {Number}         Left column index so target column shows up
+     * @param {number} targetColIdx - Target column index
+     * @returns {number} Minimum left column index so target column shows up
      */
-    getMinimumLeftPositionForColumn: function(targetColIdx) {
-        console.log('TARGET:', targetColIdx);
-
-        // targetColIdx++;
-
-        var bounds = this.getBounds();
+    getMinimumLeftPositionToShowColumn: function(targetColIdx) {
         var fixedColumnCount = this.getFixedColumnCount();
-        var i = 0;
-        var col = null;
-        var left = 0;
-        var right = 0;
-        var computedCols = [];
-        var fixedWidth = 0;
+        var fixedColumnsWidth = 0;
         var rowNumbersWidth = 0;
         var filtersWidth = 0;
-        var viewWidth = 0;
-        var foundIdx = 0;
+        var viewportWidth = 0;
+        var leftColIdx = 0;
         var targetRight = 0;
         var lastFixedColumn = null;
+        var computedCols = [];
+        var col = null;
+        var i = 0;
+        var left = 0;
+        var right = 0;
 
 
         // 1) for each column, we'll compute left and right position in pixels (until target column)
         for (i = 0; i <= targetColIdx; i++) {
             left = right;
-            right += Math.ceil(this.behavior.getColumnWidth(col));
+            right += Math.ceil(this.behavior.getColumnWidth(i));
 
             computedCols.push({
                 left: left,
@@ -1328,29 +1322,19 @@ var Hypergrid = Base.extend('Hypergrid', {
             filtersWidth = this.behavior.getColumnWidth(this.behavior.treeColumnIndex);
         }
 
-        fixedWidth = lastFixedColumn ? lastFixedColumn.right : 0;
-        viewWidth = bounds.width - fixedWidth - rowNumbersWidth - filtersWidth;
-
-
-        console.log('computedCols:', computedCols.map(function(a, i) { return i + ':' + a.left + '->' + a.right; }));
-        console.log('targetRight:', targetRight);
-        console.log('widths:', bounds.width, fixedWidth, rowNumbersWidth, '=>', viewWidth);
+        fixedColumnsWidth = lastFixedColumn ? lastFixedColumn.right : 0;
+        viewportWidth = this.getBounds().width - fixedColumnsWidth - rowNumbersWidth - filtersWidth;
 
         // 3) from right to left, find the last column that can still render target column
         i = targetColIdx;
-        foundIdx = i;
-        col = computedCols[i];
 
-        while (col.left + viewWidth > targetRight && i >= 0) {
-            console.log('test ->', foundIdx, col.left + viewWidth, targetRight, col.left + viewWidth > targetRight);
-            foundIdx = i;
-            i--;
+        do {
+            leftColIdx = i;
             col = computedCols[i];
-        }
+            i--;
+        } while (col.left + viewportWidth > targetRight && i >= 0);
 
-        console.log('min idx:', foundIdx);
-
-        return foundIdx;
+        return leftColIdx;
     },
 
     selectCellAndScrollToMakeVisible: function(c, r) {
