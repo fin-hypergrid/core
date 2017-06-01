@@ -595,6 +595,7 @@ var Hypergrid = Base.extend('Hypergrid', {
      * @param {object} properties - An object of various key value pairs.
      */
     refreshProperties: function() {
+        this.synchronizeScrollingBoundaries();
         this.computeCellsBounds();
         this.checkScrollbarVisibility();
         this.behavior.defaultRowHeight = null;
@@ -2434,6 +2435,14 @@ Hypergrid.defaults = defaults;
  * @summary Synonym for {@link Hypergrid.defaults}.
  */
 Hypergrid.properties = defaults;
+
+/** @name dataModels
+ * @memberOf Hypergrid
+ * @type {object}
+ * @summary Registry of data models.
+ * @see {@link dataModels}
+ */
+Hypergrid.dataModels = require('./dataModels');
 
 /** @name themes
  * @memberOf Hypergrid

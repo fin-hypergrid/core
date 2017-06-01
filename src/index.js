@@ -19,7 +19,6 @@ var Hypergrid = require('./Hypergrid');
 
 Hypergrid.images = require('../images');
 Hypergrid.behaviors = require('./behaviors');
-Hypergrid.dataModels = require('./dataModels');
 Hypergrid.features = require('./features');
 Hypergrid.rectangular = require('rectangular');
 Hypergrid.lib = require('./lib');
