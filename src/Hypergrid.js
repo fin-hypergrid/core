@@ -2436,6 +2436,14 @@ Hypergrid.defaults = defaults;
  */
 Hypergrid.properties = defaults;
 
+/** @name dataModels
+ * @memberOf Hypergrid
+ * @type {object}
+ * @summary Registry of data models.
+ * @see {@link dataModels}
+ */
+Hypergrid.dataModels = require('./dataModels');
+
 /** @name themes
  * @memberOf Hypergrid
  * @type {object}
