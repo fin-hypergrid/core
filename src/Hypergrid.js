@@ -287,25 +287,6 @@ var Hypergrid = Base.extend('Hypergrid', {
         this._theme = Object.create(defaults);
 
         /**
-         * @summary The theme layer in the properties hierarchy.
-         * @desc The theme layer is the second layer, above the `defaults` layer, and below the `properties` layer.
-         * Attempting to reset the theme throws an error (to guard against confusion with the `properties.theme` setter).
-         * @name theme
-         * @type {object}
-         * @summary The prototype layer where theme look and feel properties can be defined.
-         * @type {object}
-         * @memberOf Hypergrid#
-         */
-        Object.defineProperty(this, 'theme', {
-            get: function() {
-                return this._theme;
-            },
-            set: function(theme) {
-                throw new this.HypergridError('Cannot reset grid.theme (properties layer). Use grid.applyTheme or the grid.properties.theme setter to apply a new theme.');
-            }
-        });
-
-        /**
          * @name properties
          * @type {object}
          * @summary Object containing the properties of the grid.
@@ -595,6 +576,7 @@ var Hypergrid = Base.extend('Hypergrid', {
      * @param {object} properties - An object of various key value pairs.
      */
     refreshProperties: function() {
+        this.synchronizeScrollingBoundaries();
         this.computeCellsBounds();
         this.checkScrollbarVisibility();
         this.behavior.defaultRowHeight = null;
@@ -2228,6 +2210,23 @@ var Hypergrid = Base.extend('Hypergrid', {
             : themeName in Hypergrid.themes
             ? themeName // registered theme name
             : theme; // unregistered theme object
+    },
+
+    /**
+     * @summary The theme layer in the properties hierarchy.
+     * @desc The theme layer is the second layer, above the `defaults` layer, and below the `properties` layer.
+     * Attempting to reset the theme throws an error (to guard against confusion with the `properties.theme` setter).
+     * @name theme
+     * @type {object}
+     * @summary The prototype layer where theme look and feel properties can be defined.
+     * @type {object}
+     * @memberOf Hypergrid#
+     */
+    get theme() {
+        return this._theme;
+    },
+    set theme(theme) {
+        console.warn('Attempt to reset grid.theme (properties layer). Use grid.applyTheme or the grid.properties.theme setter to apply a new theme.');
     }
 });
 
@@ -2434,6 +2433,14 @@ Hypergrid.defaults = defaults;
  * @summary Synonym for {@link Hypergrid.defaults}.
  */
 Hypergrid.properties = defaults;
+
+/** @name dataModels
+ * @memberOf Hypergrid
+ * @type {object}
+ * @summary Registry of data models.
+ * @see {@link dataModels}
+ */
+Hypergrid.dataModels = require('./dataModels');
 
 /** @name themes
  * @memberOf Hypergrid

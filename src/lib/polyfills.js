@@ -61,3 +61,12 @@ if (typeof Object.assign !== 'function') {
         return target;
     };
 }
+
+if (typeof Object.getOwnPropertyDescriptors !== 'function') {
+    Object.getOwnPropertyDescriptors = function(object) {
+        return Object.getOwnPropertyNames(object).reduce(function(descriptors, key) {
+            descriptors[key] = Object.getOwnPropertyDescriptor(object, key);
+            return descriptors;
+        }, {});
+    };
+}

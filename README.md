@@ -15,9 +15,11 @@ Below is an example custom application built ontop of the Hypergrid API tooling.
 * [Roadmap](https://github.com/openfin/fin-hypergrid/blob/master/README.md#roadmap)
 * [Contributing](https://github.com/openfin/fin-hypergrid/blob/master/README.md#contributors)
 
-### Current Release (1.3.0 - 7 February 2017)
+### Current Release (2.0.2 - 4 June 2017)
 
-The current version 1.0 replaces last year's [prototype version](https://github.com/openfin/fin-hypergrid/tree/polymer-prototype), which was built around Polymer. It is now completely "de-polymerized" and is being made available as:
+2.0 reflects a substantial simplification of the core functionality of the grid to just customized rendering. The rendering engine does allow support for showing sorting, filtering, grouping, etc. but specific logic on how a user may want to do that is not apart for this project. Demos will be made available on the [wiki](https://github.com/openfin/fin-hypergrid/wiki) for this.
+
+2.0 also replaces the 2015-2016 [prototype version](https://github.com/openfin/fin-hypergrid/tree/polymer-prototype), which was built around Polymer. It is now completely "de-polymerized" and is being made available as:
 * An [npm module](https://www.npmjs.com/package/fin-hypergrid) for use with browserify.
 * A single JavaScript file [fin-hypergrid.js](https://openfin.github.io/fin-hypergrid/build/fin-hypergrid.js) you can reference in a `<script>` tag.
 
