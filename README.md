@@ -15,7 +15,7 @@ Below is an example custom application built ontop of the Hypergrid API tooling.
 * [Roadmap](https://github.com/openfin/fin-hypergrid/blob/master/README.md#roadmap)
 * [Contributing](https://github.com/openfin/fin-hypergrid/blob/master/README.md#contributors)
 
-### Current Release (2.0.0 - 16 May 2017)
+### Current Release (2.0.2 - 4 June 2017)
 
 2.0 reflects a substantial simplification of the core functionality of the grid to just customized rendering. The rendering engine does allow support for showing sorting, filtering, grouping, etc. but specific logic on how a user may want to do that is not apart for this project. Demos will be made available on the [wiki](https://github.com/openfin/fin-hypergrid/wiki) for this.
 
