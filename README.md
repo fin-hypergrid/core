@@ -1,6 +1,6 @@
 [![Build Status](https://travis-ci.org/openfin/fin-hypergrid.svg?branch=develop)](https://travis-ci.org/openfin/fin-hypergrid)
 
-**HYPERGRID DEVELOPERS PLEASE READ:** Hypergrid has a new home! Please review the [transition notes](TRANSITION-NOTES.md) carefully.
+**HYPERGRID DEVELOPERS PLEASE READ:** Hypergrid has a new home! Please review the [_Transition Notes_](TRANSITION-NOTES.md) carefully.
 
 **fin-hypergrid** is an ultra-fast HTML5 grid presentation layer, achieving its speed by rendering (in a canvas tag) only the currently visible portion of your (virtual) grid, thus avoiding the latency and life-cycle issues of building, walking, and maintaining a complex DOM structure. Please be sure to checkout our [design overview](https://github.com/openfin/fin-hypergrid/blob/master/OVERVIEW.md) 
 
