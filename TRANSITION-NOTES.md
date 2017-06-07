@@ -1,3 +1,5 @@
+## Transition Notes
+
 Hypergrid has a new home!
 
 Always open source, the Hypergrid repository is now fully community owned and managed at https://github.com/fin-hypergrid.
