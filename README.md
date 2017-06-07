@@ -7,13 +7,13 @@ Below is an example custom application built ontop of the Hypergrid API tooling.
 <img src="https://github.com/openfin/fin-hypergrid/blob/master/images/README/gridshot04.gif">
 
 ## Table of Contents
-* [Current Release](https://github.com/openfin/fin-hypergrid#current-release-121---27-october-2016)
-* [Demos](https://github.com/openfin/fin-hypergrid/blob/master/README.md#demos)
-* [Features](https://github.com/openfin/fin-hypergrid/blob/master/README.md#features)
-* [Testing](https://github.com/openfin/fin-hypergrid/blob/master/README.md#testing)
-* [Documentation](https://github.com/openfin/fin-hypergrid/blob/master/README.md#developer-documentation)
-* [Roadmap](https://github.com/openfin/fin-hypergrid/blob/master/README.md#roadmap)
-* [Contributing](https://github.com/openfin/fin-hypergrid/blob/master/README.md#contributors)
+* [Current Release](#current-release-202---4-june-2017)
+* [Demos](#demos)
+* [Features](#features)
+* [Testing](#testing)
+* [Documentation](#developer-documentation)
+* [Roadmap](#roadmap)
+* [Contributing](#contributors)
 
 ### Current Release (2.0.2 - 4 June 2017)
 
