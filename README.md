@@ -1,5 +1,7 @@
 [![Build Status](https://travis-ci.org/openfin/fin-hypergrid.svg?branch=develop)](https://travis-ci.org/openfin/fin-hypergrid)
 
+**HYPERGRID DEVELOPERS PLEASE READ:** Hypergrid has a new home! Please review the [transition notes](TRANSITION-NOTES.md) carefully.
+
 **fin-hypergrid** is an ultra-fast HTML5 grid presentation layer, achieving its speed by rendering (in a canvas tag) only the currently visible portion of your (virtual) grid, thus avoiding the latency and life-cycle issues of building, walking, and maintaining a complex DOM structure. Please be sure to checkout our [design overview](https://github.com/openfin/fin-hypergrid/blob/master/OVERVIEW.md) 
 
 Below is an example custom application built ontop of the Hypergrid API tooling. It also highlights a DOM based custom external editor triggered via hypergrid events as well as interaction with Hypergrid's column ordering API
@@ -21,7 +23,7 @@ Below is an example custom application built ontop of the Hypergrid API tooling.
 
 2.0 also replaces the 2015-2016 [prototype version](https://github.com/openfin/fin-hypergrid/tree/polymer-prototype), which was built around Polymer. It is now completely "de-polymerized" and is being made available as:
 * An [npm module](https://www.npmjs.com/package/fin-hypergrid) for use with browserify.
-* A single JavaScript file [fin-hypergrid.js](https://openfin.github.io/fin-hypergrid/build/fin-hypergrid.js) you can reference in a `<script>` tag.
+* A single JavaScript file [fin-hypergrid.js](https://fin-hypergrid.github.io/core/build/fin-hypergrid.js) you can reference in a `<script>` tag.
 
 _For a complete list of changes, see the [release notes](https://github.com/openfin/fin-hypergrid/releases)._
 
@@ -29,7 +31,7 @@ _For a complete list of changes, see the [release notes](https://github.com/open
 
 ##### Sample demo
 
-Here is an [application](http://openfin.github.io/fin-hypergrid/) that demos various features.
+Here is an [application](https://fin-hypergrid.github.io/core) that demos various features.
    
 ##### Hyperblotter
 
@@ -55,13 +57,13 @@ Find more infomation on our [testing page](https://github.com/openfin/fin-hyperg
 
 Primarily our tutorials will be on the [wiki](https://github.com/openfin/fin-hypergrid/wiki). 
 
-We are also maintaining [online API documentation](http://openfin.github.io/fin-hypergrid/doc/Hypergrid.html) for all public objects and modules. This documentation is necessarily a on-going work-in-progress.
+We are also maintaining [online API documentation](https://fin-hypergrid.github.io/core/doc/Hypergrid.html) for all public objects and modules. This documentation is necessarily a on-going work-in-progress.
 
 (Cell editor information can be found [here](https://github.com/openfin/fin-hypergrid/wiki/Cell-Editors).)
 
 (Cell Rendering information can be found [here](https://github.com/openfin/fin-hypergrid/wiki/Cell-Renderers).)
 
-Hypergrid global configurations can be found [here](http://openfin.github.io/fin-hypergrid/doc/module-defaults.html). 
+Hypergrid global configurations can be found [here](https://fin-hypergrid.github.io/core/doc/module-defaults.html). 
 
 ### Roadmap
 
