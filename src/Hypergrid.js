@@ -1151,7 +1151,7 @@ var Hypergrid = Base.extend('Hypergrid', {
      * @returns {boolean} The given row is fully visible.
      */
     isDataRowVisible: function(r) {
-        return this.renderer.getVisibleDataRow(r);
+        return this.renderer.isDataRowVisible(r);
     },
 
     /**
@@ -1259,7 +1259,7 @@ var Hypergrid = Base.extend('Hypergrid', {
             // target is to right of scrollable columns; positive delta scrolls right
             // Note: The +1 forces right-most column to scroll left (just in case it was only partially in view)
             } else if ((c - dw.corner.x + 1) > 0) {
-                this.sbHScroller.index = this.getMinimumLeftPositionToShowColumn(c);
+                this.sbHScroller.index = this.renderer.getMinimumLeftPositionToShowColumn(c);
             }
         }
 
@@ -1275,66 +1275,6 @@ var Hypergrid = Base.extend('Hypergrid', {
         ) {
             this.sbVScroller.index += delta;
         }
-    },
-
-    /**
-     * @desc Calculate the minimum left column index so the target column shows up in viewport (we need to be aware of viewport's width, number of fixed columns and each column's width)
-     * @param {number} targetColIdx - Target column index
-     * @returns {number} Minimum left column index so target column shows up
-     */
-    getMinimumLeftPositionToShowColumn: function(targetColIdx) {
-        var fixedColumnCount = this.getFixedColumnCount();
-        var fixedColumnsWidth = 0;
-        var rowNumbersWidth = 0;
-        var filtersWidth = 0;
-        var viewportWidth = 0;
-        var leftColIdx = 0;
-        var targetRight = 0;
-        var lastFixedColumn = null;
-        var computedCols = [];
-        var col = null;
-        var i = 0;
-        var left = 0;
-        var right = 0;
-
-
-        // 1) for each column, we'll compute left and right position in pixels (until target column)
-        for (i = 0; i <= targetColIdx; i++) {
-            left = right;
-            right += Math.ceil(this.behavior.getColumnWidth(i));
-
-            computedCols.push({
-                left: left,
-                right: right
-            });
-        }
-
-        targetRight = computedCols[computedCols.length - 1].right;
-
-        // 2) calc usable viewport width
-        lastFixedColumn = computedCols[fixedColumnCount - 1];
-
-        if (this.properties.showRowNumbers) {
-            rowNumbersWidth = this.behavior.getColumnWidth(this.behavior.rowColumnIndex);
-        }
-
-        if (this.behavior.hasTreeColumn()) {
-            filtersWidth = this.behavior.getColumnWidth(this.behavior.treeColumnIndex);
-        }
-
-        fixedColumnsWidth = lastFixedColumn ? lastFixedColumn.right : 0;
-        viewportWidth = this.getBounds().width - fixedColumnsWidth - rowNumbersWidth - filtersWidth;
-
-        // 3) from right to left, find the last column that can still render target column
-        i = targetColIdx;
-
-        do {
-            leftColIdx = i;
-            col = computedCols[i];
-            i--;
-        } while (col.left + viewportWidth > targetRight && i >= 0);
-
-        return leftColIdx;
     },
 
     selectCellAndScrollToMakeVisible: function(c, r) {
