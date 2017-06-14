@@ -2,7 +2,7 @@
 
 ##  Hypergrid is a View
 
-It's sole functionality is as a high performant rendering API, with a robust event-driven plug-in architecture. 
+Its sole functionality is as a high performant rendering API, with a robust event-driven plug-in architecture. 
 The core grid definition encompasses:
 
 * Infinite, smooth scrolling (cell based)
@@ -30,7 +30,7 @@ Truly a View in the Model-View-Controller sense of the word. *Users must provide
 
 ## Why?
 
-Take for example sorting, why is not in Hypergrid by default? 
+Take for example sorting, why is it not in Hypergrid by default? 
 Thinking of Hypergrid as an API for a view and not an actual spreadsheet gives us that different perspective. 
 Certainly there's not too many different ways "standard" sorting could done effectively for a standard grid. 
 However if Hypergrid is to be useful for column oriented data, grouped data, heirarchal structures, sorting for an infinite data set and so forth it might be easier to see why it's wiser to let users implement their own rules. 
