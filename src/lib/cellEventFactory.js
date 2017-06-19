@@ -142,14 +142,63 @@ factory.prototypeDescriptors = Object.defineProperties({}, {
      * @param {number} gridX - Horizontal grid cell coordinate (adjusted for horizontal scrolling after fixed columns).
      * @param {number} dataY - Vertical data cell coordinate.
      * @param {dataModelAPI} [subgrid=this.behavior.subgrids.data]
+     * @param {boolean} [useAllCells] - Search in all rows and columns instead of only rendered ones.
      * @returns {boolean} Visibility.
      * @memberOf CellEvent#
      */
-    resetGridXDataY: { value: function(gridX, dataY, subgrid) {
-        var vr, vc, visible = (vc = this.renderer.getVisibleColumn(gridX)) && (vr = this.renderer.getVisibleDataRow(dataY, subgrid));
-        if (visible) { this.reset(vc, vr); }
+    resetGridXDataY: { value: function(gridX, dataY, subgrid, useAllCells) {
+        var visible, vc, vr;
+
+        if (useAllCells) {
+            visible = (
+                (vc = this.getBasicColumnData(gridX)) &&
+                (vr = this.getBasicRowData(dataY, subgrid))
+            );
+        } else {
+            visible = (
+                (vc = this.renderer.getVisibleColumn(gridX)) &&
+                (vr = this.renderer.getVisibleDataRow(dataY, subgrid))
+            );
+        }
+
+        if (visible) {
+            this.reset(vc, vr);
+        }
+
         return visible && this;
     } },
+
+    /**
+     * Mock a basic column object with only the needed properties for CellEvent.reset() to work.
+     * @desc When expanding selections larger than the viewport, the origin/corner points may not be rendered and fail to reset cell's position. This retrieves a basic column object for cell.reset() to work.
+     * @param {number} columnIndex - Horizontal grid cell coordinate (adjusted for horizontal scrolling after fixed columns).
+     * @returns {object} Subset mock of renderer.getVisibleColumn() response
+     */
+    getBasicColumnData: {
+        value: function(columnIndex) {
+            return {
+                column: this.grid.behavior.getColumn(columnIndex),
+                columnIndex: columnIndex
+            };
+        }
+    },
+
+    /**
+     * Mock a basic row object with only the needed properties for CellEvent.reset() to work.
+     * @desc When expanding selections larger than the viewport, the origin/corner points may not be rendered and fail to reset cell's position. This retrieves a basic row object for cell.reset() to work.
+     * @param {number} rowIndex - Vertical data cell coordinate.
+     * @param {dataModelAPI} [subgrid=this.behavior.subgrids.data]
+     * @returns {object} Subset mock of renderer.getVisibleDataRow() response
+     */
+    getBasicRowData: {
+        value: function(rowIndex, subgrid) {
+            subgrid = subgrid || this.grid.behavior.subgrids.lookup.data;
+            return {
+                subgrid: subgrid,
+                rowIndex: rowIndex,
+            };
+        }
+    },
 
     /**
      * Copy self with or without own properties
