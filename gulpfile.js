@@ -58,7 +58,7 @@ gulp.task('build', function(callback) {
     runSequence(
         'lint',
         'images',
-        'css-templates',
+        //'css-templates', //commented out to fix gulp build on Windows
         'test',
         'add-ons',
         //'beautify',
