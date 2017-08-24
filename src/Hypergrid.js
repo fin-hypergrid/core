@@ -1444,7 +1444,8 @@ var Hypergrid = Base.extend('Hypergrid', {
         var horzBar = new FinBar({
             orientation: 'horizontal',
             onchange: self.setHScrollValue.bind(self),
-            cssStylesheetReferenceElement: this.div
+            cssStylesheetReferenceElement: this.div,
+            mouseWheelSpeedMultipler: this.properties.mouseWheelSpeedMultipler
         });
 
         var vertBar = new FinBar({
@@ -1453,7 +1454,8 @@ var Hypergrid = Base.extend('Hypergrid', {
             paging: {
                 up: self.pageUp.bind(self),
                 down: self.pageDown.bind(self)
-            }
+            },
+            mouseWheelSpeedMultipler: this.properties.mouseWheelSpeedMultipler
         });
 
         this.sbHScroller = horzBar;
