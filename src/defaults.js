@@ -359,7 +359,7 @@ var defaults = {
      * @type {number}
      * @memberOf module:defaults
      */
-    scrollingHorizontalMouseWheelMultiplier: 10,
+    scrollingHorizontalMouseWheelMultiplier: 1,
 
     /**
      * @name scrollingVerticalMouseWheelMultiplier
@@ -369,7 +369,7 @@ var defaults = {
      * @type {number}
      * @memberOf module:defaults
      */
-    scrollingVerticalMouseWheelMultiplier: 10,
+    scrollingVerticalMouseWheelMultiplier: 1,
 
     /**
      * @default
