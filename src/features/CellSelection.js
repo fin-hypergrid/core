@@ -96,19 +96,20 @@ var CellSelection = Feature.extend('CellSelection', {
      */
     handleKeyDown: function(grid, event) {
         var detail = event.detail,
-            cellEvent = grid.getGridCellFromLastSelection(),
+            cellEvent = grid.getGridCellFromLastSelection(true),
             navKey = cellEvent && (
                 cellEvent.properties.mappedNavKey(detail.char, detail.ctrl) ||
                 cellEvent.properties.navKey(detail.char, detail.ctrl)
             ),
             handler = this['handle' + navKey];
 
+
         // STEP 1: Move the selection
         if (handler) {
             handler.call(this, grid, detail);
 
             // STEP 2: Open the cell editor at the new position if it has `editOnNextCell` and is `editable`
-            cellEvent = grid.getGridCellFromLastSelection(); // new cell
+            cellEvent = grid.getGridCellFromLastSelection(true); // new cell
             if (cellEvent.properties.editOnNextCell) {
                 grid.editAt(cellEvent); // succeeds only if `editable`
             }

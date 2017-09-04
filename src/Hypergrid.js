@@ -1133,7 +1133,7 @@ var Hypergrid = Base.extend('Hypergrid', {
      * @returns {boolean} The given row is fully visible.
      */
     isDataRowVisible: function(r) {
-        return this.renderer.isRowVisible(r);
+        return this.renderer.isDataRowVisible(r);
     },
 
     /**
@@ -1175,7 +1175,8 @@ var Hypergrid = Base.extend('Hypergrid', {
      */
     insureModelRowIsVisible: function(rowIndex, offsetY) {
         var maxRows = this.getRowCount() - 1, // -1 excludes partially visible rows
-            indexToCheck = rowIndex + Math.sign(offsetY),
+            scrollOffset = (offsetY > -1) ? 2 : 0, // 2 to keep one blank line below active cell, 0 to keep zero lines above active cell
+            indexToCheck = rowIndex + scrollOffset,
             visible = !this.isDataRowVisible(indexToCheck) || rowIndex === maxRows;
 
         if (visible) {
@@ -1231,18 +1232,17 @@ var Hypergrid = Base.extend('Hypergrid', {
             fixedColumnCount = this.properties.fixedColumnCount,
             fixedRowCount = this.properties.fixedRowCount;
 
-        if (
-            c >= fixedColumnCount && // scroll only if target not in fixed columns
-            (
-                // target is to left of scrollable columns; negative delta scrolls left
-                (delta = c - dw.origin.x) < 0 ||
+        // scroll only if target not in fixed columns
+        if (c >= fixedColumnCount) {
+            // target is to left of scrollable columns; negative delta scrolls left
+            if ((delta = c - dw.origin.x) < 0) {
+                this.sbHScroller.index += delta;
 
-                // target is to right of scrollable columns; positive delta scrolls right
-                // Note: The +1 forces right-most column to scroll left (just in case it was only partially in view)
-                (delta = c - dw.origin.x + 1) > 0
-            )
-        ) {
-            this.sbHScroller.index += delta;
+            // target is to right of scrollable columns; positive delta scrolls right
+            // Note: The +1 forces right-most column to scroll left (just in case it was only partially in view)
+            } else if ((c - dw.corner.x + 1) > 0) {
+                this.sbHScroller.index = this.renderer.getMinimumLeftPositionToShowColumn(c);
+            }
         }
 
         if (

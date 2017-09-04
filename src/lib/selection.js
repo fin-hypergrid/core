@@ -669,8 +669,8 @@ module.exports = {
         newY = Math.min(maxRows - origin.y, Math.max(-origin.y, newY));
 
         this.clearMostRecentSelection();
-        this.select(origin.x, origin.y, newX, newY);
 
+        this.select(origin.x, origin.y, newX, newY);
         this.setDragExtent(this.newPoint(newX, newY));
 
         var colScrolled = this.insureModelColIsVisible(newX + origin.x, offsetX),
@@ -683,15 +683,16 @@ module.exports = {
 
     /**
      * @returns {undefined|CellEvent}
+     * @param {boolean} [useAllCells] - Search in all rows and columns instead of only rendered ones.
      * @memberOf Hypergrid#
      */
-    getGridCellFromLastSelection: function() {
+    getGridCellFromLastSelection: function(useAllCells) {
         var cellEvent,
             sel = this.selectionModel.getLastSelection();
 
         if (sel) {
             cellEvent = new this.behavior.CellEvent;
-            cellEvent.resetGridXDataY(sel.origin.x, sel.origin.y);
+            cellEvent.resetGridXDataY(sel.origin.x, sel.origin.y, null, useAllCells);
         }
 
         return cellEvent;
