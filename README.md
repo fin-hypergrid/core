@@ -47,7 +47,7 @@ Check out the Table view on Hyperblotter on a Windows machine via [this installe
 
 ### Testing
 
-Please use github [issues](https://github.com/openfin/fin-hypergrid/issues) or email support@openfin.co to report problems
+Please use github [issues](https://github.com/openfin/fin-hypergrid/issues) to report problems
 
 We invite everyone to test the alpha branch for changes going into the next release
 
