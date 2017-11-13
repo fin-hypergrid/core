@@ -1034,12 +1034,28 @@ var Renderer = Base.extend('Renderer', {
         if (C && R) {
             var gridProps = this.properties,
                 lineWidth = gridProps.lineWidth,
-                lineColor = gridProps.lineColor;
+                lineColor = gridProps.lineColor,
+                viewHeight = visibleRows[R - 1].bottom,
+                viewWidth = visibleColumns[C - 1].right;
+
+            gc.cache.fillStyle = lineColor;
+
+            if (gridProps.fixedColumnCount > 0 && gridProps.fixedColumnCount < C) {
+                var lw = gridProps.gridLinesV ? lineWidth + 1: lineWidth;
+                var fixedX = visibleColumns[gridProps.fixedColumnCount].left - 1;
+                gc.fillRect(fixedX, 0, lw, viewHeight);
+            }
+
+            if (gridProps.fixedRowCount > 0 && fixedRowCount < R) {
+                var lw = gridProps.gridLinesH ? lineWidth + 1: lineWidth;
+                var fixedY = visibleRows[gridProps.fixedRowCount].bottom;
+                gc.fillRect(0, fixedY, viewWidth, lw);
+            }
+
+            gc.fillRect(0, visibleRows[0].bottom, viewWidth, 1);
 
             if (gridProps.gridLinesV) {
-                gc.cache.fillStyle = lineColor;
-                var viewHeight = visibleRows[R - 1].bottom,
-                    c = this.grid.behavior.leftMostColIndex;
+                var c = this.grid.behavior.leftMostColIndex;
                 if (gridProps.gridBorderLeft) {
                     gc.fillRect(visibleColumns[c].left, 0, lineWidth, viewHeight);
                 }
@@ -1055,8 +1071,6 @@ var Renderer = Base.extend('Renderer', {
             }
 
             if (gridProps.gridLinesH) {
-                gc.cache.fillStyle = lineColor;
-                var viewWidth = visibleColumns[C - 1].right;
                 if (gridProps.gridBorderTop) {
                     gc.fillRect(0, visibleRows[0].top, viewWidth, lineWidth);
                 }
