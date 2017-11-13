@@ -341,6 +341,10 @@ module.exports = {
         var self = this;
 
         function handleMouseEvent(e, cb) {
+            if (self.getRowCount() === 0) {
+                return;
+            }
+
             var c = self.getGridCellFromMousePoint(e.detail.mouse),
                 primitiveEvent,
                 decoratedEvent;
