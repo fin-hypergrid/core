@@ -359,12 +359,14 @@ Canvas.prototype = {
             this.beNotDragging();
             this.dragEndtime = Date.now();
         }
-        this.mousedown = false;
-        this.dispatchNewMouseKeysEvent(e, 'fin-canvas-mouseup', {
-            dragstart: this.dragstart,
-            isRightClick: this.isRightClick(e)
-        });
-        //this.mouseLocation = new rectangular.Point(-1, -1);
+        if (this.mousedown) {
+            this.mousedown = false;
+            this.dispatchNewMouseKeysEvent(e, 'fin-canvas-mouseup', {
+                dragstart: this.dragstart,
+                isRightClick: this.isRightClick(e)
+            });
+            //this.mouseLocation = new rectangular.Point(-1, -1);
+        }
     },
 
     finmouseout: function(e) {
