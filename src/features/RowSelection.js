@@ -202,7 +202,7 @@ var RowSelection = Feature.extend('RowSelection', {
         if (!grid.abortEditing()) { return; }
 
         var mouseY = grid.getMouseDown().y,
-            hasSHIFT = keys.indexOf('SHIFT') > 0;
+            hasSHIFT = keys.indexOf('SHIFT') !== -1;
 
         if (y < 0) { // outside of the grid?
             return; // do nothing
