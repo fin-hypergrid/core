@@ -102,7 +102,10 @@ factory.prototypeDescriptors = Object.defineProperties({}, {
      * @memberOf CellEvent#
      */
     resetGridCY: { value: function(gridC, gridY) {
-        var vr, vc, visible = (vc = this.renderer.getVisibleColumn(gridC)) && (vr = this.renderer.getVisibleRow(gridY));
+        var vr, vc, visible = (
+            (vc = this.renderer.getVisibleColumn(gridC)) &&
+            (vr = this.renderer.getVisibleRow(gridY))
+        );
         if (visible) { this.reset(vc, vr); }
         return visible;
     } },
@@ -116,7 +119,10 @@ factory.prototypeDescriptors = Object.defineProperties({}, {
      * @memberOf CellEvent#
      */
     resetGridXY: { value: function(gridX, gridY) {
-        var vr, vc, visible = (vc = this.renderer.visibleColumns[gridX]) && (vr = this.renderer.getVisibleRow(gridY));
+        var vr, vc, visible = (
+            (vc = this.renderer.visibleColumns[gridX]) &&
+            (vr = this.renderer.getVisibleRow(gridY))
+        );
         if (visible) { this.reset(vc, vr); }
         return visible;
     } },
@@ -131,7 +137,10 @@ factory.prototypeDescriptors = Object.defineProperties({}, {
      * @memberOf CellEvent#
      */
     resetDataXY: { value: function(dataX, dataY, subgrid) {
-        var vr, vc, visible = (vc = this.renderer.getVisibleDataColumn(dataX)) && (vr = this.renderer.getVisibleDataRow(dataY, subgrid));
+        var vr, vc, visible = (
+            (vc = this.renderer.getVisibleDataColumn(dataX)) &&
+            (vr = this.renderer.getVisibleDataRow(dataY, subgrid))
+        );
         if (visible) { this.reset(vc, vr); }
         return visible;
     } },
@@ -150,10 +159,18 @@ factory.prototypeDescriptors = Object.defineProperties({}, {
         var visible, vc, vr;
 
         if (useAllCells) {
-            visible = (
-                (vc = this.getBasicColumnData(gridX)) &&
-                (vr = this.getBasicRowData(dataY, subgrid))
-            );
+            // When expanding selections larger than the viewport, the origin/corner
+            // points may not be rendered and would normally fail to reset cell's position.
+            // Mock column and row objects for this.reset() to use:
+            vc = {
+                column: this.grid.behavior.getColumn(gridX),
+                columnIndex: gridX
+            };
+            vr = {
+                subgrid: subgrid || this.grid.behavior.subgrids.lookup.data,
+                rowIndex: dataY
+            };
+            visible = true;
         } else {
             visible = (
                 (vc = this.renderer.getVisibleColumn(gridX)) &&
@@ -167,38 +184,6 @@ factory.prototypeDescriptors = Object.defineProperties({}, {
 
         return visible && this;
     } },
-
-    /**
-     * Mock a basic column object with only the needed properties for CellEvent.reset() to work.
-     * @desc When expanding selections larger than the viewport, the origin/corner points may not be rendered and fail to reset cell's position. This retrieves a basic column object for cell.reset() to work.
-     * @param {number} columnIndex - Horizontal grid cell coordinate (adjusted for horizontal scrolling after fixed columns).
-     * @returns {object} Subset mock of renderer.getVisibleColumn() response
-     */
-    getBasicColumnData: {
-        value: function(columnIndex) {
-            return {
-                column: this.grid.behavior.getColumn(columnIndex),
-                columnIndex: columnIndex
-            };
-        }
-    },
-
-    /**
-     * Mock a basic row object with only the needed properties for CellEvent.reset() to work.
-     * @desc When expanding selections larger than the viewport, the origin/corner points may not be rendered and fail to reset cell's position. This retrieves a basic row object for cell.reset() to work.
-     * @param {number} rowIndex - Vertical data cell coordinate.
-     * @param {dataModelAPI} [subgrid=this.behavior.subgrids.data]
-     * @returns {object} Subset mock of renderer.getVisibleDataRow() response
-     */
-    getBasicRowData: {
-        value: function(rowIndex, subgrid) {
-            subgrid = subgrid || this.grid.behavior.subgrids.lookup.data;
-            return {
-                subgrid: subgrid,
-                rowIndex: rowIndex,
-            };
-        }
-    },
 
     /**
      * Copy self with or without own properties
