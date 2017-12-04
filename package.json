@@ -34,7 +34,7 @@
     "gulp-browserify": "^0.5.1",
     "gulp-concat": "^2.6.0",
     "gulp-each": "^0.1.1",
-    "gulp-eslint": "^1.1.0",
+    "gulp-eslint": "^4.0.0",
     "gulp-exclude-gitignore": "^1.0.0",
     "gulp-footer": "^1.0.5",
     "gulp-header": "^1.8.2",

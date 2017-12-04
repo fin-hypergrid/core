@@ -75,8 +75,6 @@ Hypergrid.require = function(path) {
     } else {
         throw errMsg;
     }
-
-    return result;
 };
 
 // Create the `fin` namespace and the `fin.Hypergrid` objects:
