@@ -1092,15 +1092,6 @@ var Renderer = Base.extend('Renderer', {
 
     /**
      * @summary Render a single cell.
-     * @desc IMPORTANT NOTE: Do not change the line below with the comment "SEE IMPORTANT NOTE ABOVE" without careful performance testing. Building the config object from cell properties object produced much slower rendering times. The original line was:
-     * ```javascript
-     *     config = Object.create(cellEvent.columnProperties),
-     * ```
-     * Cell properties object came into play when `cellEvent.properties` getter which returns cell properties object when there is one (else it returns column properties object). The reason seemed to be that doing so caused optimization to fail on the cell renderer function. The work-around was to always build the `config` object from the column properties object, and then _copy_ the "own" cell properties onto it. The current line is:
-     * ```javascript
-     *     config = Object.assign(Object.create(cellEvent.columnProperties), cellEvent.cellOwnProperties),
-     * ```
-     * We kept the cell properties object prototype in place (extended from column properties) for other logic.
      * @param {CanvasRenderingContext2D} gc
      * @param {CellEvent} cellEvent
      * @param {string} [prefillColor] If omitted, this is a partial renderer; all other renderers must provide this.
@@ -1128,7 +1119,12 @@ var Renderer = Base.extend('Renderer', {
             isRowHandleOrHierarchyColumn = isHandleColumn || isTreeColumn,
             isUserDataArea = !isRowHandleOrHierarchyColumn && isDataRow,
 
-            config = Object.assign(Object.create(cellEvent.columnProperties), cellEvent.cellOwnProperties), // SEE IMPORTANT NOTE ABOVE
+            row = !isHandleColumn && !isTreeColumn && isDataRow && cellEvent.columnProperties.rowProperties,
+            config = Object.assign(
+                Object.create(cellEvent.columnProperties), // column props in prototype
+                row && row[cellEvent.dataCell.y % row.length], // row props overlaid in instance
+                cellEvent.cellOwnProperties // cell props overlaid on top of row props
+            ),
             x = (config.gridCell = cellEvent.gridCell).x,
             r = (config.dataCell = cellEvent.dataCell).y,
 
@@ -1144,11 +1140,6 @@ var Renderer = Base.extend('Renderer', {
         } else if (isDataRow) {
             isSelected = isCellSelected || isRowSelected || isColumnSelected;
             format = config.format;
-
-            // Iff we have a defined rowProperties array, apply it to config, treating it as a repeating pattern, keyed to row index.
-            // Note that Object.assign will ignore undefined.
-            var row = cellEvent.columnProperties.rowProperties;
-            Object.assign(config, row && row[cellEvent.dataCell.y % row.length]);
         } else {
             format = subgrid.format || config.format; // subgrid format can override column format
             if (isFilterRow) {
