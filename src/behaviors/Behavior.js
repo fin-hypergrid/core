@@ -131,21 +131,25 @@ var Behavior = Base.extend('Behavior', {
         return this.grid.renderer.visibleRows.length;
     },
 
-    get treeColumnIndex() {
-        return -1;
-    },
-
-    get rowColumnIndex() {
-        return -2;
-    },
-
     get leftMostColIndex() {
         return this.grid.properties.showRowNumbers ? this.rowColumnIndex : (this.hasTreeColumn() ? this.treeColumnIndex : 0);
     },
 
     clearColumns: function() {
-        var tc = this.treeColumnIndex;
-        var rc = this.rowColumnIndex;
+        var schema = this.dataModel.schema,
+            tc = this.treeColumnIndex,
+            rc = this.rowColumnIndex;
+
+        schema[tc] = schema[tc] || {
+            name: 'Tree',
+            header: 'Tree'
+        };
+
+        schema[rc] = schema[rc] || {
+            name: '',
+            header: ''
+        };
+
         /**
          * @type {Column[]}
          * @memberOf Behavior#
@@ -160,11 +164,11 @@ var Behavior = Base.extend('Behavior', {
 
         this.allColumns[tc] = this.columns[tc] = this.newColumn({
             index: tc,
-            header: this.dataModel.schema[tc].header
+            header: schema[tc].header
         });
         this.allColumns[rc] = this.columns[rc] = this.newColumn({
             index: rc,
-            header: this.dataModel.schema[rc].header
+            header: schema[rc].header
         });
     },
 
@@ -1389,6 +1393,12 @@ var Behavior = Base.extend('Behavior', {
     getIndexedData: function() {
        this.dataModel.getIndexedData();
     }
+});
+
+// define constants as immutable (i.e., !writable)
+Object.defineProperties(Behavior.prototype, {
+    treeColumnIndex: { value: -1 },
+    rowColumnIndex: { value: -2 }
 });
 
 // synonyms
