@@ -30,7 +30,7 @@ window.onload = function() {
     Behavior.prototype.columnEnumKey = Behavior.columnEnumDecorators.toCamelCase;
 
     var gridOptions = {
-            DataSource: Hypergrid.require('datasaur-local'), // the default for v3 so optional; will be required for v4
+            // DataSource: Hypergrid.require('datasaur-local'), // v3's default so optional for now; will be required for v4
             data: people1,
             margin: { bottom: '17px', right: '17px'},
             schema: getSchema(people1),

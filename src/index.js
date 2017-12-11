@@ -24,11 +24,15 @@ var Hypergrid = fin.Hypergrid = require('./Hypergrid');
 // Install the module loader
 Hypergrid.require = require('./module-loader');
 
+// Install `src` the internal module namespace which is for the build file only
+Hypergrid.src = {};
+
+// Note: `modules` the external module namespace already installed in Hypergrid.js (for both npm and build modules)
+
 // Install implicit modules which are external modules but are not overridable so non-configurable, non-writable
 Object.defineProperties(Hypergrid.modules, {
     'extend-me': {value: require('extend-me') },
     'fin-hypergrid-field-tools': { value: require('fin-hypergrid-field-tools') },
-    pubsubstar: { value: require('pubsubstar') },
     rectangular: { value: require('rectangular') },
     'datasaur-base': { value: require('datasaur-base') }, // scheduled for removal in v4
     'datasaur-local': { value: require('datasaur-local') } // scheduled for removal in v4
@@ -50,13 +54,6 @@ Object.defineProperties(Hypergrid, {
     features: { get: deprecated.bind(null, 'features') },
     rectangular: { get: deprecated.bind(null, 'rectangular', 'modules') }
 });
-
-// Note: The npm module version does *not* have the additional following properties
-// (.require, .src, and .modules). Both internal and external modules can be accessed
-// with Browserify's require() in exactly the same way as with Hypergrid.require():
-// For example:
-// var pubsub = require('pubsubstar');
-// var behaviorJSON = require('fin-hypergrid/src/behaviors/JSON');
 
 function deprecated(key, registry) {
     registry = registry || 'src';

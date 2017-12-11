@@ -1401,6 +1401,7 @@ var Behavior = Base.extend('Behavior', {
     getFilteredData: function() {
         return this.deprecated('getFilteredData()', 'getIndexedData', '1.2.0', arguments);
     },
+
     getIndexedData: function() {
        this.dataModel.getIndexedData();
     }

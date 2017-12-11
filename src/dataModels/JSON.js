@@ -1,6 +1,7 @@
 'use strict';
 
 var DataModel = require('./DataModel');
+var HypergridError = require('../lib/error');
 
 /**
  * See {@link dataModels.JSON.prototype.initialize initialize} for constructor params.
@@ -34,7 +35,8 @@ var JSON = DataModel.extend('dataModels.JSON', {
     reset: function(options) {
         options = options || {};
 
-        var DataSource = this.DataSource = options.DataSource || this.DataSource || JSON.DataSource;
+        var DataSource = this.DataSource = options.DataSource || this.DataSource || JSON.DataSource,
+            dataSourceOptions = { interface: JSON.interface };
 
         if (!DataSource) {
             throw new this.HypergridError('Expected DataSource to be defined.');
@@ -42,12 +44,9 @@ var JSON = DataModel.extend('dataModels.JSON', {
 
         this.dataSource = this.source = new DataSource(
             options.data,
-            options.schema
+            options.schema,
+            dataSourceOptions
         );
-    },
-
-    publish: function(topic, message) {
-        return this.dataSource.publish(topic, message)[0];
     },
 
     getData: function() {
@@ -125,9 +124,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
      */
     reindex: function(options) {
         var selectedRowSourceIndexes = getUnderlyingIndexesOfSelectedRows.call(this);
-
-        this.publish('apply');
-
+        this.dataSource.apply();
         reselectRowsByUnderlyingIndexes.call(this, selectedRowSourceIndexes);
     },
 
@@ -222,18 +219,54 @@ var JSON = DataModel.extend('dataModels.JSON', {
     },
 
     /**
-     * @summary Add a new data row to the grid.
-     * @desc If indexed data source in use, to see the new row in the grid, you must eventually call:
+     * @summary Update or blank row in place.
+     * @desc _Note parameter order is the reverse of `addRow`._
+     *
+     * Note regarding transformed data:
+     * This method operates on untransformed data rows.
+     * If data is transformed (rows rearranged or omitted), to see the new row in the grid, you must eventually call:
      * ```javascript
      * this.grid.behavior.reindex();
      * this.grid.behaviorChanged();
      * ```
-     * @param {object} newDataRow
-     * @returns {object} The new row object.
+     *
+     * @param {number} y
+     * @param {object} [dataRow] - if omitted or otherwise falsy, row renders as blank
      * @memberOf dataModels.JSON.prototype
      */
-    addRow: function(newDataRow) {
-        return this.publish('add-row', newDataRow);
+    setRow: function(y, dataRow) {
+        this.dataSource.setRow(y, dataRow);
+    },
+
+    /**
+     * @summary Insert or append a new row.
+     * @desc _Note parameter order is the reverse of `setRow`._
+     *
+     * See notes in {@link dataModels.JSON#setRow setRow} regarding transformed data.
+     *
+     * @param {object} dataRow
+     * @param {number} [y=Infinity] - The index of the new row. If `y` >= row count, row is appended to end; otherwise row is inserted at `y` and row indexes of all remaining rows are incremented.
+     * @memberOf dataModels.JSON.prototype
+     */
+    addRow: function(newDataRow, beforeRowIndex) {
+        this.dataSource.addRow(newDataRow, beforeRowIndex);
+    },
+
+    /**
+     * @summary Deelete a row.
+     * @desc Rows are removed entirely and no longer rendered.
+     * Row indexes of all remaining rows are decreased by `rowCount`.
+     *
+     * See notes in {@link dataModels.JSON#setRow setRow} regarding transformed data.
+     *
+     * @param {number} y
+     * @param {number} [rowCount=1]
+     * @returns {object[]} The deleted row objects.
+     * @memberOf DataSourceLocal#
+     */
+    delRow: function(y, rowCount) {
+        if (rowCount === undefined) { rowCount = 1; }
+        return this.data.splice(y, rowCount);
     },
 
     get schema() {
@@ -244,6 +277,53 @@ var JSON = DataModel.extend('dataModels.JSON', {
         this.dataSource.setSchema(schema);
     }
 });
+
+
+JSON.interface = {
+    // Required:
+    getSchema: unimplementedError('getSchema'),
+    setSchema: unimplementedError('setSchema'), // called by Hypergrid only if you specify a schema on new or setData
+    setData: unimplementedError('setData'),
+    setValue: unimplementedError('setValue'), // called by Hypergrid only if you edit a cell
+    getValue: unimplementedError('getValue'),
+    getRowCount: unimplementedError('getRowCount'),
+    getColumnCount: function() { return this.getSchema().length; },
+    getRow: unimplementedError('getRow'),
+
+    // Hypergrid extensions
+    setRow: unsupportedWarning('setRow'),
+    addRow: unsupportedWarning('addRow'),
+    delRow: unsupportedWarning('delRow', []),
+    apply: null,
+    getDataIndex: function(y) { return y; },
+    click: null,
+    isDrillDown: null,
+    isDrillDownCol: null,
+
+    // following need to be set by certain data source modules for their internal (?) use:
+    // getGrandTotals: null,
+    // revealRow: null,
+    // isLeafNode: null,
+    // viewMakesSense: null
+};
+
+function unimplementedError(methodName) {
+    return function() {
+        throw new HypergridError('Expected required data source method `' + methodName + '()` to be implemented.');
+    };
+}
+
+var warned = {};
+
+function unsupportedWarning(methodName, returnValue) {
+    return function() {
+        if (!warned[methodName]) {
+            console.warn('Data source does not support `' + methodName + '()`.');
+            warned[methodName] = true;
+        }
+        return returnValue;
+    };
+}
 
 
 /** @name DataSource
