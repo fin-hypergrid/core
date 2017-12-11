@@ -59,6 +59,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
         delete this.pipelineSchemaStash; // remove existing "own" version if any
 
         options = options || {};
+
         this.source = new this.DataSourceOrigin(
             options.data,
             options.schema

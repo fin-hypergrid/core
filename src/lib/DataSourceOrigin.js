@@ -17,7 +17,9 @@ var DataSourceOrigin = DataSourceBase.extend('DataSourceOrigin',  {
      */
     initialize: function(data, schema) {
         delete this.dataSource; // added by DataSourceBase#initialize but we don't want here
+
         this._schema = [];
+
         this.setData(data, schema);
     },
 
@@ -32,6 +34,9 @@ var DataSourceOrigin = DataSourceBase.extend('DataSourceOrigin',  {
      */
 
     /**
+     * Establish a new data and schema.
+     * If no data provided, data will be set to 0 rows.
+     * If no schema provided AND no previously set schema, new schema will be derived from data.
      * @param {object[]} [data=[]] - Array of uniform objects containing the grid data.
      * @param {columnSchemaObject[]} [schema=[]]
      * @memberOf DataSourceOrigin#
@@ -329,9 +334,8 @@ var DataSourceOrigin = DataSourceBase.extend('DataSourceOrigin',  {
     }
 });
 
-
 module.exports = DataSourceOrigin;
 
 
 // Create the `datasaur` namespace and the `datasaur.base` object for use by data sources included via <script> tags:
-(window.datasaur = window.datasaur || {}).base = require('fin-hypergrid-data-source-base');
+(window.datasaur = window.datasaur || {}).base = DataSourceBase;
