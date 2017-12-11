@@ -29,7 +29,6 @@ var EDGE_STYLES = ['top', 'bottom', 'left', 'right'],
  * @param {string|Element} [container] - CSS selector or Element
  * @param {object} [options]
  * @param {function} [options.Behavior=behaviors.JSON] - A behavior constructor or instance
- * @param {function[]} [options.pipeline] - A list function constructors to use for passing data through a series of transforms to occur on reindex call
  * @param {function|object[]} [options.data] - Passed to behavior constructor. May be:
  * * An array of congruent raw data objects
  * * A function returning same
@@ -118,9 +117,9 @@ var Hypergrid = Base.extend('Hypergrid', {
         this.cellEditors = new CellEditors(this);
 
         if (this.options.Behavior) {
-            this.setBehavior(this.options); // also sets this.options.pipeline and this.options.data
+            this.setBehavior(this.options); // also sets this.options.data
         } else if (this.options.data) {
-            this.setData(this.options.data, this.options); // if no behavior has yet been set, `setData` sets a default behavior and this.options.pipeline
+            this.setData(this.options.data, this.options); // if no behavior has yet been set, `setData` sets a default behavior
         }
 
         if (this.options.state) {
@@ -273,8 +272,6 @@ var Hypergrid = Base.extend('Hypergrid', {
      * @param {object} [options]
      * @param {object} [options.subgrids] - Consumed by {@link Behavior#reset}.
      * If omitted, previously established subgrids list is reused.
-     * @param {object} [options.pipeline] - Consumed by {@link dataModels.JSON#reset}.
-     * If omitted, previously established pipeline is reused.
      * @memberOf Hypergrid#
      */
     reset: function(options) {
@@ -305,8 +302,7 @@ var Hypergrid = Base.extend('Hypergrid', {
 
         options = options || {};
         this.behavior.reset({
-            subgrids: options.subgrids,
-            pipeline: options.pipeline
+            subgrids: options.subgrids
         });
 
         this.renderer.reset();
@@ -735,16 +731,16 @@ var Hypergrid = Base.extend('Hypergrid', {
      * @memberOf Hypergrid#
      * @summary Set the Behavior (model) object for this grid control.
      * @desc This can be done dynamically.
-     * @param {object} options - _(See {@link behaviors.JSON#setData}.)_
+     * @param {object} [options] - _(See {@link behaviors.JSON#setData}.)_
      * @param {Behavior} [options.behavior=behaviors.JSON] - The behavior (model) can be either a constructor or an instance.
      * @param {dataRowObject[]} [options.data] - _(See {@link behaviors.JSON#setData}.)_
-     * @param {pipelineSchema} [options.pipeline] - New pipeline description.
      */
     setBehavior: function(options) {
         if (!this.behavior) {
             // If we get here it means:
             // 1. Called from constructor because behavior included in options object.
             // 2. Called from `setData` _and_ wasn't called explicitly since instantiation
+            options = options || {};
             var Behavior = options.Behavior || behaviors.JSON;
             this.behavior = new Behavior(this, options);
             this.initCanvas();
@@ -765,9 +761,7 @@ var Hypergrid = Base.extend('Hypergrid', {
      */
     setData: function(dataRows, options) {
         // Call `setBehavior` here just in case not previously set by constructor _or_ explicitly since instantiation
-        this.setBehavior({
-            pipeline: this.options.pipeline
-        });
+        this.setBehavior();
         this.behavior.setData(dataRows, options);
         this.setInfo(dataRows.length ? '' : this.properties.noDataMessage);
         this.behavior.changed();
@@ -789,15 +783,6 @@ var Hypergrid = Base.extend('Hypergrid', {
     updateData: function(dataRows, options){
         this.deprecated('updateData(dataRows, options)', 'setData(dataRows, options)', 'v1.2.10', arguments,
             'To update data without changing column definitions, call setData _without a schema._');
-    },
-
-    /**
-     * @memberOf Hypergrid#
-     * @param {object} [pipelines] - New pipeline description. _(See {@link dataModels.JSON#setPipeline}.)_
-     * @param {object} [options] - _(See {@link dataModels.JSON#setPipeline}.)_
-     */
-    setPipeline: function(DataSources, options){
-        this.behavior.setPipeline(DataSources, options);
     },
 
     /**
@@ -1988,8 +1973,6 @@ Hypergrid.localization = {
     numberOptions: { maximumFractionDigits: 0 }
 };
 
-
-Hypergrid.prototype.setController.onerror = 'warn';
 
 Hypergrid.prototype.mixIn(require('./lib/events'));
 Hypergrid.prototype.mixIn(require('./lib/selection'));

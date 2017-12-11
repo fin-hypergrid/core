@@ -3,12 +3,6 @@
 var DataModel = require('./DataModel');
 var DataSourceOrigin = require('../lib/DataSourceOrigin');
 
-/** @typedef {object} dataSourcePipelineObject
- * @property {string} type - A "DataSourceOrigin" style constructor name.
- * @property {*} [options] - When defined, passed as 2nd argument to constructor.
- * @property {string} [parent] - Defines a branch off the main sequence.
- */
-
 /**
  * @name dataModels.JSON
  * @constructor
@@ -29,40 +23,26 @@ var JSON = DataModel.extend('dataModels.JSON', {
     DataSourceOrigin: DataSourceOrigin,
 
     /**
-     * @type {dataSourcePipelineObject[][]}
-     * @summary Pipeline stash push-down list.
-     * @desc The pipeline stash may be shared or instanced. This is the shared stash. An instance may override this with an instance stash variable (of the same name). See {@link dataModels.JSON#getPipelineSchemaStash}.
+     * @param {object} [options]
      * @memberOf dataModels.JSON.prototype
      */
-    pipelineSchemaStash: [],
-
-    /**
-     * @param {object} [options]
-     * @param {object} [options.pipeline] - Consumed by {@link dataModels.JSON#setPipeline}.
-     * If omitted, previously established pipeline is reused.
-     * * @memberOf dataModels.JSON.prototype
-     */
     reset: function(options) {
-        delete this.pipelineSchemaStash; // remove existing "own" version if any
-
         options = options || {};
 
-        this.source = new this.DataSourceOrigin(
+        this.dataSource = this.source = new this.DataSourceOrigin(
             options.data,
             options.schema
         );
-
-        this.setPipeline({
-            pipeline: options.pipeline
-        });
     },
 
     /**
-     * Application developer should override to set up a default pipeline.
-     * @type {pipelineSchema}
-     * @memberOf dataModels.JSON.prototype
+     * Append a data source.
+     * @param {function} DataSource - Data source constructor.
      */
-    defaultPipelineSchema: [],
+    append: function(DataSource) {
+        // return value is first and only response from first data source
+        this.dataSource = this.dataSource.publish('append', DataSource)[0][0];
+    },
 
     clearSelectedData: function() {
         var key = 'clearSelectedData()',
@@ -166,13 +146,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
     reindex: function(options) {
         var selectedRowSourceIndexes = getUnderlyingIndexesOfSelectedRows.call(this);
 
-        this.pipeline.forEach(function(dataSource) {
-            if (dataSource) {
-                if (dataSource.apply) {
-                    dataSource.apply(options);
-                }
-            }
-        });
+        this.dataSource.publish('apply');
 
         reselectRowsByUnderlyingIndexes.call(this, selectedRowSourceIndexes);
     },
@@ -184,141 +158,6 @@ var JSON = DataModel.extend('dataModels.JSON', {
      */
     setData: function(dataSource, schema) {
         this.source.setData(dataSource, schema);
-    },
-
-    /** @typedef {DataSourceBase[]} pipelineSchema
-     * @summary Describes a new pipeline.
-     * @desc Consists of an ordered list of data source constructors, descendants of `DataSourceBase`.
-     * May contain `undefined` elements, which are ignored.
-     */
-
-    /**
-     * @summary Instantiates the data source pipeline.
-     * @desc Each new pipe is created from the list of supplied constructors, each taking a reference to the previous data source in the pipeline.
-     *
-     * A reference to each new pipe is added to `this.sources` dataModel using the pipe's derived name.
-     *
-     * Will clear out any filtering and sorting state.
-     *
-     * The last pipe is assigned the synonym `this.dataSource`.
-     * @param {pipelineSchema} [DataSources] - New pipeline description. If not given, uses the default {@link dataModels.JSON#DataSources|this.defaultPipelineSchema}.
-     * @param {object} [options] - Takes first argument position when `DataSources` omitted.
-     * @param {string} [options.stash] - See {@link dataModels.JSON#getPipelineSchemaStash}. If given, saves the currently defined pipeline onto the indicated stash stack and then resets it with the given `DataSources`.
-     * @memberOf dataModels.JSON.prototype
-     */
-    setPipeline: function(DataSources, options) {
-        if (!Array.isArray(DataSources)) {
-            options = DataSources;
-            DataSources = options.pipeline;
-        }
-
-        options = options || {};
-
-        if (DataSources) {
-            DataSources = DataSources.slice();
-        } else if (this.DataSources) {
-            DataSources = this.DataSources;
-        } else {
-            DataSources = this.defaultPipelineSchema.slice();
-        }
-
-        this.DataSources = DataSources;
-
-        var pipeline = [],
-            dataSource = this.source;
-        if (DataSources.length) {
-            if (options.stash) {
-                this.getPipelineSchemaStash(options.stash).push(DataSources);
-            }
-
-            DataSources.forEach(function(DataSource) {
-                if (DataSource) {
-                    dataSource = new DataSource(dataSource);
-                    pipeline.push(dataSource);
-                }
-            }, this);
-        }
-        this.dataSource = dataSource;
-
-        /**
-         * @summary Currently defined pipeline.
-         * @desc Each instance has its own pipeline.
-         * (Pipelines cannot be shared because they contain indexes specific to the data in the grid.)
-         * @name pipeline
-         * @type {dataSourcePipelineObject[]}
-         * @memberOf dataModels.JSON.prototype
-         */
-        this.pipeline = pipeline;
-    },
-
-    /**
-     * Find the last data source in the pipeline of specified type.
-     * @param {string} type
-     * @returns {DataSourceBase}
-     * @memberOf dataModels.JSON.prototype
-     */
-    findDataSourceByType: function(type) {
-        var dataSource;
-        for (var i = this.pipeline.length - 1; i >= 0; i--) {
-            dataSource = this.pipeline[i];
-            if (dataSource.type === type) {
-                return dataSource;
-            }
-        }
-    },
-
-    /**
-     * @summary The pipeline stash currently in use (either shared or instance).
-     * @desc Instance stash is created here when requested and instance doesn't yet have its "own" version.
-     * @param {string} [whichStash='default'] - One of:
-     * * `'shared'` - Use shared stash.
-     * * `'own'' or `'instance'` - Use instance stash, creating it if it does not exist.
-     * * `'default'` - Use instance stash if previously created; otherwise use shared stash.
-     * @returns The pipeline stash push-down list.
-     * @memberOf dataModels.JSON.prototype
-     */
-    getPipelineSchemaStash: function(whichStash) {
-        var stash;
-        switch (whichStash) {
-
-            case 'shared':
-                stash = DataModel.prototype.stash;
-                break;
-
-            case 'own':
-            case 'instance':
-                if (!this.hasOwnProperty('pipelineSchemaStash')) {
-                    this.pipelineSchemaStash = [];
-                }
-                // fallthrough
-            case 'default':
-            case undefined:
-                stash = this.pipelineSchemaStash;
-                break;
-
-        }
-        return stash;
-    },
-
-    /**
-     * Pops the last stashed pipeline off the stash stack, making it the currently defined pipeline.
-     * @param {string} [whichStash] - See {@link dataModels.JSON#getPipelineSchemaStash}.
-     * @memberOf dataModels.JSON.prototype
-     */
-    unstashPipeline: function(whichStash) {
-        var pipelineSchemaStash = this.getPipelineSchemaStash(whichStash);
-        if (pipelineSchemaStash.length) {
-            this.setPipeline(pipelineSchemaStash.pop());
-        }
-    },
-
-    /**
-     * @deprecated
-     * @param {number} [newLength=0]
-     * @memberOf dataModels.JSON.prototype
-     */
-    truncatePipeline: function(newLength) {
-        return this.deprecated('truncatePipeline(newLength)', 'setPipeline()', '1.2.0', arguments, 'Build a local pipeline (array of data source constructors) and pass it to setPipeline.');
     },
 
     isTree: function() {
@@ -489,7 +328,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
 
     /**
      * @summary Add a new data row to the grid.
-     * @desc If data source pipeline in use, to see the new row in the grid, you must eventually call:
+     * @desc If indexed data source in use, to see the new row in the grid, you must eventually call:
      * ```javascript
      * this.grid.behavior.reindex();
      * this.grid.behaviorChanged();

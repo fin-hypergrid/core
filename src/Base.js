@@ -2,6 +2,8 @@
 
 'use strict';
 
+var HypergridError = require('./lib/error');
+
 /**
  * @constructor
  * @desc Extend from this base class using `Base.extend` per example.
@@ -12,8 +14,30 @@
  */
 var Base = require('extend-me').Base;
 
+Base.prototype.version = require('../package.json').version;
+Base.prototype.versionParts = splitVersionIntoParts(Base.prototype.version);
+Base.prototype.versionAtLeast = function(v) {
+    v = splitVersionIntoParts(v);
+    for (var i = 0; i < v.length; i++) {
+        var delta = v[i] - this.versionParts[i];
+        if (delta === 0) { continue; } else { return delta < 0; }
+    }
+    return true;
+};
+function splitVersionIntoParts(v) {
+    v = v ? v.split('.').map(function(n) { return Number(n); }) : [];
+    if (v.find(function(n) { return isNaN(n); })) { v.length = 0; }
+    switch (v.length) {
+        case 1: v.push(0); // fall through
+        case 2: v.push(0); // fall through
+        case 3: break;
+        default: throw new HypergridError('Expected version number to consist of 1, 2, or 3 dot-separated parts.');
+    }
+    return v;
+}
+
 Base.prototype.deprecated = require('./lib/deprecated');
-Base.prototype.HypergridError = require('./lib/error');
+Base.prototype.HypergridError = HypergridError;
 
 Base.prototype.notify = function(message, onerror) {
     switch (onerror) {

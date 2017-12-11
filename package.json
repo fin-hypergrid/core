@@ -17,7 +17,7 @@
   "dependencies": {
     "chai": "^3.5.0",
     "extend-me": "^2.5.0",
-    "fin-hypergrid-data-source-base": "^1.0.0",
+    "fin-hypergrid-data-source-base": "^1.0.3",
     "finbars": "1.5.2",
     "inject-stylesheet-template": "^1.0.1",
     "mustache": "2.2.0",

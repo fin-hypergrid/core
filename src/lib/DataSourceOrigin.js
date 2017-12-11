@@ -6,6 +6,11 @@ var DataSourceBase = require('fin-hypergrid-data-source-base');
 
 var getFieldNames = require('./fields').getFieldNames;
 
+
+DataSourceBase.publishTo.apply = 'eachReverse';
+DataSourceBase.publishTo.append = 'find';
+
+
 /**
  * See {@link DataSourceOrigin#initialize} for constructor parameters.
  * @constructor
@@ -22,6 +27,7 @@ var DataSourceOrigin = DataSourceBase.extend('DataSourceOrigin',  {
 
         this.setData(data, schema);
     },
+
 
     /** @typedef {object} columnSchemaObject
      * @property {string} name - The required column name.

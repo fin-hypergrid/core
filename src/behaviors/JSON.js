@@ -26,9 +26,6 @@ var JSON = Behavior.extend('behaviors.JSON', {
      */
     initialize: function(grid, options) {
         this.setData(options);
-        if (options.pipeline) {
-            this.setPipeline(options.pipeline);
-        }
     },
 
     features: [
@@ -101,46 +98,6 @@ var JSON = Behavior.extend('behaviors.JSON', {
                     column.header = headers[column.name];
                 }
             });
-        }
-    },
-
-    /**
-     * @see {@link dataModels.JSON#setPipeline}
-     * @param {object} [DataSources] - New pipeline description. _(See {@link dataModels.JSON#setPipeline}.)_
-     * @param {object} [options] - Takes first argument position when `DataSources` omitted. _(See {@link dataModels.JSON#setPipeline}.)_
-     * @param {boolean} [options.apply=true] Apply data transformations to the new data.
-     * @memberOf behaviors.JSON.prototype
-     */
-    setPipeline: function(DataSources, options) {
-        this.dataModel.setPipeline.apply(this.dataModel, arguments);
-
-        if (!Array.isArray(DataSources)) {
-            options = DataSources;
-        }
-
-        if (!options || options.apply === undefined || options.apply) {
-            this.reindex();
-        }
-    },
-
-    /**
-     * Pop pipeline stack.
-     * @see {@link dataModels.JSON#unstashPipeline}
-     * @param {string} [whichStash]
-     * @param {object} [options] - Takes first argument position when `DataSources` omitted.
-     * @param {boolean} [options.apply=true] Apply data transformations to the new data.
-     * @memberOf behaviors.JSON.prototype
-     */
-    unstashPipeline: function(stash, options) {
-        if (typeof stash === 'object') {
-            options = stash;
-            stash = undefined;
-        }
-
-        this.dataModel.unstashPipeline(stash);
-
-        if (!options || options.apply === undefined || options.apply) {
-            this.reindex();
         }
     },
 

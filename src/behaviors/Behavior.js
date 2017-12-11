@@ -86,17 +86,11 @@ var Behavior = Base.extend('Behavior', {
 
     /**
      * @param {object} [options]
-     * @param {object} [options.pipeline] - Consumed by {@link dataModels.JSON#reset}.
-     *
-     * If omitted, previously established pipeline is reused.
      * @memberOf Behavior#
      */
     reset: function(options) {
         if (this.dataModel) {
-            options = options || {};
-            this.dataModel.reset({
-                pipeline: options.pipeline
-            });
+            this.dataModel.reset(); // ??? maybe pass options ???
         } else {
             /**
              * @type {dataModelAPI}
