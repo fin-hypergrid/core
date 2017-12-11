@@ -102,7 +102,10 @@ factory.prototypeDescriptors = Object.defineProperties({}, {
      * @memberOf CellEvent#
      */
     resetGridCY: { value: function(gridC, gridY) {
-        var vr, vc, visible = (vc = this.renderer.getVisibleColumn(gridC)) && (vr = this.renderer.getVisibleRow(gridY));
+        var vr, vc, visible = (
+            (vc = this.renderer.getVisibleColumn(gridC)) &&
+            (vr = this.renderer.getVisibleRow(gridY))
+        );
         if (visible) { this.reset(vc, vr); }
         return visible;
     } },
@@ -116,7 +119,10 @@ factory.prototypeDescriptors = Object.defineProperties({}, {
      * @memberOf CellEvent#
      */
     resetGridXY: { value: function(gridX, gridY) {
-        var vr, vc, visible = (vc = this.renderer.visibleColumns[gridX]) && (vr = this.renderer.getVisibleRow(gridY));
+        var vr, vc, visible = (
+            (vc = this.renderer.visibleColumns[gridX]) &&
+            (vr = this.renderer.getVisibleRow(gridY))
+        );
         if (visible) { this.reset(vc, vr); }
         return visible;
     } },
@@ -131,7 +137,10 @@ factory.prototypeDescriptors = Object.defineProperties({}, {
      * @memberOf CellEvent#
      */
     resetDataXY: { value: function(dataX, dataY, subgrid) {
-        var vr, vc, visible = (vc = this.renderer.getVisibleDataColumn(dataX)) && (vr = this.renderer.getVisibleDataRow(dataY, subgrid));
+        var vr, vc, visible = (
+            (vc = this.renderer.getVisibleDataColumn(dataX)) &&
+            (vr = this.renderer.getVisibleDataRow(dataY, subgrid))
+        );
         if (visible) { this.reset(vc, vr); }
         return visible;
     } },
@@ -142,12 +151,37 @@ factory.prototypeDescriptors = Object.defineProperties({}, {
      * @param {number} gridX - Horizontal grid cell coordinate (adjusted for horizontal scrolling after fixed columns).
      * @param {number} dataY - Vertical data cell coordinate.
      * @param {dataModelAPI} [subgrid=this.behavior.subgrids.data]
+     * @param {boolean} [useAllCells] - Search in all rows and columns instead of only rendered ones.
      * @returns {boolean} Visibility.
      * @memberOf CellEvent#
      */
-    resetGridXDataY: { value: function(gridX, dataY, subgrid) {
-        var vr, vc, visible = (vc = this.renderer.getVisibleColumn(gridX)) && (vr = this.renderer.getVisibleDataRow(dataY, subgrid));
-        if (visible) { this.reset(vc, vr); }
+    resetGridXDataY: { value: function(gridX, dataY, subgrid, useAllCells) {
+        var visible, vc, vr;
+
+        if (useAllCells) {
+            // When expanding selections larger than the viewport, the origin/corner
+            // points may not be rendered and would normally fail to reset cell's position.
+            // Mock column and row objects for this.reset() to use:
+            vc = {
+                column: this.grid.behavior.getColumn(gridX),
+                columnIndex: gridX
+            };
+            vr = {
+                subgrid: subgrid || this.grid.behavior.subgrids.lookup.data,
+                rowIndex: dataY
+            };
+            visible = true;
+        } else {
+            visible = (
+                (vc = this.renderer.getVisibleColumn(gridX)) &&
+                (vr = this.renderer.getVisibleDataRow(dataY, subgrid))
+            );
+        }
+
+        if (visible) {
+            this.reset(vc, vr);
+        }
+
         return visible && this;
     } },
 

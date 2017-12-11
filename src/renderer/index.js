@@ -622,6 +622,66 @@ var Renderer = Base.extend('Renderer', {
     },
 
     /**
+     * @desc Calculate the minimum left column index so the target column shows up in viewport (we need to be aware of viewport's width, number of fixed columns and each column's width)
+     * @param {number} targetColIdx - Target column index
+     * @returns {number} Minimum left column index so target column shows up
+     */
+    getMinimumLeftPositionToShowColumn: function(targetColIdx) {
+        var fixedColumnCount = this.grid.getFixedColumnCount();
+        var fixedColumnsWidth = 0;
+        var rowNumbersWidth = 0;
+        var filtersWidth = 0;
+        var viewportWidth = 0;
+        var leftColIdx = 0;
+        var targetRight = 0;
+        var lastFixedColumn = null;
+        var computedCols = [];
+        var col = null;
+        var i = 0;
+        var left = 0;
+        var right = 0;
+
+
+        // 1) for each column, we'll compute left and right position in pixels (until target column)
+        for (i = 0; i <= targetColIdx; i++) {
+            left = right;
+            right += Math.ceil(this.grid.getColumnWidth(i));
+
+            computedCols.push({
+                left: left,
+                right: right
+            });
+        }
+
+        targetRight = computedCols[computedCols.length - 1].right;
+
+        // 2) calc usable viewport width
+        lastFixedColumn = computedCols[fixedColumnCount - 1];
+
+        if (this.properties.showRowNumbers) {
+            rowNumbersWidth = this.grid.getColumnWidth(this.grid.rowColumnIndex);
+        }
+
+        if (this.grid.hasTreeColumn()) {
+            filtersWidth = this.grid.getColumnWidth(this.grid.treeColumnIndex);
+        }
+
+        fixedColumnsWidth = lastFixedColumn ? lastFixedColumn.right : 0;
+        viewportWidth = this.getBounds().width - fixedColumnsWidth - rowNumbersWidth - filtersWidth;
+
+        // 3) from right to left, find the last column that can still render target column
+        i = targetColIdx;
+
+        do {
+            leftColIdx = i;
+            col = computedCols[i];
+            i--;
+        } while (col.left + viewportWidth > targetRight && i >= 0);
+
+        return leftColIdx;
+    },
+
+    /**
      * @summary Get the visibility of the column matching the provided data column index.
      * @desc Requested column may not be visible due to being scrolled out of view or if the column is inactive.
      * @memberOf Renderer.prototype
