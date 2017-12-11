@@ -23,7 +23,8 @@ Below is an example custom application built ontop of the Hypergrid API tooling.
 
 2.0 also replaces the 2015-2016 [prototype version](https://github.com/fin-hypergrid/core/tree/polymer-prototype), which was built around Polymer. It is now completely "de-polymerized" and is being made available as:
 * An [npm module](https://www.npmjs.com/package/fin-hypergrid) for use with browserify.
-* A single JavaScript file [fin-hypergrid.js](https://fin-hypergrid.github.io/core/build/fin-hypergrid.js) you can reference in a `<script>` tag.
+* A single JavaScript file [fin-hypergrid.js](https://fin-hypergrid.github.io/core/2.0.2/build/fin-hypergrid.js) you can reference in a `<script>` tag.
+* Or the minified [fin-hypergrid.js](script src='https://fin-hypergrid.github.io/core/2.0.2/build/fin-hypergrid.min.js).
 
 _For a complete list of changes, see the [release notes](https://github.com/fin-hypergrid/core/releases)._
 
