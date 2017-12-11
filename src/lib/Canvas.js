@@ -775,8 +775,8 @@ function makeCharMap() {
     map[119] = ['F8', 'F8SHIFT'];
     map[120] = ['F9', 'F9SHIFT'];
     map[121] = ['F10', 'F10SHIFT'];
-    map[122] = ['F11', 'F1S1HIFT'];
-    map[123] = ['F12', 'F121HIFT'];
+    map[122] = ['F11', 'F11SHIFT'];
+    map[123] = ['F12', 'F12SHIFT'];
 
     return map;
 }
