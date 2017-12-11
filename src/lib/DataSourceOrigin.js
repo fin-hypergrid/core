@@ -289,48 +289,6 @@ var DataSourceOrigin = DataSourceBase.extend('DataSourceOrigin',  {
      */
     getColumnCount: function() {
         return this.schema.length;
-    },
-
-    /**
-     * @memberOf DataSourceOrigin#
-     * @returns {number[]}
-     */
-    getFields: function() {
-        return this.schema.map(function(columnSchema) { return columnSchema.name; });
-    },
-
-    /**
-     * @memberOf DataSourceOrigin#
-     * @returns {string[]}
-     */
-    getHeaders: function() {
-        return this.schema.map(function(columnSchema) { return columnSchema.header; });
-    },
-
-    /**
-     * @memberOf DataSourceOrigin#
-     * @param {string[]} fields
-     */
-    setFields: function(fields) {
-        if (!(Array.isArray(fields) && fields.length === this.schema.length)) {
-            throw new this.DataSourceError('Expected argument to be an array with correct length.');
-        }
-        fields.forEach(function(field, i) {
-            this.schema[i].field = field;
-        }, this);
-    },
-
-    /**
-     * @memberOf DataSourceOrigin#
-     * @param {string[]} [headers] - If omitted, headers will be reset to their derived defaults on next call to `getHeaders`.
-     */
-    setHeaders: function(headers) {
-        if (!(Array.isArray(headers) && headers.length === this.schema.length)) {
-            throw new this.DataSourceError('Expected argument to be an array with correct length.');
-        }
-        headers.forEach(function(header, i) {
-            this.schema[i].header = header;
-        }, this);
     }
 });
 

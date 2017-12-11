@@ -105,18 +105,6 @@ var JSON = Behavior.extend('behaviors.JSON', {
     },
 
     /**
-     * @memberOf behaviors.JSON.prototype
-     * @description Set the fields array.
-     * @param {string[]} fieldNames - The field names.
-     */
-    setFields: function(fieldNames) {
-        //were defining the columns based on field names....
-        //we must rebuild the column definitions
-        this.dataModel.setFields(fieldNames);
-        this.createColumns();
-    },
-
-    /**
      * @see {@link dataModels.JSON#setPipeline}
      * @param {object} [DataSources] - New pipeline description. _(See {@link dataModels.JSON#setPipeline}.)_
      * @param {object} [options] - Takes first argument position when `DataSources` omitted. _(See {@link dataModels.JSON#setPipeline}.)_

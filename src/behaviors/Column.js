@@ -148,7 +148,7 @@ Column.prototype = {
                 schema[this.index].calculator = calculator;
             }
             this.behavior.prop(null, this.index, 'calculator', calculator);
-            this.behavior.applyAnalytics();
+            this.behavior.reindex();
         }
     },
     get calculator() {
