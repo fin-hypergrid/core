@@ -2,24 +2,24 @@
 
 'use strict';
 
-require('./lib/polyfills'); // Installs misc. polyfills into global objects, as needed
+require('../lib/polyfills'); // Installs misc. polyfills into global objects, as needed
 
 var Point = require('rectangular').Point;
 var Rectangle = require('rectangular').Rectangle;
 var _ = require('object-iterators'); // fyi: installs the Array.prototype.find polyfill, as needed
-var injectCSS = require('inject-stylesheet-template').bind(require('../css'));
+var injectCSS = require('inject-stylesheet-template').bind(require('../../css/index'));
 
-var Base = require('./Base');
-var defaults = require('./defaults');
-var dynamicPropertyDescriptors = require('./lib/dynamicProperties');
-var Canvas = require('./lib/Canvas');
-var Renderer = require('./renderer');
-var SelectionModel = require('./lib/SelectionModel');
-var Localization = require('./lib/Localization');
-var Behavior = require('./behaviors/Behavior');
-var behaviorJSON = require('./behaviors/JSON');
-var CellRenderers = require('./cellRenderers');
-var CellEditors = require('./cellEditors');
+var Base = require('../Base');
+var defaults = require('../defaults');
+var dynamicPropertyDescriptors = require('../lib/dynamicProperties');
+var Canvas = require('../lib/Canvas');
+var Renderer = require('../renderer/index');
+var SelectionModel = require('../lib/SelectionModel');
+var Localization = require('../lib/Localization');
+var Behavior = require('../behaviors/Behavior');
+var behaviorJSON = require('../behaviors/JSON');
+var CellRenderers = require('../cellRenderers/index');
+var CellEditors = require('../cellEditors/index');
 
 var EDGE_STYLES = ['top', 'bottom', 'left', 'right'],
     RECT_STYLES = EDGE_STYLES.concat(['width', 'height', 'position']);
@@ -2064,9 +2064,9 @@ Hypergrid.localization = {
 };
 
 
-Hypergrid.prototype.mixIn(require('./lib/events'));
-Hypergrid.prototype.mixIn(require('./lib/selection'));
-Hypergrid.prototype.mixIn(require('./lib/scrolling').mixin);
+Hypergrid.prototype.mixIn(require('./events'));
+Hypergrid.prototype.mixIn(require('./selection'));
+Hypergrid.prototype.mixIn(require('./scrolling').mixin);
 
 
 /** @name Base
@@ -2074,14 +2074,14 @@ Hypergrid.prototype.mixIn(require('./lib/scrolling').mixin);
  * Abstract base class for Hypergrid "classes."
  * @constructor
  */
-Hypergrid.Base = require('./Base');
+Hypergrid.Base = require('../Base');
 
 /** @name images
  * @memberOf Hypergrid
  * Hypergrid internal image registry.
  * @type {object}
  */
-Hypergrid.images = require('../images');
+Hypergrid.images = require('../../images/index');
 
 /** @name defaults
  * @memberOf Hypergrid
@@ -2123,7 +2123,7 @@ Object.defineProperty(Hypergrid, 'theme', { // global theme setter/getter
     set: applyTheme
 });
 
-Hypergrid.modules = require('./lib/modules');
+Hypergrid.modules = require('./modules');
 
 
 module.exports = Hypergrid;

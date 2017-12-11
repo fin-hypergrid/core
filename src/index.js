@@ -12,14 +12,15 @@
  * * This file is not a node module; it has no reference to `module.exports` or `exports`; it cannot be "required" by any other file.
  * * This file (along with module-loader.js) is blacklisted in .npmignore and is not published to npm.
  *
- * Note: The npm "main" entry point is undefined in package.json implying /index.js which is an indirection to /src/Hypergrid.js.
+ * Note: The npm "main" entry point is undefined in package.json implying /index.js
+ * which just contains an indirection to /src/hypergrid/index.js.
  */
 
 // Create the `fin` namespace if not already extant
 var fin = window.fin = window.fin || {};
 
 // Create the `fin.Hypergrid` object, which serves both as a "class" (constructor) and a namespace:
-var Hypergrid = fin.Hypergrid = require('./Hypergrid');
+var Hypergrid = fin.Hypergrid = require('./hypergrid');
 
 // Install the module loader
 Hypergrid.require = require('./module-loader');
@@ -27,7 +28,8 @@ Hypergrid.require = require('./module-loader');
 // Install `src` the internal module namespace which is for the build file only
 Hypergrid.src = {};
 
-// Note: `modules` the external module namespace already installed in Hypergrid.js (for both npm and build modules)
+// Note: At this point, `Hypergrid.modules`, the external module namespace, has already
+// been installed by ./hypergrid/index.js (for both npm and build modules).
 
 // Install implicit modules which are external modules but are not overridable so non-configurable, non-writable
 Object.defineProperties(Hypergrid.modules, {

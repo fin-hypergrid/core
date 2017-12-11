@@ -1,7 +1,7 @@
 'use strict';
 
 var packageName = require('../package.json').name;
-var Hypergrid = require('./Hypergrid');
+var Hypergrid = require('./hypergrid');
 
 var REGEX_INTERNAL_MODULE = new RegExp('^' + packageName + '/src/(lib|behaviors|dataModels|features)/(\\w+)$');
 

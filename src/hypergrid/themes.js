@@ -4,7 +4,7 @@
 // The initial registry consists of a single theme ('default').
 // Application developers can add additional themes to this registry.
 
-var defaults = require('./defaults');
+var defaults = require('../defaults');
 
 var styles = [
     'BackgroundColor',
