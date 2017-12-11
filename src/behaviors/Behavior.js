@@ -19,6 +19,7 @@ var noExportProperties = [
 ];
 
 /**
+ * See {@link Behavior#initialize initialize} for constructor params.
  * @constructor
  * @abstract
  * @desc A sort of "model++." It contains all code/data that's necessary for easily implementing a virtual data source and its manipulation/analytics.
@@ -27,7 +28,7 @@ var noExportProperties = [
 var Behavior = Base.extend('Behavior', {
 
     /**
-     * @desc this is the callback for the plugin pattern of nested tags
+     * Constructor proxy. See {@link https://github.com/joneit/extend-me|extend-me} for more info.
      * @param {Hypergrid} grid
      * @param {object} [options] - _(See {@link behaviors.JSON#setData} for additional options.)_
      * @param {DataModels[]} [options.subgrids]
@@ -243,7 +244,7 @@ var Behavior = Base.extend('Behavior', {
         return this.deprecated('getCellProvider()', 'grid.cellRenderers', '1.0.6', arguments);
     },
     createCellProvider: function(name) {
-        console.error('getCellProvider() is deprecated as of v1.0.6. No replacement; do not call. Previously called by `Behavior` constructor; `new CellRenderers()` is now called by `Hypergrid` constructor instead.', arguments);
+        console.error('createCellProvider() has been deprecated as of v1.0.6. No replacement; do not call. Previously called by `Behavior` constructor; `new CellRenderers()` is now called by `Hypergrid` constructor instead.', arguments);
     },
 
     /**
@@ -297,37 +298,43 @@ var Behavior = Base.extend('Behavior', {
      * @desc clear all table state
      */
     clearState: function() {
-       this.grid.clearState();
+        this.grid.clearState();
+        this.createColumns();
     },
 
     /**
      * @memberOf Behavior#
      * @desc Restore this table to a previous state.
      * See the [memento pattern](http://c2.com/cgi/wiki?MementoPattern).
-     * @param {Object} memento - an encapsulated representation of table state
+     * @param {Object} memento - assignable grid properties
      */
     setState: function(memento) {
+        this.clearState();
+        this.addState(memento);
+    },
 
-        if (memento.rowHeights) {
+    addState: function(properties) {
+        if (properties.rowHeights) {
             this.deprecated('rowHeights', 'rowHeights, the hash of row heights you provided to setState method, is no longer supported as of v1.2.0 and will be ignored. Instead, for each row height you wish to set, use `rows: { subgrid: { y: { height: heightInPixels } } }` substituting the name (or type) of the subgrid for `subgrid`, the local zero-based rowIndex within the subgrid for `y`, and the row height in pixels for `heightInPixels`; or make individual calls to `setRowHeight(y, heightInPixels, dataModel)`. The dataModel arg is optional and defaults to this.dataModel (the data subgrid); specify to set row heights in other data models, such as header row, filter cell row, individual summary rows, etc.');
         }
-
-        this.createColumns();
-
-        var state = this.grid.properties;
-        Object.keys(memento).forEach(function(key) {
-            state[key] = memento[key];
-        }, this);
-
-        this.setAllColumnProperties(memento.columnProperties);
-
+        Object.assign(this.grid.properties, properties);
+        this.setAllColumnProperties(properties.columnProperties);
         this.dataModel.reindex();
     },
 
+    /**
+     * @summary Sets properties of multiple columns.
+     * @desc Sets column properties to elements of given array.
+     * The array may be sparse; never defined or deleted elements are ignored.
+     * In addition, falsy elements are ignored.
+     * @param {object[]} columnProperties
+     */
     setAllColumnProperties: function(columnProperties) {
         if (columnProperties) {
             columnProperties.forEach(function(properties, i) {
-                this.getColumn(i).properties = properties;
+                if (properties) {
+                    this.getColumn(i).properties = properties;
+                }
             }, this);
         }
     },
@@ -1250,7 +1257,7 @@ var Behavior = Base.extend('Behavior', {
     /**
      * @memberOf Behavior#
      * @desc this function is a hook and is called just before the painting of a cell occurs
-     * @param {window.fin.rectangular.Point} cell
+     * @param {Point} cell
      */
     cellPropertiesPrePaintNotification: function(cell) {
 
@@ -1259,7 +1266,7 @@ var Behavior = Base.extend('Behavior', {
     /**
      * @memberOf Behavior#
      * @desc this function is a hook and is called just before the painting of a fixed row cell occurs
-     * @param {window.fin.rectangular.Point} cell
+     * @param {Point} cell
      */
     cellFixedRowPrePaintNotification: function(cell) {
 
@@ -1268,7 +1275,7 @@ var Behavior = Base.extend('Behavior', {
     /**
      * @memberOf Behavior#
      * @desc this function is a hook and is called just before the painting of a fixed column cell occurs
-     * @param {window.fin.rectangular.Point} cell
+     * @param {Point} cell
      */
     cellFixedColumnPrePaintNotification: function(cell) {
 
@@ -1277,7 +1284,7 @@ var Behavior = Base.extend('Behavior', {
     /**
      * @memberOf Behavior#
      * @desc this function is a hook and is called just before the painting of a top left cell occurs
-     * @param {window.fin.rectangular.Point} cell
+     * @param {Point} cell
      */
     cellTopLeftPrePaintNotification: function(cell) {
 
@@ -1392,7 +1399,7 @@ var Behavior = Base.extend('Behavior', {
     },
 
     getFilteredData: function() {
-        return this.deprecated('getIndexedData()', 'getIndexedData', '1.2.0', arguments);
+        return this.deprecated('getFilteredData()', 'getIndexedData', '1.2.0', arguments);
     },
     getIndexedData: function() {
        this.dataModel.getIndexedData();

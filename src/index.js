@@ -10,76 +10,63 @@
  *
  * What this file is not:
  * * This file is not a node module; it has no reference to `module.exports` or `exports`; it cannot be "required" by any other file.
- * * This file is blacklisted in .npmignore and is not published to npm.
+ * * This file (along with module-loader.js) is blacklisted in .npmignore and is not published to npm.
  *
- * Note: The npm "main" entry point is undefined in package.json implying /index.js.
+ * Note: The npm "main" entry point is undefined in package.json implying /index.js which is an indirection to /src/Hypergrid.js.
  */
 
-var Hypergrid = require('./Hypergrid');
+// Create the `fin` namespace if not already extant
+var fin = window.fin = window.fin || {};
 
-Hypergrid.images = require('../images');
-Hypergrid.behaviors = require('./behaviors');
-Hypergrid.features = require('./features');
-Hypergrid.rectangular = require('rectangular');
-Hypergrid.lib = require('./lib');
-Hypergrid.Base = require('./Base');
+// Create the `fin.Hypergrid` object, which serves both as a "class" (constructor) and a namespace:
+var Hypergrid = fin.Hypergrid = require('./Hypergrid');
 
-var windowRequire = window.require;
+// Install the module loader
+Hypergrid.require = require('./module-loader');
 
-// Recommended usage:
-// if (fin && fin.Hypergrid) { require = fin.Hypergrid.require; } // install
-// var Base = require('fin-hypergrid/src/Base');
-Hypergrid.require = function(path) {
-    var result, crumbs, i,
-        errMsg = 'Path ' + path + ' unknown or not exposed in build file.';
+// Install implicit modules which are external modules but are not overridable so non-configurable, non-writable
+Object.defineProperties(Hypergrid.modules, {
+    'extend-me': {value: require('extend-me') },
+    'fin-hypergrid-field-tools': { value: require('fin-hypergrid-field-tools') },
+    pubsubstar: { value: require('pubsubstar') },
+    rectangular: { value: require('rectangular') },
+    'datasaur-base': { value: require('datasaur-base') }, // scheduled for removal in v4
+    'datasaur-local': { value: require('datasaur-local') } // scheduled for removal in v4
+});
 
-    if (path.indexOf('fin-hypergrid/') === 0) {
-        result = Hypergrid;
-        crumbs = path.split('/');
-        i = 1;
+// Install internal modules may not be overridden so non-configurable, non-writable
+Object.defineProperties(Hypergrid.src, {
+    lib: { value: require('./lib') },
+    behaviors: { value: require('./behaviors') },
+    dataModels: { value: require('./dataModels') },
+    features: { value: require('./features') }
+});
 
-        if (crumbs[i] === 'src') {
-            switch (crumbs[++i]) {
-                case 'lib':
-                case 'Base':
-                case 'behaviors':
-                case 'dataModels':
-                case 'features':
-                    result = result[crumbs[i++]];
-                    break;
-                default:
-                    throw errMsg;
-            }
-        }
+// Deprecate certain properties
+Object.defineProperties(Hypergrid, {
+    lib: { get: deprecated.bind(null, 'lib') },
+    behaviors: { get: deprecated.bind(null, 'behaviors') },
+    dataModels: { get: deprecated.bind(null, 'dataModels') },
+    features: { get: deprecated.bind(null, 'features') },
+    rectangular: { get: deprecated.bind(null, 'rectangular', 'modules') }
+});
 
-        while (crumbs[i]) {
-            switch (crumbs[i]) {
-                case 'lib':
-                case 'Base':
-                case 'behaviors':
-                case 'dataModels':
-                case 'features':
-                    result = undefined;
-                    break;
-                default:
-                    result = result[crumbs[i++]];
-            }
-            if (!result) {
-                throw errMsg;
-            }
-        }
-
-        return result;
-    } else if (windowRequire) {
-        return windowRequire.apply(this, arguments);
-    } else {
-        throw errMsg;
-    }
-};
-
-// Create the `fin` namespace and the `fin.Hypergrid` objects:
-(window.fin = window.fin || {}).Hypergrid = Hypergrid;
-
-// Note users of the npm module do not have this object.
-// THey have access to any namespace through `require`, for example:
+// Note: The npm module version does *not* have the additional following properties
+// (.require, .src, and .modules). Both internal and external modules can be accessed
+// with Browserify's require() in exactly the same way as with Hypergrid.require():
+// For example:
+// var pubsub = require('pubsubstar');
 // var behaviorJSON = require('fin-hypergrid/src/behaviors/JSON');
+
+function deprecated(key, registry) {
+    registry = registry || 'src';
+
+    var requireString = registry === 'src' ? 'fin-hypergrid/src/' + key + '/modulename' : key;
+
+    console.warn(new Error('Direct reference to source modules using' +
+        ' `Hypergrid.' + key + '.modulename` has been deprecated as of v3.0.0 in favor of' +
+        ' `Hypergrid.require(\'' + requireString + '\')` and will be removed in a future release.' +
+        ' See Client Modules wiki.'));
+
+    return Hypergrid.require(requireString);
+}

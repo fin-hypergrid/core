@@ -2,8 +2,8 @@
 
 var toFunction = require('../lib/toFunction');
 
-var FIELD = 'columnProperties.field is deprecated as of v1.1.0 in favor of columnProperties.name. (Will be removed in a future release.)',
-    COLUMN_NAME = 'columnProperties.columnName is deprecated as of v1.1.0 in favor of columnProperties.name. (Will be removed in a future release.)',
+var FIELD = 'columnProperties.field has been deprecated as of v1.1.0 in favor of columnProperties.name. (Will be removed in a future release.)',
+    COLUMN_NAME = 'columnProperties.columnName has been deprecated as of v1.1.0 in favor of columnProperties.name. (Will be removed in a future release.)',
     COLUMN_ONLY_PROPERTY = 'Attempt to set column-only property on a non-column properties object.';
 
 /**

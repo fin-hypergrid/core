@@ -293,15 +293,15 @@ factory.cellEventProperties = Object.defineProperties({}, {
     deprecated: { value: deprecated },
 
     isGridRow: { get: function() {
-        this.deprecated('isGridRow', '.isGridRow is deprecated as of v1.2.10 in favor of .isDataRow. (Will be removed in a future release.)');
+        this.deprecated('isGridRow', '.isGridRow has been deprecated as of v1.2.10 in favor of .isDataRow. (Will be removed in a future release.)');
         return this.isDataRow;
     } },
     isGridColumn: { get: function() {
-        this.deprecated('isGridColumn', '.isGridColumn is deprecated as of v1.2.10 in favor of .isDataColumn. (Will be removed in a future release.)');
+        this.deprecated('isGridColumn', '.isGridColumn has been deprecated as of v1.2.10 in favor of .isDataColumn. (Will be removed in a future release.)');
         return this.isDataColumn;
     } },
     isGridCell: { get: function() {
-        this.deprecated('isGridCell', '.isGridCell is deprecated as of v1.2.10 in favor of .isDataCell. (Will be removed in a future release.)');
+        this.deprecated('isGridCell', '.isGridCell has been deprecated as of v1.2.10 in favor of .isDataCell. (Will be removed in a future release.)');
         return this.isDataCell;
     } },
 });

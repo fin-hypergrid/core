@@ -18,9 +18,11 @@
 /*.sh
 /*.md
 
-*.index.js
-!/index.js
-!/css/index.js
-!/src/cellRenderers/index.js
-!/src/cellEditors/index.js
-!/src/renderer/index.js
+# Following files support Hypergrid.require and are not needed in the npm module
+# because Browserify's require() can drill down inside folders.
+/src/index.js         # creates fin.Hypergrid w/ .src, .modules, and .require
+/src/module-loader.js # Hypergrid.require
+/beahviors/index.js   # folder index
+/dataModels/index.js  # folder index
+/features/index.js    # folder index
+/lib/index.js         # folder index

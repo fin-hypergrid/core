@@ -103,15 +103,17 @@ var JSON = Behavior.extend('behaviors.JSON', {
 
     /**
      * @memberOf behaviors.JSON.prototype
-     * @description Set the data field.
+     * @summary Set grid data.
+     * @desc Exits if without doing anything if:
+     * * `dataRows` undefined; or
+     * * `dataRows` omitted and `options.data` undefined
      * @param {function|object[]} [dataRows=options.data] - Array of uniform data row objects or function returning same.
+     * Passed as 1st param to {@link dataModel.JSON#setData}.
      * @param {object} [options] - Takes first argument position when `dataRows` omitted.
      * @param {function|object} [options.data] - Array of uniform data row objects or function returning same.
-     * Passed as 1st param to {@link dataModel.JSON#setData}. If falsy, method aborted.
-     * @param {function|object} [options.fields] - Array of field names or function returning same.
+     * Only used when `dataRows` was omitted.
+     * @param {function|object} [options.schema] - Array of column schema objects or function returning same.
      * Passed as 2nd param to {@link dataModel.JSON#setData}.
-     * @param {function|object} [options.calculators] - Array of calculators or function returning same.
-     * Passed as 3rd param to {@link dataModel.JSON#setData}.
      * @param {boolean} [options.apply=true] Apply data transformations to the new data.
      */
     setData: function(dataRows, options) {

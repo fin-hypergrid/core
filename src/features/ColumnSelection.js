@@ -19,7 +19,7 @@ var ColumnSelection = Feature.extend('ColumnSelection', {
 
     /**
      * The pixel location of the mouse pointer during a drag operation.
-     * @type {window.fin.rectangular.Point}
+     * @type {Point}
      * @default null
      * @memberOf ColumnSelection.prototype
      */

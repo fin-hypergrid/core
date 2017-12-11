@@ -16,7 +16,8 @@ var Canvas = require('./lib/Canvas');
 var Renderer = require('./renderer');
 var SelectionModel = require('./lib/SelectionModel');
 var Localization = require('./lib/Localization');
-var behaviors = require('./behaviors');
+var Behavior = require('./behaviors/Behavior');
+var behaviorJSON = require('./behaviors/JSON');
 var CellRenderers = require('./cellRenderers');
 var CellEditors = require('./cellEditors');
 
@@ -370,7 +371,7 @@ var Hypergrid = Base.extend('Hypergrid', {
             // set first two args of `preinstall` method to `this` (the Hypergrid prototype) and the Behavior prototype
             args = [this];
             if (shared) {
-                args.push(behaviors.Behavior.prototype);
+                args.push(Behavior.prototype);
             }
 
             if (Array.isArray(plugin)) {
@@ -741,7 +742,7 @@ var Hypergrid = Base.extend('Hypergrid', {
             // 1. Called from constructor because behavior included in options object.
             // 2. Called from `setData` _and_ wasn't called explicitly since instantiation
             options = options || {};
-            var Behavior = options.Behavior || behaviors.JSON;
+            var Behavior = options.Behavior || behaviorJSON;
             this.behavior = new Behavior(this, options);
             this.initCanvas();
             this.initScrollbars();
@@ -761,7 +762,7 @@ var Hypergrid = Base.extend('Hypergrid', {
      */
     setData: function(dataRows, options) {
         // Call `setBehavior` here just in case not previously set by constructor _or_ explicitly since instantiation
-        this.setBehavior();
+        this.setBehavior(options);
         this.behavior.setData(dataRows, options);
         this.setInfo(dataRows.length ? '' : this.properties.noDataMessage);
         this.behavior.changed();
@@ -1215,6 +1216,95 @@ var Hypergrid = Base.extend('Hypergrid', {
 
     /**
      * @memberOf Hypergrid#
+<<<<<<< HEAD
+=======
+     * @desc Initialize the scroll bars.
+     */
+    initScrollbars: function() {
+        if (this.sbHScroller && this.sbVScroller){
+            return;
+        }
+
+        var self = this;
+
+        var horzBar = new Hypergrid.modules.Scrollbar({
+            orientation: 'horizontal',
+            onchange: self.setHScrollValue.bind(self),
+            cssStylesheetReferenceElement: this.div
+        });
+
+        var vertBar = new Hypergrid.modules.Scrollbar({
+            orientation: 'vertical',
+            onchange: self.setVScrollValue.bind(self),
+            paging: {
+                up: self.pageUp.bind(self),
+                down: self.pageDown.bind(self)
+            }
+        });
+
+        this.sbHScroller = horzBar;
+        this.sbVScroller = vertBar;
+
+        var hPrefix = this.properties.hScrollbarClassPrefix;
+        var vPrefix = this.properties.vScrollbarClassPrefix;
+
+        if (hPrefix && hPrefix !== '') {
+            this.sbHScroller.classPrefix = hPrefix;
+        }
+
+        if (vPrefix && vPrefix !== '') {
+            this.sbVScroller.classPrefix = vPrefix;
+        }
+
+        this.div.appendChild(horzBar.bar);
+        this.div.appendChild(vertBar.bar);
+
+        this.resizeScrollbars();
+    },
+
+    resizeScrollbars: function() {
+        this.sbHScroller.shortenBy(this.sbVScroller).resize();
+        //this.sbVScroller.shortenBy(this.sbHScroller);
+        this.sbVScroller.resize();
+    },
+
+    /**
+     * @memberOf Hypergrid#
+     * @desc Scroll values have changed, we've been notified.
+     */
+    setVScrollbarValues: function(max) {
+        this.sbVScroller.range = {
+            min: 0,
+            max: max
+        };
+    },
+
+    setHScrollbarValues: function(max) {
+        this.sbHScroller.range = {
+            min: 0,
+            max: max
+        };
+    },
+
+    scrollValueChangedNotification: function() {
+        if (
+            this.hScrollValue !== this.sbPrevHScrollValue ||
+            this.vScrollValue !== this.sbPrevVScrollValue
+        ) {
+            this.sbPrevHScrollValue = this.hScrollValue;
+            this.sbPrevVScrollValue = this.vScrollValue;
+
+            if (this.cellEditor) {
+                this.cellEditor.scrollValueChangedNotification();
+            }
+
+            this.computeCellsBounds();
+        }
+    },
+
+    /**
+     * @memberOf Hypergrid#
+>>>>>>> deprecated default data source
      * @summary Get data value at given cell.
      * @param {number} x - The horizontal coordinate.
      * @param {number} y - The vertical coordinate.
@@ -1978,6 +2068,21 @@ Hypergrid.prototype.mixIn(require('./lib/events'));
 Hypergrid.prototype.mixIn(require('./lib/selection'));
 Hypergrid.prototype.mixIn(require('./lib/scrolling').mixin);
 
+
+/** @name Base
+ * @memberOf Hypergrid
+ * Abstract base class for Hypergrid "classes."
+ * @constructor
+ */
+Hypergrid.Base = require('./Base');
+
+/** @name images
+ * @memberOf Hypergrid
+ * Hypergrid internal image registry.
+ * @type {object}
+ */
+Hypergrid.images = require('../images');
+
 /** @name defaults
  * @memberOf Hypergrid
  * @type {object}
@@ -1996,14 +2101,6 @@ Hypergrid.defaults = defaults;
  * @summary Synonym for {@link Hypergrid.defaults}.
  */
 Hypergrid.properties = defaults;
-
-/** @name dataModels
- * @memberOf Hypergrid
- * @type {object}
- * @summary Registry of data models.
- * @see {@link dataModels}
- */
-Hypergrid.dataModels = require('./dataModels');
 
 /** @name themes
  * @memberOf Hypergrid

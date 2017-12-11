@@ -1,77 +1,57 @@
 'use strict';
 
 var DataModel = require('./DataModel');
-var DataSourceOrigin = require('../lib/DataSourceOrigin');
 
 /**
+ * See {@link dataModels.JSON.prototype.initialize initialize} for constructor params.
  * @name dataModels.JSON
  * @constructor
  * @extends DataModel
  */
 var JSON = DataModel.extend('dataModels.JSON', {
 
+    /**
+     * Constructor proxy. See {@link https://github.com/joneit/extend-me|extend-me} for more info.
+     * @param {Hypergrid} grid
+     * @param {object} [options]
+     * @param {DataSource} [options.DataSource] - Must be supplied on first call; optional thereafter.
+     * @param {object[]} [options.data]
+     * @param {object[]} [options.schema]
+     * @memberOf dataModels.JSON.prototype
+     */
     initialize: function(grid, options) {
         this.charMap = new CharMap(this);
         this.reset(options);
     },
 
     /**
-     * Override to use a different origin.
-     * @type(DataSourceBase}
-     * @memberOf dataModels.JSON.prototype
-     */
-    DataSourceOrigin: DataSourceOrigin,
-
-    /**
      * @param {object} [options]
+     * @param {DataSource} [options.DataSource]
+     * @param {object[]} [options.data]
+     * @param {object[]} [options.schema]
      * @memberOf dataModels.JSON.prototype
      */
     reset: function(options) {
         options = options || {};
 
-        this.dataSource = this.source = new this.DataSourceOrigin(
+        var DataSource = this.DataSource = options.DataSource || this.DataSource || JSON.DataSource;
+
+        if (!DataSource) {
+            throw new this.HypergridError('Expected DataSource to be defined.');
+        }
+
+        this.dataSource = this.source = new DataSource(
             options.data,
             options.schema
         );
     },
 
-    /**
-     * Append a data source.
-     * @param {function} DataSource - Data source constructor.
-     */
-    append: function(DataSource) {
-        // return value is first and only response from first data source
-        this.dataSource = this.dataSource.publish('append', DataSource)[0][0];
-    },
-
-    clearSelectedData: function() {
-        var key = 'clearSelectedData()',
-            warned = this.$$DEPRECATION_WARNED = this.$$DEPRECATION_WARNED || {};
-        if (!(key in warned)) {
-            warned[key] = 0;
-            console.warn(key + ' has been deprecated as of v1.2.23. This function no longer has any meaning; calls should be removed.');
-        }
-    },
-
-    /**
-     * @deprecated As of v1.0.7, reference the `dataSource` property instead.
-     * @returns {*}
-     * @memberOf dataModels.JSON.prototype
-     */
-    getDataSource: function() {
-        return this.deprecated('getDataSource()', 'dataSource', '1.0.7');
+    publish: function(topic, message) {
+        return this.dataSource.publish(topic, message)[0];
     },
 
     getData: function() {
-        return this.source.data;
-    },
-
-    /**
-     * @deprecated As of v1.1.0, use `getIndexedData()` instead.
-     * @memberOf dataModels.JSON.prototype
-     */
-    getFilteredData: function() {
-        return this.deprecated('getFilteredData()', 'getIndexedData()', '1.2.0', arguments);
+        return this.call('get-data');
     },
 
     getIndexedData: function() {
@@ -146,18 +126,18 @@ var JSON = DataModel.extend('dataModels.JSON', {
     reindex: function(options) {
         var selectedRowSourceIndexes = getUnderlyingIndexesOfSelectedRows.call(this);
 
-        this.dataSource.publish('apply');
+        this.publish('apply');
 
         reselectRowsByUnderlyingIndexes.call(this, selectedRowSourceIndexes);
     },
 
     /**
      * @summary Set or reset grid data.
-     * See {@link DataSourceOrigin#setData} for details.
+     * See {@link DataSource#setData} for details.
      * @memberOf dataModels.JSON.prototype
      */
     setData: function(dataSource, schema) {
-        this.source.setData(dataSource, schema);
+        this.dataSource.setData(dataSource, schema);
     },
 
     isTree: function() {
@@ -166,75 +146,6 @@ var JSON = DataModel.extend('dataModels.JSON', {
 
     isTreeCol: function(event) {
         return this.dataSource.isDrillDownCol(event);
-    },
-
-    /**
-     * @deprecated As pf v1.1.0, use `this.grid.behavior.setTopTotals()` instead.
-     * @summary Set the top total row(s).
-     * @param {dataRowObject[]} totalRows - Array of 0 or more rows containing summary data. Omit to set to empty array.
-     * @memberOf dataModels.JSON.prototype
-     */
-    setTopTotals: function(totalRows) {
-        return this.deprecated('setTopTotals(rows)', 'grid.behavior.setTopTotals(rows)', '1.1.0', arguments);
-    },
-
-    /**
-     * @deprecated As pf v1.1.0, use `this.grid.behavior.getTopTotals()` instead.
-     * @summary Get the top total row(s).
-     * @returns {dataRowObject[]}
-     * @memberOf dataModels.JSON.prototype
-     */
-    getTopTotals: function() {
-        return this.deprecated('getTopTotals(rows)', 'grid.behavior.getTopTotals(rows)', '1.1.0', arguments);
-    },
-
-    /**
-     * @deprecated
-     * @summary Set the bottom total row(s).
-     * @param {dataRowObject[]} totalRows - Array of 0 or more rows containing summary data. Omit to set to empty array.
-     * @memberOf dataModels.JSON.prototype
-     */
-    setBottomTotals: function(totalRows) {
-        return this.deprecated('setBottomTotals(rows)', 'grid.behavior.setBottomTotals(rows)', '1.1.0', arguments);
-    },
-
-    /**
-     * @summary Get the bottom total row(s).
-     * @deprecated As pf v1.1.0, use `this.grid.behavior.getBottomTotals()` instead.
-     * @returns {dataRowObject[]}
-     * @memberOf dataModels.JSON.prototype
-     */
-    getBottomTotals: function() {
-        return this.deprecated('getBottomTotals()', 'grid.behavior.getBottomTotals()', '1.1.0');
-    },
-
-    /**
-     * @memberOf dataModels.JSON.prototype
-     * @returns {Column[]}
-     */
-    getActiveColumns: function() {
-        return this.deprecated('getActiveColumns()', 'grid.behavior.getActiveColumns()', '1.2.14', arguments);
-    },
-
-    /**
-     * @memberOf dataModels.JSON.prototype
-     * @deprecated As of v1.0.6, use `this.getActiveColumns` instead.
-     * @returns {Column[]}
-     */
-    getVisibleColumns: function() {
-        return this.deprecated('getVisibleColumns()', 'getActiveColumns()', '1.0.6', arguments);
-    },
-
-    /**
-     * @memberOf dataModels.JSON.prototype
-     * @returns {object[]}
-     */
-    getHiddenColumns: function() {
-        return this.deprecated('getHiddenColumns()', 'grid.behavior.getHiddenColumns()', '1.2.14', arguments);
-    },
-
-    hasHierarchyColumn: function() {
-        return this.deprecated('hasHierarchyColumn()', '', 'v1.3.3');
     },
 
     /**
@@ -311,22 +222,6 @@ var JSON = DataModel.extend('dataModels.JSON', {
     },
 
     /**
-     * @deprecated As of v1.1.0, use `this.reindex` instead.
-     * @memberOf dataModels.JSON.prototype
-     */
-    applyState: function() {
-        return this.deprecated('applyState()', 'reindex()', '1.2.0', arguments);
-    },
-
-    getUnfilteredValue: function(x, y) {
-        return this.deprecated('getUnfilteredValue(x, y)', null, '1.2.0', arguments, 'No longer supported');
-    },
-
-    getUnfilteredRowCount: function() {
-        return this.deprecated('getUnfilteredValue(x, y)', null, '1.2.0', arguments, 'No longer supported');
-    },
-
-    /**
      * @summary Add a new data row to the grid.
      * @desc If indexed data source in use, to see the new row in the grid, you must eventually call:
      * ```javascript
@@ -338,14 +233,45 @@ var JSON = DataModel.extend('dataModels.JSON', {
      * @memberOf dataModels.JSON.prototype
      */
     addRow: function(newDataRow) {
-        this.getData().push(newDataRow);
-        return newDataRow;
+        return this.publish('add-row', newDataRow);
     },
 
-    get schema() { return this.dataSource.schema; },
+    get schema() {
+        return this.dataSource.getSchema();
+    },
 
     set schema(schema) {
         this.dataSource.setSchema(schema);
+    }
+});
+
+
+/** @name DataSource
+ * @memberOf JSON
+ * @default require('datasaur-local')
+ * @summary Default data source.
+ * @desc If defined, will be used as a default data source for newly instantiated
+ * `Hypergrid` objects that do not have a defined `DataSource` option specified.
+ *
+ * This property is defined as a getter for now purely to be able to issue a deprecation warning that
+ * the current default, `require('datasaur-local')`, has been deprecated as of v3.
+ * Starting with v4, the application developer will be expected to define one of:
+ * * a default data source `JSON.DataSource`; or
+ * * a `DataSource` option for each grid instantiation.
+ */
+var DataSource = require('datasaur-local');
+var warnDataSource;
+Object.defineProperty(JSON, 'DataSource', {
+    enumerable: true,
+    get: function() {
+        if (!warnDataSource) {
+            console.warn('The default data source, `require(\'datasaur-local\')`, has been deprecated as of v3.0.0. Starting with v4, you must define either a default data source in `JSON.DataSource` or a `DataSource` option for each grid instantiation. For more info, see: https://github.com/fin-hypergrid/core/wiki/Data-Source');
+            warnDataSource = true;
+        }
+        return DataSource;
+    },
+    set: function(Constructor) {
+        DataSource = Constructor;
     }
 });
 

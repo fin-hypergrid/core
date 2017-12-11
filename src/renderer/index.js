@@ -457,7 +457,7 @@ var Renderer = Base.extend('Renderer', {
      * @deprecated
      */
     resolveProperty: function(key) {
-        this.deprecated('resolveProperty', 'The .resolveProperty(key) method is deprecated as of v1.2.10 in favor of the .grid.properties object dereferenced with [key]. (Will be removed in a future release.)');
+        this.deprecated('resolveProperty', 'The .resolveProperty(key) method has been deprecated as of v1.2.10 in favor of the .grid.properties object dereferenced with [key]. (Will be removed in a future release.)');
         return this.properties[key];
     },
 

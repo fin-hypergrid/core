@@ -369,7 +369,6 @@ module.exports = function(demo, grid) {
         var ctrl;
 
         grid.selectionModel.clear();
-        grid.behavior.dataModel.clearSelectedData();
 
         setProp.call(this);
 

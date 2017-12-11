@@ -2,6 +2,8 @@
 
 'use strict';
 
+var extend = require('extend-me');
+var pkg = require('../package.json');
 var HypergridError = require('./lib/error');
 
 /**
@@ -12,10 +14,14 @@ var HypergridError = require('./lib/error');
  * var descendantClass = Base.extend(prototype};
  * @classdesc This is an abstract base class available for all Hypergrid classes.
  */
-var Base = require('extend-me').Base;
+var Base = extend.Base;
 
-Base.prototype.version = require('../package.json').version;
+Base.prototype.appName = pkg.name;
+Base.prototype.version = pkg.version;
 Base.prototype.versionParts = splitVersionIntoParts(Base.prototype.version);
+if (Base.prototype.versionParts.length !== 3) {
+    throw new HypergridError('Expected version number to consist of 3 numeric parts (MAJOR.MINOR.PATCH).');
+}
 Base.prototype.versionAtLeast = function(v) {
     v = splitVersionIntoParts(v);
     for (var i = 0; i < v.length; i++) {
@@ -31,7 +37,7 @@ function splitVersionIntoParts(v) {
         case 1: v.push(0); // fall through
         case 2: v.push(0); // fall through
         case 3: break;
-        default: throw new HypergridError('Expected version number to consist of 1, 2, or 3 dot-separated parts.');
+        default: throw new HypergridError('Expected version number to consist of 1, 2, or 3 dot-separated numbers.');
     }
     return v;
 }
