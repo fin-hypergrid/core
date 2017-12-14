@@ -1,10 +1,12 @@
 .*
 *.css
 *.html
+~*.*x
 
 /add-ons
 /demo
 /doc
+build
 /html/*.html
 /images/**
 !/images/index.js
@@ -18,11 +20,9 @@
 /*.sh
 /*.md
 
-# Following files support Hypergrid.require and are not needed in the npm module
-# because Browserify's require() can drill down inside folders.
-/src/index.js         # creates fin.Hypergrid w/ .src, .modules, and .require
-/src/module-loader.js # Hypergrid.require
-/beahviors/index.js   # folder index
-/dataModels/index.js  # folder index
-/features/index.js    # folder index
-/lib/index.js         # folder index
+/src/index.js
+/src/module-loader.js
+/src/beahviors/index.js
+/src/dataModels/index.js
+/src/features/index.js
+/src/lib/index.js
