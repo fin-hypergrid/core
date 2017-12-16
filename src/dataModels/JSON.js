@@ -1,25 +1,20 @@
 'use strict';
 
 var DataModel = require('./DataModel');
-var HypergridError = require('../lib/error');
 
 /**
- * See {@link dataModels.JSON.prototype.initialize initialize} for constructor params.
+ * > This constructor (actually {@link dataModels.JSON#initialize}) will be called upon instantiation of this class or of any class that extends from this class. See {@link https://github.com/joneit/extend-me|extend-me} for more info.
  * @name dataModels.JSON
+ * @param {Hypergrid} grid
+ * @param {object} [options]
+ * @param {DataSource} [options.DataSource] - Must be supplied on first call; optional thereafter.
+ * @param {object[]} [options.data]
+ * @param {object[]} [options.schema]
  * @constructor
  * @extends DataModel
  */
 var JSON = DataModel.extend('dataModels.JSON', {
 
-    /**
-     * Constructor proxy. See {@link https://github.com/joneit/extend-me|extend-me} for more info.
-     * @param {Hypergrid} grid
-     * @param {object} [options]
-     * @param {DataSource} [options.DataSource] - Must be supplied on first call; optional thereafter.
-     * @param {object[]} [options.data]
-     * @param {object[]} [options.schema]
-     * @memberOf dataModels.JSON.prototype
-     */
     initialize: function(grid, options) {
         this.charMap = new CharMap(this);
         this.reset(options);
@@ -35,8 +30,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
     reset: function(options) {
         options = options || {};
 
-        var DataSource = this.DataSource = options.DataSource || this.DataSource || JSON.DataSource,
-            dataSourceOptions = { interface: JSON.interface };
+        var DataSource = this.DataSource = options.DataSource || this.DataSource || JSON.DataSource;
 
         if (!DataSource) {
             throw new this.HypergridError('Expected DataSource to be defined.');
@@ -45,22 +39,18 @@ var JSON = DataModel.extend('dataModels.JSON', {
         this.dataSource = this.source = new DataSource(
             options.data,
             options.schema,
-            dataSourceOptions
+            this.getInterface(options.metadata, options.interface)
         );
+
+        buildRowAccessor.call(this);
     },
 
     getData: function() {
-        return this.call('get-data');
+        return this.deprecated('getData()', 'dataSource.getData()', '3.0.0', arguments, 'Get data is problematic and should not be called (see https://github.com/fin-hypergrid/core/wiki/getRow-and-getData-Abuse). The fallback will copy the rows and all their data. If your data source has an implementation (and you know what you\'re doing), call it directly.');
     },
 
     getIndexedData: function() {
-        var ds = this.dataSource;
-        var count = ds.getRowCount();
-        var result = new Array(count);
-        for (var y = 0; y < count; y++) {
-            result[y] = ds.getRow(y);
-        }
-        return result;
+        return this.deprecated('getIndexedData()', 'dataSource.getData()', '3.0.0', arguments, 'This method was originally provided to get all the data from the tip of the data source (in a cascading datasource, rather than from the origin), which would be the subset of (transformed) rows with their transformed indexes. This was ill-advised because the right way to do this would have been to implement a `getRow` at the tip.');
     },
 
     /**
@@ -135,6 +125,9 @@ var JSON = DataModel.extend('dataModels.JSON', {
      */
     setData: function(dataSource, schema) {
         this.dataSource.setData(dataSource, schema);
+        if (schema) {
+            buildRowAccessor.call(this);
+        }
     },
 
     isTree: function() {
@@ -208,65 +201,12 @@ var JSON = DataModel.extend('dataModels.JSON', {
         return this.dataSource.getRow(r);
     },
 
-    getRowMetadata: function(rowIndex, metadata) {
-        var dataRow = this.getRow(rowIndex);
-        return dataRow && (dataRow.__META || (dataRow.__META = metadata));
+    getRowMetadata: function(y, metadata) {
+        return this.dataSource.getRowMetadata(y, metadata);
     },
 
-    setRowMetadata: function(rowIndex, metadata) {
-        var dataRow = this.getRow(rowIndex);
-        return dataRow && (dataRow.__META = metadata);
-    },
-
-    /**
-     * @summary Update or blank row in place.
-     * @desc _Note parameter order is the reverse of `addRow`._
-     *
-     * Note regarding transformed data:
-     * This method operates on untransformed data rows.
-     * If data is transformed (rows rearranged or omitted), to see the new row in the grid, you must eventually call:
-     * ```javascript
-     * this.grid.behavior.reindex();
-     * this.grid.behaviorChanged();
-     * ```
-     *
-     * @param {number} y
-     * @param {object} [dataRow] - if omitted or otherwise falsy, row renders as blank
-     * @memberOf dataModels.JSON.prototype
-     */
-    setRow: function(y, dataRow) {
-        this.dataSource.setRow(y, dataRow);
-    },
-
-    /**
-     * @summary Insert or append a new row.
-     * @desc _Note parameter order is the reverse of `setRow`._
-     *
-     * See notes in {@link dataModels.JSON#setRow setRow} regarding transformed data.
-     *
-     * @param {object} dataRow
-     * @param {number} [y=Infinity] - The index of the new row. If `y` >= row count, row is appended to end; otherwise row is inserted at `y` and row indexes of all remaining rows are incremented.
-     * @memberOf dataModels.JSON.prototype
-     */
-    addRow: function(newDataRow, beforeRowIndex) {
-        this.dataSource.addRow(newDataRow, beforeRowIndex);
-    },
-
-    /**
-     * @summary Deelete a row.
-     * @desc Rows are removed entirely and no longer rendered.
-     * Row indexes of all remaining rows are decreased by `rowCount`.
-     *
-     * See notes in {@link dataModels.JSON#setRow setRow} regarding transformed data.
-     *
-     * @param {number} y
-     * @param {number} [rowCount=1]
-     * @returns {object[]} The deleted row objects.
-     * @memberOf DataSourceLocal#
-     */
-    delRow: function(y, rowCount) {
-        if (rowCount === undefined) { rowCount = 1; }
-        return this.data.splice(y, rowCount);
+    setRowMetadata: function(y, metadata) {
+        return this.dataSource.setRowMetadata(y, metadata);
     },
 
     get schema() {
@@ -278,51 +218,53 @@ var JSON = DataModel.extend('dataModels.JSON', {
     }
 });
 
+/**
+ * @function buildRowAccessor
+ *
+ * @summary Build a `dataSource.getRow` fallback based on curent `schema`.
+ *
+ * @desc The accessor is a dataRow-like object (a hash of column values keyed by column name)
+ * for the particular row whose index is in `.$$rowIndex`.
+ *
+ * The row index can be conveniently set with a call to the accessor's (non-enumerable) `.$$getRow()` method,
+ * which sets the row index and returns the accessor itself
+ * (which is why it's more logically called `$$getRow` instead of `$$setRowIndex`).
+ *
+ * `$$rowIndex` and `$$getRow` are "hidden" members:
+ * * They are non-enumerable so they won't show up in `Object.keys(...)`.
+ * * They sport leading `$$` to reduce the chance of clashing with actual column names.
+ *
+ * In this fallback implementation, the (enumerable) members are all getters that invoke `getValue`.
+ *
+ * This function should be called each time a new schema is set (_i.e.,_ on instantiation and again whenever setData is called with a defined schema).
+ *
+ * @this {dataModels.JSON}
+ */
 
-JSON.interface = {
-    // Required:
-    getSchema: unimplementedError('getSchema'),
-    setSchema: unimplementedError('setSchema'), // called by Hypergrid only if you specify a schema on new or setData
-    setData: unimplementedError('setData'),
-    setValue: unimplementedError('setValue'), // called by Hypergrid only if you edit a cell
-    getValue: unimplementedError('getValue'),
-    getRowCount: unimplementedError('getRowCount'),
-    getColumnCount: function() { return this.getSchema().length; },
-    getRow: unimplementedError('getRow'),
-
-    // Hypergrid extensions
-    setRow: unsupportedWarning('setRow'),
-    addRow: unsupportedWarning('addRow'),
-    delRow: unsupportedWarning('delRow', []),
-    apply: null,
-    getDataIndex: function(y) { return y; },
-    click: null,
-    isDrillDown: null,
-    isDrillDownCol: null,
-
-    // following need to be set by certain data source modules for their internal (?) use:
-    // getGrandTotals: null,
-    // revealRow: null,
-    // isLeafNode: null,
-    // viewMakesSense: null
+var accessorDescriptors = {
+    $$rowIndex: { writable: true },
+    $$getRow: { value: function(rowIndex) {
+            this.$$rowIndex = rowIndex;
+            return this;
+        }
+    }
 };
 
-function unimplementedError(methodName) {
-    return function() {
-        throw new HypergridError('Expected required data source method `' + methodName + '()` to be implemented.');
-    };
-}
-
-var warned = {};
-
-function unsupportedWarning(methodName, returnValue) {
-    return function() {
-        if (!warned[methodName]) {
-            console.warn('Data source does not support `' + methodName + '()`.');
-            warned[methodName] = true;
-        }
-        return returnValue;
-    };
+function buildRowAccessor() {
+    var dataSource = this.dataSource,
+        columnEnum = {},
+        rowAccessor = Object.create(null, accessorDescriptors);
+    this.schema.forEach(function(columnSchema, columnIndex) {
+        columnEnum[columnSchema.name] = columnIndex;
+        Object.defineProperty(rowAccessor, columnSchema.name, {
+            enumerable: true,
+            get: function() {
+                return dataSource.getValue(columnIndex, this.$$rowIndex);
+            }
+        });
+    });
+    this.columnEnum = columnEnum;
+    this.rowAccessor = rowAccessor;
 }
 
 
@@ -334,7 +276,7 @@ function unsupportedWarning(methodName, returnValue) {
  * `Hypergrid` objects that do not have a defined `DataSource` option specified.
  *
  * This property is defined as a getter for now purely to be able to issue a deprecation warning that
- * the current default, `require('datasaur-local')`, has been deprecated as of v3.
+ * the current default, `require('datasaur-local')`, has been deprecated as of v3 to be removed in v4.
  * Starting with v4, the application developer will be expected to define one of:
  * * a default data source `JSON.DataSource`; or
  * * a `DataSource` option for each grid instantiation.

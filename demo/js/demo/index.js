@@ -30,7 +30,10 @@ window.onload = function() {
     Behavior.prototype.columnEnumKey = Behavior.columnEnumDecorators.toCamelCase;
 
     var gridOptions = {
-            // DataSource: Hypergrid.require('datasaur-local'), // v3's default so optional for now; will be required for v4
+            // Because v3 defaults to use datasaur-local (which is still included in the build),
+            // specifying it here is still optional, but may be required for v4.
+            // Uncomment the following line to specify ("bring your own") data source.
+            // DataSource: Hypergrid.require('datasaur-local'),
             data: people1,
             margin: { bottom: '17px', right: '17px'},
             schema: getSchema(people1),
@@ -64,7 +67,7 @@ window.onload = function() {
     function toggleEmptyData() {
         if (!oldData) {
             oldData = {
-                data: dataModel.getData(),
+                data: dataModel.dataSource.getData(),
                 schema: dataModel.schema,
                 activeColumns: behavior.getActiveColumns().map(function(column) { return column.index; })
             };

@@ -19,21 +19,15 @@ var noExportProperties = [
 ];
 
 /**
- * See {@link Behavior#initialize initialize} for constructor params.
+ * > This constructor (actually {@link Behavior#initialize}) will be called upon instantiation of this class or of any class that extends from this class. See {@link https://github.com/joneit/extend-me|extend-me} for more info.
  * @constructor
+ * @param {Hypergrid} grid
+ * @param {object} [options] - _(See {@link behaviors.JSON#setData} for additional options.)_
+ * @param {DataModels[]} [options.subgrids]
  * @abstract
- * @desc A sort of "model++." It contains all code/data that's necessary for easily implementing a virtual data source and its manipulation/analytics.
- *
  */
 var Behavior = Base.extend('Behavior', {
 
-    /**
-     * Constructor proxy. See {@link https://github.com/joneit/extend-me|extend-me} for more info.
-     * @param {Hypergrid} grid
-     * @param {object} [options] - _(See {@link behaviors.JSON#setData} for additional options.)_
-     * @param {DataModels[]} [options.subgrids]
-     * @memberOf Behavior#
-     */
     initialize: function(grid, options) {
         /**
          * @type {Hypergrid}
@@ -91,7 +85,7 @@ var Behavior = Base.extend('Behavior', {
      */
     reset: function(options) {
         if (this.dataModel) {
-            this.dataModel.reset(); // ??? maybe pass options ???
+            this.dataModel.reset(options); // ??? maybe pass options ???
         } else {
             /**
              * @type {dataModelAPI}
@@ -113,7 +107,7 @@ var Behavior = Base.extend('Behavior', {
          * @type {subgridSpec[]}
          * @memberOf Hypergrid#
          */
-        this.subgrids = options.subgrids || this.subgrids || this.grid.properties.subgrids;
+        this.subgrids = options && options.subgrids || this.subgrids || this.grid.properties.subgrids;
     },
 
     get renderedColumnCount() {
@@ -216,7 +210,6 @@ var Behavior = Base.extend('Behavior', {
 
     createColumns: function() {
         this.clearColumns();
-        this.clearAllCellProperties();
         //concrete implementation here
     },
 
@@ -638,9 +631,9 @@ var Behavior = Base.extend('Behavior', {
     setCellProperties: function(xOrCellEvent, y, properties, dataModel) {
         if (typeof xOrCellEvent === 'object') {
             properties = y;
-            xOrCellEvent.column.setCellProperties(xOrCellEvent.dataCell.y, properties, xOrCellEvent.visibleRow.subgrid);
+            return xOrCellEvent.column.setCellProperties(xOrCellEvent.dataCell.y, properties, xOrCellEvent.visibleRow.subgrid);
         } else {
-            this.getColumn(xOrCellEvent).setCellProperties(y, properties, dataModel);
+            return this.getColumn(xOrCellEvent).setCellProperties(y, properties, dataModel);
         }
     },
 
@@ -655,9 +648,9 @@ var Behavior = Base.extend('Behavior', {
     addCellProperties: function(xOrCellEvent, y, properties, dataModel) {
         if (typeof xOrCellEvent === 'object') {
             properties = y;
-            xOrCellEvent.column.addCellProperties(xOrCellEvent.dataCell.y, properties, xOrCellEvent.visibleRow.subgrid); // y omitted so y here is actually properties
+            return xOrCellEvent.column.addCellProperties(xOrCellEvent.dataCell.y, properties, xOrCellEvent.visibleRow.subgrid); // y omitted so y here is actually properties
         } else {
-            this.getColumn(xOrCellEvent).addCellProperties(y, properties, dataModel);
+            return this.getColumn(xOrCellEvent).addCellProperties(y, properties, dataModel);
         }
     },
 
@@ -1086,10 +1079,7 @@ var Behavior = Base.extend('Behavior', {
         } else if (this.subgrids) {
             this.subgrids.forEach(function(dataModel) {
                 for (var i = dataModel.getRowCount(); i--;) {
-                    delete dataModel.getRow(i).__META;
-                    // todo: test if optimizer wants following instead
-                    // dataRow = dataModel.getRow(i);
-                    // if (dataRow.__META !== undefined) { dataRow.__META = undefined; }
+                    dataModel.setRowMetadata(i);
                 }
             });
         }

@@ -128,8 +128,8 @@ module.exports = function(demo, grid) {
         // Following `cells` example sets properties for a cell in the data subgrid.
         // Specifying cell properties here in grid state may be useful for static data subgrids
         // where cell coordinates are permanently assigned. Otherwise, for my dynamic grid data,
-        // cell properties might more properly accompany the data itself as metadata
-        // (i.e., as a hash in dataRow.__META[fieldName]).
+        // cell properties might more properly accompany the data itself as metadata,
+        // i.e., a hash in behavior.getCellProperties(idx.height, 16) OR dataModel.getRowMetadata(16).height
         cells: {
             data: {
                 16: {

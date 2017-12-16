@@ -5,6 +5,23 @@
  */
 
 /**
+ * @typedef {function|null|*} interfaceExtender
+ * One of:
+ * * when a function - Fallback implementation.
+ * * when `null` - No fallback (fail silently).
+ * * otherwise - Data source will generate a warning fallback function with this return value (which is typically `undefined`).
+ */
+
+/**
+ * @typedef {sring|string[]|object} interfaceExtenderCollection
+ * If string: Data source will generate a warning fallback.
+ * If string[]: Data source will generate a warning fallback for each.
+ * If object: Hash of additional methods the data source is expected to implement:
+ * * keys — string (the method names)
+ * * values — interfaceExtender
+ */
+
+/**
  * @method
  * @name dataModelAPI#getRowCount
  * @returns {number} The number of data rows currently contained in the model.

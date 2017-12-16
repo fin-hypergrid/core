@@ -2081,7 +2081,7 @@ Hypergrid.Base = require('../Base');
  * Hypergrid internal image registry.
  * @type {object}
  */
-Hypergrid.images = require('../../images/index');
+Hypergrid.images = require('../../images');
 
 /** @name defaults
  * @memberOf Hypergrid

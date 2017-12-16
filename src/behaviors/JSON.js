@@ -6,8 +6,8 @@ var DataModelJSON = require('../dataModels/JSON');
 var features = require('../features');
 
 /**
+ * > This constructor (actually {@link behaviors.JSON#initialize}) will be called upon instantiation of this class or of any class that extends from this class. See {@link https://github.com/joneit/extend-me|extend-me} for more info.
  * @name behaviors.JSON
- * @desc > Same parameters as {@link behaviors.Behavior#initialize|initialize}, which is called by this constructor.
  * @constructor
  * @extends Behavior
  */
@@ -17,13 +17,6 @@ var JSON = Behavior.extend('behaviors.JSON', {
         this.columnEnum = {};
     },
 
-    /**
-     * @summary Constructor logic, called _after_{@link Behavior#initialize|Behavior.initialize()}.
-     * @desc This method will be called upon instantiation of this class or of any class that extends from this class.
-     * > All `initialize()` methods in the inheritance chain are called, in turn, each with the same parameters that were passed to the constructor, beginning with that of the most "senior" class through that of the class of the new instance.
-     *
-     * @memberOf behaviors.JSON.prototype
-     */
     initialize: function(grid, options) {
         this.setData(options);
     },
@@ -104,7 +97,7 @@ var JSON = Behavior.extend('behaviors.JSON', {
     /**
      * @memberOf behaviors.JSON.prototype
      * @summary Set grid data.
-     * @desc Exits if without doing anything if:
+     * @desc Exits without doing anything if:
      * * `dataRows` undefined; or
      * * `dataRows` omitted and `options.data` undefined
      * @param {function|object[]} [dataRows=options.data] - Array of uniform data row objects or function returning same.

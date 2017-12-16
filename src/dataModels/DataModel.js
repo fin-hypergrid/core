@@ -3,10 +3,14 @@
 var Base = require('../Base');
 
 /**
+ * > This constructor (actually {@link DataModel#initialize}) will be called upon instantiation of this class or of any class that extends from this class. See {@link https://github.com/joneit/extend-me|extend-me} for more info.
+ * @name dataModels.JSON
+ * @param {Hypergrid} grid
+ * @param {object} [options] - Not used here.
  * @constructor
  */
 var DataModel = Base.extend('DataModel', {
-    grid: null,
+
     initialize: function(grid, options) {
         this.grid = grid;
     },
@@ -18,6 +22,8 @@ var DataModel = Base.extend('DataModel', {
     getPrivateState: function() {
         return this.deprecated('getPrivateState()', 'grid.properties', '1.2.0');
     },
+
+    getInterface: require('./interfaceFactory').create,
 
     /**
      * @param {object} config
