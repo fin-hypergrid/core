@@ -4,7 +4,6 @@
 
 require('./lib/polyfills'); // Installs misc. polyfills into global objects, as needed
 
-var FinBar = require('finbars');
 var Point = require('rectangular').Point;
 var Rectangle = require('rectangular').Rectangle;
 var _ = require('object-iterators'); // fyi: installs the Array.prototype.find polyfill, as needed
@@ -25,6 +24,7 @@ var EDGE_STYLES = ['top', 'bottom', 'left', 'right'],
     RECT_STYLES = EDGE_STYLES.concat(['width', 'height', 'position']);
 
 /**
+ * @mixes scrolling.mixin
  * @constructor
  * @param {string|Element} [container] - CSS selector or Element
  * @param {object} [options]
@@ -202,20 +202,6 @@ var Hypergrid = Base.extend('Hypergrid', {
     dragExtent: null,
 
     /**
-     * A float value between 0.0 - 1.0 of the vertical scroll position.
-     * @type {number}
-     * @memberOf Hypergrid#
-     */
-    vScrollValue: 0,
-
-    /**
-     * A float value between 0.0 - 1.0 of the horizontal scroll position.
-     * @type {number}
-     * @memberOf Hypergrid#
-     */
-    hScrollValue: 0,
-
-    /**
      * @property {fin-hypergrid-selection-model} selectionModel - A [fin-hypergrid-selection-model](module-._selection-model.html) instance.
      * @memberOf Hypergrid#
      */
@@ -234,26 +220,6 @@ var Hypergrid = Base.extend('Hypergrid', {
     sbHScroller: null,
 
     /**
-     * @property {fin-vampire-bar} sbVScroller - An instance of {@link https://github.com/openfin/finbars|FinBar}.
-     * @memberOf Hypergrid#
-     */
-    sbVScroller: null,
-
-    /**
-     * The previous value of sbVScrollVal.
-     * @type {number}
-     * @memberOf Hypergrid#
-     */
-    sbPrevVScrollValue: null,
-
-    /**
-     * The previous value of sbHScrollValue.
-     * @type {number}
-     * @memberOf Hypergrid#
-     */
-    sbPrevHScrollValue: null,
-
-    /**
      * is the short term memory of what column I might be dragging around
      * @type {object}
      * @memberOf Hypergrid#
@@ -268,8 +234,6 @@ var Hypergrid = Base.extend('Hypergrid', {
      * @memberOf Hypergrid#
      */
     hoverCell: null,
-
-    scrollingNow: false,
 
     lastEdgeSelection: null,
 
@@ -576,9 +540,7 @@ var Hypergrid = Base.extend('Hypergrid', {
      * @param {object} properties - An object of various key value pairs.
      */
     refreshProperties: function() {
-        this.synchronizeScrollingBoundaries();
-        this.computeCellsBounds();
-        this.checkScrollbarVisibility();
+        this.behaviorShapeChanged();
         this.behavior.defaultRowHeight = null;
         this.behavior.autosizeAllColumns();
     },
@@ -599,13 +561,9 @@ var Hypergrid = Base.extend('Hypergrid', {
      * @see [Memento pattern](http://en.wikipedia.org/wiki/Memento_pattern)
      */
     setState: function(state) {
-        var self = this;
         this.behavior.setState(state);
         this.refreshProperties();
-        setTimeout(function() {
-            self.behaviorChanged();
-            self.synchronizeScrollingBoundaries();
-        }, 100);
+        this.behaviorChanged();
     },
 
     getState: function() {
@@ -748,12 +706,9 @@ var Hypergrid = Base.extend('Hypergrid', {
      * @desc The grid has just been rendered, make sure the column widths are optimal.
      */
     checkColumnAutosizing: function() {
-        var behavior = this.behavior;
-        behavior.autoSizeRowNumberColumn();
-        if (behavior.checkColumnAutosizing(false)) {
-            setTimeout(function() {
-                behavior.grid.synchronizeScrollingBoundaries();
-            });
+        this.behavior.autoSizeRowNumberColumn();
+        if (this.behavior.checkColumnAutosizing(false)) {
+            this.behaviorShapeChanged();
         }
     },
 
@@ -869,9 +824,8 @@ var Hypergrid = Base.extend('Hypergrid', {
      * @desc The dimensions of the grid data have changed. You've been notified.
      */
     behaviorShapeChanged: function() {
-        if (this.divCanvas) {
-            this.synchronizeScrollingBoundaries();
-        }
+        this.needsShapeChanged = true;
+        deferBehaviorChange.call(this);
     },
 
     /**
@@ -879,10 +833,8 @@ var Hypergrid = Base.extend('Hypergrid', {
      * @desc The dimensions of the grid data have changed. You've been notified.
      */
     behaviorStateChanged: function() {
-        if (this.divCanvas) {
-            this.computeCellsBounds();
-            this.repaint();
-        }
+        this.needsStateChanged = true;
+        deferBehaviorChange.call(this);
     },
 
     /**
@@ -1008,23 +960,6 @@ var Hypergrid = Base.extend('Hypergrid', {
 
     convertDataPointToViewPoint: function(dataPoint) {
         return this.behavior.convertDataPointToViewPoint(dataPoint);
-    },
-
-    /**
-     * @memberOf Hypergrid#
-     * @summary Set for `scrollingNow` field.
-     * @param {boolean} isItNow - The type of event we are interested in.
-     */
-    setScrollingNow: function(isItNow) {
-        this.scrollingNow = isItNow;
-    },
-
-    /**
-     * @memberOf Hypergrid#
-     * @returns {boolean} The `scrollingNow` field.
-     */
-    isScrollingNow: function() {
-        return this.scrollingNow;
     },
 
     /**
@@ -1189,83 +1124,6 @@ var Hypergrid = Base.extend('Hypergrid', {
 
     /**
      * @memberOf Hypergrid#
-     * @summary Scroll horizontal and vertically by the provided offsets.
-     * @param {number} offsetX - Scroll in the x direction this much.
-     * @param {number} offsetY - Scroll in the y direction this much.
-     */
-    scrollBy: function(offsetX, offsetY) {
-        this.scrollHBy(offsetX);
-        this.scrollVBy(offsetY);
-    },
-
-    /**
-     * @memberOf Hypergrid#
-     * @summary Scroll vertically by the provided offset.
-     * @param {number} offsetY - Scroll in the y direction this much.
-     */
-    scrollVBy: function(offsetY) {
-        var max = this.sbVScroller.range.max;
-        var oldValue = this.getVScrollValue();
-        var newValue = Math.min(max, Math.max(0, oldValue + offsetY));
-        if (newValue !== oldValue) {
-            this.setVScrollValue(newValue);
-        }
-    },
-
-    /**
-     * @memberOf Hypergrid#
-     * @summary Scroll horizontally by the provided offset.
-     * @param {number} offsetX - Scroll in the x direction this much.
-     */
-    scrollHBy: function(offsetX) {
-        var max = this.sbHScroller.range.max;
-        var oldValue = this.getHScrollValue();
-        var newValue = Math.min(max, Math.max(0, oldValue + offsetX));
-        if (newValue !== oldValue) {
-            this.setHScrollValue(newValue);
-        }
-    },
-
-    scrollToMakeVisible: function(c, r) {
-        var delta,
-            dw = this.renderer.dataWindow,
-            fixedColumnCount = this.properties.fixedColumnCount,
-            fixedRowCount = this.properties.fixedRowCount;
-
-        // scroll only if target not in fixed columns
-        if (c >= fixedColumnCount) {
-            // target is to left of scrollable columns; negative delta scrolls left
-            if ((delta = c - dw.origin.x) < 0) {
-                this.sbHScroller.index += delta;
-
-            // target is to right of scrollable columns; positive delta scrolls right
-            // Note: The +1 forces right-most column to scroll left (just in case it was only partially in view)
-            } else if ((c - dw.corner.x + 1) > 0) {
-                this.sbHScroller.index = this.renderer.getMinimumLeftPositionToShowColumn(c);
-            }
-        }
-
-        if (
-            r >= fixedRowCount && // scroll only if target not in fixed rows
-            (
-                // target is above scrollable rows; negative delta scrolls up
-                (delta = r - dw.origin.y) < 0 ||
-
-                // target is below scrollable rows; positive delta scrolls down
-                (delta = r - dw.corner.y) > 0
-            )
-        ) {
-            this.sbVScroller.index += delta;
-        }
-    },
-
-    selectCellAndScrollToMakeVisible: function(c, r) {
-        this.scrollToMakeVisible(c, r);
-        this.selectCell(c, r, true);
-    },
-
-    /**
-     * @memberOf Hypergrid#
      * @summary Answer which data cell is under a pixel value mouse point.
      * @param {mousePoint} mouse - The mouse point to interrogate.
      */
@@ -1291,7 +1149,7 @@ var Hypergrid = Base.extend('Hypergrid', {
      * @desc This is called by the fin-canvas when a resize occurs.
      */
     resized: function() {
-        this.synchronizeScrollingBoundaries();
+        this.behaviorShapeChanged();
     },
 
     /**
@@ -1353,63 +1211,6 @@ var Hypergrid = Base.extend('Hypergrid', {
 
     /**
      * @memberOf Hypergrid#
-     * @desc Set the vertical scroll value.
-     * @param {number} newValue - The new scroll value.
-     */
-    setVScrollValue: function(y) {
-        var self = this;
-        y = Math.min(this.sbVScroller.range.max, Math.max(0, Math.round(y)));
-        if (y !== this.vScrollValue) {
-            this.behavior._setScrollPositionY(y);
-            var oldY = this.vScrollValue;
-            this.vScrollValue = y;
-            this.scrollValueChangedNotification();
-            setTimeout(function() {
-                // self.sbVRangeAdapter.subjectChanged();
-                self.fireScrollEvent('fin-scroll-y', oldY, y);
-            });
-        }
-    },
-
-    /**
-     * @memberOf Hypergrid#
-     * @return {number} The vertical scroll value.
-     */
-    getVScrollValue: function() {
-        return this.vScrollValue;
-    },
-
-    /**
-     * @memberOf Hypergrid#
-     * @desc Set the horizontal scroll value.
-     * @param {number} newValue - The new scroll value.
-     */
-    setHScrollValue: function(x) {
-        var self = this;
-        x = Math.min(this.sbHScroller.range.max, Math.max(0, Math.round(x)));
-        if (x !== this.hScrollValue) {
-            this.behavior._setScrollPositionX(x);
-            var oldX = this.hScrollValue;
-            this.hScrollValue = x;
-            this.scrollValueChangedNotification();
-            setTimeout(function() {
-                //self.sbHRangeAdapter.subjectChanged();
-                self.fireScrollEvent('fin-scroll-x', oldX, x);
-                //self.synchronizeScrollingBoundries(); // todo: Commented off to prevent the grid from bouncing back, but there may be repurcussions...
-            });
-        }
-    },
-
-    /**
-     * @memberOf Hypergrid#
-     * @returns The vertical scroll value.
-     */
-    getHScrollValue: function() {
-        return this.hScrollValue;
-    },
-
-    /**
-     * @memberOf Hypergrid#
      * @desc Request input focus.
      */
     takeFocus: function() {
@@ -1432,92 +1233,6 @@ var Hypergrid = Base.extend('Hypergrid', {
 
     /**
      * @memberOf Hypergrid#
-     * @desc Initialize the scroll bars.
-     */
-    initScrollbars: function() {
-        if (this.sbHScroller && this.sbVScroller){
-            return;
-        }
-
-        var self = this;
-
-        var horzBar = new FinBar({
-            orientation: 'horizontal',
-            onchange: self.setHScrollValue.bind(self),
-            cssStylesheetReferenceElement: this.div
-        });
-
-        var vertBar = new FinBar({
-            orientation: 'vertical',
-            onchange: self.setVScrollValue.bind(self),
-            paging: {
-                up: self.pageUp.bind(self),
-                down: self.pageDown.bind(self)
-            }
-        });
-
-        this.sbHScroller = horzBar;
-        this.sbVScroller = vertBar;
-
-        var hPrefix = this.properties.hScrollbarClassPrefix;
-        var vPrefix = this.properties.vScrollbarClassPrefix;
-
-        if (hPrefix && hPrefix !== '') {
-            this.sbHScroller.classPrefix = hPrefix;
-        }
-
-        if (vPrefix && vPrefix !== '') {
-            this.sbVScroller.classPrefix = vPrefix;
-        }
-
-        this.div.appendChild(horzBar.bar);
-        this.div.appendChild(vertBar.bar);
-
-        this.resizeScrollbars();
-    },
-
-    resizeScrollbars: function() {
-        this.sbHScroller.shortenBy(this.sbVScroller).resize();
-        //this.sbVScroller.shortenBy(this.sbHScroller);
-        this.sbVScroller.resize();
-    },
-
-    /**
-     * @memberOf Hypergrid#
-     * @desc Scroll values have changed, we've been notified.
-     */
-    setVScrollbarValues: function(max) {
-        this.sbVScroller.range = {
-            min: 0,
-            max: max
-        };
-    },
-
-    setHScrollbarValues: function(max) {
-        this.sbHScroller.range = {
-            min: 0,
-            max: max
-        };
-    },
-
-    scrollValueChangedNotification: function() {
-        if (
-            this.hScrollValue !== this.sbPrevHScrollValue ||
-            this.vScrollValue !== this.sbPrevVScrollValue
-        ) {
-            this.sbPrevHScrollValue = this.hScrollValue;
-            this.sbPrevVScrollValue = this.vScrollValue;
-
-            if (this.cellEditor) {
-                this.cellEditor.scrollValueChangedNotification();
-            }
-
-            this.computeCellsBounds();
-        }
-    },
-
-    /**
-     * @memberOf Hypergrid#
      * @summary Get data value at given cell.
      * @param {number} x - The horizontal coordinate.
      * @param {number} y - The vertical coordinate.
@@ -1535,67 +1250,6 @@ var Hypergrid = Base.extend('Hypergrid', {
      */
     setValue: function(x, y, value) {
         this.behavior.setValue.apply(this.behavior, arguments); // must use .apply (see this.behavior.setValue)
-    },
-
-    /**
-     * @memberOf Hypergrid#
-     * @desc The data dimensions have changed, or our pixel boundaries have changed.
-     * Adjust the scrollbar properties as necessary.
-     */
-    synchronizeScrollingBoundaries: function() {
-        var numFixedColumns = this.getFixedColumnCount();
-
-        var numColumns = this.getColumnCount();
-        var numRows = this.getRowCount();
-
-        var bounds = this.getBounds();
-        if (!bounds) {
-            return;
-        }
-
-        var scrollableWidth = bounds.width - this.behavior.getFixedColumnsMaxWidth();
-        for (
-            var columnsWidth = 0, lastPageColumnCount = 0;
-            lastPageColumnCount < numColumns && columnsWidth < scrollableWidth;
-            lastPageColumnCount++
-        ) {
-            columnsWidth += this.getColumnWidth(numColumns - lastPageColumnCount - 1);
-        }
-        if (columnsWidth > scrollableWidth) {
-            lastPageColumnCount--;
-        }
-
-        var scrollableHeight = this.renderer.getVisibleScrollHeight();
-        for (
-            var rowsHeight = 0, lastPageRowCount = 0;
-            lastPageRowCount < numRows && rowsHeight < scrollableHeight;
-            lastPageRowCount++
-        ) {
-            rowsHeight += this.getRowHeight(numRows - lastPageRowCount - 1);
-        }
-        if (rowsHeight > scrollableHeight) {
-            lastPageRowCount--;
-        }
-
-        // inform scroll bars
-        if (this.sbHScroller) {
-            var hMax = Math.max(0, numColumns - numFixedColumns - lastPageColumnCount);
-            this.setHScrollbarValues(hMax);
-            this.setHScrollValue(Math.min(this.getHScrollValue(), hMax));
-        }
-        if (this.sbVScroller) {
-            var vMax = Math.max(0, numRows - this.properties.fixedRowCount - lastPageRowCount);
-            this.setVScrollbarValues(vMax);
-            this.setVScrollValue(Math.min(this.getVScrollValue(), vMax));
-        }
-
-        //this.getCanvas().resize();
-        this.behaviorStateChanged();
-
-        this.resizeScrollbars();
-    },
-    synchronizeScrollingBoundries: function() {
-        this.deprecated('synchronizeScrollingBoundries()', 'synchronizeScrollingBoundaries()', '1.2.0');
     },
 
     /**
@@ -1866,44 +1520,6 @@ var Hypergrid = Base.extend('Hypergrid', {
 
     /**
      * @memberOf Hypergrid#
-     * @desc Scroll up one full page.
-     * @returns {number}
-     */
-    pageUp: function() {
-        var rowNum = this.renderer.getPageUpRow();
-        this.setVScrollValue(rowNum);
-        return rowNum;
-    },
-
-    /**
-     * @memberOf Hypergrid#
-     * @desc Scroll down one full page.
-     * @returns {number}
-     */
-    pageDown: function() {
-        var rowNum = this.renderer.getPageDownRow();
-        this.setVScrollValue(rowNum);
-        return rowNum;
-    },
-
-    /**
-     * @memberOf Hypergrid#
-     * @desc Not yet implemented.
-     */
-    pageLeft: function() {
-        throw 'page left not yet implemented';
-    },
-
-    /**
-     * @memberOf Hypergrid#
-     * @desc Not yet implemented.
-     */
-    pageRight: function() {
-        throw 'page right not yet implemented';
-    },
-
-    /**
-     * @memberOf Hypergrid#
      * @returns {object[]} Objects with the values that were just rendered.
      */
     getRenderedData: function() {
@@ -2098,17 +1714,6 @@ var Hypergrid = Base.extend('Hypergrid', {
     isHierarchyColumn: function(x) {
         return this.deprecated('isHierarchyColumn(x)', '', 'v1.3.3');
     },
-    checkScrollbarVisibility: function() {
-        // var hoverClassOver = this.properties.scrollbarHoverOver;
-        // var hoverClassOff = this.properties.scrollbarHoverOff;
-
-        // if (hoverClassOff === 'visible') {
-        //     this.sbHScroller.classList.remove(hoverClassOver);
-        //     this.sbVScroller.classList.remove(hoverClassOff);
-        //     this.sbHScroller.classList.add('visible');
-        //     this.sbVScroller.classList.add('visible');
-        // }
-    },
     isRowNumberAutosizing: function() {
         return this.deprecated('isRowNumberAutosizing()', 'properties.rowNumberAutosizing', 'v1.2.10');
     },
@@ -2229,6 +1834,29 @@ var Hypergrid = Base.extend('Hypergrid', {
         console.warn('Attempt to reset grid.theme (properties layer). Use grid.applyTheme or the grid.properties.theme setter to apply a new theme.');
     }
 });
+
+
+function deferBehaviorChange() {
+    this.deferredBehaviorChange = this.deferredBehaviorChange || setTimeout(behaviorChange.bind(this));
+}
+
+function behaviorChange() {
+    delete this.deferredBehaviorChange;
+
+    if (this.needsShapeChanged) {
+        if (this.divCanvas) {
+            this.synchronizeScrollingBoundaries(); // calls computeCellsBounds and repaint (state change)
+        }
+    } else if (this.needsStateChanged) {
+        if (this.divCanvas) {
+            this.computeCellsBounds();
+            this.repaint();
+        }
+    }
+
+    this.needsShapeChanged = this.needsStateChanged = false;
+}
+
 
 /**
  * @param {string} [themeName] - A registry name for the new theme. May be omitted if the theme has an embedded name (in `theme.themeName`).
@@ -2414,6 +2042,7 @@ Hypergrid.prototype.setController.onerror = 'warn';
 
 Hypergrid.prototype.mixIn(require('./lib/events'));
 Hypergrid.prototype.mixIn(require('./lib/selection'));
+Hypergrid.prototype.mixIn(require('./lib/scrolling').mixin);
 
 /** @name defaults
  * @memberOf Hypergrid
@@ -2462,6 +2091,8 @@ Object.defineProperty(Hypergrid, 'theme', { // global theme setter/getter
     },
     set: applyTheme
 });
+
+Hypergrid.modules = require('./lib/modules');
 
 
 module.exports = Hypergrid;
