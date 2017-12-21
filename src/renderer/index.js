@@ -659,11 +659,11 @@ var Renderer = Base.extend('Renderer', {
         lastFixedColumn = computedCols[fixedColumnCount - 1];
 
         if (this.properties.showRowNumbers) {
-            rowNumbersWidth = this.grid.getColumnWidth(this.grid.rowColumnIndex);
+            rowNumbersWidth = this.grid.getColumnWidth(this.grid.behavior.rowColumnIndex);
         }
 
         if (this.grid.hasTreeColumn()) {
-            filtersWidth = this.grid.getColumnWidth(this.grid.treeColumnIndex);
+            filtersWidth = this.grid.getColumnWidth(this.grid.behavior.treeColumnIndex);
         }
 
         fixedColumnsWidth = lastFixedColumn ? lastFixedColumn.right : 0;

@@ -15,11 +15,9 @@ var DataSourceOrigin = DataSourceBase.extend('DataSourceOrigin',  {
     /**
      * Currently a synonym for {@link DataSourceOrigin#setData} (see).
      */
-    initialize: function(data, schema, ti, ri) {
+    initialize: function(data, schema) {
         delete this.dataSource; // added by DataSourceBase#initialize but we don't want here
-        this.treeColumnIndex = ti;
-        this.rowColumnIndex = ri;
-        this._schema = setInternalColSchema.call(this, []);
+        this._schema = [];
         this.setData(data, schema);
     },
 
@@ -56,7 +54,6 @@ var DataSourceOrigin = DataSourceBase.extend('DataSourceOrigin',  {
 
     get schema() { return this._schema; },
     set schema(schema) {
-        schema = setInternalColSchema.call(this, schema);
         this._schema = schema;
     },
 
@@ -82,7 +79,7 @@ var DataSourceOrigin = DataSourceBase.extend('DataSourceOrigin',  {
                 schema[i] = { name: fields[i] };
             }
         }
-        schema = setInternalColSchema.call(this, schema);
+
         /**
          * @summary The array of column schema objects.
          * @name schema
@@ -331,16 +328,6 @@ var DataSourceOrigin = DataSourceBase.extend('DataSourceOrigin',  {
         }, this);
     }
 });
-
-function setInternalColSchema(schema) {
-    if (!schema[this.treeColumnIndex]) {
-        schema[this.treeColumnIndex] = {name: 'Tree', header: 'Tree'}; //Tree Column
-    }
-    if (!schema[this.rowColumnIndex]) {
-        schema[this.rowColumnIndex] = {name: '', header: ''}; //Row Handle Column
-    }
-    return schema;
-}
 
 
 module.exports = DataSourceOrigin;
