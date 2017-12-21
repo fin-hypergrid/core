@@ -70,7 +70,7 @@
         Render by:
         <label title="setGridRenderer('by-cells');
 ——————————————————
-This is the partial renderer. Relatively non-performant compared to some of the other grid renderers due to having to draw all cell background rects. That said, when the cell backgrounds are all opaque, this can serve as an alternative to clipping.">
+This is the partial renderer, only rendering the cells that have changed since the last render. This only works for a static grid; when grid shape changes (including scrolling), it resets and defers to `by-columns-and-rows` for a full grid render.">
             <input type="radio" name="renderer" onclick="setGridRenderer('by-cells')">
             cells (partial)
         </label>
@@ -145,11 +145,11 @@ Renders all cells over consolidated row backgrounds, if any. Unsuitable as a cli
         </label>
         <label title="Adds a rowProperties array to grid.properties that defines 3 white rows alternating with 3 light green rows. (Row rects are NOT drawn for those first 3 row rects when and only when the grid background is also white.)">
             <input type="radio" name="striped-rows" onclick="rowProps({ backgroundColor: 'white' })">
-            3 white + 3 green
+            3 white + 3 blue
         </label>
         <label title="Adds a rowProperties array to grid.properties that defines 3 grid background rows alternating with 3 light green rows. (Row rects are NOT drawn for those first 3 undefined rows.)">
             <input type="radio" name="striped-rows" onclick="rowProps(undefined)">
-            3 undefined + 3 green
+            3 undefined + 3 blue
         </label>
     </div>
     <label title="Column properties defines a light blue background color BUT inherit's grid's rowProperties array.">
@@ -353,9 +353,9 @@ var alternatingThreeGreenRows = {
             undefined, // these three rows mutated by `rowProps` function
             undefined, // these three rows mutated by `rowProps` function
             undefined, // these three rows mutated by `rowProps` function
-            { color: '#116611', backgroundColor: '#e8ffe8' },
-            { color: '#116611', backgroundColor: '#e8ffe8' },
-            { color: '#116611', backgroundColor: '#e8ffe8' }
+            { color: '#111166', backgroundColor: '#e8e8ff' },
+            { color: '#111166', backgroundColor: '#e8e8ff' },
+            { color: '#111166', backgroundColor: '#e8e8ff' }
         ]
     },
     columnColorUnderAlternateColors = {
@@ -430,8 +430,8 @@ function rowProps(rowProps) {
     } else {
         grid.addProperties(alternatingThreeGreenRows); // add `rowProperties` array to grid props
         alternatingThreeGreenRows.rowProperties[0] =
-            alternatingThreeGreenRows.rowProperties[1] =
-                alternatingThreeGreenRows.rowProperties[2] = rowProps; // change definition of first three rows
+        alternatingThreeGreenRows.rowProperties[1] =
+        alternatingThreeGreenRows.rowProperties[2] = rowProps; // change definition of first three rows
     }
     grid.renderer.resetAllGridRenderers();
     logBundlesToConsole();
@@ -479,7 +479,7 @@ function startBlastPaint() {
             if (sim) {
                 change();
             }
-            grid.renderer.renderGrid(grid.canvas.gc);
+            grid.canvas.paintNow();
         }, 0);
     }
 }
@@ -521,6 +521,9 @@ function change() {
          return grid.cellRenderers.get(rendererName);
      };
  */
+    // Calculate FPS.
+    // Note: Not using grid.canvas.getCurrentFPS() because it only works when paint loop is running in continuous
+    // repaint mode, but we want to measure FPS whether paint loop is running or not, and in any mode.
     t2 = (Date.now() / 1000 | 0) % 10;
     n += 1;
     if (t2 !== t1) {
