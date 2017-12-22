@@ -189,6 +189,8 @@ var Behavior = Base.extend('Behavior', {
             header: schema[rc].header
         });
 
+        this.columns[tc].properties.propClassLayers = this.columns[rc].properties.propClassLayers = ['columns'];
+
         // Signal the renderer to size the now-reset handle column before next render
         this.grid.renderer.resetHandleColumnWidth();
     },
@@ -741,12 +743,56 @@ var Behavior = Base.extend('Behavior', {
 
     /**
      * @memberOf Behavior#
-     * @param {number} rowIndex - Data row coordinate local to datsModel.
+     * @param {number} yOrCellEvent - Data row index local to `dataModel`.
+     * @param {dataModelAPI} [dataModel=this.dataModel]
+     * @param {boolean} [properties] - New object when one does not already exist.
+     * @returns {*}
+     */
+    getRowProperties: function(yOrCellEvent, properties, dataModel) {
+        if (typeof yOrCellEvent === 'object') {
+            yOrCellEvent = yOrCellEvent.dataCell.y;
+            dataModel = yOrCellEvent.subgrid;
+        }
+
+        var metadata = (dataModel || this.dataModel).getRowMetadata(yOrCellEvent, properties && {});
+        return metadata && (metadata.__ROW || (metadata.__ROW = properties));
+    },
+
+    /**
+     * @memberOf Behavior#
+     * @param {number} yOrCellEvent - Data row index local to `dataModel`.
+     * @param {object} properties - A row properties object.
      * @param {dataModelAPI} [dataModel=this.dataModel]
      */
-    getRowHeight: function(rowIndex, dataModel) {
-        var rowData = (dataModel || this.dataModel).getRow(rowIndex);
-        return rowData && rowData.__ROW_HEIGHT || this.grid.properties.defaultRowHeight;
+    setRowProperties: function(yOrCellEvent, properties, dataModel) {
+        if (typeof yOrCellEvent === 'object') {
+            yOrCellEvent = yOrCellEvent.dataCell.y;
+            dataModel = yOrCellEvent.subgrid;
+        }
+
+        (dataModel || this.dataModel).getRowMetadata(yOrCellEvent, {}, dataModel).__ROW = properties;
+
+        this.stateChanged();
+    },
+
+    setRowProperty: function(yOrCellEvent, key, value, dataModel) {
+        this.getRowProperties(yOrCellEvent, {}, dataModel)[key] = value;
+        this.stateChanged();
+    },
+
+    addRowProperties: function(yOrCellEvent, properties, dataModel) {
+        Object.assign(this.getRowProperties(yOrCellEvent, {}, dataModel), properties);
+        this.stateChanged();
+    },
+
+    /**
+     * @memberOf Behavior#
+     * @param {number} yOrCellEvent - Data row index local to `dataModel`.
+     * @param {dataModelAPI} [dataModel=this.dataModel]
+     */
+    getRowHeight: function(yOrCellEvent, dataModel) {
+        var rowProps = this.getRowProperties(yOrCellEvent, undefined, dataModel);
+        return rowProps && rowProps.height || this.grid.properties.defaultRowHeight;
     },
 
     /**
@@ -761,14 +807,17 @@ var Behavior = Base.extend('Behavior', {
     /**
      * @memberOf Behavior#
      * @desc set the pixel height of a specific row
-     * @param {number} rowIndex - Data row coordinate local to dataModel.
+     * @param {number} yOrCellEvent - Data row index local to dataModel.
      * @param {number} height - pixel height
      * @param {dataModelAPI} [dataModel=this.dataModel]
      */
-    setRowHeight: function(rowIndex, height, dataModel) {
-        var rowData = (dataModel || this.dataModel).getRow(rowIndex);
-        if (rowData) {
-            rowData.__ROW_HEIGHT = Math.max(5, Math.ceil(height));
+    setRowHeight: function(yOrCellEvent, height, dataModel) {
+        var rowProps = this.getRowProperties(yOrCellEvent, {}, dataModel),
+            oldHeight = rowProps.height;
+
+        rowProps.height = Math.max(5, Math.ceil(height));
+
+        if (rowProps.height !== oldHeight) {
             this.stateChanged();
         }
     },
