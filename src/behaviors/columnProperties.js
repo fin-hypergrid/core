@@ -45,7 +45,6 @@ function createColumnProperties() {
         },
 
         header: {
-            enumerable: true,
             get: function() {
                 return column.header;
             },
@@ -58,7 +57,6 @@ function createColumnProperties() {
         },
 
         type: {
-            enumerable: true,
             get: function() {
                 return column.type;
             },
@@ -71,7 +69,6 @@ function createColumnProperties() {
         },
 
         calculator: {
-            enumerable: true,
             get: function() {
                 return column.calculator;
             },
@@ -106,6 +103,17 @@ function createColumnProperties() {
                 column.calculator = calculators[key] = typeof calculators[key] === 'function'
                     ? calculators[key] || key //null calculators use the key itself (anonymous functions)
                     : toFunction(calculator);
+            }
+        },
+
+        toJSON: {
+            // although we don't generally want header, type, and calculator to be enumerable, we do want them to be serializable
+            value: function() {
+                return Object.assign({
+                    header: this.header,
+                    type: this.type,
+                    calculator: this.calculator
+                }, this);
             }
         }
 

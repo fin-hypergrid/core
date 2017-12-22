@@ -1214,7 +1214,10 @@ var defaults = {
      * @default
      * @memberOf module:defaults
      */
-    rowProperties: undefined,
+    stripes: undefined,
+
+    // for Renderer.prototype.assignProps
+    propClassLayers: [ 'columns',  'stripes',  'rows',  'cells' ],
 
     /** @summary How to truncate text.
      * @desc A "quaternary" value, one of:
@@ -1228,6 +1231,24 @@ var defaults = {
      */
     truncateTextWithEllipsis: true
 };
+
+function rowPropertiesDeprecationWarning() {
+    if (!warned.rowProperties) {
+        warned.rowProperties = true;
+        console.warn('The `rowProperties` property has been deprecated as of v3.0.0 in favor of `stripes`. (Will be removed in a future release.)');
+    }
+}
+
+Object.defineProperty(defaults, 'rowProperties', {
+    get: function() {
+        rowPropertiesDeprecationWarning();
+        return this.stripes;
+    },
+    set: function(rowProperties) {
+        rowPropertiesDeprecationWarning();
+        this.stripes = rowProperties;
+    }
+});
 
 /** @typedef {string} cssColor
  * @see https://developer.mozilla.org/en-US/docs/Web/CSS/color_value
