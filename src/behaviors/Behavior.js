@@ -6,6 +6,7 @@ var Base = require('../Base');
 var Column = require('./Column');
 var cellEventFactory = require('../lib/cellEventFactory');
 var Features = require('../features');
+var propClassEnum = require('../defaults.js').propClassEnum;
 
 
 var noExportProperties = [
@@ -189,7 +190,7 @@ var Behavior = Base.extend('Behavior', {
             header: schema[rc].header
         });
 
-        this.columns[tc].properties.propClassLayers = this.columns[rc].properties.propClassLayers = ['columns'];
+        this.columns[tc].properties.propClassLayers = this.columns[rc].properties.propClassLayers = [propClassEnum.COLUMNS];
 
         // Signal the renderer to size the now-reset handle column before next render
         this.grid.renderer.resetHandleColumnWidth();
