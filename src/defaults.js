@@ -7,6 +7,13 @@ var COLUMN_ONLY_PROPERTY = 'Attempt to set column-only property on a non-column 
 
 var warned = {};
 
+var propClassEnum = {
+    COLUMNS: 1,
+    STRIPES: 2,
+    ROWS: 3,
+    CELLS: 4
+};
+
 /**
  * This module lists the properties that can be set on a {@link Hypergrid} along with their default values.
  * Edit this file to override the defaults.
@@ -1217,7 +1224,8 @@ var defaults = {
     stripes: undefined,
 
     // for Renderer.prototype.assignProps
-    propClassLayers: [ 'columns',  'stripes',  'rows',  'cells' ],
+    propClassEnum: propClassEnum,
+    propClassLayers: [ propClassEnum.COLUMNS, propClassEnum.STRIPES, propClassEnum.ROWS, propClassEnum.CELLS ],
 
     /** @summary How to truncate text.
      * @desc A "quaternary" value, one of:

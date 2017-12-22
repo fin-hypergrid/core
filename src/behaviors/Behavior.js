@@ -5,6 +5,8 @@ var Point = require('rectangular').Point;
 var Base = require('../Base');
 var Column = require('./Column');
 var cellEventFactory = require('../lib/cellEventFactory');
+var propClassEnum = require('../defaults.js').propClassEnum;
+
 var noExportProperties = [
     'columnHeader',
     'columnHeaderColumnSelection',
@@ -171,7 +173,7 @@ var Behavior = Base.extend('Behavior', {
             header: schema[rc].header
         });
 
-        this.columns[tc].properties.propClassLayers = this.columns[rc].properties.propClassLayers = ['columns'];
+        this.columns[tc].properties.propClassLayers = this.columns[rc].properties.propClassLayers = [propClassEnum.COLUMNS];
     },
 
     getActiveColumn: function(x) {

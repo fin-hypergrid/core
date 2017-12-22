@@ -7,21 +7,22 @@ var Base = require('../Base');
 var images = require('../../images/index');
 
 
-var propClassGet = {
-    columns: function(cellEvent) {
+var propClassGet = [
+    undefined,
+    function(cellEvent) {
         return cellEvent.columnProperties;
     },
-    stripes: function(cellEvent) {
+    function(cellEvent) {
         var stripes = cellEvent.isDataRow && cellEvent.columnProperties.stripes;
         return stripes && stripes[cellEvent.dataCell.y % stripes.length];
     },
-    rows: function(cellEvent) {
+    function(cellEvent) {
         return cellEvent.rowOwnProperties;
     },
-    cells: function(cellEvent) {
+    function(cellEvent) {
         return cellEvent.cellOwnProperties;
     }
-};
+];
 
 
 var visibleColumnPropertiesDescriptorFn = function(grid) {
@@ -1246,7 +1247,7 @@ var Renderer = Base.extend('Renderer', {
         var i, base, assignments,
             propLayers = cellEvent.columnProperties.propClassLayers;
 
-        if (propLayers[0] !== 'columns') {
+        if (propLayers[0] !== 1) {
             i = 0; // all prop layers
             base = this.grid.properties;
         } else {
