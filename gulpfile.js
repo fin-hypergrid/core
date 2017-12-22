@@ -11,6 +11,7 @@ var gulp        = require('gulp'),
 
 var name        = 'fin-hypergrid',
     srcDir      = './src/',
+    builderDir  = srcDir + 'builder/',
     testDir     = './test/',
     jsFiles     = '**/*.js',
     addOnsDir   = './add-ons/',
@@ -125,7 +126,7 @@ function beautify() {
 
 function browserify(name, srcDir, buildDir, exportName) {
     var exportsRegExp = exportName && new RegExp('module\\.exports(\\s*=\\s*)(' + exportName + ')');
-    var stream = gulp.src(srcDir + 'index.js')
+    var stream = gulp.src(builderDir + 'index.js')
         // .pipe($$.replace(
         //     /require\('fin-hypergrid\/src\/(.*?)'\)/g,
         //     function(match, p1) { console.log('hi');return 'window.fin.Hypergrid.' + p1.replace(/\//g, '.'); }

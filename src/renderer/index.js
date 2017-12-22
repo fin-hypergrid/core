@@ -4,7 +4,7 @@
 'use strict';
 
 var Base = require('../Base');
-var images = require('../../images/index');
+var images = require('../../images');
 
 
 var propClassGet = [

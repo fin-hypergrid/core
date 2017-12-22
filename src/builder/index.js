@@ -13,14 +13,14 @@
  * * This file (along with module-loader.js) is blacklisted in .npmignore and is not published to npm.
  *
  * Note: The npm "main" entry point is undefined in package.json implying /index.js
- * which just contains an indirection to /src/hypergrid/index.js.
+ * which just contains an indirection to /src/Hypergrid/index.js.
  */
 
 // Create the `fin` namespace if not already extant
 var fin = window.fin = window.fin || {};
 
 // Create the `fin.Hypergrid` object, which serves both as a "class" (constructor) and a namespace:
-var Hypergrid = fin.Hypergrid = require('./hypergrid');
+var Hypergrid = fin.Hypergrid = require('../Hypergrid/index');
 
 // Install the module loader
 Hypergrid.require = require('./module-loader');
@@ -29,23 +29,28 @@ Hypergrid.require = require('./module-loader');
 Hypergrid.src = {};
 
 // Note: At this point, `Hypergrid.modules`, the external module namespace, has already
-// been installed by ./hypergrid/index.js (for both npm and build modules).
+// been installed by ./Hypergrid/index.js (for both npm and build modules).
 
 // Install implicit modules which are external modules but are not overridable so non-configurable, non-writable
 Object.defineProperties(Hypergrid.modules, {
     'extend-me': {value: require('extend-me') },
-    'fin-hypergrid-field-tools': { value: require('fin-hypergrid-field-tools') },
+    'object-iterators': { value: require('object-iterators') },
+    mustache: { value: require('mustache') },
+    overrider: { value: require('overrider') },
     rectangular: { value: require('rectangular') },
+    'fin-hypergrid-field-tools': { value: require('fin-hypergrid-field-tools') },
     'datasaur-base': { value: require('datasaur-base') }, // scheduled for removal in v4
     'datasaur-local': { value: require('datasaur-local') } // scheduled for removal in v4
 });
 
 // Install internal modules may not be overridden so non-configurable, non-writable
 Object.defineProperties(Hypergrid.src, {
-    lib: { value: require('./lib') },
-    behaviors: { value: require('./behaviors') },
-    dataModels: { value: require('./dataModels') },
-    features: { value: require('./features') }
+    lib: { value: require('../lib/index') },
+    behaviors: { value: require('../behaviors/index') },
+    dataModels: { value: require('../dataModels/index') },
+    features: { value: require('../features/index') },
+    Base: { value: require('../Base') },
+    defaults: { value: require('../defaults') }
 });
 
 // Deprecate certain properties
@@ -60,12 +65,30 @@ Object.defineProperties(Hypergrid, {
 function deprecated(key, registry) {
     registry = registry || 'src';
 
-    var requireString = registry === 'src' ? 'fin-hypergrid/src/' + key + '/modulename' : key;
+    var requireString, warning;
 
-    console.warn(new Error('Direct reference to source modules using' +
-        ' `Hypergrid.' + key + '.modulename` has been deprecated as of v3.0.0 in favor of' +
-        ' `Hypergrid.require(\'' + requireString + '\')` and will be removed in a future release.' +
-        ' See Client Modules wiki.'));
+    switch (registry) {
+        case 'src':
+            requireString = 'fin-hypergrid/src/' + key;
+            warning = 'Reference to ' + key + ' internal modules using' +
+                ' `Hypergrid.' + key + '.modulename` has been deprecated as of v3.0.0 in favor of' +
+                ' `Hypergrid.require(\'' + requireString + '/modulename\')` and will be removed in a future release.' +
+                ' See https://github.com/fin-hypergrid/core/wiki/Client-Modules#predefined-modules.';
+            break;
+
+        case 'modules':
+            requireString = key;
+            warning = 'Reference to ' + key + ' external module using' +
+                ' `Hypergrid.' + key + '.` has been deprecated as of v3.0.0 in favor of' +
+                ' `Hypergrid.require(\'' + requireString + '\')` and will be removed in a future release.' +
+                ' See https://github.com/fin-hypergrid/core/wiki/Client-Modules#external-modules.';
+    }
+
+    if (!deprecated.warned[key]) {
+        console.warn(warning);
+        deprecated.warned[key] = true;
+    }
 
     return Hypergrid.require(requireString);
 }
+deprecated.warned = {};

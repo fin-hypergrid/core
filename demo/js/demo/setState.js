@@ -49,14 +49,6 @@ module.exports = function(demo, grid) {
 
         autoSelectRows: true,
 
-        rows: {
-            header: {
-                0: {
-                    height: 40
-                }
-            }
-        },
-
         calculators: {
             Add10: 'function(dataRow,columnName) { return dataRow[columnName] + 10; }'
         },
@@ -125,15 +117,35 @@ module.exports = function(demo, grid) {
             }
         },
 
-        // Following `cells` example sets properties for a cell in the data subgrid.
-        // Specifying cell properties here in grid state may be useful for static data subgrids
-        // where cell coordinates are permanently assigned. Otherwise, for my dynamic grid data,
-        // cell properties might more properly accompany the data itself as metadata,
-        // i.e., a hash in behavior.getCellProperties(idx.height, 16) OR dataModel.getRowMetadata(16).height
-        cells: {
-            data: {
-                16: {
-                    height: {
+        /* Following `rows` and `cells` examples shows how to set row and cell properties declaratively,
+         * useful for static grids when cell coordinates are known ahead of time.
+         *
+         * (There are as well several equivalent programmatic methods for setting cells props, such as
+         * `cell.setProperty`,
+         * `cell.setProperties`,
+         * `behavior.setCellProperty`,
+         * `behavior.setCellProperties`,
+         * _etc._)
+         *
+         * Caveat: For dynamic grid data, when cell coordinates are *not* known at start up (when state is
+         * usually applied), loading row and cell properties _with the data_ (as metadata) has advantages
+         * and is, preferred especially for frequently changing rows and cells. In this paradigm, row and
+         * cell properties are omitted here and the state object only loads grid and column properties.
+         * (Metadata is supported in the data source when it implements `getRowMetaData` and `setRowMetaData`.)
+         */
+        rows: {
+            header: { // subgrid key
+                0: { // row index
+                    // row properties
+                    height: 40 // (height is the only supported row property at the current time)
+                }
+            }
+        },
+        cells: { // cell properties
+            data: { // subgrid key
+                16: { // row index
+                    height: { // column name
+                        // cell properties:
                         font: '10pt Tahoma',
                         color: 'lightblue',
                         backgroundColor: 'red',

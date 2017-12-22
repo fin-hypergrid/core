@@ -4,7 +4,7 @@
 
 var Rectangle = require('rectangular').Rectangle;
 
-module.exports = {
+exports.mixin = {
     /**
      * @memberOf Hypergrid#
      * @returns {boolean} We have any selections.

@@ -15,7 +15,6 @@
     "grid"
   ],
   "dependencies": {
-    "chai": "^3.5.0",
     "datasaur-base": "fin-hypergrid/datasaur-base#3.0.0",
     "datasaur-local": "fin-hypergrid/datasaur-local#3.0.0",
     "extend-me": "^2.5.0",
@@ -30,6 +29,7 @@
   },
   "devDependencies": {
     "browser-sync": "^2.10.0",
+    "chai": "^3.5.0",
     "css-injector": "^1.1.0",
     "gulp": "^3.9.0",
     "gulp-beautify": "^2.0.0",

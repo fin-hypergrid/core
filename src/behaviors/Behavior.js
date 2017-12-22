@@ -19,8 +19,10 @@ var noExportProperties = [
 ];
 
 /**
- * > This constructor (actually {@link Behavior#initialize}) will be called upon instantiation of this class or of any class that extends from this class. See {@link https://github.com/joneit/extend-me|extend-me} for more info.
+ * @mixes subgrids.mixin
  * @constructor
+ * @desc A controller for the data model.
+ * > This constructor (actually {@link Behavior#initialize}) will be called upon instantiation of this class or of any class that extends from this class. See {@link https://github.com/joneit/extend-me|extend-me} for more info.
  * @param {Hypergrid} grid
  * @param {object} [options] - _(See {@link behaviors.JSON#setData} for additional options.)_
  * @param {DataModels[]} [options.subgrids]
@@ -85,7 +87,7 @@ var Behavior = Base.extend('Behavior', {
      */
     reset: function(options) {
         if (this.dataModel) {
-            this.dataModel.reset(options); // ??? maybe pass options ???
+            this.dataModel.reset(options);
         } else {
             /**
              * @type {dataModelAPI}
@@ -509,11 +511,12 @@ var Behavior = Base.extend('Behavior', {
      */
     getValue: function(xOrCellEvent, y, dataModel) {
         if (typeof xOrCellEvent !== 'object') {
+            var x = xOrCellEvent;
             xOrCellEvent = new this.CellEvent;
             if (dataModel) {
-                xOrCellEvent.resetDataXY(xOrCellEvent, y, dataModel);
+                xOrCellEvent.resetDataXY(x, y, dataModel);
             } else {
-                xOrCellEvent.resetGridCY(xOrCellEvent, y);
+                xOrCellEvent.resetGridCY(x, y);
             }
         }
         return xOrCellEvent.value;
@@ -545,11 +548,12 @@ var Behavior = Base.extend('Behavior', {
         if (typeof xOrCellEvent === 'object') {
             value = y;
         } else {
+            var x = xOrCellEvent;
             xOrCellEvent = new this.CellEvent;
             if (dataModel) {
-                xOrCellEvent.resetDataXY(xOrCellEvent, y, dataModel);
+                xOrCellEvent.resetDataXY(x, y, dataModel);
             } else {
-                xOrCellEvent.resetGridCY(xOrCellEvent, y);
+                xOrCellEvent.resetGridCY(x, y);
             }
         }
         xOrCellEvent.value = value;
@@ -573,11 +577,12 @@ var Behavior = Base.extend('Behavior', {
      * @memberOf Behavior#
      */
     getCellOwnProperties: function(xOrCellEvent, y, dataModel) {
-        switch (arguments.length) {
-            case 1: // xOrCellEvent is cellEvent
-                return xOrCellEvent.column.getCellOwnProperties(xOrCellEvent.dataCell.y, xOrCellEvent.visibleRow.subgrid);
-            case 2: case 3: // xOrCellEvent is x
-                return this.getColumn(xOrCellEvent).getCellOwnProperties(y, dataModel);
+        if (arguments.length === 1) {
+            // xOrCellEvent is cellEvent
+            return xOrCellEvent.column.getCellOwnProperties(xOrCellEvent.dataCell.y, xOrCellEvent.subgrid);
+        } else {
+            // xOrCellEvent is x
+            return this.getColumn(xOrCellEvent).getCellOwnProperties(y, dataModel);
         }
     },
 
@@ -593,11 +598,12 @@ var Behavior = Base.extend('Behavior', {
      * @memberOf Behavior#
      */
     getCellProperties: function(xOrCellEvent, y, dataModel) {
-        switch (arguments.length) {
-            case 1: // xOrCellEvent is cellEvent
-                return xOrCellEvent.properties;
-            case 2: case 3: // xOrCellEvent is x
-                return this.getColumn(xOrCellEvent).getCellProperties(y, dataModel);
+        if (arguments.length === 1) {
+            // xOrCellEvent is cellEvent
+            return xOrCellEvent.properties;
+        } else {
+            // xOrCellEvent is x
+            return this.getColumn(xOrCellEvent).getCellProperties(y, dataModel);
         }
     },
 
@@ -614,7 +620,7 @@ var Behavior = Base.extend('Behavior', {
     getCellProperty: function(xOrCellEvent, y, key, dataModel) {
         if (typeof xOrCellEvent === 'object') {
             key = y;
-            return xOrCellEvent.properties[key];
+            return xOrCellEvent.properties[y];
         } else {
             return this.getColumn(xOrCellEvent).getCellProperty(y, key, dataModel);
         }
@@ -631,7 +637,7 @@ var Behavior = Base.extend('Behavior', {
     setCellProperties: function(xOrCellEvent, y, properties, dataModel) {
         if (typeof xOrCellEvent === 'object') {
             properties = y;
-            return xOrCellEvent.column.setCellProperties(xOrCellEvent.dataCell.y, properties, xOrCellEvent.visibleRow.subgrid);
+            return xOrCellEvent.column.setCellProperties(xOrCellEvent.dataCell.y, properties, xOrCellEvent.subgrid);
         } else {
             return this.getColumn(xOrCellEvent).setCellProperties(y, properties, dataModel);
         }
@@ -648,7 +654,7 @@ var Behavior = Base.extend('Behavior', {
     addCellProperties: function(xOrCellEvent, y, properties, dataModel) {
         if (typeof xOrCellEvent === 'object') {
             properties = y;
-            return xOrCellEvent.column.addCellProperties(xOrCellEvent.dataCell.y, properties, xOrCellEvent.visibleRow.subgrid); // y omitted so y here is actually properties
+            return xOrCellEvent.column.addCellProperties(xOrCellEvent.dataCell.y, properties, xOrCellEvent.subgrid); // y omitted so y here is actually properties
         } else {
             return this.getColumn(xOrCellEvent).addCellProperties(y, properties, dataModel);
         }
@@ -1415,7 +1421,7 @@ Behavior.prototype.applyAnalytics = Behavior.prototype.reindex;
 
 
 // mix-ins
-Behavior.prototype.mixIn(require('./subgrids'));
+Behavior.prototype.mixIn(require('./subgrids').mixin);
 
 
 module.exports = Behavior;

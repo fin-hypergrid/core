@@ -6,10 +6,12 @@ var overrider = require('overrider');
 
 var deprecated = require('../lib/deprecated');
 var HypergridError = require('../lib/error');
-var images = require('../../images/index');
+var images = require('../../images');
 
 /** @summary Create a new `Column` object.
  * @see {@link module:Cell} is mixed into Column.prototype.
+ * @mixes cellProperties.mixin
+ * @mixes columnProperties.mixin
  * @constructor
  * @param behavior
  * @param {number|string|object} indexOrOptions - One of:
@@ -355,7 +357,7 @@ Column.prototype = {
     }
 };
 
-Column.prototype.mixIn(require('./cellProperties'));
-Column.prototype.mixIn(require('./columnProperties'));
+Column.prototype.mixIn(require('./cellProperties').mixin);
+Column.prototype.mixIn(require('./columnProperties').mixin);
 
 module.exports = Column;

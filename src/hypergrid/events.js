@@ -6,7 +6,7 @@ var _ = require('object-iterators');
 
 var Behavior = require('../behaviors/Behavior');
 
-module.exports = {
+exports.mixin = {
 
     /**
      * @summary Add an event listener to me.

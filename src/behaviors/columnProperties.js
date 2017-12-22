@@ -478,4 +478,10 @@ createColumnProperties.columnHeaderDescriptors = {
     rightIcon: { writable: true, value: undefined},
 };
 
-module.exports.createColumnProperties = createColumnProperties;
+/**
+ * Column.js mixes this module into its prototype.
+ * @mixin
+ */
+exports.mixin = {
+    createColumnProperties: createColumnProperties
+};

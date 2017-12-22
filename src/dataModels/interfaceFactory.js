@@ -1,16 +1,16 @@
 'use strict';
 
-var HypergridError = require('../lib/error');
-
-var SILENT = exports.SILENT = null; // signals data source to fail silently instead of calling a fallback
-var WARNING = exports.WARNING = undefined; // signals data source to generate a fallback function that issues a one-time warning
+var fallbackLog = exports.fallbackLog = {
+    SILENT: null, // signals data source to fail silently instead of calling a fallback
+    ERROR: Infinity, // signals data source to generate a fallback function that throws an error
+    WARNING: undefined // any other value besides `null` and `Infinity` signals data source to generate a fallback function that issues a one-time warning before returning that value (which obviously cannot be `null` or `Infinity`)
+};
 
 var template = {
     // Required methods (throw error)
-    getSchema: unimplementedError('getSchema'),
-    setData: unimplementedError('setData'),
-    getValue: unimplementedError('getValue'),
-    getRowCount: unimplementedError('getRowCount'),
+    getSchema: fallbackLog.ERROR,
+    getValue: fallbackLog.ERROR,
+    getRowCount: fallbackLog.ERROR,
 
     // Optional methods (fallbacks provided)
     getColumnCount: getColumnCount,
@@ -21,13 +21,14 @@ var template = {
     setRowMetadata: setRowMetadata, // supports row and cell props
 
     // Discretionary methods with warnings (fail with one-time console warning)
-    setSchema: WARNING, // called by Hypergrid only if you specify a schema on new or setData
-    setValue: WARNING, // called by Hypergrid only if you edit a cell
+    setData: fallbackLog.WARNING,
+    setSchema: fallbackLog.WARNING, // called by Hypergrid only if you specify a schema on new or setData
+    setValue: fallbackLog.WARNING, // called by Hypergrid only if you edit a cell
 
     // Discretionary methods without warnings (fail silently)
-    apply: SILENT,
-    isDrillDown: SILENT,
-    isDrillDownCol: SILENT,
+    apply: fallbackLog.SILENT,
+    isDrillDown: fallbackLog.SILENT,
+    isDrillDownCol: fallbackLog.SILENT,
 
     // Custom methods (fail with one-time console warning)
 
@@ -44,9 +45,7 @@ var template = {
 
 /**
  * @summary Get data source interface with fallbacks.
- * @desc All fallback methods are bound to `dataModel`,
- * used by actual fallback implementations,
- * unused by `unimplementedError` and `unsupportedWarning`.
+ * @desc All fallback methods are bound to `dataModel` for fallback implementations.
  * @this {dataModels.JSON}
  * @param {object[]} [metadata] - Meta data array (or hash) get/setRowMetadata fallbacks to use. If omitted a new array is used.
  * @param {interfaceExtenderCollection} [extensions]
@@ -129,10 +128,4 @@ function setRowMetadata(y, metadata) {
         delete this.metadata[y];
     }
     return metadata;
-}
-
-function unimplementedError(methodName) {
-    return function() {
-        throw new HypergridError('Expected data source to implement method `' + methodName + '()`.');
-    };
 }

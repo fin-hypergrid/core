@@ -1,12 +1,10 @@
-/* eslint-env bro wser */
-
 'use strict';
 
 /**
  * Column.js mixes this module into its prototype.
- * @module
+ * @mixin
  */
-var cell = {
+exports.mixin = {
 
     /**
      * @summary Get the properties object for cell.
@@ -156,5 +154,3 @@ function newCellPropertiesObject(rowIndex, dataModel) {
 
     return (metadata[this.name] = Object.create(props));
 }
-
-module.exports = cell;
