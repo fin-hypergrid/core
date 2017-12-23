@@ -5,8 +5,44 @@
 var _ = require('object-iterators');
 
 var Behavior = require('../behaviors/Behavior');
+var logEvents = require('../lib/log-events');
 
-module.exports = {
+
+var finEvent = {
+    afterCellEdit: 'fin-after-cell-edit',
+    beforeCellEdit: 'fin-before-cell-edit',
+    buttonPressed: 'fin-button-pressed',
+    cellEnter: 'fin-cell-enter',
+    cellExit: 'fin-cell-exit',
+    click: 'fin-click',
+    columnChanged: 'fin-column-changed-event',
+    columnSelectionChanged: 'fin-column-selection-changed',
+    columnSort: 'fin-column-sort',
+    contextMenu: 'fin-context-menu',
+    doubleClick: 'fin-double-click',
+    editorDataChange: 'fin-editor-data-change',
+    editorKeyDown: 'fin-editor-keydown',
+    editorKeyPress: 'fin-editor-keypress',
+    editorKeyUp: 'fin-editor-keyup',
+    filterApplied: 'fin-filter-applied',
+    gridRendered: 'fin-grid-rendered',
+    gridResized: 'fin-grid-resized',
+    keyDown: 'fin-keydown',
+    keyUp: 'fin-keyup',
+    mouseDown: 'fin-mousedown',
+    mouseMove: 'fin-mousemove',
+    mouseUp: 'fin-mouseup',
+    requestCellEdit: 'fin-request-cell-edit',
+    rowSelectionChanged: 'fin-row-selection-changed',
+    selectionChanged: 'fin-selection-changed',
+    tick: 'fin-tick'
+};
+
+
+exports.mixin = {
+
+    eventTypes: finEvent,
+    logEvents: logEvents,
 
     /**
      * @summary Add an event listener to me.
@@ -102,14 +138,14 @@ module.exports = {
      * @param {string[]} keys
      */
     fireSyntheticColumnSortEvent: function(c, keys) {
-        return dispatchEvent.call(this, 'fin-column-sort', {
+        return dispatchEvent.call(this, finEvent.columnSort, {
             column: c,
             keys: keys
         });
     },
 
     fireSyntheticEditorKeyUpEvent: function(inputControl, keyEvent) {
-        return dispatchEvent.call(this, 'fin-editor-keyup', {
+        return dispatchEvent.call(this, finEvent.editorKeyUp, {
             input: inputControl,
             keyEvent: keyEvent,
             char: this.canvas.getCharMap()[keyEvent.keyCode][keyEvent.shiftKey ? 1 : 0]
@@ -117,7 +153,7 @@ module.exports = {
     },
 
     fireSyntheticEditorKeyDownEvent: function(inputControl, keyEvent) {
-        return dispatchEvent.call(this, 'fin-editor-keydown', {
+        return dispatchEvent.call(this, finEvent.editorKeyDown, {
             input: inputControl,
             keyEvent: keyEvent,
             char: this.canvas.getCharMap()[keyEvent.keyCode][keyEvent.shiftKey ? 1 : 0]
@@ -125,7 +161,7 @@ module.exports = {
     },
 
     fireSyntheticEditorKeyPressEvent: function(inputControl, keyEvent) {
-        return dispatchEvent.call(this, 'fin-editor-keypress', {
+        return dispatchEvent.call(this, finEvent.editorKeyPress, {
             input: inputControl,
             keyEvent: keyEvent,
             char: this.canvas.getCharMap()[keyEvent.keyCode][keyEvent.shiftKey ? 1 : 0]
@@ -133,7 +169,7 @@ module.exports = {
     },
 
     fireSyntheticEditorDataChangeEvent: function(inputControl, oldValue, newValue) {
-        return dispatchEvent.call(this, 'fin-editor-data-change', true, {
+        return dispatchEvent.call(this, finEvent.editorDataChange, true, {
             input: inputControl,
             oldValue: oldValue,
             newValue: newValue
@@ -145,7 +181,7 @@ module.exports = {
      * @desc Synthesize and fire a `fin-row-selection-changed` event.
      */
     fireSyntheticRowSelectionChangedEvent: function() {
-        return dispatchEvent.call(this, 'fin-row-selection-changed', {
+        return dispatchEvent.call(this, finEvent.rowSelectionChanged, {
             rows: this.getSelectedRows(),
             columns: this.getSelectedColumns(),
             selections: this.selectionModel.getSelections(),
@@ -153,7 +189,7 @@ module.exports = {
    },
 
     fireSyntheticColumnSelectionChangedEvent: function() {
-        return dispatchEvent.call(this, 'fin-column-selection-changed', {
+        return dispatchEvent.call(this, finEvent.columnSelectionChanged, {
             rows: this.getSelectedRows(),
             columns: this.getSelectedColumns(),
             selections: this.selectionModel.getSelections()
@@ -169,30 +205,30 @@ module.exports = {
         event.rows = this.getSelectedRows();
         event.columns = this.getSelectedColumns();
         event.selections = this.selectionModel.getSelections();
-        return dispatchEvent.call(this, 'fin-context-menu', {}, event);
+        return dispatchEvent.call(this, finEvent.contextMenu, {}, event);
     },
 
     fireSyntheticMouseUpEvent: function(event) {
         event.rows = this.getSelectedRows();
         event.columns = this.getSelectedColumns();
         event.selections = this.selectionModel.getSelections();
-        return dispatchEvent.call(this, 'fin-mouseup', {}, event);
+        return dispatchEvent.call(this, finEvent.mouseUp, {}, event);
     },
 
     fireSyntheticMouseDownEvent: function(event) {
         event.rows = this.getSelectedRows();
         event.columns = this.getSelectedColumns();
         event.selections = this.selectionModel.getSelections();
-        return dispatchEvent.call(this, 'fin-mousedown', {}, event);
+        return dispatchEvent.call(this, finEvent.mouseDown, {}, event);
     },
 
     fireSyntheticMouseMoveEvent: function(event) {
-        return dispatchEvent.call(this, 'fin-mousemove', {}, event);
+        return dispatchEvent.call(this, finEvent.mouseMove, {}, event);
     },
 
     fireSyntheticButtonPressedEvent: function(event) {
         if (this.isViewableButton(event.dataCell.x, event.gridCell.y)) {
-            return dispatchEvent.call(this, 'fin-button-pressed', {}, event);
+            return dispatchEvent.call(this, finEvent.buttonPressed, {}, event);
         }
     },
 
@@ -201,7 +237,7 @@ module.exports = {
      * @desc Synthesize and fire a `fin-column-drag-start` event.
      */
     fireSyntheticOnColumnsChangedEvent: function() {
-        return dispatchEvent.call(this, 'fin-column-changed-event', {});
+        return dispatchEvent.call(this, finEvent.columnChangedEvent, {});
     },
 
     /**
@@ -210,7 +246,7 @@ module.exports = {
      * @param {keyEvent} event - The canvas event.
      */
     fireSyntheticKeydownEvent: function(keyEvent) {
-        return dispatchEvent.call(this, 'fin-keydown', keyEvent.detail);
+        return dispatchEvent.call(this, finEvent.keyDown, keyEvent.detail);
     },
 
     /**
@@ -219,11 +255,11 @@ module.exports = {
      * @param {keyEvent} event - The canvas event.
      */
     fireSyntheticKeyupEvent: function(keyEvent) {
-        return dispatchEvent.call(this, 'fin-keyup', keyEvent.detail);
+        return dispatchEvent.call(this, finEvent.keyUp, keyEvent.detail);
     },
 
     fireSyntheticFilterAppliedEvent: function() {
-        return dispatchEvent.call(this, 'fin-filter-applied', {});
+        return dispatchEvent.call(this, finEvent.filterApplied, {});
     },
 
     /**
@@ -233,7 +269,7 @@ module.exports = {
      * @param {MouseEvent} event - The system mouse event.
      */
     fireSyntheticOnCellEnterEvent: function(cellEvent) {
-        return dispatchEvent.call(this, 'fin-cell-enter', cellEvent);
+        return dispatchEvent.call(this, finEvent.cellEnter, cellEvent);
     },
 
     /**
@@ -243,7 +279,7 @@ module.exports = {
      * @param {MouseEvent} event - The system mouse event.
      */
     fireSyntheticOnCellExitEvent: function(cellEvent) {
-        return dispatchEvent.call(this, 'fin-cell-exit', cellEvent);
+        return dispatchEvent.call(this, finEvent.cellExit, cellEvent);
     },
 
     /**
@@ -253,7 +289,7 @@ module.exports = {
      * @param {MouseEvent} event - The system mouse event.
      */
     fireSyntheticClickEvent: function(cellEvent) {
-        return dispatchEvent.call(this, 'fin-click', {}, cellEvent);
+        return dispatchEvent.call(this, finEvent.click, {}, cellEvent);
     },
 
     /**
@@ -270,7 +306,7 @@ module.exports = {
         // to deprecate, remove above warning + following line + abstract implementation in Behavior.js
         this.behavior.cellDoubleClicked(cellEvent.gridCell, cellEvent);
 
-        return dispatchEvent.call(this, 'fin-double-click', {}, cellEvent);
+        return dispatchEvent.call(this, finEvent.doubleClick, {}, cellEvent);
     },
 
     /**
@@ -278,15 +314,15 @@ module.exports = {
      * @desc Synthesize and fire a rendered event.
      */
     fireSyntheticGridRenderedEvent: function() {
-       return dispatchEvent.call(this, 'fin-grid-rendered', { source: this });
+       return dispatchEvent.call(this, finEvent.gridRendered, { source: this });
     },
 
     fireSyntheticTickEvent: function() {
-        return dispatchEvent.call(this, 'fin-tick', { source: this });
+        return dispatchEvent.call(this, finEvent.tick, { source: this });
     },
 
     fireSyntheticGridResizedEvent: function(e) {
-        return dispatchEvent.call(this, 'fin-grid-resized', e);
+        return dispatchEvent.call(this, finEvent.gridResized, e);
     },
 
     /**
@@ -304,7 +340,7 @@ module.exports = {
     },
 
     fireRequestCellEdit: function(cellEvent, value) {
-        return dispatchEvent.call(this, 'fin-request-cell-edit', true, { value: value }, cellEvent);
+        return dispatchEvent.call(this, finEvent.requestCellEdit, true, { value: value }, cellEvent);
     },
 
     /**
@@ -315,7 +351,7 @@ module.exports = {
      * @returns {boolean} Proceed (don't cancel).
      */
     fireBeforeCellEdit: function(cellEvent, oldValue, newValue, control) {
-        return dispatchEvent.call(this, 'fin-before-cell-edit', true, {
+        return dispatchEvent.call(this, finEvent.beforeCellEdit, true, {
             oldValue: oldValue,
             newValue: newValue,
             input: control
@@ -330,7 +366,7 @@ module.exports = {
      * @param {Object} newValue - The new value.
      */
     fireAfterCellEdit: function(cellEvent, oldValue, newValue, control) {
-        return dispatchEvent.call(this, 'fin-after-cell-edit', {
+        return dispatchEvent.call(this, finEvent.afterCellEdit, {
             newValue: newValue,
             oldValue: oldValue,
             input: control
@@ -600,14 +636,18 @@ var details = [
 
 /**
  *
- * @param {string} eventName
+ * @param {string} eventType
  * @param {boolean} [cancelable=false]
  * @param {object} event
  * @param {CellEvent|MouseEvent|KeyboardEvent|object} [primitiveEvent]
  * @returns {undefined|boolean}
  */
-function dispatchEvent(eventName, cancelable, event, primitiveEvent) {
+function dispatchEvent(eventType, cancelable, event, primitiveEvent) {
     var detail, result;
+
+    if (!eventType) {
+        throw new TypeError('Expected an event type string.');
+    }
 
     if (typeof cancelable !== 'boolean') {
         primitiveEvent = event; // propmote primitiveEvent to 3rd position
@@ -646,7 +686,7 @@ function dispatchEvent(eventName, cancelable, event, primitiveEvent) {
         event.cancelable = true;
     }
 
-    result = this.canvas.dispatchEvent(new CustomEvent(eventName, event));
+    result = this.canvas.dispatchEvent(new CustomEvent(eventType, event));
 
     if (cancelable) {
         return result;

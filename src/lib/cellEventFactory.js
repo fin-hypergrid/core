@@ -9,14 +9,14 @@ var eumerableDescriptor = { writable: true, enumerable: true };
 // The nullSubgrid is for CellEvents representing clicks below last row.
 // var nullSubgrid = {};
 
-factory.prototypeDescriptors = Object.defineProperties({}, {
+factory.cellEventProperties = Object.defineProperties({}, {
     value: {
-        get: function() { return this.visibleRow.subgrid.getValue(this.dataCell.x, this.dataCell.y); },
-        set: function(value) { this.visibleRow.subgrid.setValue(this.dataCell.x, this.dataCell.y, value); }
+        get: function() { return this.subgrid.getValue(this.dataCell.x, this.dataCell.y); },
+        set: function(value) { this.subgrid.setValue(this.dataCell.x, this.dataCell.y, value); }
     },
 
     dataRow: {
-        get: function() { return this.visibleRow.subgrid.getRow(this.dataCell.y); }
+        get: function() { return this.subgrid.getRow(this.dataCell.y); }
     },
 
     formattedValue: {
@@ -51,20 +51,49 @@ factory.prototypeDescriptors = Object.defineProperties({}, {
         }
         return cp;
     } },
-    cellOwnProperties: { get: function() { // do not use for get/set prop because may return null; instead use  .getCellProperty('prop') or .properties.prop (preferred) to get and setCellProperty('prop', value) to set
+    cellOwnProperties: { get: function() {
+        // do not use for get/set prop because may return null; instead use .getCellProperty('prop') or .properties.prop (preferred) to get, setCellProperty('prop', value) to set
         if (this._cellOwnProperties === undefined) {
-            this._cellOwnProperties = this.column.getCellOwnProperties(this.dataCell.y, this.visibleRow.subgrid);
+            this._cellOwnProperties = this.column.getCellOwnProperties(this.dataCell.y, this.subgrid);
         }
         return this._cellOwnProperties; // null return means there is no cell properties object
     } },
     properties: { get: function() {
         return this.cellOwnProperties || this.columnProperties;
     } },
-    getCellProperty: { value: function(key) { // included for completeness but .properties[key] is preferred
+    getCellProperty: { value: function(key) {
+        // included for completeness but `.properties[key]` is preferred
         return this.properties[key];
     } },
-    setCellProperty: { value: function(key, value) { // do not use .cellOwnProperties[key] = value because object may be null (this method creates object as needed)
-        this._cellOwnProperties = this.column.setCellProperty(this.dataCell.y, key, value, this.visibleRow.subgrid);
+    setCellProperty: { value: function(key, value) {
+        // do not use `.cellOwnProperties[key] = value` because object may be null (this method creates new object as needed)
+        this._cellOwnProperties = this.column.setCellProperty(this.dataCell.y, key, value, this.subgrid);
+    } },
+
+    rowOwnProperties: {
+        // undefined return means there is no row properties object
+        get: function() {
+            return this.behavior.getRowProperties(this);
+        }
+    },
+    rowProperties: {
+        get: function() {
+            // use carefully! creates new object as needed; only use when object definitely needed: for setting prop with `.rowProperties[key] = value` or `Object.assign(.rowProperties, {...})`; use getRowProperty(key) instead for getting a property that may not exist because it will not create a new object
+            return this.behavior.getRowProperties(this, {});
+        },
+        set: function(properties) {
+            // for resetting whole row properties object: `.rowProperties = {...}`
+            this.behavior.setRowProperties(this, properties); // calls `stateChanged()`
+        }
+    },
+    getRowProperty: { value: function(key) {
+        // undefined return means there is no row properties object OR no such row property `[key]`
+        var rowProps = this.rowOwnProperties;
+        return rowProps && rowProps[key];
+    } },
+    setRowProperty: { value: function(key, value) {
+        // creates new object as needed
+        this.rowProperties[key] = value; // todo: call `stateChanged()` after refac-as-flags
     } },
 
     // special methods for use by renderer which reuses cellEvent object for performance reasons
@@ -163,11 +192,11 @@ factory.prototypeDescriptors = Object.defineProperties({}, {
             // points may not be rendered and would normally fail to reset cell's position.
             // Mock column and row objects for this.reset() to use:
             vc = {
-                column: this.grid.behavior.getColumn(gridX),
+                column: this.behavior.getColumn(gridX),
                 columnIndex: gridX
             };
             vr = {
-                subgrid: subgrid || this.grid.behavior.subgrids.lookup.data,
+                subgrid: subgrid || this.behavior.subgrids.lookup.data,
                 rowIndex: dataY
             };
             visible = true;
@@ -219,7 +248,7 @@ factory.prototypeDescriptors = Object.defineProperties({}, {
     isColumnVisible: { get: function() { return !!this.visibleColumn; } },
     isCellVisible:   { get: function() { return this.isRowVisible && this.isColumnVisible; } },
 
-    isDataRow:    { get: function() { return this.visibleRow.subgrid.isData; } },
+    isDataRow:    { get: function() { return this.subgrid.isData; } },
     isDataColumn: { get: function() { return this.gridCell.x >= 0; } },
     isDataCell:   { get: function() { return this.isDataRow && this.isDataColumn; } },
 
@@ -235,28 +264,28 @@ factory.prototypeDescriptors = Object.defineProperties({}, {
     isColumnFixed: { get: function() { return this.isDataColumn && this.gridCell.x < this.grid.properties.fixedColumnCount; } },
     isCellFixed:   { get: function() { return this.isRowFixed && this.isColumnFixed; } },
 
-    isHandleColumn: { get: function() { return this.gridCell.x === this.grid.behavior.rowColumnIndex && this.grid.properties.showRowNumbers; } },
+    isHandleColumn: { get: function() { return this.gridCell.x === this.behavior.rowColumnIndex && this.grid.properties.showRowNumbers; } },
     isHandleCell:   { get: function() { return this.isHandleColumn && this.isDataRow; } },
 
-    isTreeColumn: { get: function() { return this.gridCell.x === this.grid.behavior.treeColumnIndex; } },
+    isTreeColumn: { get: function() { return this.gridCell.x === this.behavior.treeColumnIndex; } },
 
-    isHeaderRow:    { get: function() { return this.visibleRow.subgrid.isHeader; } },
+    isHeaderRow:    { get: function() { return this.subgrid.isHeader; } },
     isHeaderHandle: { get: function() { return this.isHeaderRow && this.isHandleColumn; } },
     isHeaderCell:   { get: function() { return this.isHeaderRow && this.isDataColumn; } },
 
-    isFilterRow:    { get: function() { return this.visibleRow.subgrid.isFilter; } },
+    isFilterRow:    { get: function() { return this.subgrid.isFilter; } },
     isFilterHandle: { get: function() { return this.isFilterRow && this.isHandleColumn; } },
     isFilterCell:   { get: function() { return this.isFilterRow && this.isDataColumn; } },
 
-    isSummaryRow:    { get: function() { return this.visibleRow.subgrid.isSummary; } },
+    isSummaryRow:    { get: function() { return this.subgrid.isSummary; } },
     isSummaryHandle: { get: function() { return this.isSummaryRow && this.isHandleColumn; } },
     isSummaryCell:   { get: function() { return this.isSummaryRow && this.isDataColumn; } },
 
-    isTopTotalsRow:    { get: function() { return this.visibleRow.subgrid === this.behavior.subgrids.lookup.topTotals; } },
+    isTopTotalsRow:    { get: function() { return this.subgrid === this.behavior.subgrids.lookup.topTotals; } },
     isTopTotalsHandle: { get: function() { return this.isTopTotalsRow && this.isHandleColumn; } },
     isTopTotalsCell:   { get: function() { return this.isTopTotalsRow && this.isDataColumn; } },
 
-    isBottomTotalsRow:    { get: function() { return this.visibleRow.subgrid === this.behavior.subgrids.lookup.bottomTotals; } },
+    isBottomTotalsRow:    { get: function() { return this.subgrid === this.behavior.subgrids.lookup.bottomTotals; } },
     isBottomTotalsHandle: { get: function() { return this.isBottomTotalsRow && this.isHandleColumn; } },
     isBottomTotalsCell:   { get: function() { return this.isBottomTotalsRow && this.isDataColumn; } },
 
@@ -264,15 +293,15 @@ factory.prototypeDescriptors = Object.defineProperties({}, {
     deprecated: { value: deprecated },
 
     isGridRow: { get: function() {
-        this.deprecated('isGridRow', '.isGridRow is deprecated as of v1.2.10 in favor of .isDataRow. (Will be removed in a future release.)');
+        this.deprecated('isGridRow', '.isGridRow has been deprecated as of v1.2.10 in favor of .isDataRow. (Will be removed in a future release.)');
         return this.isDataRow;
     } },
     isGridColumn: { get: function() {
-        this.deprecated('isGridColumn', '.isGridColumn is deprecated as of v1.2.10 in favor of .isDataColumn. (Will be removed in a future release.)');
+        this.deprecated('isGridColumn', '.isGridColumn has been deprecated as of v1.2.10 in favor of .isDataColumn. (Will be removed in a future release.)');
         return this.isDataColumn;
     } },
     isGridCell: { get: function() {
-        this.deprecated('isGridCell', '.isGridCell is deprecated as of v1.2.10 in favor of .isDataCell. (Will be removed in a future release.)');
+        this.deprecated('isGridCell', '.isGridCell has been deprecated as of v1.2.10 in favor of .isDataCell. (Will be removed in a future release.)');
         return this.isDataCell;
     } },
 });
@@ -372,9 +401,7 @@ function factory(grid) {
         }
     }
 
-    CellEvent.prototype = Object.create(factory.prototypeDescriptors);
-
-    Object.defineProperties(CellEvent.prototype, {
+    CellEvent.prototype = Object.create(factory.cellEventProperties, {
         constructor: { value: CellEvent },
         grid: { value: grid },
         renderer: { value: grid.renderer },

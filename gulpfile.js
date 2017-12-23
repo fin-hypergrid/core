@@ -1,6 +1,7 @@
 'use strict';
 
 var gulp        = require('gulp'),
+    manifest    = require('./package.json'),
     $$          = require('gulp-load-plugins')(),
     runSequence = require('run-sequence'),
     browserSync = require('browser-sync').create(),
@@ -10,6 +11,7 @@ var gulp        = require('gulp'),
 
 var name        = 'fin-hypergrid',
     srcDir      = './src/',
+    builderDir  = srcDir + 'builder/',
     testDir     = './test/',
     jsFiles     = '**/*.js',
     addOnsDir   = './add-ons/',
@@ -37,7 +39,10 @@ gulp.task('images', swallowImages);
 gulp.task('browserify', browserify.bind(null,
     name,
     srcDir,
-    buildDir
+    [
+        buildDir,
+        buildDir.replace('demo', manifest.version)
+    ]
 ));
 gulp.task('browserify-demo', browserify.bind(null,
     'index',
@@ -121,7 +126,7 @@ function beautify() {
 
 function browserify(name, srcDir, buildDir, exportName) {
     var exportsRegExp = exportName && new RegExp('module\\.exports(\\s*=\\s*)(' + exportName + ')');
-    return gulp.src(srcDir + 'index.js')
+    var stream = gulp.src(builderDir + 'index.js')
         // .pipe($$.replace(
         //     /require\('fin-hypergrid\/src\/(.*?)'\)/g,
         //     function(match, p1) { console.log('hi');return 'window.fin.Hypergrid.' + p1.replace(/\//g, '.'); }
@@ -142,8 +147,10 @@ function browserify(name, srcDir, buildDir, exportName) {
                     $$.replace(exportsRegExp, replacementFinHypergrid)
                 )
             )
-        )
-        .pipe(gulp.dest(buildDir));
+        );
+    (buildDir instanceof Array ? buildDir : [buildDir]).forEach(function(dir) {
+        stream.pipe(gulp.dest(dir));
+    });
 }
 
 function doc(cb) {

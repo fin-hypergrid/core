@@ -6,10 +6,12 @@ var overrider = require('overrider');
 
 var deprecated = require('../lib/deprecated');
 var HypergridError = require('../lib/error');
-var images = require('../../images/index');
+var images = require('../../images');
 
 /** @summary Create a new `Column` object.
  * @see {@link module:Cell} is mixed into Column.prototype.
+ * @mixes cellProperties.mixin
+ * @mixes columnProperties.mixin
  * @constructor
  * @param behavior
  * @param {number|string|object} indexOrOptions - One of:
@@ -123,7 +125,6 @@ Column.prototype = {
      */
     set header(headerText) {
         this.dataModel.schema[this.index].header = headerText;
-        this.dataModel.prop(null, this.index, 'header', headerText);
         this.behavior.grid.repaint();
     },
     get header() {
@@ -147,8 +148,7 @@ Column.prototype = {
             } else {
                 schema[this.index].calculator = calculator;
             }
-            this.behavior.prop(null, this.index, 'calculator', calculator);
-            this.behavior.applyAnalytics();
+            this.behavior.reindex();
         }
     },
     get calculator() {
@@ -164,8 +164,7 @@ Column.prototype = {
      */
     set type(type) {
         this._type = type;
-        //TODO: This is calling reindex for every column during grid init. Maybe defer all reindex calls until after an grid 'ready' event
-        this.dataModel.prop(null, this.index, 'type', type);
+        //TODO: This is calling reindex for every column during grid init. Maybe defer all reindex calls until after a grid 'ready' event
         this.behavior.reindex();
     },
     get type() {
@@ -358,7 +357,7 @@ Column.prototype = {
     }
 };
 
-Column.prototype.mixIn(require('./cellProperties'));
-Column.prototype.mixIn(require('./columnProperties'));
+Column.prototype.mixIn(require('./cellProperties').mixin);
+Column.prototype.mixIn(require('./columnProperties').mixin);
 
 module.exports = Column;

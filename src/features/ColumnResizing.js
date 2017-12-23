@@ -114,11 +114,7 @@ var ColumnResizing = Feature.extend('ColumnResizing', {
 
             event.primitiveEvent.stopPropagation();
             //delay here to give other events a chance to be dropped
-            //var self = this;
-            grid.synchronizeScrollingBoundaries();
-            // setTimeout(function() {
-            //     self.attachChain();
-            // }, 200);
+            grid.behaviorShapeChanged();
         } else if (this.next) {
             this.next.handleMouseUp(grid, event);
         }

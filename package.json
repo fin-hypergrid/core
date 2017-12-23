@@ -1,6 +1,6 @@
 {
   "name": "fin-hypergrid",
-  "version": "2.0.2",
+  "version": "3.0.0",
   "description": "Canvas-based high-performance spreadsheet",
   "repository": {
     "type": "git",
@@ -15,19 +15,21 @@
     "grid"
   ],
   "dependencies": {
-    "chai": "^3.5.0",
-    "extend-me": "^2.3",
-    "fin-hypergrid-data-source-base": "^0.4.10",
+    "datasaur-base": "fin-hypergrid/datasaur-base#3.0.0",
+    "datasaur-local": "fin-hypergrid/datasaur-local#3.0.0",
+    "extend-me": "^2.5.0",
+    "fin-hypergrid-field-tools": "^1.0.0",
     "finbars": "1.5.2",
     "inject-stylesheet-template": "^1.0.1",
-    "mustache": "2.2.0",
+    "mustache": "^2.3.0",
     "object-iterators": "1.3.0",
-    "overrider": "^0",
+    "overrider": "*",
     "rectangular": "1.0.1",
     "sparse-boolean-array": "1.0.1"
   },
   "devDependencies": {
     "browser-sync": "^2.10.0",
+    "chai": "^3.5.0",
     "css-injector": "^1.1.0",
     "gulp": "^3.9.0",
     "gulp-beautify": "^2.0.0",

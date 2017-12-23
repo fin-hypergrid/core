@@ -5,6 +5,8 @@ var Point = require('rectangular').Point;
 var Base = require('../Base');
 var Column = require('./Column');
 var cellEventFactory = require('../lib/cellEventFactory');
+var propClassEnum = require('../defaults.js').propClassEnum;
+
 var noExportProperties = [
     'columnHeader',
     'columnHeaderColumnSelection',
@@ -17,20 +19,17 @@ var noExportProperties = [
 ];
 
 /**
+ * @mixes subgrids.mixin
  * @constructor
+ * @desc A controller for the data model.
+ * > This constructor (actually {@link Behavior#initialize}) will be called upon instantiation of this class or of any class that extends from this class. See {@link https://github.com/joneit/extend-me|extend-me} for more info.
+ * @param {Hypergrid} grid
+ * @param {object} [options] - _(See {@link behaviors.JSON#setData} for additional options.)_
+ * @param {DataModels[]} [options.subgrids]
  * @abstract
- * @desc A sort of "model++." It contains all code/data that's necessary for easily implementing a virtual data source and its manipulation/analytics.
- *
  */
 var Behavior = Base.extend('Behavior', {
 
-    /**
-     * @desc this is the callback for the plugin pattern of nested tags
-     * @param {Hypergrid} grid
-     * @param {object} [options] - _(See {@link behaviors.JSON#setData} for additional options.)_
-     * @param {DataModels[]} [options.subgrids]
-     * @memberOf Behavior#
-     */
     initialize: function(grid, options) {
         /**
          * @type {Hypergrid}
@@ -84,21 +83,11 @@ var Behavior = Base.extend('Behavior', {
 
     /**
      * @param {object} [options]
-     * @param {object} [options.pipeline] - Consumed by {@link dataModels.JSON#reset}.
-     *
-     * If omitted, previously established pipeline is reused.
-     * @param {object} [options.controllers] - Consumed by {@link dataModels.JSON#reset}.
-     *
-     * If omitted, previously established controllers list is reused.
      * @memberOf Behavior#
      */
     reset: function(options) {
         if (this.dataModel) {
-            options = options || {};
-            this.dataModel.reset({
-                pipeline: options.pipeline,
-                controllers: options.controllers
-            });
+            this.dataModel.reset(options);
         } else {
             /**
              * @type {dataModelAPI}
@@ -120,7 +109,7 @@ var Behavior = Base.extend('Behavior', {
          * @type {subgridSpec[]}
          * @memberOf Hypergrid#
          */
-        this.subgrids = options.subgrids || this.subgrids || this.grid.properties.subgrids;
+        this.subgrids = options && options.subgrids || this.subgrids || this.grid.properties.subgrids;
     },
 
     get renderedColumnCount() {
@@ -170,6 +159,8 @@ var Behavior = Base.extend('Behavior', {
             index: rc,
             header: schema[rc].header
         });
+
+        this.columns[tc].properties.propClassLayers = this.columns[rc].properties.propClassLayers = [propClassEnum.COLUMNS];
     },
 
     getActiveColumn: function(x) {
@@ -221,7 +212,6 @@ var Behavior = Base.extend('Behavior', {
 
     createColumns: function() {
         this.clearColumns();
-        this.clearAllCellProperties();
         //concrete implementation here
     },
 
@@ -249,7 +239,7 @@ var Behavior = Base.extend('Behavior', {
         return this.deprecated('getCellProvider()', 'grid.cellRenderers', '1.0.6', arguments);
     },
     createCellProvider: function(name) {
-        console.error('getCellProvider() is deprecated as of v1.0.6. No replacement; do not call. Previously called by `Behavior` constructor; `new CellRenderers()` is now called by `Hypergrid` constructor instead.', arguments);
+        console.error('createCellProvider() has been deprecated as of v1.0.6. No replacement; do not call. Previously called by `Behavior` constructor; `new CellRenderers()` is now called by `Hypergrid` constructor instead.', arguments);
     },
 
     /**
@@ -303,37 +293,43 @@ var Behavior = Base.extend('Behavior', {
      * @desc clear all table state
      */
     clearState: function() {
-       this.grid.clearState();
+        this.grid.clearState();
+        this.createColumns();
     },
 
     /**
      * @memberOf Behavior#
      * @desc Restore this table to a previous state.
      * See the [memento pattern](http://c2.com/cgi/wiki?MementoPattern).
-     * @param {Object} memento - an encapsulated representation of table state
+     * @param {Object} memento - assignable grid properties
      */
     setState: function(memento) {
+        this.clearState();
+        this.addState(memento);
+    },
 
-        if (memento.rowHeights) {
+    addState: function(properties) {
+        if (properties.rowHeights) {
             this.deprecated('rowHeights', 'rowHeights, the hash of row heights you provided to setState method, is no longer supported as of v1.2.0 and will be ignored. Instead, for each row height you wish to set, use `rows: { subgrid: { y: { height: heightInPixels } } }` substituting the name (or type) of the subgrid for `subgrid`, the local zero-based rowIndex within the subgrid for `y`, and the row height in pixels for `heightInPixels`; or make individual calls to `setRowHeight(y, heightInPixels, dataModel)`. The dataModel arg is optional and defaults to this.dataModel (the data subgrid); specify to set row heights in other data models, such as header row, filter cell row, individual summary rows, etc.');
         }
-
-        this.createColumns();
-
-        var state = this.grid.properties;
-        Object.keys(memento).forEach(function(key) {
-            state[key] = memento[key];
-        }, this);
-
-        this.setAllColumnProperties(memento.columnProperties);
-
+        Object.assign(this.grid.properties, properties);
+        this.setAllColumnProperties(properties.columnProperties);
         this.dataModel.reindex();
     },
 
+    /**
+     * @summary Sets properties of multiple columns.
+     * @desc Sets column properties to elements of given array.
+     * The array may be sparse; never defined or deleted elements are ignored.
+     * In addition, falsy elements are ignored.
+     * @param {object[]} columnProperties
+     */
     setAllColumnProperties: function(columnProperties) {
         if (columnProperties) {
             columnProperties.forEach(function(properties, i) {
-                this.getColumn(i).properties = properties;
+                if (properties) {
+                    this.getColumn(i).properties = properties;
+                }
             }, this);
         }
     },
@@ -515,11 +511,12 @@ var Behavior = Base.extend('Behavior', {
      */
     getValue: function(xOrCellEvent, y, dataModel) {
         if (typeof xOrCellEvent !== 'object') {
+            var x = xOrCellEvent;
             xOrCellEvent = new this.CellEvent;
             if (dataModel) {
-                xOrCellEvent.resetDataXY(xOrCellEvent, y, dataModel);
+                xOrCellEvent.resetDataXY(x, y, dataModel);
             } else {
-                xOrCellEvent.resetGridCY(xOrCellEvent, y);
+                xOrCellEvent.resetGridCY(x, y);
             }
         }
         return xOrCellEvent.value;
@@ -551,11 +548,12 @@ var Behavior = Base.extend('Behavior', {
         if (typeof xOrCellEvent === 'object') {
             value = y;
         } else {
+            var x = xOrCellEvent;
             xOrCellEvent = new this.CellEvent;
             if (dataModel) {
-                xOrCellEvent.resetDataXY(xOrCellEvent, y, dataModel);
+                xOrCellEvent.resetDataXY(x, y, dataModel);
             } else {
-                xOrCellEvent.resetGridCY(xOrCellEvent, y);
+                xOrCellEvent.resetGridCY(x, y);
             }
         }
         xOrCellEvent.value = value;
@@ -579,11 +577,12 @@ var Behavior = Base.extend('Behavior', {
      * @memberOf Behavior#
      */
     getCellOwnProperties: function(xOrCellEvent, y, dataModel) {
-        switch (arguments.length) {
-            case 1: // xOrCellEvent is cellEvent
-                return xOrCellEvent.column.getCellOwnProperties(xOrCellEvent.dataCell.y, xOrCellEvent.visibleRow.subgrid);
-            case 2: case 3: // xOrCellEvent is x
-                return this.getColumn(xOrCellEvent).getCellOwnProperties(y, dataModel);
+        if (arguments.length === 1) {
+            // xOrCellEvent is cellEvent
+            return xOrCellEvent.column.getCellOwnProperties(xOrCellEvent.dataCell.y, xOrCellEvent.subgrid);
+        } else {
+            // xOrCellEvent is x
+            return this.getColumn(xOrCellEvent).getCellOwnProperties(y, dataModel);
         }
     },
 
@@ -599,11 +598,12 @@ var Behavior = Base.extend('Behavior', {
      * @memberOf Behavior#
      */
     getCellProperties: function(xOrCellEvent, y, dataModel) {
-        switch (arguments.length) {
-            case 1: // xOrCellEvent is cellEvent
-                return xOrCellEvent.properties;
-            case 2: case 3: // xOrCellEvent is x
-                return this.getColumn(xOrCellEvent).getCellProperties(y, dataModel);
+        if (arguments.length === 1) {
+            // xOrCellEvent is cellEvent
+            return xOrCellEvent.properties;
+        } else {
+            // xOrCellEvent is x
+            return this.getColumn(xOrCellEvent).getCellProperties(y, dataModel);
         }
     },
 
@@ -620,7 +620,7 @@ var Behavior = Base.extend('Behavior', {
     getCellProperty: function(xOrCellEvent, y, key, dataModel) {
         if (typeof xOrCellEvent === 'object') {
             key = y;
-            return xOrCellEvent.properties[key];
+            return xOrCellEvent.properties[y];
         } else {
             return this.getColumn(xOrCellEvent).getCellProperty(y, key, dataModel);
         }
@@ -637,9 +637,9 @@ var Behavior = Base.extend('Behavior', {
     setCellProperties: function(xOrCellEvent, y, properties, dataModel) {
         if (typeof xOrCellEvent === 'object') {
             properties = y;
-            xOrCellEvent.column.setCellProperties(xOrCellEvent.dataCell.y, properties, xOrCellEvent.visibleRow.subgrid);
+            return xOrCellEvent.column.setCellProperties(xOrCellEvent.dataCell.y, properties, xOrCellEvent.subgrid);
         } else {
-            this.getColumn(xOrCellEvent).setCellProperties(y, properties, dataModel);
+            return this.getColumn(xOrCellEvent).setCellProperties(y, properties, dataModel);
         }
     },
 
@@ -654,9 +654,9 @@ var Behavior = Base.extend('Behavior', {
     addCellProperties: function(xOrCellEvent, y, properties, dataModel) {
         if (typeof xOrCellEvent === 'object') {
             properties = y;
-            xOrCellEvent.column.addCellProperties(xOrCellEvent.dataCell.y, properties, xOrCellEvent.visibleRow.subgrid); // y omitted so y here is actually properties
+            return xOrCellEvent.column.addCellProperties(xOrCellEvent.dataCell.y, properties, xOrCellEvent.subgrid); // y omitted so y here is actually properties
         } else {
-            this.getColumn(xOrCellEvent).addCellProperties(y, properties, dataModel);
+            return this.getColumn(xOrCellEvent).addCellProperties(y, properties, dataModel);
         }
     },
 
@@ -720,12 +720,56 @@ var Behavior = Base.extend('Behavior', {
 
     /**
      * @memberOf Behavior#
-     * @param {number} rowIndex - Data row coordinate local to datsModel.
+     * @param {number} yOrCellEvent - Data row index local to `dataModel`.
+     * @param {dataModelAPI} [dataModel=this.dataModel]
+     * @param {boolean} [properties] - New object when one does not already exist.
+     * @returns {*}
+     */
+    getRowProperties: function(yOrCellEvent, properties, dataModel) {
+        if (typeof yOrCellEvent === 'object') {
+            yOrCellEvent = yOrCellEvent.dataCell.y;
+            dataModel = yOrCellEvent.subgrid;
+        }
+
+        var metadata = (dataModel || this.dataModel).getRowMetadata(yOrCellEvent, properties && {});
+        return metadata && (metadata.__ROW || (metadata.__ROW = properties));
+    },
+
+    /**
+     * @memberOf Behavior#
+     * @param {number} yOrCellEvent - Data row index local to `dataModel`.
+     * @param {object} properties - A row properties object.
      * @param {dataModelAPI} [dataModel=this.dataModel]
      */
-    getRowHeight: function(rowIndex, dataModel) {
-        var rowData = (dataModel || this.dataModel).getRow(rowIndex);
-        return rowData && rowData.__ROW_HEIGHT || this.grid.properties.defaultRowHeight;
+    setRowProperties: function(yOrCellEvent, properties, dataModel) {
+        if (typeof yOrCellEvent === 'object') {
+            yOrCellEvent = yOrCellEvent.dataCell.y;
+            dataModel = yOrCellEvent.subgrid;
+        }
+
+        (dataModel || this.dataModel).getRowMetadata(yOrCellEvent, {}, dataModel).__ROW = properties;
+
+        this.stateChanged();
+    },
+
+    setRowProperty: function(yOrCellEvent, key, value, dataModel) {
+        this.getRowProperties(yOrCellEvent, {}, dataModel)[key] = value;
+        this.stateChanged();
+    },
+
+    addRowProperties: function(yOrCellEvent, properties, dataModel) {
+        Object.assign(this.getRowProperties(yOrCellEvent, {}, dataModel), properties);
+        this.stateChanged();
+    },
+
+    /**
+     * @memberOf Behavior#
+     * @param {number} yOrCellEvent - Data row index local to `dataModel`.
+     * @param {dataModelAPI} [dataModel=this.dataModel]
+     */
+    getRowHeight: function(yOrCellEvent, dataModel) {
+        var rowProps = this.getRowProperties(yOrCellEvent, undefined, dataModel);
+        return rowProps && rowProps.height || this.grid.properties.defaultRowHeight;
     },
 
     /**
@@ -740,14 +784,17 @@ var Behavior = Base.extend('Behavior', {
     /**
      * @memberOf Behavior#
      * @desc set the pixel height of a specific row
-     * @param {number} rowIndex - Data row coordinate local to dataModel.
+     * @param {number} yOrCellEvent - Data row index local to dataModel.
      * @param {number} height - pixel height
      * @param {dataModelAPI} [dataModel=this.dataModel]
      */
-    setRowHeight: function(rowIndex, height, dataModel) {
-        var rowData = (dataModel || this.dataModel).getRow(rowIndex);
-        if (rowData) {
-            rowData.__ROW_HEIGHT = Math.max(5, Math.ceil(height));
+    setRowHeight: function(yOrCellEvent, height, dataModel) {
+        var rowProps = this.getRowProperties(yOrCellEvent, {}, dataModel),
+            oldHeight = rowProps.height;
+
+        rowProps.height = Math.max(5, Math.ceil(height));
+
+        if (rowProps.height !== oldHeight) {
             this.stateChanged();
         }
     },
@@ -1038,10 +1085,7 @@ var Behavior = Base.extend('Behavior', {
         } else if (this.subgrids) {
             this.subgrids.forEach(function(dataModel) {
                 for (var i = dataModel.getRowCount(); i--;) {
-                    delete dataModel.getRow(i).__META;
-                    // todo: test if optimizer wants following instead
-                    // dataRow = dataModel.getRow(i);
-                    // if (dataRow.__META !== undefined) { dataRow.__META = undefined; }
+                    dataModel.setRowMetadata(i);
                 }
             });
         }
@@ -1209,7 +1253,7 @@ var Behavior = Base.extend('Behavior', {
     /**
      * @memberOf Behavior#
      * @desc this function is a hook and is called just before the painting of a cell occurs
-     * @param {window.fin.rectangular.Point} cell
+     * @param {Point} cell
      */
     cellPropertiesPrePaintNotification: function(cell) {
 
@@ -1218,7 +1262,7 @@ var Behavior = Base.extend('Behavior', {
     /**
      * @memberOf Behavior#
      * @desc this function is a hook and is called just before the painting of a fixed row cell occurs
-     * @param {window.fin.rectangular.Point} cell
+     * @param {Point} cell
      */
     cellFixedRowPrePaintNotification: function(cell) {
 
@@ -1227,7 +1271,7 @@ var Behavior = Base.extend('Behavior', {
     /**
      * @memberOf Behavior#
      * @desc this function is a hook and is called just before the painting of a fixed column cell occurs
-     * @param {window.fin.rectangular.Point} cell
+     * @param {Point} cell
      */
     cellFixedColumnPrePaintNotification: function(cell) {
 
@@ -1236,7 +1280,7 @@ var Behavior = Base.extend('Behavior', {
     /**
      * @memberOf Behavior#
      * @desc this function is a hook and is called just before the painting of a top left cell occurs
-     * @param {window.fin.rectangular.Point} cell
+     * @param {Point} cell
      */
     cellTopLeftPrePaintNotification: function(cell) {
 
@@ -1307,43 +1351,6 @@ var Behavior = Base.extend('Behavior', {
         }
     },
 
-    /**
-     * @summary Get the given data controller.
-     * @param {string} type
-     * @returns {undefined|*} The data controller; or `undefined` if data controller unknown to data model.
-     * @memberOf Behavior#
-     */
-    getController: function(type) {
-        return this.dataModel.getController(type);
-    },
-
-    /**
-     * @summary Set the given data controller(s).
-     * @desc Triggers a shape change.
-     * @param {string} typeOrHashOfTypes - One of:
-     * * **object** - Hash of multiple data controllers, by type.
-     * * **string** - Type of the single data controller given in `controller`.
-     * @param {dataControlInterface} [controller] - Only required when 'hash' is a string; omit when `hash` is an object.
-     * @returns {object} - Hash of all results, by type. Each member will be:
-     * * The given data controller for that type when defined.
-     * * A new "null" data controller, generated by the data model when the given data controller for that type was `undefined`.
-     * * `undefined` - The data controller was unknown to the data model..
-     * @memberOf Behavior#
-     */
-    setController: function(typeOrHashOfTypes, controller) {
-        var results = this.dataModel.setController(typeOrHashOfTypes, controller);
-        this.changed();
-        return results;
-    },
-
-    prop: function(type, columnIndex, keyOrHash, value) {
-        var result = this.dataModel.prop.apply(this.dataModel, arguments);
-        if (result === undefined) {
-            this.changed();
-        }
-        return result;
-    },
-
     get charMap() {
         return this.dataModel.charMap;
     },
@@ -1388,8 +1395,9 @@ var Behavior = Base.extend('Behavior', {
     },
 
     getFilteredData: function() {
-        return this.deprecated('getIndexedData()', 'getIndexedData', '1.2.0', arguments);
+        return this.deprecated('getFilteredData()', 'getIndexedData', '1.2.0', arguments);
     },
+
     getIndexedData: function() {
        this.dataModel.getIndexedData();
     }
@@ -1413,7 +1421,7 @@ Behavior.prototype.applyAnalytics = Behavior.prototype.reindex;
 
 
 // mix-ins
-Behavior.prototype.mixIn(require('./subgrids'));
+Behavior.prototype.mixIn(require('./subgrids').mixin);
 
 
 module.exports = Behavior;

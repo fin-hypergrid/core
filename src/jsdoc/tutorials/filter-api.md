@@ -65,7 +65,7 @@ _NOTE: The "shy" hyphens that may appear in the identifiers below should not be 
 
 module | Hypergrid | behavior | dataModel | DefaultFilter | hyper-analytics | filter-tree
 --- | --- | --- | --- | --- | --- | ---
-_file_ | Hypergrid.js | Behavior.js | dataModel/JSON.js | DefaultFilter.js | DataSource&shy;GlobalFilter.js | &mdash;
+_file_ | hypergrid/<br>index.js | Behavior.js | dataModel/JSON.js | DefaultFilter.js | DataSource&shy;GlobalFilter.js | &mdash;
 _prefix_ | `grid.` | `grid.behavior.` | `grid.behavior.dataModel.` | `grid.filter.` | &mdash; | `grid.filter.`
 _set up_ | [filter]{@link Hypergrid#filter} | [filter]{@link Behavior#filter} | [filter]{@link dataModels.JSON#filter} | &mdash; | [get(filter)]{@link http://openfin.github.io/hyper-analytics/DataSourceGlobalFilter.html#get} | &mdash;
  | [filter]{@link Hypergrid#filter}<sup>1</sup> = filter | [filter]{@link Behavior#filter} = filter | [filter]{@link dataModels.JSON#filter}<sup>2</sup> = filter | &mdash; | [set(filter)]{@link http://openfin.github.io/hyper-analytics/DataSourceGlobalFilter.html#set} | &mdash;

@@ -131,6 +131,7 @@ var CellEditor = Base.extend('CellEditor', {
                 // Editing successfully stopped
                 // -> send the event down the feature chain
                 var finEvent = grid.canvas.newEvent(e, 'fin-editor-keydown', {
+                    grid: grid,
                     alt: e.altKey,
                     ctrl: e.ctrlKey,
                     char: keyChar,

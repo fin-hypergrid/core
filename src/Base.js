@@ -12,6 +12,7 @@
  */
 var Base = require('extend-me').Base;
 
+Base.prototype.version = require('../package.json').version;
 Base.prototype.deprecated = require('./lib/deprecated');
 Base.prototype.HypergridError = require('./lib/error');
 

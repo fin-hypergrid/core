@@ -133,13 +133,14 @@ var dynamicPropertyDescriptors = {
 
 function getRowPropertiesBySubgridAndRowIndex() { // to be called with grid.properties as context
     var subgrids = {};
-    this.grid.behavior.subgrids.forEach(function(dataModel) {
+    var behavior = this.grid.behavior;
+    behavior.subgrids.forEach(function(dataModel) {
         var key = dataModel.name || dataModel.type;
         for (var rowIndex = 0, rowCount = dataModel.getRowCount(); rowIndex < rowCount; ++rowIndex) {
-            var height = dataModel.getRow(rowIndex).__ROW_HEIGHT;
-            if (height !== undefined) {
+            var rowProps = behavior.getRowProperties(rowIndex, undefined, dataModel);
+            if (rowProps) {
                 var subgrid = subgrids[key] = subgrids[key] || {};
-                subgrid[rowIndex] = { height: height };
+                subgrid[rowIndex] = rowProps;
             }
         }
     });

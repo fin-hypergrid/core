@@ -17,6 +17,8 @@ window.onload = function() {
     };
 
     var Hypergrid = fin.Hypergrid,
+        Behavior = Hypergrid.require('fin-hypergrid/src/behaviors/JSON'),
+        getSchema = require('fin-hypergrid-field-tools').getSchema,
         initState = require('./setState'),
         initCellRenderers = require('./cellrenderers'),
         initFormatters = require('./formatters'),
@@ -25,12 +27,16 @@ window.onload = function() {
         initEvents = require('./events');
 
     // convert field names containing underscore to camel case by overriding column enum decorator
-    Hypergrid.behaviors.JSON.prototype.columnEnumKey = Hypergrid.behaviors.JSON.columnEnumDecorators.toCamelCase;
+    Behavior.prototype.columnEnumKey = Behavior.columnEnumDecorators.toCamelCase;
 
     var gridOptions = {
+            // Because v3 defaults to use datasaur-local (which is still included in the build),
+            // specifying it here is still optional, but may be required for v4.
+            // Uncomment the following line to specify ("bring your own") data source.
+            // DataSource: Hypergrid.require('datasaur-local'),
             data: people1,
             margin: { bottom: '17px', right: '17px'},
-            schema: Hypergrid.lib.fields.getSchema(people1),
+            schema: getSchema(people1),
             state: { color: 'orange' }
         },
         grid = window.grid = window.g = new Hypergrid('div#json-example', gridOptions),
@@ -46,7 +52,7 @@ window.onload = function() {
 
     function setData(data, options) {
         options = !data.length ? undefined : options || {
-            schema: Hypergrid.lib.fields.getSchema(data)
+            schema: getSchema(data)
         };
         grid.setData(data, options);
         behavior.reindex();
@@ -61,7 +67,7 @@ window.onload = function() {
     function toggleEmptyData() {
         if (!oldData) {
             oldData = {
-                data: dataModel.getData(),
+                data: dataModel.dataSource.getData(),
                 schema: dataModel.schema,
                 activeColumns: behavior.getActiveColumns().map(function(column) { return column.index; })
             };
