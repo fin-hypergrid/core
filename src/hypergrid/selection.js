@@ -505,8 +505,9 @@ exports.mixin = {
         // Project the cell selection into the columns
         this.selectColumnsFromCells();
 
-        var selectionEvent = new CustomEvent('fin-selection-changed', {
+        var selectionEvent = new CustomEvent(this.eventTypes.selectionChanged, {
             detail: {
+                grid: this,
                 rows: this.getSelectedRows(),
                 columns: this.getSelectedColumns(),
                 selections: this.selectionModel.getSelections(),

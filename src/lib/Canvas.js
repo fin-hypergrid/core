@@ -14,6 +14,7 @@ if (typeof window.CustomEvent !== 'function') {
 }
 
 var rectangular = require('rectangular');
+var logEvents = require('./log-events');
 
 var RESIZE_POLLING_INTERVAL = 200,
     paintables = [],
@@ -21,6 +22,25 @@ var RESIZE_POLLING_INTERVAL = 200,
     paintRequest,
     resizeInterval,
     charMap = makeCharMap();
+
+var finCanvasEvent = {
+    click: 'fin-canvas-click',
+    contextMenu: 'fin-canvas-context-menu',
+    doubleClick: 'fin-canvas-dblclick',
+    drag: 'fin-canvas-drag',
+    dragEnd: 'fin-canvas-dragend',
+    dragStart: 'fin-canvas-dragstart',
+    focusGained: 'fin-canvas-focus-gained',
+    focusLost: 'fin-canvas-focus-lost',
+    keyDown: 'fin-canvas-keydown',
+    keyUp: 'fin-canvas-keyup',
+    mouseDown: 'fin-canvas-mousedown',
+    mouseMove: 'fin-canvas-mousemove',
+    mouseOut: 'fin-canvas-mouseout',
+    mouseUp: 'fin-canvas-mouseup',
+    resized: 'fin-canvas-resized',
+    wheelMoved: 'fin-canvas-wheelmoved',
+};
 
 function Canvas(div, component) {
     var self = this;
@@ -129,6 +149,9 @@ Canvas.prototype = {
     currentPaintCount: 0,
     currentFPS: 0,
     lastFPSComputeTime: 0,
+
+    eventTypes: finCanvasEvent,
+    logEvents: logEvents,
 
     addEventListener: function(name, callback) {
         this.canvas.addEventListener(name, callback);
@@ -262,7 +285,7 @@ Canvas.prototype = {
     },
 
     resizeNotification: function() {
-        this.dispatchNewEvent(undefined, 'fin-canvas-resized', {
+        this.dispatchNewEvent(undefined, finCanvasEvent.resized, {
             width: this.width,
             height: this.height
         });
@@ -298,6 +321,9 @@ Canvas.prototype = {
     },
 
     newEvent: function(primitiveEvent, name, detail) {
+        if (!name) {
+            throw new TypeError('Expected an event type string.');
+        }
         var event = {
             detail: detail || {}
         };
@@ -308,7 +334,7 @@ Canvas.prototype = {
     },
 
     dispatchNewEvent: function(primitiveEvent, name, detail) {
-        return this.canvas.dispatchEvent(this.newEvent(primitiveEvent, name, detail));
+        return this.dispatchEvent(this.newEvent(primitiveEvent, name, detail));
     },
 
     dispatchNewMouseKeysEvent: function(event, name, detail) {
@@ -321,7 +347,7 @@ Canvas.prototype = {
     finmousemove: function(e) {
         if (!this.isDragging() && this.mousedown) {
             this.beDragging();
-            this.dispatchNewMouseKeysEvent(e, 'fin-canvas-dragstart', {
+            this.dispatchNewMouseKeysEvent(e, finCanvasEvent.dragStart, {
                 isRightClick: this.isRightClick(e),
                 dragstart: this.dragstart
             });
@@ -330,13 +356,13 @@ Canvas.prototype = {
         this.mouseLocation = this.getLocal(e);
         //console.log(this.mouseLocation);
         if (this.isDragging()) {
-            this.dispatchNewMouseKeysEvent(e, 'fin-canvas-drag', {
+            this.dispatchNewMouseKeysEvent(e, finCanvasEvent.drag, {
                 dragstart: this.dragstart,
                 isRightClick: this.isRightClick(e)
             });
         }
         if (this.bounds.contains(this.mouseLocation)) {
-            this.dispatchNewMouseKeysEvent(e, 'fin-canvas-mousemove');
+            this.dispatchNewMouseKeysEvent(e, finCanvasEvent.mouseMove);
         }
     },
 
@@ -344,7 +370,7 @@ Canvas.prototype = {
         this.mouseLocation = this.mouseDownLocation = this.getLocal(e);
         this.mousedown = true;
 
-        this.dispatchNewMouseKeysEvent(e, 'fin-canvas-mousedown', {
+        this.dispatchNewMouseKeysEvent(e, finCanvasEvent.mouseDown, {
             isRightClick: this.isRightClick(e)
         });
         this.takeFocus();
@@ -352,7 +378,7 @@ Canvas.prototype = {
 
     finmouseup: function(e) {
         if (this.isDragging()) {
-            this.dispatchNewMouseKeysEvent(e, 'fin-canvas-dragend', {
+            this.dispatchNewMouseKeysEvent(e, finCanvasEvent.dragEnd, {
                 dragstart: this.dragstart,
                 isRightClick: this.isRightClick(e)
             });
@@ -360,7 +386,7 @@ Canvas.prototype = {
             this.dragEndtime = Date.now();
         }
         this.mousedown = false;
-        this.dispatchNewMouseKeysEvent(e, 'fin-canvas-mouseup', {
+        this.dispatchNewMouseKeysEvent(e, finCanvasEvent.mouseUp, {
             dragstart: this.dragstart,
             isRightClick: this.isRightClick(e)
         });
@@ -372,7 +398,7 @@ Canvas.prototype = {
             this.mouseLocation = new rectangular.Point(-1, -1);
         }
         this.repaint();
-        this.dispatchNewMouseKeysEvent(e, 'fin-canvas-mouseout', {
+        this.dispatchNewMouseKeysEvent(e, finCanvasEvent.mouseOut, {
             dragstart: this.dragstart
         });
     },
@@ -382,7 +408,7 @@ Canvas.prototype = {
             return;
         }
         e.preventDefault();
-        this.dispatchNewMouseKeysEvent(e, 'fin-canvas-wheelmoved', {
+        this.dispatchNewMouseKeysEvent(e, finCanvasEvent.wheelMoved, {
             isRightClick: this.isRightClick(e)
         });
     },
@@ -405,7 +431,7 @@ Canvas.prototype = {
     findblclick: function(e) {
         this.mouseLocation = this.getLocal(e);
         this.lastDoubleClickTime = Date.now();
-        this.dispatchNewMouseKeysEvent(e, 'fin-canvas-dblclick', {
+        this.dispatchNewMouseKeysEvent(e, finCanvasEvent.doubleClick, {
             isRightClick: this.isRightClick(e)
         });
         //console.log('dblclick', this.currentKeys);
@@ -448,7 +474,7 @@ Canvas.prototype = {
             this.currentKeys.push(keyChar);
         }
 
-        this.dispatchNewEvent(e, 'fin-canvas-keydown', {
+        this.dispatchNewEvent(e, finCanvasEvent.keyDown, {
             alt: e.altKey,
             ctrl: e.ctrlKey,
             char: keyChar,
@@ -478,7 +504,7 @@ Canvas.prototype = {
         this.repeatKeyCount = 0;
         this.repeatKey = null;
         this.repeatKeyStartTime = 0;
-        this.dispatchNewEvent(e, 'fin-canvas-keyup', {
+        this.dispatchNewEvent(e, finCanvasEvent.keyUp, {
             alt: e.altKey,
             ctrl: e.ctrlKey,
             char: keyChar,
@@ -493,11 +519,11 @@ Canvas.prototype = {
     },
 
     finfocusgained: function(e) {
-        this.dispatchNewEvent(e, 'fin-canvas-focus-gained');
+        this.dispatchNewEvent(e, finCanvasEvent.focusGained);
     },
 
     finfocuslost: function(e) {
-        this.dispatchNewEvent(e, 'fin-canvas-focus-lost');
+        this.dispatchNewEvent(e, finCanvasEvent.focusLost);
     },
 
     fincontextmenu: function(e) {
@@ -624,14 +650,14 @@ Canvas.prototype = {
 function dispatchClickEvent(e) {
     this.doubleClickTimer = undefined;
     this.mouseLocation = this.getLocal(e);
-    this.dispatchNewMouseKeysEvent(e, 'fin-canvas-click', {
+    this.dispatchNewMouseKeysEvent(e, finCanvasEvent.click, {
         isRightClick: this.isRightClick(e)
     });
 }
 
 function dispatchContextMenuEvent(e) {
     this.doubleRightClickTimer = undefined;
-    this.dispatchNewMouseKeysEvent(e, 'fin-canvas-context-menu', {
+    this.dispatchNewMouseKeysEvent(e, finCanvasEvent.contextMenu, {
         isRightClick: this.isRightClick(e)
     });
 }
