@@ -352,6 +352,26 @@ var defaults = {
     scrollingEnabled: true,
 
     /**
+     * @name scrollingHorizontalMouseWheelMultiplier
+     * @summary Multiplier applied to original horizontal scroll offset returned in mousewheel scrolling event.
+     * @desc The scroll speed produced by mousewheel events may be customized passing a custom multipler. The scrolling speed will increase for multipliers above 1, decrease for a multiplier between 0 and 1, and 0 will disable mousewheel scrolling. A modulo will be applied for negative values. Defaults to 1.
+     *
+     * @type {number}
+     * @memberOf module:defaults
+     */
+    scrollingHorizontalMouseWheelMultiplier: 1,
+
+    /**
+     * @name scrollingVerticalMouseWheelMultiplier
+     * @summary Multiplier applied to original vertical scroll offset returned in mousewheel scrolling event.
+     * @desc The scroll speed produced by mousewheel events may be customized passing a custom multipler. The scrolling speed will increase for multipliers above 1, decrease for a multiplier between 0 and 1, and 0 will disable mousewheel scrolling. A modulo will be applied for negative values. Defaults to 1.
+     *
+     * @type {number}
+     * @memberOf module:defaults
+     */
+    scrollingVerticalMouseWheelMultiplier: 1,
+
+    /**
      * @default
      * @type {string}
      * @memberOf module:defaults

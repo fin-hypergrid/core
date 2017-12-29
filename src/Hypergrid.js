@@ -576,11 +576,28 @@ var Hypergrid = Base.extend('Hypergrid', {
      * @param {object} properties - An object of various key value pairs.
      */
     refreshProperties: function() {
+        this.updateMouseWheelScrollSpeed();
         this.synchronizeScrollingBoundaries();
         this.computeCellsBounds();
         this.checkScrollbarVisibility();
         this.behavior.defaultRowHeight = null;
         this.behavior.autosizeAllColumns();
+    },
+
+    /**
+     * @memberOf Hypergrid#
+     * @desc Update the scrolling speed of mousewheel in finbars
+     */
+    updateMouseWheelScrollSpeed: function() {
+        var props = this.properties;
+
+        if (this.sbHScroller) {
+            this.sbHScroller.setMouseWheelScrollMultiplier(props.scrollingHorizontalMouseWheelMultiplier);
+        }
+
+        if (this.sbVScroller) {
+            this.sbVScroller.setMouseWheelScrollMultiplier(props.scrollingVerticalMouseWheelMultiplier);
+        }
     },
 
     /**
@@ -1444,7 +1461,8 @@ var Hypergrid = Base.extend('Hypergrid', {
         var horzBar = new FinBar({
             orientation: 'horizontal',
             onchange: self.setHScrollValue.bind(self),
-            cssStylesheetReferenceElement: this.div
+            cssStylesheetReferenceElement: this.div,
+            mouseWheelScrollMultiplier: this.properties.scrollingHorizontalMouseWheelMultiplier
         });
 
         var vertBar = new FinBar({
@@ -1453,7 +1471,8 @@ var Hypergrid = Base.extend('Hypergrid', {
             paging: {
                 up: self.pageUp.bind(self),
                 down: self.pageDown.bind(self)
-            }
+            },
+            mouseWheelScrollMultiplier: this.properties.scrollingVerticalMouseWheelMultiplier
         });
 
         this.sbHScroller = horzBar;
