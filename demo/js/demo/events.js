@@ -2,33 +2,13 @@
 
 module.exports = function(demo, grid) {
 
-    grid.addEventListener('fin-click', function(e) {
-        var cell = e.detail.gridCell;
-        if (demo.vent) { console.log('fin-click cell:', cell); }
-    });
-
-    grid.addEventListener('fin-double-click', function(e) {
-        var rowContext = e.detail.dataRow;
-        if (demo.vent) { console.log('fin-double-click row-context:', rowContext); }
-    });
-
     grid.addEventListener('fin-button-pressed', function(e) {
         var cellEvent = e.detail;
         cellEvent.value = !cellEvent.value;
     });
 
-    grid.addEventListener('fin-scroll-x', function(e) {
-        if (demo.vent) { console.log('fin-scroll-x ', e.detail.value); }
-    });
-
-    grid.addEventListener('fin-scroll-y', function(e) {
-        if (demo.vent) { console.log('fin-scroll-y', e.detail.value); }
-    });
-
     grid.addEventListener('fin-cell-enter', function(e) {
         var cellEvent = e.detail;
-
-        //if (demo.vent) { console.log('fin-cell-enter', cell.x, cell.y); }
 
         //how to set the tooltip....
         grid.setAttribute('title', 'event name: "fin-cell-enter"\n' +
@@ -51,10 +31,6 @@ module.exports = function(demo, grid) {
         });
 
         grid.repaint();
-    });
-
-    grid.addEventListener('fin-filter-applied', function(e) {
-        if (demo.vent) { console.log('fin-filter-applied', e); }
     });
 
     /**
@@ -104,12 +80,7 @@ module.exports = function(demo, grid) {
         // handleCursorKey(e);
     });
 
-
     grid.addEventListener('fin-selection-changed', function(e) {
-
-        if (demo.vent) {
-            console.log('fin-selection-changed', grid.getSelectedRows(), grid.getSelectedColumns(), grid.getSelections());
-        }
 
         if (e.detail.selections.length === 0) {
             console.log('no selections');
@@ -124,9 +95,6 @@ module.exports = function(demo, grid) {
 
     grid.addEventListener('fin-row-selection-changed', function(e) {
         var detail = e.detail;
-
-        if (demo.vent) { console.log('fin-row-selection-changed', detail); }
-
         // Move cell selection with row selection
         var rows = detail.rows,
             selections = detail.selections;
@@ -159,8 +127,6 @@ module.exports = function(demo, grid) {
     });
 
     grid.addEventListener('fin-column-selection-changed', function(e) {
-        if (demo.vent) { console.log('fin-column-selection-changed', e.detail); }
-
         if (e.detail.columns.length === 0) {
             console.log('no rows selected');
             return;
@@ -172,44 +138,9 @@ module.exports = function(demo, grid) {
         console.log(grid.getColumnSelection());
     });
 
-    grid.addEventListener('fin-editor-data-change', function(e) {
-        if (demo.vent) { console.log('fin-editor-data-change', e.detail); }
+    //uncomment to cancel editor popping up:
+    // grid.addEventListener('fin-request-cell-edit', function(e) { e.preventDefault(); });
 
-    });
-
-    grid.addEventListener('fin-request-cell-edit', function(e) {
-        if (demo.vent) { console.log('fin-request-cell-edit', e); }
-        //e.preventDefault(); //uncomment to cancel editor popping up
-    });
-
-    grid.addEventListener('fin-before-cell-edit', function(e) {
-        if (demo.vent) { console.log('fin-before-cell-edit', e); }
-        //e.preventDefault(); //uncomment to cancel updating the model with the new data
-    });
-
-    grid.addEventListener('fin-after-cell-edit', function(e) {
-        if (demo.vent) { console.log('fin-after-cell-edit', e); }
-    });
-
-    grid.addEventListener('fin-editor-keyup', function(e) {
-        if (demo.vent) { console.log('fin-editor-keyup', e.detail); }
-    });
-
-    grid.addEventListener('fin-editor-keypress', function(e) {
-        if (demo.vent) { console.log('fin-editor-keypress', e.detail); }
-    });
-
-    grid.addEventListener('fin-editor-keydown', function(e) {
-        if (demo.vent) { console.log('fin-editor-keydown', e.detail); }
-    });
-
-    grid.addEventListener('fin-groups-changed', function(e) {
-        if (demo.vent) { console.log('fin-groups-changed', e.detail); }
-    });
-
-    grid.addEventListener('fin-context-menu', function(e) {
-        var modelPoint = e.detail.gridCell;
-        if (demo.vent) { console.log('fin-context-menu(' + modelPoint.x + ', ' + modelPoint.y + ')'); }
-    });
-
+    //uncomment to cancel updating the model with the new data:
+    // grid.addEventListener('fin-before-cell-edit', function(e) { e.preventDefault(); });
 };
