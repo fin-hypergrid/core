@@ -460,16 +460,35 @@ var defaults = {
      */
     gridLinesV: true,
 
+
     /**
-     * Draw horizontal grid line before first rendered column.
+     * Set canvas's CSS border to this string as well as `gridBorderLeft`, `gridBorderRight`, `gridBorderTop`, and `gridBorderBottom`.
+     * If set to `true`, uses current `lineWidth` and `lineColor`.
+     * If set to `false`, uses null.
+     *
+     * Caveat: The use of `grid.canvas.canvas.style.boxSizing = 'border-box'` is _not_ recommended due to
+     * the fact that the canvas is squashed slightly to accommodate the border resulting in blurred text.
+     *
      * @default
-     * @type {boolean}
+     * @type {boolean|string}
+     * @memberOf module:defaults
+     */
+    gridBorder: false,
+
+    /**
+     * Set canvas's left CSS border to this string.
+     * If set to `true`, uses current `lineWidth` and `lineColor`.
+     * If set to `false`, uses null.
+     * @default
+     * @type {boolean|string}
      * @memberOf module:defaults
      */
     gridBorderLeft: false,
 
     /**
-     * Draw horizontal grid line after last rendered column.
+     * Set canvas's right CSS border to this string.
+     * If set to `true`, uses current `lineWidth` and `lineColor`.
+     * If set to `false`, uses null.
      * @default
      * @type {boolean}
      * @memberOf module:defaults
@@ -477,7 +496,9 @@ var defaults = {
     gridBorderRight: false,
 
     /**
-     * Draw horizontal grid line above first rendered row.
+     * Set canvas's top CSS border to this string.
+     * If set to `true`, uses current `lineWidth` and `lineColor`.
+     * If set to `false`, uses null.
      * @default
      * @type {boolean}
      * @memberOf module:defaults
@@ -485,7 +506,9 @@ var defaults = {
     gridBorderTop: false,
 
     /**
-     * Draw horizontal grid line below last rendered row.
+     * Set canvas's bottom CSS border to this string.
+     * If set to `true`, uses current `lineWidth` and `lineColor`.
+     * If set to `false`, uses null.
      * @default
      * @type {boolean}
      * @memberOf module:defaults

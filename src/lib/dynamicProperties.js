@@ -145,7 +145,13 @@ var dynamicPropertyDescriptors = {
             }
             this.var.doubleClickDelay = delay;
         }
-    }
+    },
+
+    gridBorder: getGridBorderDescriptor(),
+    gridBorderLeft: getGridBorderDescriptor('Left'),
+    gridBorderRight: getGridBorderDescriptor('Right'),
+    gridBorderTop: getGridBorderDescriptor('Top'),
+    gridBorderBottom: getGridBorderDescriptor('Bottom')
 };
 
 function getRowPropertiesBySubgridAndRowIndex() { // to be called with grid.properties as context
@@ -292,6 +298,35 @@ function setCellPropertiesByColumnNameAndRowIndex(cellsHash) { // to be called w
     function nameMatches(column) {
         return column.name === columnName;
     }
+}
+
+function getGridBorderDescriptor(edge) {
+    edge = edge || '';
+
+    var propName = 'gridBorder' + edge,
+        styleName = 'border' + edge;
+
+    return {
+        enumerable: true,
+        get: function() {
+            return this.var[propName];
+        },
+        set: function(border) {
+            this.var[propName] = border;
+            if (!edge) {
+                this.var.gridBorderLeft = this.var.gridBorderRight = this.var.gridBorderTop = this.var.gridBorderBottom = border;
+            }
+            switch (border) {
+                case true:
+                    border = this.lineWidth + 'px solid ' + this.lineColor;
+                    break;
+                case false:
+                    border = null;
+                    break;
+            }
+            this.grid.canvas.canvas.style[styleName] = border;
+        }
+    };
 }
 
 module.exports = dynamicPropertyDescriptors;
