@@ -507,6 +507,29 @@ var defaults = {
      */
     lineWidth: 1,
 
+    /**
+     * Define to make color of rule lines between fixed and scolling rows and columns different than `lineColor`.
+     * @default
+     * @type {cssColor}
+     * @memberOf module:defaults
+     */
+    fixedLineColor: undefined,
+
+    /**
+     * Width of rule lines between fixed and scrolling rows and columns.
+     * @default
+     * @type {number}
+     * @memberOf module:defaults
+     */
+    fixedLineWidth: 3,
+
+    /**
+     * Define this property to render just the edges of the fixed rule lines with this width to create a double-line effect.
+     * @default
+     * @type {number}
+     * @memberOf module:defaults
+     */
+    fixedEdgeWidth: undefined,
 
     /**
      * @default
