@@ -215,7 +215,7 @@ Canvas.prototype = {
 
     divBoundingClientRect: function() {
         // Make sure our canvas has integral dimensions
-        var size = this.div.getBoundingClientRect();
+        var rect = this.div.getBoundingClientRect();
         var top = Math.floor(rect.top),
             left = Math.floor(rect.left),
             width = Math.ceil(rect.width),
@@ -223,8 +223,8 @@ Canvas.prototype = {
 
         return {
             top: top,
-            right: left+width,
-            bottom: top+height,
+            right: left + width,
+            bottom: top + height,
             left: left,
             width: width,
             height: height,
