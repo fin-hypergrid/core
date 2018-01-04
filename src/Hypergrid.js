@@ -17,7 +17,8 @@ var Canvas = require('./lib/Canvas');
 var Renderer = require('./renderer');
 var SelectionModel = require('./lib/SelectionModel');
 var Localization = require('./lib/Localization');
-var behaviors = require('./behaviors');
+var Behavior = require('./behaviors/Behavior');
+var behaviorJSON = require('./behaviors/JSON');
 var CellRenderers = require('./cellRenderers');
 var CellEditors = require('./cellEditors');
 
@@ -115,7 +116,7 @@ var Hypergrid = Base.extend('Hypergrid', {
          * @type {CellEditor}
          * @memberOf Hypergrid#
          */
-        this.cellEditors = new CellEditors(this);
+        this.cellEditors = new CellEditors({ grid: this });
 
         if (this.options.Behavior) {
             this.setBehavior(this.options); // also sets this.options.pipeline and this.options.data
@@ -413,7 +414,7 @@ var Hypergrid = Base.extend('Hypergrid', {
             // set first two args of `preinstall` method to `this` (the Hypergrid prototype) and the Behavior prototype
             args = [this];
             if (shared) {
-                args.push(behaviors.Behavior.prototype);
+                args.push(Behavior.prototype);
             }
 
             if (Array.isArray(plugin)) {
@@ -793,7 +794,7 @@ var Hypergrid = Base.extend('Hypergrid', {
             // If we get here it means:
             // 1. Called from constructor because behavior included in options object.
             // 2. Called from `setData` _and_ wasn't called explicitly since instantiation
-            var Behavior = options.Behavior || behaviors.JSON;
+            var Behavior = options.Behavior || behaviorJSON;
             this.behavior = new Behavior(this, options);
             this.initCanvas();
             this.initScrollbars();

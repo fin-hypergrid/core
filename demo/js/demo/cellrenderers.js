@@ -188,7 +188,7 @@ module.exports = function(demo, grid) {
 
 
     //Extend HyperGrid's base Renderer
-    var sparkStarRatingRenderer = grid.cellRenderers.get('emptycell').constructor.extend({
+    var sparkStarRatingRenderer = grid.cellRenderers.BaseClass.extend({
         paint: paintSparkRating
     });
 

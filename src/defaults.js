@@ -1216,6 +1216,24 @@ var defaults = {
      */
     rowProperties: undefined,
 
+    /**
+     * Used to access registered features -- unless behavior has a non-empty `features` property (array of feature contructors).
+     */
+    features: [
+        'filters',
+        'cellselection',
+        'keypaging',
+        'columnresizing',
+        // 'rowresizing',
+        'rowselection',
+        'columnselection',
+        'columnmoving',
+        'columnsorting',
+        'cellclick',
+        'cellediting',
+        'onhover'
+    ],
+
     /** @summary How to truncate text.
      * @desc A "quaternary" value, one of:
      * * `undefined` - Text is not truncated.

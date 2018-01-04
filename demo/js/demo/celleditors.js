@@ -6,7 +6,7 @@ module.exports = function(demo, grid) {
 
     var idx = grid.behavior.columnEnum;
 
-    var CellEditor = grid.cellEditors.get('celleditor');
+    var CellEditor = grid.cellEditors.BaseClass;
     var Textfield = grid.cellEditors.get('textfield');
 
     var ColorText = Textfield.extend('colorText', {

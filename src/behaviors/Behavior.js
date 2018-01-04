@@ -5,6 +5,9 @@ var Point = require('rectangular').Point;
 var Base = require('../Base');
 var Column = require('./Column');
 var cellEventFactory = require('../lib/cellEventFactory');
+var Features = require('../features');
+
+
 var noExportProperties = [
     'columnHeader',
     'columnHeaderColumnSelection',
@@ -50,8 +53,6 @@ var Behavior = Base.extend('Behavior', {
      * @memberOf Behavior#
      */
     initializeFeatureChain: function(grid) {
-        var self = this;
-
         /**
          * @summary Hash of feature class names.
          * @desc Built here but otherwise not in use.
@@ -60,27 +61,30 @@ var Behavior = Base.extend('Behavior', {
          */
         this.featureMap = {};
 
-        this.features.forEach(function(FeatureConstructor) {
-            var newFeature = new FeatureConstructor;
-            self.featureMap[newFeature.$$CLASS_NAME] = newFeature;
-            if (self.featureChain) {
-                self.featureChain.setNext(newFeature);
-            } else {
-                /**
-                 * @summary Controller chain of command.
-                 * @desc Each feature is linked to the next feature.
-                 * @type {Feature}
-                 * @memberOf Behavior#
-                 */
-                self.featureChain = newFeature;
-            }
-        });
+        this.featureRegistry = this.featureRegistry || new Features;
+
+        if (this.features.length) {
+            // use the overridden `features` (array of feature constructors) if available
+            this.features.forEach(addToFeatureChain, this);
+        } else {
+            // otherwise use the list of feature names in the `features` grid property
+            this.grid.properties.features.forEach(function(featureName) {
+                var FeatureConstructor = this.featureRegistry.get(featureName);
+
+                if (!FeatureConstructor) {
+                    throw new this.HypergridError('Expected feature "' + featureName + '" to be a registered feature.');
+                }
+
+                addToFeatureChain.call(this, FeatureConstructor);
+            }, this);
+        }
+
         if (this.featureChain) {
             this.featureChain.initializeOn(grid);
         }
     },
 
-    features: [], // override in implementing class unless no features
+    features: [], // override in implementing class; or provide feature names in grid.properties.features; else no features
 
     /**
      * @param {object} [options]
@@ -1395,11 +1399,31 @@ var Behavior = Base.extend('Behavior', {
     }
 });
 
+
 // define constants as immutable (i.e., !writable)
 Object.defineProperties(Behavior.prototype, {
     treeColumnIndex: { value: -1 },
     rowColumnIndex: { value: -2 }
 });
+
+
+function addToFeatureChain(FeatureConstructor) {
+    var feature = new FeatureConstructor;
+
+    this.featureMap[feature.$$CLASS_NAME] = feature;
+    if (this.featureChain) {
+        this.featureChain.setNext(feature);
+    } else {
+        /**
+         * @summary Controller chain of command.
+         * @desc Each feature is linked to the next feature.
+         * @type {Feature}
+         * @memberOf Behavior#
+         */
+        this.featureChain = feature;
+    }
+}
+
 
 // synonyms
 
