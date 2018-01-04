@@ -5,6 +5,27 @@
 var Rectangle = require('rectangular').Rectangle;
 
 module.exports = {
+    selectionInitialize: function() {
+        var grid = this;
+
+        /** for use by fin-selection-changed, fin-row-selection-changed, fin-column-selection-changed
+         * @memberOf Hypergrid#
+         * @private
+         */
+        this.selectionDetailGetters = {
+            get rows() { return grid.getSelectedRows(); },
+            get columns() { return grid.getSelectedColumns(); },
+            get selections() { return grid.selectionModel.getSelections(); }
+        };
+
+        /**
+         * for use by fin-context-menu, fin-mouseup, fin-mousedown
+         * @memberOf Hypergrid#
+         * @private
+         */
+        this.selectionDetailGetterDescriptors = Object.getOwnPropertyDescriptors(this.selectionDetailGetters);
+    },
+
     /**
      * @memberOf Hypergrid#
      * @returns {boolean} We have any selections.
@@ -506,11 +527,7 @@ module.exports = {
         this.selectColumnsFromCells();
 
         var selectionEvent = new CustomEvent('fin-selection-changed', {
-            detail: {
-                rows: this.getSelectedRows(),
-                columns: this.getSelectedColumns(),
-                selections: this.selectionModel.getSelections(),
-            }
+            detail: this.selectionDetailGetters
         });
         this.canvas.dispatchEvent(selectionEvent);
     },
