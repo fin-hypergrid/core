@@ -13,18 +13,17 @@ var ColumnSorting = Feature.extend('ColumnSorting', {
      * @param {Hypergrid} grid
      * @param {Object} event - the event details
      */
+    handleClick: function(grid, event) {
+        sort.call(this, grid, event);
+    },
 
+    /**
+     * @memberOf ColumnSorting.prototype
+     * @param {Hypergrid} grid
+     * @param {Object} event - the event details
+     */
     handleDoubleClick: function(grid, event) {
-        var columnProperties;
-        if (
-            event.isHeaderCell &&
-            (columnProperties = grid.behavior.getColumnProperties(event.gridCell.x)) &&
-            !columnProperties.unsortable
-        ) {
-            grid.fireSyntheticColumnSortEvent(event.gridCell.x, event.primitiveEvent.detail.keys);
-        } else if (this.next) {
-            this.next.handleDoubleClick(grid, event);
-        }
+        sort.call(this, grid, event, true);
     },
 
     /**
@@ -50,5 +49,22 @@ var ColumnSorting = Feature.extend('ColumnSorting', {
     }
 
 });
+
+// Note: Keep ! in place to convert both sides to bool for
+// accurate equality test because either could be undefined.
+function sort(grid, event, onDoubleClick) {
+    var columnProperties;
+    if (
+        event.isHeaderCell &&
+        !(columnProperties = event.columnProperties).unsortable &&
+        !columnProperties.sortOnDoubleClick === !onDoubleClick // caution see note
+    ) {
+        grid.fireSyntheticColumnSortEvent(event.gridCell.x, event.primitiveEvent.detail.keys);
+    }
+
+    if (this.next) {
+        this.next[onDoubleClick ? 'handleDoubleClick' : 'handleClick'](grid, event);
+    }
+}
 
 module.exports = ColumnSorting;

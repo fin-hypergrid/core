@@ -900,6 +900,8 @@ var defaults = {
     editable: true,
 
     /**
+     * Edit cell on double-click rather than single-click.
+     *
      * @default
      * @type {boolean}
      * @memberOf module:defaults
@@ -907,11 +909,16 @@ var defaults = {
     editOnDoubleClick: true,
 
     /**
+     * Sort column on double-click rather than single-click.
+     *
+     * Used by:
+     * * feature/ColumnSorting.js to decide which event to respond to (if any, see `unsortabe`).
+     * * feature/ColumnSelection.js to decide whether or not to wait for double-click.
      * @default
-     * @type {number}
+     * @type {boolean}
      * @memberOf module:defaults
      */
-    doubleClickDelay: 325,
+    sortOnDoubleClick: true,
 
     /**
      * Grid-level property.
@@ -1228,6 +1235,7 @@ var defaults = {
      */
     truncateTextWithEllipsis: true
 };
+
 
 /** @typedef {string} cssColor
  * @see https://developer.mozilla.org/en-US/docs/Web/CSS/color_value
