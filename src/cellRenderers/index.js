@@ -50,4 +50,6 @@ var CellRenderers = Registry.extend('CellRenderers', {
 
 });
 
+CellRenderers.add = Registry.prototype.add.bind(CellRenderers);
+
 module.exports = CellRenderers;

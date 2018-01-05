@@ -45,6 +45,21 @@ var dynamicPropertyDescriptors = {
     /**
      * @memberOf module:dynamicPropertyDescriptors
      */
+    features: {
+        enumerable: true,
+        get: function() {
+            return this.var.features;
+        },
+        set: function(features) {
+            this.var.features = features;
+            this.grid.behavior.initializeFeatureChain(features);
+            this.grid.allowEvents(this.grid.getRowCount());
+        }
+    },
+
+    /**
+     * @memberOf module:dynamicPropertyDescriptors
+     */
     gridRenderer: {
         enumerable: true,
         get: function() {

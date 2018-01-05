@@ -195,7 +195,7 @@ var JSON = Behavior.extend('behaviors.JSON', {
             this.createColumns();
         }
 
-        grid.allowEvents(this.dataModel.getRowCount() > 0);
+        grid.allowEvents(this.getRowCount());
     },
 
     /**

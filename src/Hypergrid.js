@@ -29,7 +29,7 @@ var EDGE_STYLES = ['top', 'bottom', 'left', 'right'],
  * @constructor
  * @param {string|Element} [container] - CSS selector or Element
  * @param {object} [options]
- * @param {function} [options.Behavior=behaviors.JSON] - A behavior constructor or instance
+ * @param {function} [options.Behavior=behaviors.JSON] - A grid behavior constructor (extended from {@link Behavior}).
  * @param {function[]} [options.pipeline] - A list function constructors to use for passing data through a series of transforms to occur on reindex call
  * @param {function|object[]} [options.data] - Passed to behavior constructor. May be:
  * * An array of congruent raw data objects
@@ -38,7 +38,6 @@ var EDGE_STYLES = ['top', 'bottom', 'left', 'right'],
  * * A schema array
  * * A function returning a schema array. Called at filter reset time with behavior as context.
  * * Omit to generate a basic schema from `this.behavior.columns`.
- * @param {Behavior} [options.Behavior=JSON] - A grid behavior (descendant of Behavior "class").
  *
  * @param {pluginSpec|pluginSpec[]} [options.plugins]
  *

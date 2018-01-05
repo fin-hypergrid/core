@@ -35,6 +35,8 @@ var Features = Registry.extend('Features', {
 
 });
 
+Features.add = Registry.prototype.add.bind(Features);
+
 
 // Following shared props provided solely in support of build file usage, e.g., `fin.Hypergrid.features.yada`,
 // and are not meant to be used elsewhere.

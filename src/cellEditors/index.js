@@ -50,4 +50,6 @@ var CellEditors = Registry.extend('CellEditors', {
 
 });
 
+CellEditors.add = Registry.prototype.add.bind(CellEditors);
+
 module.exports = CellEditors;

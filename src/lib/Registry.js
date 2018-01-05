@@ -13,7 +13,7 @@ var Registry = Base.extend('Registry', {
         this.options = options;
 
         if (this.option('private')) {
-            this.items = {};
+            this.items = Object.create(this.items);
         }
     },
 
@@ -43,7 +43,7 @@ var Registry = Base.extend('Registry', {
             name = undefined;
         }
 
-        name = name || Constructor.prototype.$$CLASS_NAME;
+        name = name || Constructor.prototype.$$CLASS_NAME || Constructor.name; // try Funciton.prototype.name as last resort
 
         if (!name) {
             throw new this.HypergridError('Expected a registration name.');
@@ -55,7 +55,7 @@ var Registry = Base.extend('Registry', {
     },
 
     /**
-     * @summary Register a synonym for an existing singleton.
+     * @summary Register a synonym for an existing item.
      * @param {string} synonymName
      * @param {string} existingName
      * @returns {CellRenderers} The previously registered constructor this new synonym points to.
@@ -68,10 +68,11 @@ var Registry = Base.extend('Registry', {
     /**
      * Fetch a registered singleton.
      * @param {string} name
+     * @param {boolean} [noThrow] - Avoid throwing error if no such item; just return `undefined`.
      * @returns {CellRenderers} A registered constructor extended from {@link CellRenderers}.
      * @memberOf CellRenderers.prototype
      */
-    get: function(name) {
+    get: function(name, noThrow) {
         var result = this.items[name]; // for performance reasons, do not convert to lower case
 
         if (!result) {
@@ -82,8 +83,9 @@ var Registry = Base.extend('Registry', {
             }
         }
 
-        if (!result) {
-            throw new this.HypergridError('Expected a registered ' + this.$$CLASS_NAME.toLowerCase() + ': "' + name + '"');
+        if (!noThrow && !result) {
+            var classDesc = this.$$CLASS_NAME.replace(/[A-Z]/g, ' $1').trim().toLowerCase();
+            throw new this.HypergridError('Expected "' + name + '" to be a registered ' + classDesc + '.');
         }
 
         return result;
@@ -107,16 +109,8 @@ var Registry = Base.extend('Registry', {
     },
 
     construct: function(Constructor, options) {
-        options = Object.assign({}, this.options, options);
-        return new Constructor(Object.keys(options).length && options);
-    },
-
-    /**
-     * The shared registry. (Not used when `options.private` was truthy.)
-     * @private
-     * @memberOf CellRenderers.prototype
-     */
-    items: {}
+        return new Constructor(Object.assign({}, this.options, options));
+    }
 });
 
 

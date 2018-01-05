@@ -41,20 +41,30 @@ var Behavior = Base.extend('Behavior', {
          */
         this.grid = grid;
 
-        this.initializeFeatureChain(grid);
+        this.initializeFeatureChain();
 
         this.grid.behavior = this;
         this.reset(options);
     },
 
     /**
-     * @desc create the feature chain - this is the [chain of responsibility](http://c2.com/cgi/wiki?ChainOfResponsibilityPattern) pattern.
-     * @param {Hypergrid} grid
+     * @desc Create the feature chain - this is the [chain of responsibility](http://c2.com/cgi/wiki?ChainOfResponsibilityPattern) pattern.
+     * @param {Hypergrid} [grid] Unnecesary legacy parameter. May be omitted.
      * @memberOf Behavior#
      */
     initializeFeatureChain: function(grid) {
+        var constructors;
+
         /**
-         * @summary Hash of feature class names.
+         * @summary Controller chain of command.
+         * @desc Each feature is linked to the next feature.
+         * @type {Feature}
+         * @memberOf Behavior#
+         */
+        this.featureChain = undefined;
+
+        /**
+         * @summary Hash of instantiated features by class names.
          * @desc Built here but otherwise not in use.
          * @type {object}
          * @memberOf Behavior#
@@ -63,24 +73,28 @@ var Behavior = Base.extend('Behavior', {
 
         this.featureRegistry = this.featureRegistry || new Features;
 
-        if (this.features.length) {
-            // use the overridden `features` (array of feature constructors) if available
-            this.features.forEach(addToFeatureChain, this);
-        } else {
-            // otherwise use the list of feature names in the `features` grid property
-            this.grid.properties.features.forEach(function(featureName) {
-                var FeatureConstructor = this.featureRegistry.get(featureName);
-
-                if (!FeatureConstructor) {
-                    throw new this.HypergridError('Expected feature "' + featureName + '" to be a registered feature.');
-                }
-
-                addToFeatureChain.call(this, FeatureConstructor);
-            }, this);
+        if (this.grid.properties.features) {
+            var getFeatureConstructor = this.featureRegistry.get.bind(this.featureRegistry);
+            constructors = this.grid.properties.features.map(getFeatureConstructor);
+        } else if (this.features) {
+            constructors = this.features;
+            warnBehaviorFeaturesDeprecation.call(this);
         }
 
+        constructors.forEach(function(FeatureConstructor, i) {
+            var feature = new FeatureConstructor;
+
+            this.featureMap[feature.$$CLASS_NAME] = feature;
+
+            if (i) {
+                this.featureChain.setNext(feature);
+            } else {
+                this.featureChain = feature;
+            }
+        }, this);
+
         if (this.featureChain) {
-            this.featureChain.initializeOn(grid);
+            this.featureChain.initializeOn(this.grid);
         }
     },
 
@@ -1407,21 +1421,46 @@ Object.defineProperties(Behavior.prototype, {
 });
 
 
-function addToFeatureChain(FeatureConstructor) {
-    var feature = new FeatureConstructor;
+function warnBehaviorFeaturesDeprecation() {
+    var featureNames = [], unregisteredFeatures = [], n = 0;
 
-    this.featureMap[feature.$$CLASS_NAME] = feature;
-    if (this.featureChain) {
-        this.featureChain.setNext(feature);
-    } else {
-        /**
-         * @summary Controller chain of command.
-         * @desc Each feature is linked to the next feature.
-         * @type {Feature}
-         * @memberOf Behavior#
-         */
-        this.featureChain = feature;
+    this.features.forEach(function(FeatureConstructor) {
+        var className = FeatureConstructor.prototype.$$CLASS_NAME || FeatureConstructor.name,
+            featureName = className || 'feature' + n++;
+
+        // build list of feature names
+        featureNames.push(featureName);
+
+        // build list of unregistered features
+        if (!this.featureRegistry.get(featureName, true)) {
+            var constructorName = FeatureConstructor.name || FeatureConstructor.prototype.$$CLASS_NAME || 'FeatureConstructor' + n,
+                params = [];
+            if (!className) {
+                params.push('\'' + featureName + '\'');
+            }
+            params.push(constructorName);
+            unregisteredFeatures.push(params.join(', '));
+        }
+    }, this);
+
+    if (featureNames.length) {
+        var sampleCode = 'Hypergrid.defaults.features = [\n' + join('\t\'', featureNames, '\',\n') + '];';
+
+        if (unregisteredFeatures.length) {
+            sampleCode += '\n\nThe following custom features are unregistered and will need to be registered prior to behavior instantiation:\n\n' +
+                join('Features.add(', unregisteredFeatures, ');\n');
+        }
+
+        if (n) {
+            sampleCode += '\n\n(You should provide meaningful names for your custom features rather than the generated names above.)';
+        }
+
+        console.warn('`grid.behavior.features` (array of feature constructors) has been deprecated as of version 2.1.0 in favor of `grid.properties.features` (array of feature names). Remove `features` array from your behavior and add `features` property to your grid state object (or Hypergrid.defaults), e.g.:\n\n' + sampleCode);
     }
+}
+
+function join(prefix, array, suffix) {
+    return prefix + array.join(suffix + prefix) + suffix;
 }
 
 
