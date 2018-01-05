@@ -242,7 +242,8 @@ var Renderer = Base.extend('Renderer', {
             insertionBoundsCursor = 0,
             previousInsertionBoundsCursorValue = 0,
 
-            lineWidth = grid.properties.lineWidth,
+            lineWidthX = grid.properties.gridLinesV ? grid.properties.lineWidth : 1,
+            lineWidthY = grid.properties.gridLinesH ? grid.properties.lineWidth : 0,
 
             start = 0,
             numOfInternalCols = 0,
@@ -310,8 +311,8 @@ var Renderer = Base.extend('Renderer', {
 
             width = Math.ceil(behavior.getColumnWidth(vx));
 
-            xSpaced = x ? x + lineWidth : x;
-            widthSpaced = x ? width - lineWidth : width;
+            xSpaced = x ? x + lineWidthX : x;
+            widthSpaced = x ? width - lineWidthX : width;
             this.visibleColumns[c] = this.visibleColumnsByIndex[vx] = vc = {
                 index: c,
                 columnIndex: vx,
@@ -370,7 +371,7 @@ var Renderer = Base.extend('Renderer', {
                 rowIndex = vy - base;
                 height = behavior.getRowHeight(rowIndex, subgrid);
 
-                heightSpaced = height - lineWidth;
+                heightSpaced = height - lineWidthY;
                 this.visibleRows[r] = vr = {
                     index: r,
                     subgrid: subgrid,
