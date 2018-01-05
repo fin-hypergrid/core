@@ -37,8 +37,9 @@ function paintCellsByRows(gc) {
         // clipToGrid,
         viewWidth = C ? visibleColumns[C - 1].right : 0,
         viewHeight = R ? visibleRows[R - 1].bottom : 0,
-        lineWidth = gridProps.lineWidth,
-        lineColor = gridProps.lineColor;
+        drawLines = gridProps.gridLines.horizontal.enabled,
+        lineWidth = gridProps.gridLines.horizontal.width,
+        lineColor = gridProps.gridLines.horizontal.color;
 
     gc.clearRect(0, 0, this.bounds.width, this.bounds.height);
 
@@ -68,7 +69,7 @@ function paintCellsByRows(gc) {
     for (p = 0, r = 0; r < R; r++) {
         prefillColor = rowPrefillColors[r];
 
-        if (gridProps.gridLinesH) {
+        if (drawLines) {
             gc.cache.fillStyle = lineColor;
             gc.fillRect(0, pool[p].visibleRow.bottom, viewWidth, lineWidth);
         }

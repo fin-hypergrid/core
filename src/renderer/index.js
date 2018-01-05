@@ -242,7 +242,8 @@ var Renderer = Base.extend('Renderer', {
             insertionBoundsCursor = 0,
             previousInsertionBoundsCursorValue = 0,
 
-            lineWidth = grid.properties.lineWidth,
+            lineWidthHorizontal = grid.properties.gridLines.horizontal.width,
+            lineWidthVertical = grid.properties.gridLines.vertical.width,
 
             start = 0,
             numOfInternalCols = 0,
@@ -313,14 +314,15 @@ var Renderer = Base.extend('Renderer', {
 
             if (x) {
                 if ((gap = fixedColumnCount && c === fixedColumnCount)) {
-                    x += grid.properties.fixedLineWidth - lineWidth;
+                    x += grid.properties.fixedLineWidth - lineWidthVertical;
                 }
-                xSpaced = x + lineWidth;
-                widthSpaced = width - lineWidth;
+                xSpaced = x + lineWidthVertical;
+                widthSpaced = width - lineWidthVertical;
             } else {
                 xSpaced = x;
                 widthSpaced = width;
             }
+
             this.visibleColumns[c] = this.visibleColumnsByIndex[vx] = vc = {
                 index: c,
                 columnIndex: vx,
@@ -368,7 +370,7 @@ var Renderer = Base.extend('Renderer', {
                 vy = r;
                 if (scrollableSubgrid) {
                     if ((gap = fixedRowCount && r === fixedRowCount)) {
-                        y += grid.properties.fixedLineWidth - lineWidth;
+                        y += grid.properties.fixedLineWidth - lineWidthHorizontal;
                     }
                     if (r >= fixedRowCount) {
                         vy += scrollTop;
@@ -385,7 +387,7 @@ var Renderer = Base.extend('Renderer', {
                 rowIndex = vy - base;
                 height = behavior.getRowHeight(rowIndex, subgrid);
 
-                heightSpaced = height - lineWidth;
+                heightSpaced = height - lineWidthHorizontal;
                 this.visibleRows[r] = vr = {
                     index: r,
                     subgrid: subgrid,
@@ -1049,10 +1051,11 @@ var Renderer = Base.extend('Renderer', {
 
         if (C && R) {
             var gridProps = this.properties,
-                lineWidth = gridProps.lineWidth;
+                gridLines = gridProps.gridLines.vertical,
+                lineWidth = gridLines.width;
 
-            if (gridProps.gridLinesV) {
-                gc.cache.fillStyle = gridProps.lineColor;
+            if (gridLines.enabled) {
+                gc.cache.fillStyle = gridLines.color;
                 var viewHeight = visibleRows[R - 1].bottom;
                 for (var right, vc = visibleColumns[0], c = 1; c < C; c++) {
                     right = vc.right;
@@ -1065,8 +1068,11 @@ var Renderer = Base.extend('Renderer', {
                 }
             }
 
-            if (gridProps.gridLinesH) {
-                gc.cache.fillStyle = gridProps.lineColor;
+            gridLines = gridProps.gridLines.horizontal;
+            lineWidth = gridLines.width;
+
+            if (gridLines.enabled) {
+                gc.cache.fillStyle = gridLines.color;
                 var viewWidth = visibleColumns[C - 1].right;
                 for (var bottom, vr = visibleRows[0], r = 1; r < R; r++) {
                     bottom = vr.bottom;

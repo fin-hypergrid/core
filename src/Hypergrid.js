@@ -268,6 +268,17 @@ var Hypergrid = Base.extend('Hypergrid', {
             grid: { value: this },
             var: { value: new Var() }
         });
+
+        // Deep clone all default props of object type, excluding dynamic props, so changes inside
+        // such objects won't affect theme or defaults layers which may be shared by other instances.
+        Object.keys(defaults)
+            .filter(function(key) { return !dynamicPropertyDescriptors[key]; })
+            .forEach(function(key) {
+                var value = Object.getOwnPropertyDescriptor(defaults, key).value; // do not invoke getters!
+                if (typeof value === 'object') {
+                    this[key] = deepClone(value);
+                }
+            }, this.properties);
     },
 
     /**
@@ -577,6 +588,7 @@ var Hypergrid = Base.extend('Hypergrid', {
     },
 
     /**
+     * @todo Only output values when they differ from defaults (deep compare needed).
      * @param {object} [options]
      * @param {string[]} [options.blacklist] - List of grid properties to exclude. Pertains to grid own properties only.
      * @param {boolean} [options.compact] - Run garbage collection first. The only property this current affects is `properties.calculators` (removes unused calculators).
@@ -1999,6 +2011,27 @@ function stringifyFunctions() {
         }
         return obj;
     }, {});
+}
+
+function clone(value) {
+    if (Array.isArray(value)) {
+        return value.slice(); // clone array
+    } else if (typeof value === 'object') {
+        return Object.defineProperties({}, Object.getOwnPropertyDescriptors(value));
+    } else {
+        return value;
+    }
+}
+
+function deepClone(object) {
+    var result = clone(object);
+    Object.keys(result).forEach(function(key) {
+        var descriptor = Object.getOwnPropertyDescriptor(result, key);
+        if (typeof descriptor.value === 'object') {
+            result[key] = deepClone(descriptor.value);
+        }
+    });
+    return result;
 }
 
 /**
