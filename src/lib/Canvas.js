@@ -213,16 +213,36 @@ Canvas.prototype = {
         this.stopResizing();
     },
 
+    getDivBoundingClientRect: function() {
+        // Make sure our canvas has integral dimensions
+        var rect = this.div.getBoundingClientRect();
+        var top = Math.floor(rect.top),
+            left = Math.floor(rect.left),
+            width = Math.ceil(rect.width),
+            height = Math.ceil(rect.height);
+
+        return {
+            top: top,
+            right: left + width,
+            bottom: top + height,
+            left: left,
+            width: width,
+            height: height,
+            x: rect.x,
+            y: rect.y
+        };
+    },
+
     checksize: function() {
         //this is expensive lets do it at some modulo
-        var sizeNow = this.div.getBoundingClientRect();
+        var sizeNow = this.getDivBoundingClientRect();
         if (sizeNow.width !== this.size.width || sizeNow.height !== this.size.height) {
             this.resize();
         }
     },
 
     resize: function() {
-        var box = this.size = this.div.getBoundingClientRect();
+        var box = this.size = this.getDivBoundingClientRect();
 
         this.width = box.width;
         this.height = box.height;
