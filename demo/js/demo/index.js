@@ -9,7 +9,7 @@
 window.onload = function() {
 
     var demo = window.demo = {
-        vent: false,
+        set vent(start) { window.grid[start ? 'logStart' : 'logStop'](); },
         reset: reset,
         setData: setData,
         toggleEmptyData: toggleEmptyData,
@@ -31,6 +31,7 @@ window.onload = function() {
             data: people1,
             margin: { bottom: '17px', right: '17px'},
             schema: Hypergrid.lib.fields.getSchema(people1),
+            plugins: require('fin-hypergrid-event-logger'),
             state: { color: 'orange' }
         },
         grid = window.grid = window.g = new Hypergrid('div#json-example', gridOptions),

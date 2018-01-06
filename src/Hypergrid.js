@@ -71,6 +71,8 @@ var EDGE_STYLES = ['top', 'bottom', 'left', 'right'],
  */
 var Hypergrid = Base.extend('Hypergrid', {
     initialize: function(container, options) {
+        this.selectionInitialize();
+
         //Optional container argument
         if (!(typeof container === 'string') && !(container instanceof HTMLElement)) {
             options = container;
@@ -89,7 +91,7 @@ var Hypergrid = Base.extend('Hypergrid', {
         );
 
         // Install shared plug-ins (those with a `preinstall` method)
-        Object.getPrototypeOf(this).installPlugins(options.plugins);
+        Hypergrid.prototype.installPlugins(options.plugins);
 
         this.lastEdgeSelection = [0, 0];
         this.isWebkit = navigator.userAgent.toLowerCase().indexOf('webkit') > -1;
