@@ -562,6 +562,7 @@ module.exports = {
             } else {
                 this.clearRowSelection();
             }
+            this.fireSyntheticRowSelectionChangedEvent();
         }
     },
     selectColumnsFromCells: function() {
