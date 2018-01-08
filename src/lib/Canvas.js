@@ -373,6 +373,10 @@ Canvas.prototype = {
     },
 
     finmouseup: function(e) {
+        if (!this.mousedown) {
+            // ignore document:mouseup unless preceded by a canvas:mousedown
+            return;
+        }
         if (this.isDragging()) {
             this.dispatchNewMouseKeysEvent(e, 'fin-canvas-dragend', {
                 dragstart: this.dragstart,
