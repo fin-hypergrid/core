@@ -97,7 +97,6 @@ function Canvas(div, component) {
     });
 
     this.canvas.setAttribute('tabindex', 0);
-    this.canvas.contentEditable = true;
 
     this.resize();
 
