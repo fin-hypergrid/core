@@ -1,5 +1,7 @@
 'use strict';
 
+var warnedDoubleClickDelay;
+
 /**
  * @summary Dynamic grid property getter/setters.
  * @desc  Dynamic grid properties can make use of a _backing store._
@@ -127,6 +129,21 @@ var dynamicPropertyDescriptors = {
                 setCellPropertiesByColumnNameAndRowIndex.call(this, cellsHash);
                 this.grid.behavior.changed();
             }
+        }
+    },
+
+    // remove to expire warning:
+    doubleClickDelay: {
+        enumerable: true,
+        get: function() {
+            return this.var.doubleClickDelay;
+        },
+        set: function(delay) {
+            if (!warnedDoubleClickDelay) {
+                warnedDoubleClickDelay = true;
+                console.warn('The doubleClickDelay property has been deprecated as of v2.1.0. Setting this property no longer has any effect. Set double-click speed in your system\'s mouse preferences. (This warning will be removed in a future release.)');
+            }
+            this.var.doubleClickDelay = delay;
         }
     }
 };

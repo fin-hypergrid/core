@@ -892,6 +892,9 @@ var defaults = {
      */
     rowResize: false,
 
+
+    /* CELL EDITING */
+
     /**
      * @default
      * @type {boolean}
@@ -900,18 +903,13 @@ var defaults = {
     editable: true,
 
     /**
+     * Edit cell on double-click rather than single-click.
+     *
      * @default
      * @type {boolean}
      * @memberOf module:defaults
      */
     editOnDoubleClick: true,
-
-    /**
-     * @default
-     * @type {number}
-     * @memberOf module:defaults
-     */
-    doubleClickDelay: 325,
 
     /**
      * Grid-level property.
@@ -941,6 +939,55 @@ var defaults = {
      * @memberOf module:defaults
      */
     editOnNextCell: false,
+
+
+    /* COLUMN SORTING */
+
+    /**
+     * Ignore sort handling in feature/ColumnSorting.js.
+     * Useful for excluding some columns but not other from participating in sorting.
+     *
+     * @default
+     * @type {boolean}
+     * @memberOf module:defaults
+     */
+    unsortable: false,
+
+    /**
+     * Sort column on double-click rather than single-click.
+     *
+     * Used by:
+     * * feature/ColumnSorting.js to decide which event to respond to (if any, see `unsortabe`).
+     * * feature/ColumnSelection.js to decide whether or not to wait for double-click.
+     * @default
+     * @type {boolean}
+     * @memberOf module:defaults
+     */
+    sortOnDoubleClick: true,
+
+    /**
+     * **This is a standard property definition for sort plug-in use.
+     * It is not referenced in core.**
+     *
+     * The maximum number of columns that may participate in a multi-column sort (via ctrl-click headers).
+     * @default
+     * @type {number}
+     * @memberOf module:defaults
+     */
+    maxSortColumns : 3,
+
+    /**
+     * **This is a standard property definition for sort plug-in use.
+     * It is not referenced in core.**
+     *
+     * Column(s) participating and subsequently hidden still affect sort.
+     *
+     * @default
+     * @type {boolean}
+     * @memberOf module:defaults
+     */
+    sortOnHiddenColumns: true,
+
 
     /**
      * @summary Retain row selections.
@@ -1228,6 +1275,7 @@ var defaults = {
      */
     truncateTextWithEllipsis: true
 };
+
 
 /** @typedef {string} cssColor
  * @see https://developer.mozilla.org/en-US/docs/Web/CSS/color_value

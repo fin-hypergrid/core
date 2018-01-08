@@ -87,6 +87,9 @@ function Canvas(div, component) {
     this.addEventListener('click', function(e) {
         self.finclick(e);
     });
+    this.addEventListener('dblclick', function(e) {
+        self.findblclick(e);
+    });
     this.addEventListener('contextmenu', function(e) {
         self.fincontextmenu(e);
         e.preventDefault();
@@ -123,7 +126,6 @@ Canvas.prototype = {
     repeatKeyStartTime: 0,
     currentKeys: [],
     hasMouse: false,
-    lastDoubleClickTime: 0,
     dragEndTime: 0,
     lastRepaintTime: 0,
     currentPaintCount: 0,
@@ -408,27 +410,17 @@ Canvas.prototype = {
     },
 
     finclick: function(e) {
-        var delay = this.component.properties.doubleClickDelay;
-        if (delay < 100) {
-            dispatchClickEvent.call(this, e);
-        } else if (this.doubleClickTimer && Date.now() - this.lastClickTime < delay) {
-            //this is a double click...
-            clearTimeout(this.doubleClickTimer); // prevent click event
-            this.doubleClickTimer = undefined;
-            this.findblclick(e);
-        } else {
-            this.lastClickTime = Date.now();
-            this.doubleClickTimer = setTimeout(dispatchClickEvent.bind(this, e), delay);
-        }
+        this.mouseLocation = this.getLocal(e);
+        this.dispatchNewMouseKeysEvent(e, 'fin-canvas-click', {
+            isRightClick: this.isRightClick(e)
+        });
     },
 
     findblclick: function(e) {
         this.mouseLocation = this.getLocal(e);
-        this.lastDoubleClickTime = Date.now();
         this.dispatchNewMouseKeysEvent(e, 'fin-canvas-dblclick', {
             isRightClick: this.isRightClick(e)
         });
-        //console.log('dblclick', this.currentKeys);
     },
 
     getCharMap: function() {
@@ -521,24 +513,13 @@ Canvas.prototype = {
     },
 
     fincontextmenu: function(e) {
-        var delay = this.component.properties.doubleClickDelay;
-
         if (e.ctrlKey && this.currentKeys.indexOf('CTRL') === -1) {
             this.currentKeys.push('CTRL');
         }
 
-        if (delay < 100) {
-            dispatchContextMenuEvent.call(this, e);
-        } else if (this.doubleRightClickTimer && Date.now() - this.lastClickTime < delay) {
-            //this is a double click...
-            clearTimeout(this.doubleRightClickTimer); // prevent context menu event
-            this.doubleRightClickTimer = undefined;
-            this.findblclick(e);
-        } else {
-            this.lastClickTime = Date.now();
-
-            this.doubleRightClickTimer = setTimeout(dispatchContextMenuEvent.bind(this, e), delay);
-        }
+        this.dispatchNewMouseKeysEvent(e, 'fin-canvas-context-menu', {
+            isRightClick: this.isRightClick(e)
+        });
     },
 
     repaint: function() {
@@ -640,21 +621,6 @@ Canvas.prototype = {
         this.infoDiv.style.display = message ? 'block' : 'none';
     }
 };
-
-function dispatchClickEvent(e) {
-    this.doubleClickTimer = undefined;
-    this.mouseLocation = this.getLocal(e);
-    this.dispatchNewMouseKeysEvent(e, 'fin-canvas-click', {
-        isRightClick: this.isRightClick(e)
-    });
-}
-
-function dispatchContextMenuEvent(e) {
-    this.doubleRightClickTimer = undefined;
-    this.dispatchNewMouseKeysEvent(e, 'fin-canvas-context-menu', {
-        isRightClick: this.isRightClick(e)
-    });
-}
 
 function paintLoopFunction(now) {
     if (paintRequest) {
