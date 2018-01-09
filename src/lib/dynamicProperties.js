@@ -40,7 +40,11 @@ var dynamicPropertyDescriptors = {
             return this.var.subgrids;
         },
         set: function(subgrids) {
-            this.grid.behavior.subgrids = this.var.subgrids = subgrids;
+            this.var.subgrids = subgrids;
+
+            if (this.grid.behavior) {
+                this.grid.behavior.subgrids = subgrids;
+            }
         }
     },
 
@@ -132,6 +136,57 @@ var dynamicPropertyDescriptors = {
         }
     },
 
+    /**
+     * @memberOf module:dynamicPropertyDescriptors
+     */
+    rowHeaderFeatures: {
+        enumerable: true,
+        get: function() {
+            return this.var.rowHeaderFeatures;
+        },
+        set: function(rowHeaderFeatures) {
+            var grid = this.grid;
+            var features = Object.assign({}, this.var.rowHeaderFeatures = rowHeaderFeatures);
+            Object.defineProperties(rowHeaderFeatures, {
+                checkboxes: {
+                    get: function() {
+                        return features.checkboxes;
+                    },
+                    set: function(checkboxes) {
+                        features.checkboxes = checkboxes;
+                        grid.renderer.resetHandleColumnWidth();
+                    }
+                },
+                numbers: {
+                    get: function() {
+                        return features.numbers;
+                    },
+                    set: function(numbers) {
+                        features.numbers = numbers;
+                        grid.renderer.resetHandleColumnWidth();
+                    }
+                }
+            });
+            if (grid.renderer) {
+                grid.renderer.resetHandleColumnWidth();
+            } 
+        }
+    },
+
+    /**
+     * Legacy property; now points to both `rowHeaderFeatures` props.
+     * @memberOf module:dynamicPropertyDescriptors
+     */
+    showRowNumbers: {
+        enumerable: false,
+        get: function() {
+            return this.var.rowHeaderFeatures.checkboxes || this.var.rowHeaderFeatures.numbers;
+        },
+        set: function(enabled) {
+            this.var.rowHeaderFeatures.checkboxes = this.var.rowHeaderFeatures.numbers = enabled;
+        }
+    },
+
     // remove to expire warning:
     doubleClickDelay: {
         enumerable: true,
@@ -143,7 +198,7 @@ var dynamicPropertyDescriptors = {
                 warnedDoubleClickDelay = true;
                 console.warn('The doubleClickDelay property has been deprecated as of v2.1.0. Setting this property no longer has any effect. Set double-click speed in your system\'s mouse preferences. (This warning will be removed in a future release.)');
             }
-            this.var.doubleClickDelay = delay;
+            this.var.warnedDoubleClickDelay = delay;
         }
     },
 

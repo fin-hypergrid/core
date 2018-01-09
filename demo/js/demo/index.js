@@ -37,7 +37,6 @@ window.onload = function() {
         grid = window.grid = window.g = new Hypergrid('div#json-example', gridOptions),
         behavior = window.b = grid.behavior,
         dataModel = window.m = behavior.dataModel,
-        initial = true,
         idx = behavior.columnEnum;
 
 
@@ -78,17 +77,13 @@ window.onload = function() {
 
     function resetData() {
         setData(people1);
-        if (initial) {
-            initDashboard(demo, grid);
-            initial = false;
-        }
-        setTimeout(function() { initState(demo, grid); }, 50);
+        initState(demo, grid);
     }
-
-    resetData();
 
     initCellRenderers(demo, grid);
     initFormatters(demo, grid);
     initCellEditors(demo, grid);
     initEvents(demo, grid);
+    initDashboard(demo, grid);
+    initState(demo, grid);
 };

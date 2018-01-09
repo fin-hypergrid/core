@@ -111,20 +111,11 @@ function createColumnProperties() {
 
     });
 
-    Object.defineProperty(properties, 'rowHeader', {
-        value: Object.create(properties, createColumnProperties.rowHeaderDescriptors)
-    });
-
-    Object.defineProperty(properties, 'treeHeader', {
-        value: Object.create(properties, createColumnProperties.treeHeaderDescriptors)
-    });
-
-    Object.defineProperty(properties, 'columnHeader', {
-        value: Object.create(properties, createColumnProperties.columnHeaderDescriptors)
-    });
-
-    Object.defineProperty(properties, 'filterProperties', {
-        value: Object.create(properties, createColumnProperties.filterDescriptors)
+    Object.defineProperties(properties, {
+        rowHeader: { value: Object.create(properties, createColumnProperties.rowHeaderDescriptors) },
+        treeHeader: { value: Object.create(properties, createColumnProperties.treeHeaderDescriptors) },
+        columnHeader: { value: Object.create(properties, createColumnProperties.columnHeaderDescriptors) },
+        filterProperties: { value: Object.create(properties, createColumnProperties.filterDescriptors) }
     });
 
     return properties;
@@ -269,15 +260,17 @@ createColumnProperties.rowHeaderDescriptors = {
         configurable: true,
         enumerable: true,
         get: function() {
-            var result;
-            if (this.isDataRow) {
-                result = this.isRowSelected ? 'checked' : 'unchecked';
-            } else if (this.isHeaderRow) {
-                result = this.allRowsSelected ? 'checked' : 'unchecked';
-            } else if (this.isFilterRow) {
-                result = 'filter-off';
+            if (this.grid.properties.rowHeaderFeatures.checkboxes) {
+                var result;
+                if (this.isDataRow) {
+                    result = this.isRowSelected ? 'checked' : 'unchecked';
+                } else if (this.isHeaderRow) {
+                    result = this.allRowsSelected ? 'checked' : 'unchecked';
+                } else if (this.isFilterRow) {
+                    result = 'filter-off';
+                }
+                return result;
             }
-            return result;
         },
         set: function(value) {
             // replace self with a simple instance var
