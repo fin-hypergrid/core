@@ -142,12 +142,16 @@ var dynamicPropertyDescriptors = {
     rowHeaderFeatures: {
         enumerable: true,
         get: function() {
-            return this.var.rowHeaderFeatures;
+            return this.var.rowHeaderFeatures || // from defaults or as subsequently set by setter
+                (this.var.rowHeaderFeatures = {}); // Init in case not in defaults
         },
         set: function(rowHeaderFeatures) {
             var grid = this.grid;
-            var features = Object.assign({}, this.var.rowHeaderFeatures = rowHeaderFeatures);
-            Object.defineProperties(rowHeaderFeatures, {
+            var features = Object.assign({}, rowHeaderFeatures); // clone values in closure
+
+            this.var.rowHeaderFeatures = rowHeaderFeatures; // override default
+
+            Object.defineProperties(rowHeaderFeatures, { // add setters to reset column width
                 checkboxes: {
                     get: function() {
                         return features.checkboxes;
@@ -167,9 +171,11 @@ var dynamicPropertyDescriptors = {
                     }
                 }
             });
+
             if (grid.renderer) {
+                // reset column width using new `features` values
                 grid.renderer.resetHandleColumnWidth();
-            } 
+            }
         }
     },
 
@@ -198,7 +204,7 @@ var dynamicPropertyDescriptors = {
                 warnedDoubleClickDelay = true;
                 console.warn('The doubleClickDelay property has been deprecated as of v2.1.0. Setting this property no longer has any effect. Set double-click speed in your system\'s mouse preferences. (This warning will be removed in a future release.)');
             }
-            this.var.warnedDoubleClickDelay = delay;
+            this.var.doubleClickDelay = delay;
         }
     },
 
