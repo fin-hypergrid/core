@@ -1376,7 +1376,7 @@ var Behavior = Base.extend('Behavior', {
         };
     },
 
-    getHandleColumn: function() {
+    getRowHeaderColumn: function() {
         return this.allColumns[this.rowColumnIndex];
     },
 
@@ -1388,7 +1388,7 @@ var Behavior = Base.extend('Behavior', {
     checkColumnAutosizing: function(force) {
         force = force === true;
         var autoSized = this.autoSizeRowNumberColumn() ||
-            this.hasTreeColumn() && this.getHandleColumn().checkColumnAutosizing(force);
+            this.hasTreeColumn() && this.getRowHeaderColumn().checkColumnAutosizing(force);
         this.allColumns.forEach(function(column) {
             autoSized = column.checkColumnAutosizing(force) || autoSized;
         });
@@ -1397,7 +1397,7 @@ var Behavior = Base.extend('Behavior', {
 
     autoSizeRowNumberColumn: function() {
         if (this.grid.properties.showRowNumbers && this.grid.properties.rowNumberAutosizing) {
-            return this.getHandleColumn().checkColumnAutosizing(true);
+            return this.getRowHeaderColumn().checkColumnAutosizing(true);
         }
     },
 
