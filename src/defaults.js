@@ -535,28 +535,19 @@ var defaults = {
     gridBorderBottom: true,
 
     /**
-     * Define to make color of rule lines between fixed and scolling rows and columns different than `lineColor`.
+     * Rule lines between fixed & scolling rows & columns.
      * @default
-     * @type {cssColor}
+     * @type {object}
+     * @property {cssColor} [color=lineColor] Define this property to make rule line color different from `lineColor`.
+     * @property {number} [width=2] - Line thickness.
+     * @property {number} [edge] - Define this property to a width with which to render just the edges of the fixed rule line, creating a double-line effect.
      * @memberOf module:defaults
      */
-    fixedLineColor: undefined,
-
-    /**
-     * Width of rule lines between fixed and scrolling rows and columns.
-     * @default
-     * @type {number}
-     * @memberOf module:defaults
-     */
-    fixedLineWidth: 3,
-
-    /**
-     * Define this property to render just the edges of the fixed rule lines with this width to create a double-line effect.
-     * @default
-     * @type {number}
-     * @memberOf module:defaults
-     */
-    fixedEdgeWidth: undefined,
+    fixedLines: {
+        width: 2,
+    //  edge: undefined,
+        color: 'rgb(164,164,164)'
+    },
 
     /**
      * @default

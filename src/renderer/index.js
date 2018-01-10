@@ -898,14 +898,14 @@ var Renderer = Base.extend('Renderer', {
             }
 
             if (rowGap || columnGap) {
-                var edgeWidth = gridProps.fixedEdgeWidth;
-                if (gridProps.fixedLineColor) {
-                    gc.cache.fillStyle = gridProps.fixedLineColor;
+                var edgeWidth = gridProps.fixedLines.edge;
+                if (gridProps.fixedLines.color) {
+                    gc.cache.fillStyle = gridProps.fixedLines.color;
                 }
                 if (rowGap) {
                     if (edgeWidth) {
                         gc.fillRect(0, rowGap.top, viewWidth, edgeWidth);
-                        gc.fillRect(0, rowGap.bottom - edgeWidth + 1, viewWidth, edgeWidth);
+                        gc.fillRect(0, rowGap.bottom - edgeWidth, viewWidth, edgeWidth);
                     } else {
                         gc.fillRect(0, rowGap.top, viewWidth, rowGap.bottom - rowGap.top);
                     }
@@ -913,7 +913,7 @@ var Renderer = Base.extend('Renderer', {
                 if (columnGap) {
                     if (edgeWidth) {
                         gc.fillRect(columnGap.left, 0, edgeWidth, viewHeight);
-                        gc.fillRect(columnGap.right - edgeWidth + 1, 0, edgeWidth, viewHeight);
+                        gc.fillRect(columnGap.right - edgeWidth, 0, edgeWidth, viewHeight);
                     } else {
                         gc.fillRect(columnGap.left, 0, columnGap.right - columnGap.left, viewHeight);
                     }
@@ -1274,7 +1274,7 @@ function computeCellsBounds() {
 
         if (x) {
             if ((gap = fixedColumnCount && c === fixedColumnCount)) {
-                x += grid.properties.fixedLineWidth - lineWidth;
+                x += grid.properties.fixedLines.width - lineWidth;
             }
             xSpaced = x + lineWidth;
             widthSpaced = width - lineWidth;
@@ -1329,7 +1329,7 @@ function computeCellsBounds() {
             vy = r;
             if (scrollableSubgrid) {
                 if ((gap = fixedRowCount && r === fixedRowCount)) {
-                    y += grid.properties.fixedLineWidth - lineWidth;
+                    y += grid.properties.fixedLines.width - lineWidth;
                 }
                 if (r >= fixedRowCount) {
                     vy += scrollTop;
