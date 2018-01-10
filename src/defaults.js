@@ -446,19 +446,31 @@ var defaults = {
      */
     renderFalsy: false,
 
-    /**
-     * @default
-     * @type {boolean}
+    /** @typedef gridLineProp
+     * @property {boolean} enabled
+     * @property {number} width
+     * @property {cssColor} color
+     */
+    /** @typedef gridLinesProp
+     * @property {gridLineProp} horizontal
+     * @property {gridLineProp} vertical
+     */
+    /** @type {gridLinesProp}
+     * @default '{ horizontal: { enabled: true, width: 1, color: rgb(199, 199, 199) }, vertical: { enabled: true, width: 1, color: rgb(199, 199, 199) }, }'
      * @memberOf module:defaults
      */
-    gridLinesH: true,
-
-    /**
-     * @default
-     * @type {boolean}
-     * @memberOf module:defaults
-     */
-    gridLinesV: true,
+    gridLines: {
+        horizontal: {
+            enabled: true,
+            width: 1,
+            color: 'rgb(199, 199, 199)'
+        },
+        vertical: {
+            enabled: true,
+            width: 1,
+            color: 'rgb(199, 199, 199)'
+        }
+    },
 
 
     /**
@@ -514,21 +526,6 @@ var defaults = {
      * @memberOf module:defaults
      */
     gridBorderBottom: true,
-
-    /**
-     * @default
-     * @type {cssColor}
-     * @memberOf module:defaults
-     */
-    lineColor: 'rgb(199, 199, 199)',
-
-    /**
-     * Caveat: `lineWidth` should be an integer (whole pixel)
-     * @default
-     * @type {number}
-     * @memberOf module:defaults
-     */
-    lineWidth: 1,
 
     /**
      * Define to make color of rule lines between fixed and scolling rows and columns different than `lineColor`.

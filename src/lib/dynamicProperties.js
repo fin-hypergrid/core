@@ -147,6 +147,29 @@ var dynamicPropertyDescriptors = {
         }
     },
 
+    // The following grid line props are now dynamic (as of v2.1.0).
+    // They non-enumerable so they will not be output with `grid.saveState()`.
+    // The `gridLines` prop (new, as of 2.1.0) they refer to is output instead.
+    gridLinesH: {
+        get: function() { return this.gridLines.horizontal.enabled; },
+        set: function(enabled) { this.gridLines.horizontal.enabled = enabled; }
+    },
+
+    gridLinesV: {
+        get: function() { return this.gridLines.vertical.enabled; },
+        set: function(enabled) { this.gridLines.vertical.enabled = enabled; }
+    },
+
+    lineColor: {
+        get: function() { return this.gridLines.horizontal.color; },
+        set: function(color) { this.gridLines.horizontal.color = this.gridLines.vertical.color = color; }
+    },
+
+    lineWidth: {
+        get: function() { return this.gridLines.horizontal.width; },
+        set: function(width) { this.gridLines.horizontal.width = this.gridLines.vertical.width = width; }
+    },
+
     gridBorder: getGridBorderDescriptor(),
     gridBorderLeft: getGridBorderDescriptor('Left'),
     gridBorderRight: getGridBorderDescriptor('Right'),
