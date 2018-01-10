@@ -19,13 +19,14 @@ Below is an example custom application built ontop of the Hypergrid API tooling.
 
 ### Current Release (2.0.2 - 4 June 2017)
 
-2.0 reflects a substantial simplification of the core functionality of the grid to just customized rendering. The rendering engine does allow support for showing sorting, filtering, grouping, etc. but specific logic on how a user may want to do that is not apart for this project. Demos will be made available on the [wiki](https://github.com/openfin/fin-hypergrid/wiki) for this.
+2.0 reflects a substantial simplification of the core functionality of the grid to just customized rendering. The rendering engine does allow support for showing sorting, filtering, grouping, etc. but specific logic on how a user may want to do that is not apart for this project. Demos will be made available on the [wiki](https://github.com/fin-hypergrid/core/wiki) for this.
 
-2.0 also replaces the 2015-2016 [prototype version](https://github.com/openfin/fin-hypergrid/tree/polymer-prototype), which was built around Polymer. It is now completely "de-polymerized" and is being made available as:
+2.0 also replaces the 2015-2016 [prototype version](https://github.com/fin-hypergrid/core/tree/polymer-prototype), which was built around Polymer. It is now completely "de-polymerized" and is being made available as:
 * An [npm module](https://www.npmjs.com/package/fin-hypergrid) for use with browserify.
-* A single JavaScript file [fin-hypergrid.js](https://fin-hypergrid.github.io/core/build/fin-hypergrid.js) you can reference in a `<script>` tag.
+* A single JavaScript file [fin-hypergrid.js](https://fin-hypergrid.github.io/core/2.0.2/build/fin-hypergrid.js) you can reference in a `<script>` tag.
+* Or the minified [fin-hypergrid.js](script src='https://fin-hypergrid.github.io/core/2.0.2/build/fin-hypergrid.min.js).
 
-_For a complete list of changes, see the [release notes](https://github.com/openfin/fin-hypergrid/releases)._
+_For a complete list of changes, see the [release notes](https://github.com/fin-hypergrid/core/releases)._
 
 ### Demos
 
@@ -47,7 +48,7 @@ Check out the Table view on Hyperblotter on a Windows machine via [this installe
 
 ### Testing
 
-Please use github [issues](https://github.com/openfin/fin-hypergrid/issues) or email support@openfin.co to report problems
+Please use github [issues](https://github.com/fin-hypergrid/core/issues) to report problems
 
 We invite everyone to test the alpha branch for changes going into the next release
 
@@ -55,13 +56,13 @@ Find more infomation on our [testing page](TESTING.md)
 
 ### Developer Documentation
 
-Primarily our tutorials will be on the [wiki](https://github.com/openfin/fin-hypergrid/wiki). 
+Primarily our tutorials will be on the [wiki](https://github.com/fin-hypergrid/core/wiki). 
 
 We are also maintaining [online API documentation](https://fin-hypergrid.github.io/core/doc/Hypergrid.html) for all public objects and modules. This documentation is necessarily a on-going work-in-progress.
 
-(Cell editor information can be found [here](https://github.com/openfin/fin-hypergrid/wiki/Cell-Editors).)
+(Cell editor information can be found [here](https://github.com/fin-hypergrid/core/wiki/Cell-Editors).)
 
-(Cell Rendering information can be found [here](https://github.com/openfin/fin-hypergrid/wiki/Cell-Renderers).)
+(Cell Rendering information can be found [here](https://github.com/fin-hypergrid/core/wiki/Cell-Renderers).)
 
 Hypergrid global configurations can be found [here](https://fin-hypergrid.github.io/core/doc/module-defaults.html). 
 
