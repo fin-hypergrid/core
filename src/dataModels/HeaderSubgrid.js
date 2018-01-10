@@ -45,6 +45,14 @@ HeaderSubgrid.prototype = {
 
     getRow: function(y) {
         return this.dataRow;
+    },
+
+    getRowMetadata: function(y, metadata) {
+        return this.metadata || (this.metadata = metadata);
+    },
+
+    setRowMetadata: function(y, metadata) {
+        return (this.metadata = metadata);
     }
 };
 

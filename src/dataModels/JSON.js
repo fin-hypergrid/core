@@ -516,6 +516,16 @@ var JSON = DataModel.extend('dataModels.JSON', {
         return this.dataSource.getRow(r);
     },
 
+    getRowMetadata: function(rowIndex, metadata) {
+        var dataRow = this.getRow(rowIndex);
+        return dataRow && (dataRow.__META || (dataRow.__META = metadata));
+    },
+
+    setRowMetadata: function(rowIndex, metadata) {
+        var dataRow = this.getRow(rowIndex);
+        return dataRow && (dataRow.__META = metadata);
+    },
+
     /**
      * @summary Get the given data controller.
      * @param {string} type

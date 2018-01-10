@@ -7,6 +7,13 @@ var COLUMN_ONLY_PROPERTY = 'Attempt to set column-only property on a non-column 
 
 var warned = {};
 
+var propClassEnum = {
+    COLUMNS: 1,
+    STRIPES: 2,
+    ROWS: 3,
+    CELLS: 4
+};
+
 /**
  * This module lists the properties that can be set on a {@link Hypergrid} along with their default values.
  * Edit this file to override the defaults.
@@ -1276,7 +1283,11 @@ var defaults = {
      * @default
      * @memberOf module:defaults
      */
-    rowProperties: undefined,
+    stripes: undefined,
+
+    // for Renderer.prototype.assignProps
+    propClassEnum: propClassEnum,
+    propClassLayers: [ propClassEnum.COLUMNS, propClassEnum.STRIPES, propClassEnum.ROWS, propClassEnum.CELLS ],
 
     /**
      * Used to access registered features -- unless behavior has a non-empty `features` property (array of feature contructors).
@@ -1308,6 +1319,25 @@ var defaults = {
      */
     truncateTextWithEllipsis: true
 };
+
+
+function rowPropertiesDeprecationWarning() {
+    if (!warned.rowProperties) {
+        warned.rowProperties = true;
+        console.warn('The `rowProperties` property has been deprecated as of v3.0.0 in favor of `stripes`. (Will be removed in a future release.)');
+    }
+}
+
+Object.defineProperty(defaults, 'rowProperties', {
+    get: function() {
+        rowPropertiesDeprecationWarning();
+        return this.stripes;
+    },
+    set: function(rowProperties) {
+        rowPropertiesDeprecationWarning();
+        this.stripes = rowProperties;
+    }
+});
 
 
 /** @typedef {string} cssColor

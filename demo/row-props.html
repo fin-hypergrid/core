@@ -139,35 +139,35 @@ Renders all cells over consolidated row backgrounds, if any. Unsuitable as a cli
     </div>
     <div class="radio-group">
         Grid row properties:
-        <label title="Removes rowProperties array from grid.properties entirely.)">
-            <input type="radio" name="striped-rows" onclick="rowProps(null)" checked>
+        <label title="Removes `stripes` array from grid.properties entirely.)">
+            <input type="radio" name="striped-rows" onclick="stripes(null)" checked>
             none
         </label>
-        <label title="Adds a rowProperties array to grid.properties that defines 3 white rows alternating with 3 light green rows. (Row rects are NOT drawn for those first 3 row rects when and only when the grid background is also white.)">
-            <input type="radio" name="striped-rows" onclick="rowProps({ backgroundColor: 'white' })">
+        <label title="Adds a `stripes` array to grid.properties that defines 3 white rows alternating with 3 light blue rows. (Row rects are NOT drawn for those first 3 row rects when and only when the grid background is also white.)">
+            <input type="radio" name="striped-rows" onclick="stripes({ backgroundColor: 'white' })">
             3 white + 3 blue
         </label>
-        <label title="Adds a rowProperties array to grid.properties that defines 3 grid background rows alternating with 3 light green rows. (Row rects are NOT drawn for those first 3 undefined rows.)">
-            <input type="radio" name="striped-rows" onclick="rowProps(undefined)">
+        <label title="Adds a `stripes` array to grid.properties that defines 3 grid background rows alternating with 3 light blue rows. (Row rects are NOT drawn for those first 3 undefined rows.)">
+            <input type="radio" name="striped-rows" onclick="stripes(undefined)">
             3 undefined + 3 blue
         </label>
     </div>
-    <label title="Column properties defines a light blue background color BUT inherit's grid's rowProperties array.">
+    <label title="Column properties defines a light blue background color BUT inherit's grid's `stripes` array.">
         Headers:
         <input type="checkbox" onclick="grid.behavior.subgrids = this.checked ? ['header','data'] : ['data']" checked>Columns
         <label>
             <input type="checkbox" onclick="grid.properties.showRowNumbers = this.checked; grid.behavior.changed()" checked>Rows
         </label>
     </label>
-    <label title="Column properties defines a light blue background color BUT inherit's grid's rowProperties array.">
+    <label title="Column properties defines a light blue background color BUT inherit's grid's `stripes` array.">
         <input type="checkbox" onclick="columnProps(this.checked, [2,3], columnColorUnderAlternateColors)">
         Columns 2-3 <em>under</em> alternating rows
     </label>
-    <label title="Column properties defines a light blue background color AND overrides rowProperties with an undefined.">
+    <label title="Column properties defines a light blue background color AND overrides `stripes` with an undefined.">
         <input type="checkbox" onclick="columnProps(this.checked, [6,7], columnColorOverAlternateColors)">
         Columns 6-7 <em>over</em> alternating rows
     </label>
-    <label title="Column properties overrides grid's rowProperties with one of its own that defines 2 tan rows alternating with 2 beige rows.">
+    <label title="Column properties overrides grid's `stripes` with one of its own that defines 2 tan rows alternating with 2 beige rows.">
         <input type="checkbox" onclick="columnProps(this.checked, [10,11], columnOwnAlternateColors)">
         Columns 10-11 override row props
     </label>
@@ -349,7 +349,7 @@ grid.addEventListener('fin-grid-rendered', function(e) {
 var alternatingThreeGreenRows = {
         // When same as grid background (which default is white), next 3 lines do NOT generate a bundle.
         // Alternatively, these lines could be `undefined` or `{...}` with no `backgroundColor` member to avoid generating bundles in any case (regardless of current background color).
-        rowProperties: [
+        stripes: [
             undefined, // these three rows mutated by `rowProps` function
             undefined, // these three rows mutated by `rowProps` function
             undefined, // these three rows mutated by `rowProps` function
@@ -363,10 +363,10 @@ var alternatingThreeGreenRows = {
     },
     columnColorOverAlternateColors = {
         backgroundColor: 'lightblue',
-        rowProperties: undefined
+        stripes: undefined
     },
     columnOwnAlternateColors = {
-        rowProperties: [
+        stripes: [
             { backgroundColor: 'beige' },
             { backgroundColor: 'beige' },
             { backgroundColor: 'tan' },
@@ -424,14 +424,14 @@ function deleteProps(object, props) {
     }
 }
 
-function rowProps(rowProps) {
-    if (rowProps === null) {
-        deleteProps(grid.properties, alternatingThreeGreenRows); // remove `rowProperties` array from grid props
+function stripes(stripes) {
+    if (stripes === null) {
+        deleteProps(grid.properties, alternatingThreeGreenRows); // remove `stripes` array from grid props
     } else {
-        grid.addProperties(alternatingThreeGreenRows); // add `rowProperties` array to grid props
-        alternatingThreeGreenRows.rowProperties[0] =
-        alternatingThreeGreenRows.rowProperties[1] =
-        alternatingThreeGreenRows.rowProperties[2] = rowProps; // change definition of first three rows
+        grid.addProperties(alternatingThreeGreenRows); // add `stripes` array to grid props
+        alternatingThreeGreenRows.stripes[0] =
+        alternatingThreeGreenRows.stripes[1] =
+        alternatingThreeGreenRows.stripes[2] = stripes; // change definition of first three rows
     }
     grid.renderer.resetAllGridRenderers();
     logBundlesToConsole();

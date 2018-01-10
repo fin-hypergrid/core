@@ -7,6 +7,24 @@ var Base = require('../Base');
 var images = require('../../images/index');
 
 
+var propClassGet = [
+    undefined,
+    function(cellEvent) {
+        return cellEvent.columnProperties;
+    },
+    function(cellEvent) {
+        var stripes = cellEvent.isDataRow && cellEvent.columnProperties.stripes;
+        return stripes && stripes[cellEvent.dataCell.y % stripes.length];
+    },
+    function(cellEvent) {
+        return cellEvent.rowOwnProperties;
+    },
+    function(cellEvent) {
+        return cellEvent.cellOwnProperties;
+    }
+];
+
+
 var visibleColumnPropertiesDescriptorFn = function(grid) {
     return {
         findWithNeg: {
@@ -934,7 +952,6 @@ var Renderer = Base.extend('Renderer', {
         var grid = this.grid,
             selectionModel = grid.selectionModel,
             behavior = grid.behavior,
-            subgrid = cellEvent.subgrid,
 
             isHandleColumn = cellEvent.isHandleColumn,
             isTreeColumn = cellEvent.isTreeColumn,
@@ -950,12 +967,8 @@ var Renderer = Base.extend('Renderer', {
             isRowHandleOrHierarchyColumn = isHandleColumn || isTreeColumn,
             isUserDataArea = !isRowHandleOrHierarchyColumn && isDataRow,
 
-            row = !isHandleColumn && !isTreeColumn && isDataRow && cellEvent.columnProperties.rowProperties,
-            config = Object.assign(
-                Object.create(cellEvent.columnProperties), // column props in prototype
-                row && row[cellEvent.dataCell.y % row.length], // row props overlaid in instance
-                cellEvent.cellOwnProperties // cell props overlaid on top of row props
-            ),
+            config = this.assignProps(cellEvent),
+
             x = (config.gridCell = cellEvent.gridCell).x,
             r = (config.dataCell = cellEvent.dataCell).y,
 
@@ -972,7 +985,7 @@ var Renderer = Base.extend('Renderer', {
             isSelected = isCellSelected || isRowSelected || isColumnSelected;
             format = config.format;
         } else {
-            format = subgrid.format || config.format; // subgrid format can override column format
+            format = cellEvent.subgrid.format || config.format; // subgrid format can override column format
             if (isFilterRow) {
                 isSelected = false;
             } else if (isColumnSelected) {
@@ -1057,6 +1070,29 @@ var Renderer = Base.extend('Renderer', {
         cellEvent.minWidth = config.minWidth;
 
         return config.minWidth;
+    },
+
+    /**
+     * Overridable for alternative or faster logic.
+     * @param cellEvent
+     */
+    assignProps: function(cellEvent) {
+        var i, base, assignments,
+            propLayers = cellEvent.columnProperties.propClassLayers;
+
+        if (propLayers[0] !== 1) {
+            i = 0; // all prop layers
+            base = this.grid.properties;
+        } else {
+            i = 1; // skip column prop layer
+            base = cellEvent.columnProperties; // because column has grid properties as prototype
+        }
+
+        for (assignments = [Object.create(base)]; i < propLayers.length; ++i) {
+            assignments.push(propClassGet[propLayers[i]](cellEvent));
+        }
+
+        return Object.assign.apply(Object, assignments);
     },
 
     /**
