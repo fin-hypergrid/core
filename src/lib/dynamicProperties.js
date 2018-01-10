@@ -40,7 +40,11 @@ var dynamicPropertyDescriptors = {
             return this.var.subgrids;
         },
         set: function(subgrids) {
-            this.grid.behavior.subgrids = this.var.subgrids = subgrids;
+            this.var.subgrids = subgrids;
+
+            if (this.grid.behavior) {
+                this.grid.behavior.subgrids = subgrids;
+            }
         }
     },
 
@@ -129,6 +133,63 @@ var dynamicPropertyDescriptors = {
                 setCellPropertiesByColumnNameAndRowIndex.call(this, cellsHash);
                 this.grid.behavior.changed();
             }
+        }
+    },
+
+    /**
+     * @memberOf module:dynamicPropertyDescriptors
+     */
+    rowHeaderFeatures: {
+        enumerable: true,
+        get: function() {
+            return this.var.rowHeaderFeatures || // from defaults or as subsequently set by setter
+                (this.var.rowHeaderFeatures = {}); // Init in case not in defaults
+        },
+        set: function(rowHeaderFeatures) {
+            var grid = this.grid;
+            var features = Object.assign({}, rowHeaderFeatures); // clone values in closure
+
+            this.var.rowHeaderFeatures = rowHeaderFeatures; // override default
+
+            Object.defineProperties(rowHeaderFeatures, { // add setters to reset column width
+                checkboxes: {
+                    get: function() {
+                        return features.checkboxes;
+                    },
+                    set: function(checkboxes) {
+                        features.checkboxes = checkboxes;
+                        grid.renderer.resetHandleColumnWidth();
+                    }
+                },
+                numbers: {
+                    get: function() {
+                        return features.numbers;
+                    },
+                    set: function(numbers) {
+                        features.numbers = numbers;
+                        grid.renderer.resetHandleColumnWidth();
+                    }
+                }
+            });
+
+            if (grid.renderer) {
+                // reset column width using new `features` values
+                grid.renderer.resetHandleColumnWidth();
+            }
+        }
+    },
+
+    /**
+     * Legacy property; now points to both `rowHeaderFeatures` props.
+     * @memberOf module:dynamicPropertyDescriptors
+     */
+    showRowNumbers: {
+        enumerable: false,
+        get: function() {
+            return this.var.rowHeaderFeatures.checkboxes || this.var.rowHeaderFeatures.numbers;
+        },
+        set: function(enabled) {
+            this.var.rowHeaderFeatures.checkboxes = this.var.rowHeaderFeatures.numbers = enabled;
         }
     },
 

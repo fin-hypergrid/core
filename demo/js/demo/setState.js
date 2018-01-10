@@ -147,46 +147,12 @@ module.exports = function(demo, grid) {
 
     grid.setState(state);
 
-    // properties that can be set
-    // use a function or a value
-
-    // font
-    // color
-    // backgroundColor
-    // foregroundSelectionColor
-    // backgroundSelectionColor
-
-    // columnHeaderFont
-    // columnHeaderColor
-    // columnHeaderBackgroundColor
-    // columnHeaderForegroundSelectionColor
-    // columnHeaderBackgroundSelectionColor
-
-    // rowHeaderFont
-    // rowHeaderColor
-    // rowHeaderBackgroundColor
-    // rowHeaderForegroundSelectionColor
-    // rowHeaderBackgroundSelectionColor
-
-    //                behavior.setCellProperties(idx.totalNumberOfPetsOwned, 0,
-    //                    {
-    //                        font: '10pt Tahoma',
-    //                        color: 'red',
-    //                        backgroundColor: 'lightblue',
-    //                        halign: 'left'
-    //                    });
-
     console.log('visible rows = ' + grid.renderer.visibleRows.map(function(vr){
         return vr.subgrid.type[0] + vr.rowIndex;
     }));
     console.log('visible columns = ' + grid.renderer.visibleColumns.map(function(vc){
         return vc.columnIndex;
     }));
-
-    //see myThemes.js file for how to create a theme
-    //grid.addProperties(myThemes.one);
-    //grid.addProperties(myThemes.two);
-    //grid.addProperties(myThemes.three);
 
     grid.takeFocus();
 

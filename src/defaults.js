@@ -777,38 +777,6 @@ var defaults = {
         return graphics.getTextHeight(font);
     },
 
-    get x() {
-        if (!warned.x) {
-            warned.x = true;
-            console.warn('config.x has been deprecated as of v1.2.10 in favor of config.dataCell.x. (Will be removed in a future release.)');
-        }
-        return this.dataCell.x;
-    },
-
-    get untranslatedX() {
-        if (!warned.untranslatedX) {
-            warned.untranslatedX = true;
-            console.warn('config.untranslatedX has been deprecated as of v1.2.10 in favor of config.gridCell.x. (Will be removed in a future release.)');
-        }
-        return this.gridCell.x;
-    },
-
-    get y() {
-        if (!warned.y) {
-            warned.y = true;
-            console.warn('config.y has been deprecated as of v1.2.10 in favor of config.gridCell.y. (Will be removed in a future release.)');
-        }
-        return this.gridCell.y;
-    },
-
-    get normalizedY() {
-        if (!warned.normalizedY) {
-            warned.normalizedY = true;
-            console.warn('config.normalizedY has been deprecated as of v1.2.10 in favor of config.dataCell.y. (Will be removed in a future release.)');
-        }
-        return this.dataCell.y;
-    },
-
     /**
      * @summary Execute value if "calculator" (function) or if column has calculator.
      * @desc This function is referenced here so:
@@ -838,8 +806,12 @@ var defaults = {
      * @default
      * @type {boolean}
      * @memberOf module:defaults
+     * @see {@link module:dynamicPropertyDescriptors.showRowHandleColumn}
      */
-    showRowNumbers: true,
+    rowHeaderFeatures: {
+        numbers: true,
+        checkboxes: true
+    },
 
     /**
      * @default

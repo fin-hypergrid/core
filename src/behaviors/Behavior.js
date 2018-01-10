@@ -170,6 +170,9 @@ var Behavior = Base.extend('Behavior', {
             index: rc,
             header: schema[rc].header
         });
+
+        // Signal the renderer to size the now-reset handle column before next render
+        this.grid.renderer.resetHandleColumnWidth();
     },
 
     getActiveColumn: function(x) {
@@ -1286,6 +1289,10 @@ var Behavior = Base.extend('Behavior', {
         };
     },
 
+    getHandleColumn: function() {
+        return this.allColumns[this.rowColumnIndex];
+    },
+
     autosizeAllColumns: function() {
         this.checkColumnAutosizing(true);
         this.changed();
@@ -1294,7 +1301,7 @@ var Behavior = Base.extend('Behavior', {
     checkColumnAutosizing: function(force) {
         force = force === true;
         var autoSized = this.autoSizeRowNumberColumn() ||
-            this.hasTreeColumn() && this.allColumns[this.rowColumnIndex].checkColumnAutosizing(force);
+            this.hasTreeColumn() && this.getHandleColumn().checkColumnAutosizing(force);
         this.allColumns.forEach(function(column) {
             autoSized = column.checkColumnAutosizing(force) || autoSized;
         });
@@ -1303,7 +1310,7 @@ var Behavior = Base.extend('Behavior', {
 
     autoSizeRowNumberColumn: function() {
         if (this.grid.properties.showRowNumbers && this.grid.properties.rowNumberAutosizing) {
-            return this.allColumns[this.rowColumnIndex].checkColumnAutosizing(true);
+            return this.getHandleColumn().checkColumnAutosizing(true);
         }
     },
 

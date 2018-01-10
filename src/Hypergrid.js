@@ -269,16 +269,18 @@ var Hypergrid = Base.extend('Hypergrid', {
             var: { value: new Var() }
         });
 
-        // Deep clone all default props of object type, excluding dynamic props, so changes inside
-        // such objects won't affect theme or defaults layers which may be shared by other instances.
-        Object.keys(defaults)
-            .filter(function(key) { return !dynamicPropertyDescriptors[key]; })
-            .forEach(function(key) {
-                var value = Object.getOwnPropertyDescriptor(defaults, key).value; // do not invoke getters!
-                if (typeof value === 'object') {
-                    this[key] = deepClone(value);
+        // For all all default props of object type, if a dynamic prop, invoke setter; else deep clone it so changes
+        // made to inner props won't go to object on theme or defaults layers which are shared by other instances.
+        Object.keys(defaults).forEach(function(key) {
+            var value = defaults[key];
+            if (typeof value === 'object') {
+                if (dynamicPropertyDescriptors[key]) {
+                    this[key] = value; // invoke dynamic prop setter
+                } else {
+                    this[key] = deepClone(value); // just a plain object
                 }
-            }, this.properties);
+            }
+        }, this.properties);
     },
 
     /**
