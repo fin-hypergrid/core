@@ -26,7 +26,7 @@ module.exports = {
                 internal: internal,
                 listener: listener,
                 decorator: function(e) {
-                    if (self.allowEventHandlers){
+                    if (self.allowEventHandlers) {
                         listener(e);
                     }
                 }
@@ -87,10 +87,14 @@ module.exports = {
     },
 
     allowEvents: function(allow){
-        if ((this.allowEventHandlers = !!allow)){
-            this.behavior.featureChain.attachChain();
-        } else {
-            this.behavior.featureChain.detachChain();
+        this.allowEventHandlers = !!allow;
+
+        if (this.behavior.featureChain) {
+            if (allow){
+                this.behavior.featureChain.attachChain();
+            } else {
+                this.behavior.featureChain.detachChain();
+            }
         }
 
         this.behavior.changed();

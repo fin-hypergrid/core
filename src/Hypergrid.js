@@ -16,7 +16,8 @@ var Canvas = require('./lib/Canvas');
 var Renderer = require('./renderer');
 var SelectionModel = require('./lib/SelectionModel');
 var Localization = require('./lib/Localization');
-var behaviors = require('./behaviors');
+var Behavior = require('./behaviors/Behavior');
+var behaviorJSON = require('./behaviors/JSON');
 var CellRenderers = require('./cellRenderers');
 var CellEditors = require('./cellEditors');
 
@@ -28,7 +29,7 @@ var EDGE_STYLES = ['top', 'bottom', 'left', 'right'],
  * @constructor
  * @param {string|Element} [container] - CSS selector or Element
  * @param {object} [options]
- * @param {function} [options.Behavior=behaviors.JSON] - A behavior constructor or instance
+ * @param {function} [options.Behavior=behaviors.JSON] - A grid behavior constructor (extended from {@link Behavior}).
  * @param {function[]} [options.pipeline] - A list function constructors to use for passing data through a series of transforms to occur on reindex call
  * @param {function|object[]} [options.data] - Passed to behavior constructor. May be:
  * * An array of congruent raw data objects
@@ -37,7 +38,6 @@ var EDGE_STYLES = ['top', 'bottom', 'left', 'right'],
  * * A schema array
  * * A function returning a schema array. Called at filter reset time with behavior as context.
  * * Omit to generate a basic schema from `this.behavior.columns`.
- * @param {Behavior} [options.Behavior=JSON] - A grid behavior (descendant of Behavior "class").
  *
  * @param {pluginSpec|pluginSpec[]} [options.plugins]
  *
@@ -117,7 +117,7 @@ var Hypergrid = Base.extend('Hypergrid', {
          * @type {CellEditor}
          * @memberOf Hypergrid#
          */
-        this.cellEditors = new CellEditors(this);
+        this.cellEditors = new CellEditors({ grid: this });
 
         if (this.options.Behavior) {
             this.setBehavior(this.options); // also sets this.options.pipeline and this.options.data
@@ -392,7 +392,7 @@ var Hypergrid = Base.extend('Hypergrid', {
             // set first two args of `preinstall` method to `this` (the Hypergrid prototype) and the Behavior prototype
             args = [this];
             if (shared) {
-                args.push(behaviors.Behavior.prototype);
+                args.push(Behavior.prototype);
             }
 
             if (Array.isArray(plugin)) {
@@ -764,7 +764,7 @@ var Hypergrid = Base.extend('Hypergrid', {
             // If we get here it means:
             // 1. Called from constructor because behavior included in options object.
             // 2. Called from `setData` _and_ wasn't called explicitly since instantiation
-            var Behavior = options.Behavior || behaviors.JSON;
+            var Behavior = options.Behavior || behaviorJSON;
             this.behavior = new Behavior(this, options);
             this.initCanvas();
             this.initScrollbars();
