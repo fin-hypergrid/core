@@ -58,8 +58,10 @@ var dynamicPropertyDescriptors = {
         },
         set: function(features) {
             this.var.features = features;
-            this.grid.behavior.initializeFeatureChain(features);
-            this.grid.allowEvents(this.grid.getRowCount());
+            if (this.grid.behavior) {
+                this.grid.behavior.initializeFeatureChain(features);
+                this.grid.allowEvents(this.grid.getRowCount());
+            }
         }
     },
 

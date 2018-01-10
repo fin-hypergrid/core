@@ -13,8 +13,8 @@ var propClassGet = [
         return cellEvent.columnProperties;
     },
     function(cellEvent) {
-        var stripes = cellEvent.isDataRow && cellEvent.columnProperties.stripes;
-        return stripes && stripes[cellEvent.dataCell.y % stripes.length];
+        var rowStripes = cellEvent.isDataRow && cellEvent.columnProperties.rowStripes;
+        return rowStripes && rowStripes[cellEvent.dataCell.y % rowStripes.length];
     },
     function(cellEvent) {
         return cellEvent.rowOwnProperties;

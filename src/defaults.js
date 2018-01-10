@@ -1283,7 +1283,7 @@ var defaults = {
      * @default
      * @memberOf module:defaults
      */
-    stripes: undefined,
+    rowStripes: undefined,
 
     // for Renderer.prototype.assignProps
     propClassEnum: propClassEnum,
@@ -1324,18 +1324,18 @@ var defaults = {
 function rowPropertiesDeprecationWarning() {
     if (!warned.rowProperties) {
         warned.rowProperties = true;
-        console.warn('The `rowProperties` property has been deprecated as of v3.0.0 in favor of `stripes`. (Will be removed in a future release.)');
+        console.warn('The `rowProperties` property has been deprecated as of v3.0.0 in favor of `rowStripes`. (Will be removed in a future release.)');
     }
 }
 
 Object.defineProperty(defaults, 'rowProperties', {
     get: function() {
         rowPropertiesDeprecationWarning();
-        return this.stripes;
+        return this.rowStripes;
     },
     set: function(rowProperties) {
         rowPropertiesDeprecationWarning();
-        this.stripes = rowProperties;
+        this.rowStripes = rowProperties;
     }
 });
 
