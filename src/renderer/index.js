@@ -230,7 +230,7 @@ var Renderer = Base.extend('Renderer', {
         }, this);
     },
 
-    resetHandleColumnWidth: function() {
+    resetRowHeaderColumnWidth: function() {
         this.lastKnowRowCount = undefined;
     },
 
@@ -608,7 +608,7 @@ var Renderer = Base.extend('Renderer', {
 
         var rowCount = this.grid.getRowCount();
         if (rowCount !== this.lastKnowRowCount) {
-            var newWidth = resetHandleColumnWidth.call(this, gc, rowCount);
+            var newWidth = resetRowHeaderColumnWidth.call(this, gc, rowCount);
             if (newWidth !== this.handleColumnWidth) {
                 this.needsComputeCellsBounds = true;
                 this.handleColumnWidth = newWidth;
@@ -1412,7 +1412,7 @@ function computeCellsBounds() {
  * @param gc
  * @param rowCount
  */
-function resetHandleColumnWidth(gc, rowCount) {
+function resetRowHeaderColumnWidth(gc, rowCount) {
     var columnProperties = this.grid.behavior.getColumnProperties(this.grid.behavior.rowColumnIndex),
         rowHeaderFeatures = this.grid.properties.rowHeaderFeatures,
         width = 2 * columnProperties.cellPadding;

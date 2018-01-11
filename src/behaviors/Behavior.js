@@ -193,7 +193,7 @@ var Behavior = Base.extend('Behavior', {
         this.columns[tc].properties.propClassLayers = this.columns[rc].properties.propClassLayers = [propClassEnum.COLUMNS];
 
         // Signal the renderer to size the now-reset handle column before next render
-        this.grid.renderer.resetHandleColumnWidth();
+        this.grid.renderer.resetRowHeaderColumnWidth();
     },
 
     getActiveColumn: function(x) {

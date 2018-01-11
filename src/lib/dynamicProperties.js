@@ -175,7 +175,7 @@ var dynamicPropertyDescriptors = {
                     },
                     set: function(checkboxes) {
                         features.checkboxes = checkboxes;
-                        grid.renderer.resetHandleColumnWidth();
+                        grid.renderer.resetRowHeaderColumnWidth();
                     }
                 },
                 numbers: {
@@ -184,14 +184,14 @@ var dynamicPropertyDescriptors = {
                     },
                     set: function(numbers) {
                         features.numbers = numbers;
-                        grid.renderer.resetHandleColumnWidth();
+                        grid.renderer.resetRowHeaderColumnWidth();
                     }
                 }
             });
 
             if (grid.renderer) {
                 // reset column width using new `features` values
-                grid.renderer.resetHandleColumnWidth();
+                grid.renderer.resetRowHeaderColumnWidth();
             }
         }
     },
