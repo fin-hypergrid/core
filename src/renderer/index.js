@@ -898,10 +898,8 @@ var Renderer = Base.extend('Renderer', {
             }
 
             if (rowGap || columnGap) {
-                var edgeWidth = gridProps.fixedLines.edge;
-                if (gridProps.fixedLines.color) {
-                    gc.cache.fillStyle = gridProps.fixedLines.color;
-                }
+                var edgeWidth = gridProps.fixedLines && gridProps.fixedLines.edge;
+                gc.cache.fillStyle = gridProps.fixedLines && gridProps.fixedLines.color || gridLines.lineColor;
                 if (rowGap) {
                     if (edgeWidth) {
                         gc.fillRect(0, rowGap.top, viewWidth, edgeWidth);
@@ -1202,7 +1200,10 @@ function computeCellsBounds() {
         insertionBoundsCursor = 0,
         previousInsertionBoundsCursorValue = 0,
 
-        lineWidth = grid.properties.lineWidth,
+        gridProps = grid.properties,
+        lineWidth = gridProps.lineWidth,
+        fixedWidth = gridProps.fixedLines && gridProps.fixedLines.width,
+        hasFixedWidth = fixedWidth !== undefined,
 
         start = 0,
         numOfInternalCols = 0,
@@ -1233,7 +1234,7 @@ function computeCellsBounds() {
         sgEd = editorCellEvent.subgrid;
     }
 
-    if (grid.properties.showRowNumbers) {
+    if (gridProps.showRowNumbers) {
         start = behavior.rowColumnIndex;
         numOfInternalCols = Math.abs(start);
     }
@@ -1273,8 +1274,8 @@ function computeCellsBounds() {
         width = Math.ceil(behavior.getColumnWidth(vx));
 
         if (x) {
-            if ((gap = fixedColumnCount && c === fixedColumnCount)) {
-                x += grid.properties.fixedLines.width - lineWidth;
+            if ((gap = fixedColumnCount && c === fixedColumnCount) && hasFixedWidth) {
+                x += fixedWidth - lineWidth;
             }
             xSpaced = x + lineWidth;
             widthSpaced = width - lineWidth;
@@ -1303,7 +1304,7 @@ function computeCellsBounds() {
     }
 
     // get height of total number of rows in all subgrids following the data subgrid
-    footerHeight = grid.properties.defaultRowHeight *
+    footerHeight = gridProps.defaultRowHeight *
         subgrids.reduce(function(rows, subgrid) {
             if (scrollableSubgrid) {
                 rows += subgrid.getRowCount();
@@ -1328,8 +1329,8 @@ function computeCellsBounds() {
         for (R = r + subrows; r < R && y < Y; r++) {
             vy = r;
             if (scrollableSubgrid) {
-                if ((gap = fixedRowCount && r === fixedRowCount)) {
-                    y += grid.properties.fixedLines.width - lineWidth;
+                if ((gap = fixedRowCount && r === fixedRowCount) && hasFixedWidth) {
+                    y += fixedWidth - lineWidth;
                 }
                 if (r >= fixedRowCount) {
                     vy += scrollTop;

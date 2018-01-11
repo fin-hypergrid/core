@@ -536,17 +536,18 @@ var defaults = {
 
     /**
      * Rule lines between fixed & scolling rows & columns.
+     * Define this property to style rule lines differently from grid lines.
      * @default
      * @type {object}
-     * @property {cssColor} [color=lineColor] Define this property to make rule line color different from `lineColor`.
-     * @property {number} [width=2] - Line thickness.
-     * @property {number} [edge] - Define this property to a width with which to render just the edges of the fixed rule line, creating a double-line effect.
+     * @property {cssColor} [color=lineColor] Define this property to style rule line color different from `lineColor`.
+     * @property {number} [width=2] - Define this property to style rule line thickness different from `lineWidth`.
+     * @property {number} [edge] - Define this property to render just the edges of the fixed rule line, creating a double-line effect. The value is the thickness of the edges. Typical definition would be `1` in tandem with setting `width` to `3`.
      * @memberOf module:defaults
      */
     fixedLines: {
         width: 2,
-    //  edge: undefined,
-        color: 'rgb(164,164,164)'
+    //  edge: undefined, // undefined means no edge effect
+        color: 'rgb(164,164,164)' // ~21% darker than `lineColor` default
     },
 
     /**
