@@ -268,7 +268,7 @@ createColumnProperties.rowHeaderDescriptors = {
         configurable: true,
         enumerable: true,
         get: function() {
-            if (this.grid.properties.rowHeaderFeatures.checkboxes) {
+            if (this.grid.properties.rowHeaderCheckboxes) {
                 var result;
                 if (this.isDataRow) {
                     result = this.isRowSelected ? 'checked' : 'unchecked';

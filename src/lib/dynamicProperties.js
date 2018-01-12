@@ -156,43 +156,28 @@ var dynamicPropertyDescriptors = {
     /**
      * @memberOf module:dynamicPropertyDescriptors
      */
-    rowHeaderFeatures: {
+    rowHeaderCheckboxes: {
         enumerable: true,
         get: function() {
-            return this.var.rowHeaderFeatures || // from defaults or as subsequently set by setter
-                (this.var.rowHeaderFeatures = {}); // Init in case not in defaults
+            return this.var.rowHeaderCheckboxes;
         },
-        set: function(rowHeaderFeatures) {
-            var grid = this.grid;
-            var features = Object.assign({}, rowHeaderFeatures); // clone values in closure
+        set: function(enabled) {
+            this.var.rowHeaderCheckboxes = enabled;
+            this.grid.renderer.resetRowHeaderColumnWidth();
+        }
+    },
 
-            this.var.rowHeaderFeatures = rowHeaderFeatures; // override default
-
-            Object.defineProperties(rowHeaderFeatures, { // add setters to reset column width
-                checkboxes: {
-                    get: function() {
-                        return features.checkboxes;
-                    },
-                    set: function(checkboxes) {
-                        features.checkboxes = checkboxes;
-                        grid.renderer.resetRowHeaderColumnWidth();
-                    }
-                },
-                numbers: {
-                    get: function() {
-                        return features.numbers;
-                    },
-                    set: function(numbers) {
-                        features.numbers = numbers;
-                        grid.renderer.resetRowHeaderColumnWidth();
-                    }
-                }
-            });
-
-            if (grid.renderer) {
-                // reset column width using new `features` values
-                grid.renderer.resetRowHeaderColumnWidth();
-            }
+    /**
+     * @memberOf module:dynamicPropertyDescriptors
+     */
+    rowHeaderNumbers: {
+        enumerable: true,
+        get: function() {
+            return this.var.rowHeaderNumbers;
+        },
+        set: function(enabled) {
+            this.var.rowHeaderNumbers = enabled;
+            this.grid.renderer.resetRowHeaderColumnWidth();
         }
     },
 
@@ -203,10 +188,10 @@ var dynamicPropertyDescriptors = {
     showRowNumbers: {
         enumerable: false,
         get: function() {
-            return this.var.rowHeaderFeatures.checkboxes || this.var.rowHeaderFeatures.numbers;
+            return this.rowHeaderCheckboxes || this.rowHeaderNumbers;
         },
         set: function(enabled) {
-            this.var.rowHeaderFeatures.checkboxes = this.var.rowHeaderFeatures.numbers = enabled;
+            this.rowHeaderCheckboxes = this.rowHeaderNumbers = enabled;
         }
     },
 
@@ -227,25 +212,16 @@ var dynamicPropertyDescriptors = {
 
     // The following grid line props are now dynamic (as of v2.1.0).
     // They non-enumerable so they will not be output with `grid.saveState()`.
-    // The `gridLines` prop (new, as of 2.1.0) they refer to is output instead.
-    gridLinesH: {
-        get: function() { return this.gridLines.horizontal.enabled; },
-        set: function(enabled) { this.gridLines.horizontal.enabled = enabled; }
-    },
-
-    gridLinesV: {
-        get: function() { return this.gridLines.vertical.enabled; },
-        set: function(enabled) { this.gridLines.vertical.enabled = enabled; }
-    },
-
+    // The new (as of 2.1.0) props they refer to is output instead:
+    // `gridLinesHColor`, `gridLinesVColor`, `gridLinesHWidth`, and `gridLinesVWidth`
     lineColor: {
-        get: function() { return this.gridLines.horizontal.color; },
-        set: function(color) { this.gridLines.horizontal.color = this.gridLines.vertical.color = color; }
+        get: function() { return this.gridLinesHColor; },
+        set: function(color) { this.gridLinesHColor = this.gridLinesVColor = color; }
     },
 
     lineWidth: {
-        get: function() { return this.gridLines.horizontal.width; },
-        set: function(width) { this.gridLines.horizontal.width = this.gridLines.vertical.width = width; }
+        get: function() { return this.gridLinesHWidth; },
+        set: function(width) { this.gridLinesHWidth = this.gridLinesVWidth = width; }
     },
 
     gridBorder: getGridBorderDescriptor(),
