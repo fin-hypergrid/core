@@ -453,32 +453,47 @@ var defaults = {
      */
     renderFalsy: false,
 
-    /** @typedef gridLineProp
-     * @property {boolean} enabled
-     * @property {number} width
-     * @property {cssColor} color
-     */
-    /** @typedef gridLinesProp
-     * @property {gridLineProp} horizontal
-     * @property {gridLineProp} vertical
-     */
-    /** @type {gridLinesProp}
-     * @default '{ horizontal: { enabled: true, width: 1, color: rgb(199, 199, 199) }, vertical: { enabled: true, width: 1, color: rgb(199, 199, 199) }, }'
+    /**
+     * @default
+     * @type {boolean}
      * @memberOf module:defaults
      */
-    gridLines: {
-        horizontal: {
-            enabled: true,
-            width: 1,
-            color: 'rgb(199, 199, 199)'
-        },
-        vertical: {
-            enabled: true,
-            width: 1,
-            color: 'rgb(199, 199, 199)'
-        }
-    },
+    gridLinesH: true,
 
+    /** @type {number}
+     * @default
+     * @memberOf module:defaults
+     * @see {@link module:dynamicPropertyDescriptors.lineWidth}
+     */
+    gridLinesHWidth: 1,
+
+    /** @type {string}
+     * @default
+     * @memberOf module:defaults
+     * @see {@link module:dynamicPropertyDescriptors.lineColor}
+     */
+    gridLinesHColor: 'rgb(199, 199, 199)',
+
+    /**
+     * @default
+     * @type {boolean}
+     * @memberOf module:defaults
+     */
+    gridLinesV: true,
+
+    /** @type {number}
+     * @default
+     * @memberOf module:defaults
+     * @see {@link module:dynamicPropertyDescriptors.lineWidth}
+     */
+    gridLinesVWidth: 1,
+
+    /** @type {string}
+     * @default
+     * @memberOf module:defaults
+     * @see {@link module:dynamicPropertyDescriptors.lineColor}
+     */
+    gridLinesVColor: 'rgb(199, 199, 199)',
 
     /**
      * Set canvas's CSS border to this string as well as `gridBorderLeft`, `gridBorderRight`, `gridBorderTop`, and `gridBorderBottom`.
@@ -535,28 +550,52 @@ var defaults = {
     gridBorderBottom: true,
 
     /**
-     * Define to make color of rule lines between fixed and scolling rows and columns different than `lineColor`.
+     * Define this property to style rule lines between fixed & scolling rows differently from `lineWidth`.
+     * @default
+     * @type {number}
+     * @memberOf module:defaults
+     */
+    fixedLinesHWidth: 2,
+
+    /**
+     * Define this property to render just the edges of the lines between fixed & scolling rows, creating a double-line effect. The value is the thickness of the edges. Typical definition would be `1` in tandem with setting `fixedLinesWidth` to `3`.
+     * @default
+     * @type {number}
+     * @memberOf module:defaults
+     */
+    fixedLinesHEdge: undefined, // undefined means no edge effect
+
+    /**
+     * Define this property to style rule lines between fixed & scolling rows differently from `lineColor`.
      * @default
      * @type {cssColor}
      * @memberOf module:defaults
      */
-    fixedLineColor: undefined,
+    fixedLinesHColor: 'rgb(164,164,164)', // ~21% darker than `lineColor` default
 
     /**
-     * Width of rule lines between fixed and scrolling rows and columns.
+     * Define this property to style rule lines between fixed & scolling columns differently from `lineWidth`.
      * @default
      * @type {number}
      * @memberOf module:defaults
      */
-    fixedLineWidth: 3,
+    fixedLinesVWidth: 2,
 
     /**
-     * Define this property to render just the edges of the fixed rule lines with this width to create a double-line effect.
+     * Define this property to render just the edges of the lines between fixed & scolling columns, creating a double-line effect. The value is the thickness of the edges. Typical definition would be `1` in tandem with setting `fixedLinesWidth` to `3`.
      * @default
      * @type {number}
      * @memberOf module:defaults
      */
-    fixedEdgeWidth: undefined,
+    fixedLinesVEdge: undefined, // undefined means no edge effect
+
+    /**
+     * Define this property to style rule lines between fixed & scolling columns differently from `lineColor`.
+     * @default
+     * @type {cssColor}
+     * @memberOf module:defaults
+     */
+    fixedLinesVColor: 'rgb(164,164,164)', // ~21% darker than `lineColor` default
 
     /**
      * @default
@@ -813,12 +852,17 @@ var defaults = {
      * @default
      * @type {boolean}
      * @memberOf module:defaults
-     * @see {@link module:dynamicPropertyDescriptors.showRowHandleColumn}
+     * @see {@link module:dynamicPropertyDescriptors.showRowNumbers}
      */
-    rowHeaderFeatures: {
-        numbers: true,
-        checkboxes: true
-    },
+    rowHeaderNumbers: true,
+
+    /**
+     * @default
+     * @type {boolean}
+     * @memberOf module:defaults
+     * @see {@link module:dynamicPropertyDescriptors.showRowNumbers}
+     */
+    rowHeaderCheckboxes: true,
 
     /**
      * @default
@@ -1283,7 +1327,7 @@ var defaults = {
      * @default
      * @memberOf module:defaults
      */
-    stripes: undefined,
+    rowStripes: undefined,
 
     // for Renderer.prototype.assignProps
     propClassEnum: propClassEnum,
@@ -1324,18 +1368,18 @@ var defaults = {
 function rowPropertiesDeprecationWarning() {
     if (!warned.rowProperties) {
         warned.rowProperties = true;
-        console.warn('The `rowProperties` property has been deprecated as of v3.0.0 in favor of `stripes`. (Will be removed in a future release.)');
+        console.warn('The `rowProperties` property has been deprecated as of v3.0.0 in favor of `rowStripes`. (Will be removed in a future release.)');
     }
 }
 
 Object.defineProperty(defaults, 'rowProperties', {
     get: function() {
         rowPropertiesDeprecationWarning();
-        return this.stripes;
+        return this.rowStripes;
     },
     set: function(rowProperties) {
         rowPropertiesDeprecationWarning();
-        this.stripes = rowProperties;
+        this.rowStripes = rowProperties;
     }
 });
 

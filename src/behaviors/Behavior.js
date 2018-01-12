@@ -193,7 +193,7 @@ var Behavior = Base.extend('Behavior', {
         this.columns[tc].properties.propClassLayers = this.columns[rc].properties.propClassLayers = [propClassEnum.COLUMNS];
 
         // Signal the renderer to size the now-reset handle column before next render
-        this.grid.renderer.resetHandleColumnWidth();
+        this.grid.renderer.resetRowHeaderColumnWidth();
     },
 
     getActiveColumn: function(x) {
@@ -744,10 +744,13 @@ var Behavior = Base.extend('Behavior', {
 
     /**
      * @memberOf Behavior#
-     * @param {number} yOrCellEvent - Data row index local to `dataModel`.
-     * @param {dataModelAPI} [dataModel=this.dataModel]
-     * @param {boolean} [properties] - New object when one does not already exist.
-     * @returns {*}
+     * @param {number|CellEvent} yOrCellEvent - Data row index local to `dataModel`; or a `CellEvent` object.
+     * @param {boolean} [properties] - New properties object when one does not already exist. If you don't provide this and one does not already exist, this call will return `undefined`. _(Required when 3rd param provided.)_
+     * @param {dataModelAPI} [dataModel=this.dataModel] - This is the subgrid. You only need to provide the subgrid when it is not the data subgrid _and_ you did not give a `CellEvent` object in the first param (which already knows what subgrid it's in).
+     * @returns {object|undefined} The row properties object which will be one of:
+     * * The row properties object if it existed.
+     * * The value you provided in `properties` if the row properties for a new row properties object when the object did not already exist in the metadata
+     * * `undefined` if the row properties object did not exist _and_ you did not provide a value in `properties`.
      */
     getRowProperties: function(yOrCellEvent, properties, dataModel) {
         if (typeof yOrCellEvent === 'object') {
@@ -760,10 +763,11 @@ var Behavior = Base.extend('Behavior', {
     },
 
     /**
+     * Reset the row properties in its entirety to the given row properties object.
      * @memberOf Behavior#
-     * @param {number} yOrCellEvent - Data row index local to `dataModel`.
-     * @param {object} properties - A row properties object.
-     * @param {dataModelAPI} [dataModel=this.dataModel]
+     * @param {number|CellEvent} yOrCellEvent - Data row index local to `dataModel`; or a `CellEvent` object.
+     * @param {object} properties - The new row properties object.
+     * @param {dataModelAPI} [dataModel=this.dataModel] - This is the subgrid. You only need to provide the subgrid when it is not the data subgrid _and_ you did not give a `CellEvent` object in the first param (which already knows what subgrid it's in).
      */
     setRowProperties: function(yOrCellEvent, properties, dataModel) {
         if (typeof yOrCellEvent === 'object') {
@@ -776,11 +780,26 @@ var Behavior = Base.extend('Behavior', {
         this.stateChanged();
     },
 
+    /**
+     * Sets a single row property on a specific individual row.
+     * @memberOf Behavior#
+     * @param {number|CellEvent} yOrCellEvent - Data row index local to `dataModel`; or a `CellEvent` object.
+     * @param {string} key - The property name.
+     * @param value - The new property value.
+     * @param {dataModelAPI} [dataModel=this.dataModel] - This is the subgrid. You only need to provide the subgrid when it is not the data subgrid _and_ you did not give a `CellEvent` object in the first param (which already knows what subgrid it's in).
+     */
     setRowProperty: function(yOrCellEvent, key, value, dataModel) {
         this.getRowProperties(yOrCellEvent, {}, dataModel)[key] = value;
         this.stateChanged();
     },
 
+    /**
+     * Add all the properties in the given row properties object to the row properties.
+     * @memberOf Behavior#
+     * @param {number|CellEvent} yOrCellEvent - Data row index local to `dataModel`; or a `CellEvent` object.
+     * @param {object} properties - An object containing new property values(s) to assign to the row properties.
+     * @param {dataModelAPI} [dataModel=this.dataModel] - This is the subgrid. You only need to provide the subgrid when it is not the data subgrid _and_ you did not give a `CellEvent` object in the first param (which already knows what subgrid it's in).
+     */
     addRowProperties: function(yOrCellEvent, properties, dataModel) {
         Object.assign(this.getRowProperties(yOrCellEvent, {}, dataModel), properties);
         this.stateChanged();
@@ -1357,7 +1376,7 @@ var Behavior = Base.extend('Behavior', {
         };
     },
 
-    getHandleColumn: function() {
+    getRowHeaderColumn: function() {
         return this.allColumns[this.rowColumnIndex];
     },
 
@@ -1369,7 +1388,7 @@ var Behavior = Base.extend('Behavior', {
     checkColumnAutosizing: function(force) {
         force = force === true;
         var autoSized = this.autoSizeRowNumberColumn() ||
-            this.hasTreeColumn() && this.getHandleColumn().checkColumnAutosizing(force);
+            this.hasTreeColumn() && this.getRowHeaderColumn().checkColumnAutosizing(force);
         this.allColumns.forEach(function(column) {
             autoSized = column.checkColumnAutosizing(force) || autoSized;
         });
@@ -1378,7 +1397,7 @@ var Behavior = Base.extend('Behavior', {
 
     autoSizeRowNumberColumn: function() {
         if (this.grid.properties.showRowNumbers && this.grid.properties.rowNumberAutosizing) {
-            return this.getHandleColumn().checkColumnAutosizing(true);
+            return this.getRowHeaderColumn().checkColumnAutosizing(true);
         }
     },
 

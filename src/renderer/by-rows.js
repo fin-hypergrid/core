@@ -37,9 +37,9 @@ function paintCellsByRows(gc) {
         // clipToGrid,
         viewWidth = C ? visibleColumns[C - 1].right : 0,
         viewHeight = R ? visibleRows[R - 1].bottom : 0,
-        drawLines = gridProps.gridLines.horizontal.enabled,
-        lineWidth = gridProps.gridLines.horizontal.width,
-        lineColor = gridProps.gridLines.horizontal.color;
+        drawLines = gridProps.gridLinesH,
+        lineWidth = gridProps.gridLinesHWidth,
+        lineColor = gridProps.gridLinesHColor;
 
     gc.clearRect(0, 0, this.bounds.width, this.bounds.height);
 

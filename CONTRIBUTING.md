@@ -20,9 +20,9 @@ We have several beginner [issues](https://github.com/openfin/fin-hypergrid/issue
 ```bash
 $ git clone <your fork>
 $ node -v # at least:
-v4.0.0
+v5.1.0
 $ npm -v # at least:
-2.14.2
+3.3.12
 $ # We recommend using nvm to manage your versions of node and npm.
 $ npm install -g gulp
 $ npm install

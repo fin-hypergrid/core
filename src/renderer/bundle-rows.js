@@ -20,13 +20,13 @@ function bundleRows(resetCellEvents) {
 
     var bundle, rowBundles = [],
         gridPrefillColor = gridProps.backgroundColor,
-        stripes = gridProps.stripes,
+        rowStripes = gridProps.rowStripes,
         rowPrefillColors = Array(R),
         stripe, backgroundColor;
 
     for (r = 0; r < R; r++) {
         vr = visibleRows[r]; // first cell in row r
-        stripe = vr.subgrid.isData && stripes && stripes[vr.rowIndex % stripes.length];
+        stripe = vr.subgrid.isData && rowStripes && rowStripes[vr.rowIndex % rowStripes.length];
         backgroundColor = rowPrefillColors[r] = stripe && stripe.backgroundColor || gridPrefillColor;
         if (bundle && bundle.backgroundColor === backgroundColor) {
             bundle.bottom = vr.bottom;
