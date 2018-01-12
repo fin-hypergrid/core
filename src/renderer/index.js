@@ -28,10 +28,9 @@ var propClassGet = [
 var visibleColumnPropertiesDescriptorFn = function(grid) {
     return {
         findWithNeg: {
-            // Like the Array.prototype version except searches negative indexes as well.
+            // Like the Array.prototype version except searches the negative indexes as well.
             value: function(iteratee, context) {
-                for (var i = grid.behavior.leftMostColIndex; i in this; --i); // eslint-disable-line curly
-                while (++i) {
+                for (var i = grid.behavior.leftMostColIndex; i < 0; i++) {
                     if (!this[i]) {
                         continue;
                     }
@@ -43,10 +42,9 @@ var visibleColumnPropertiesDescriptorFn = function(grid) {
             }
         },
         forEachWithNeg: {
-            // Like the Array.prototype version except it iterates negative indexes as well.
+            // Like the Array.prototype version except it iterates the negative indexes as well.
             value: function(iteratee, context) {
-                for (var i = grid.behavior.leftMostColIndex; i in this; --i); // eslint-disable-line curly
-                while (++i) {
+                for (var i = grid.behavior.leftMostColIndex; i < 0; i++) {
                     if (!this[i]) {
                         continue;
                     }
@@ -1191,6 +1189,7 @@ function computeCellsBounds() {
         bounds = this.getBounds(),
         grid = this.grid,
         behavior = grid.behavior,
+        noTreeColumn = !behavior.hasTreeColumn(),
         editorCellEvent = grid.cellEditor && grid.cellEditor.event,
 
         vcEd, xEd,
@@ -1234,9 +1233,16 @@ function computeCellsBounds() {
         sgEd = editorCellEvent.subgrid;
     }
 
+    if (noTreeColumn) {
+        this.visibleColumns[behavior.treeColumnIndex] = undefined;
+    } else {
+        start = Math.min(start, behavior.treeColumnIndex);
+        numOfInternalCols += 1;
+    }
+
     if (gridProps.showRowNumbers) {
-        start = behavior.rowColumnIndex;
-        numOfInternalCols = Math.abs(start);
+        start = Math.min(start, behavior.rowColumnIndex);
+        numOfInternalCols += 1;
     }
 
     this.scrollHeight = 0;
@@ -1254,9 +1260,7 @@ function computeCellsBounds() {
         c < C && x <= X;
         c++
     ) {
-        if (c === behavior.treeColumnIndex && !behavior.hasTreeColumn()) {
-            numOfInternalCols = (numOfInternalCols > 0) ? numOfInternalCols - 1 : 0;
-            this.visibleColumns[c] = undefined;
+        if (noTreeColumn && c === behavior.treeColumnIndex) {
             continue;
         }
 
