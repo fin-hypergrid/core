@@ -901,7 +901,7 @@ var Renderer = Base.extend('Renderer', {
 
             gap = visibleColumns.gap;
             if (gap) {
-                gc.cache.fillStyle = gridProps.fixedLinesVColor || gridProps.gridLinesHColor;
+                gc.cache.fillStyle = gridProps.fixedLinesVColor || gridProps.gridLinesVColor;
                 edgeWidth = gridProps.fixedLinesVEdge;
                 if (edgeWidth) {
                     gc.fillRect(gap.left, 0, edgeWidth, viewHeight);
@@ -1195,9 +1195,12 @@ function computeCellsBounds() {
         previousInsertionBoundsCursorValue = 0,
 
         gridProps = grid.properties,
-        lineWidth = gridProps.lineWidth,
-        fixedWidthV = gridProps.fixedLinesVWidth, hasFixedColumnGap = fixedWidthV && fixedColumnCount,
-        fixedWidthH = gridProps.fixedLinesHWidth, hasFixedRowGap = fixedWidthH && fixedRowCount,
+        lineWidthV = gridProps.gridLinesVWidth,
+        lineWidthH = gridProps.gridLinesHWidth,
+        fixedWidthV = gridProps.fixedLinesVWidth || gridProps.gridLinesVWidth,
+        fixedWidthH = gridProps.fixedLinesHWidth || gridProps.gridLinesHWidth,
+        hasFixedColumnGap = fixedWidthV && fixedColumnCount,
+        hasFixedRowGap = fixedWidthH && fixedRowCount,
 
         start = 0,
         numOfInternalCols = 0,
@@ -1277,14 +1280,14 @@ function computeCellsBounds() {
 
         if (x) {
             if ((gap = hasFixedColumnGap && c === fixedColumnCount)) {
-                x += fixedWidthV - lineWidth;
+                x += fixedWidthV - lineWidthV;
                 this.visibleColumns.gap = {
                     left: vc.right,
                     right: undefined
                 };
             }
-            left = x + lineWidth;
-            widthSpaced = width - lineWidth;
+            left = x + lineWidthV;
+            widthSpaced = width - lineWidthV;
         } else {
             left = x;
             widthSpaced = width;
@@ -1341,7 +1344,7 @@ function computeCellsBounds() {
             vy = r;
             if (scrollableSubgrid) {
                 if ((gap = hasFixedRowGap && r === fixedRowCount)) {
-                    y += fixedWidthH - lineWidth;
+                    y += fixedWidthH - lineWidthH;
                     this.visibleRows.gap = {
                         top: vr.bottom,
                         bottom: undefined
@@ -1362,7 +1365,7 @@ function computeCellsBounds() {
             rowIndex = vy - base;
             height = behavior.getRowHeight(rowIndex, subgrid);
 
-            heightSpaced = height - lineWidth;
+            heightSpaced = height - lineWidthH;
             this.visibleRows[r] = vr = {
                 index: r,
                 subgrid: subgrid,
