@@ -1,45 +1,35 @@
 'use strict';
 
-var gulp        = require('gulp'),
+var pkgjson     = require('./package.json'),
+    gulp        = require('gulp'),
     $$          = require('gulp-load-plugins')(),
+    browserify  = require('browserify'),
+    source      = require('vinyl-source-stream'),
+    buffer      = require('vinyl-buffer'),
     runSequence = require('run-sequence'),
     browserSync = require('browser-sync').create(),
     exec        = require('child_process').exec,
     path        = require('path'),
     pipe        = require('multipipe');
 
-var name        = 'fin-hypergrid',
-    srcDir      = './src/',
+var srcDir      = './src/',
     testDir     = './test/',
     jsFiles     = '**/*.js',
-    addOnsDir   = './add-ons/',
     demoDir     = './demo/',
     buildDir    = demoDir + 'build/';
 
-var replacementFinHypergrid = 'window.fin.Hypergrid.$2$1$2';
-
 //  //  //  //  //  //  //  //  //  //  //  //
-
-function gulpTaskAddOn(name, exportName) {
-    gulp.task('browserify-add-on-' + name, browserify.bind(null,
-        name,
-        addOnsDir + name + '/',
-        buildDir + addOnsDir,
-        exportName
-    ));
-}
 
 gulp.task('lint', lint);
 gulp.task('test', test);
 gulp.task('doc', doc);
-gulp.task('beautify', beautify);
 gulp.task('images', swallowImages);
-gulp.task('browserify', browserify.bind(null,
-    name,
+gulp.task('browserify', bundleUp.bind(null,
+    pkgjson.name,
     srcDir,
     buildDir
 ));
-gulp.task('browserify-demo', browserify.bind(null,
+gulp.task('browserify-demo', bundleUp.bind(null,
     'index',
     './demo/js/demo/',
     './demo/js/demo/build/'
@@ -47,7 +37,6 @@ gulp.task('browserify-demo', browserify.bind(null,
 
 gulp.task('reloadBrowsers', reloadBrowsers);
 gulp.task('serve', browserSyncLaunchServer);
-gulp.task('add-ons', addOns);
 
 gulp.task('css-templates', function() {
     return templates('./css/*.css', 'css');
@@ -60,8 +49,6 @@ gulp.task('build', function(callback) {
         'images',
         'css-templates',
         'test',
-        'add-ons',
-        //'beautify',
         'browserify',
         'browserify-demo',
         //'doc',
@@ -71,7 +58,6 @@ gulp.task('build', function(callback) {
 
 gulp.task('watch', function () {
     gulp.watch([
-        addOnsDir + jsFiles,
         srcDir + '**', '!' + srcDir + 'jsdoc/**',
         './css/*.css',
         './html/*.html',
@@ -97,7 +83,6 @@ gulp.task('default', ['build', 'watch'], browserSyncLaunchServer);
 function lint() {
     return gulp.src([
         'index.js',
-        addOnsDir + jsFiles,
         srcDir + jsFiles, '!' + srcDir + '**/old/**/',
         demoDir + 'js/' + jsFiles, '!' + demoDir + 'js/demo/build/' + jsFiles,
         testDir + jsFiles,
@@ -113,33 +98,24 @@ function test(cb) {
         .pipe($$.mocha({reporter: 'spec'}));
 }
 
-function beautify() {
-    return gulp.src([srcDir + jsFiles, testDir + jsFiles])
-        .pipe($$.beautify()) //apparent bug: presence of a .jsbeautifyrc file seems to force all options to their defaults (except space_after_anon_function which is forced to true) so I deleted the file. Any needed options can be included here.
-        .pipe(gulp.dest(srcDir));
-}
+function bundleUp(destName, srcDir, buildDir) {
+    var options = {
+        entries: srcDir + 'index.js',
+        debug: true
+    };
 
-function browserify(name, srcDir, buildDir, exportName) {
-    var exportsRegExp = exportName && new RegExp('module\\.exports(\\s*=\\s*)(' + exportName + ')');
-    return gulp.src(srcDir + 'index.js')
-        // .pipe($$.replace(
-        //     /require\('fin-hypergrid\/src\/(.*?)'\)/g,
-        //     function(match, p1) { console.log('hi');return 'window.fin.Hypergrid.' + p1.replace(/\//g, '.'); }
-        // ))
+    return browserify(options)
+        .bundle()
+        .pipe(source(options.entries)).on('error', $$.util.log)
+        .pipe(buffer())
         .pipe(
             $$.mirror(
                 pipe(
-                    $$.rename(name + '.js'),
-                    $$.browserify({ debug: true })
-                        .on('error', $$.util.log),
-                    $$.replace(exportsRegExp, replacementFinHypergrid)
+                    $$.rename(destName + '.js')
                 ),
                 pipe(
-                    $$.rename(name + '.min.js'),
-                    $$.browserify(),
-                    $$.uglify()
-                        .on('error', $$.util.log),
-                    $$.replace(exportsRegExp, replacementFinHypergrid)
+                    $$.rename(destName + '.min.js'),
+                    $$.uglify().on('error', $$.util.log)
                 )
             )
         )
@@ -229,34 +205,4 @@ function templates(src, type) {
         .pipe($$.concat("index.js"))
         .pipe($$.header("'use strict';\n\n"))
         .pipe(gulp.dest(function(file) { return file.base; }));
-}
-
-function addOns() {
-    return gulp.src(addOnsDir + '*.js')
-    // Insert an IIFE around the code...
-        .pipe($$.replace( // ...starting immediately following 'use strict' and...
-            "'use strict';\n",
-            "'use strict';\n(function() {"
-        ))
-        .pipe($$.replace( // ...ending after modules.exports.
-            /\w+\.exports(\s*=\s*)(\w+);/,
-            'window.fin.Hypergrid.$2$1$2;\n})();'
-        ))
-        .pipe(
-            $$.mirror(
-                pipe(
-                    $$.rename(function (path) {
-                        path.basename = addOnsDir + path.basename;
-                    })
-                ),
-                pipe(
-                    $$.rename(function (path) {
-                        path.basename = addOnsDir + path.basename + '.min';
-                    }),
-                    $$.uglify() // minimize
-                        .on('error', $$.util.log)
-                )
-            )
-        )
-        .pipe(gulp.dest(buildDir));
 }
