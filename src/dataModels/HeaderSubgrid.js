@@ -1,5 +1,7 @@
 'use strict';
 
+var DataModel = require('./DataModel');
+
 /**
  * @implements dataModelAPI
  * @param {Hypergrid} grid
@@ -7,22 +9,19 @@
  * @param {string} [options.name]
  * @constructor
  */
-function HeaderSubgrid(grid, options) {
-    this.grid = grid;
-    this.behavior = grid.behavior;
+var HeaderSubgrid = DataModel.extend('HeaderSubgrid', {
+    initialize: function(grid, options) {
+        this.behavior = grid.behavior;
 
-    /**
-     * @type {dataRowObject}
-     */
-    this.dataRow = {}; // for meta data (__HEIGHT)
+        /**
+         * @type {dataRowObject}
+         */
+        this.dataRow = {}; // for meta data (__HEIGHT)
 
-    if (options && options.name) {
-        this.name = options.name;
-    }
-}
-
-HeaderSubgrid.prototype = {
-    constructor: HeaderSubgrid.prototype.constructor,
+        if (options && options.name) {
+            this.name = options.name;
+        }
+    },
 
     type: 'header',
 
@@ -46,6 +45,6 @@ HeaderSubgrid.prototype = {
     getRow: function(y) {
         return this.dataRow;
     }
-};
+});
 
 module.exports = HeaderSubgrid;

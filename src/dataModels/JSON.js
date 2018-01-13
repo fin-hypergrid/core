@@ -61,9 +61,7 @@ var JSON = DataModel.extend('dataModels.JSON', {
         options = options || {};
         this.source = new this.DataSourceOrigin(
             options.data,
-            options.schema,
-            this.grid.behavior.treeColumnIndex,
-            this.grid.behavior.rowColumnIndex
+            options.schema
         );
 
         this.setPipeline({

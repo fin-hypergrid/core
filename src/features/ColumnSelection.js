@@ -3,15 +3,6 @@
 var Feature = require('./Feature');
 
 /**
- * Extra msecs to avoid race condition with fincanvas's double click timer.
- * @type {number}
- * @defaultvalue 50
- * NOTE: 50 msecs seems to work well. 10 and even 25 proved insufficient in Chrome.
- * @private
- */
-var RACE_TIME = 50;
-
-/**
  * @constructor
  * @extends Feature
  */
@@ -92,11 +83,10 @@ var ColumnSelection = Feature.extend('ColumnSelection', {
             event.isHeaderCell
         ) {
             // HOLD OFF WHILE WAITING FOR DOUBLE-CLICK
-            this.doubleClickTimer = setTimeout(function() {
-                this.doubleClickTimer = undefined;
-                this.dragging = true;
-                this.extendSelection(grid, event.gridCell.x, event.primitiveEvent.detail.keys);
-            }.bind(this), grid.properties.doubleClickDelay + RACE_TIME);
+            this.doubleClickTimer = setTimeout(
+                doubleClickTimerCallback.bind(this, grid, event),
+                doubleClickDelay.call(this, grid, event)
+            );
         } else if (this.next) {
             this.next.handleMouseDown(grid, event);
         }
@@ -433,5 +423,22 @@ var ColumnSelection = Feature.extend('ColumnSelection', {
     }
 
 });
+
+function doubleClickDelay(grid, event) {
+    var columnProperties;
+
+    return (
+        event.isHeaderCell &&
+        !(columnProperties = event.columnProperties).unsortable &&
+        columnProperties.sortOnDoubleClick &&
+        300
+    );
+}
+
+function doubleClickTimerCallback(grid, event) {
+    this.doubleClickTimer = undefined;
+    this.dragging = true;
+    this.extendSelection(grid, event.gridCell.x, event.primitiveEvent.detail.keys);
+}
 
 module.exports = ColumnSelection;

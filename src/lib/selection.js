@@ -5,6 +5,27 @@
 var Rectangle = require('rectangular').Rectangle;
 
 module.exports = {
+    selectionInitialize: function() {
+        var grid = this;
+
+        /** for use by fin-selection-changed, fin-row-selection-changed, fin-column-selection-changed
+         * @memberOf Hypergrid#
+         * @private
+         */
+        this.selectionDetailGetters = {
+            get rows() { return grid.getSelectedRows(); },
+            get columns() { return grid.getSelectedColumns(); },
+            get selections() { return grid.selectionModel.getSelections(); }
+        };
+
+        /**
+         * for use by fin-context-menu, fin-mouseup, fin-mousedown
+         * @memberOf Hypergrid#
+         * @private
+         */
+        this.selectionDetailGetterDescriptors = Object.getOwnPropertyDescriptors(this.selectionDetailGetters);
+    },
+
     /**
      * @memberOf Hypergrid#
      * @returns {boolean} We have any selections.
@@ -506,11 +527,7 @@ module.exports = {
         this.selectColumnsFromCells();
 
         var selectionEvent = new CustomEvent('fin-selection-changed', {
-            detail: {
-                rows: this.getSelectedRows(),
-                columns: this.getSelectedColumns(),
-                selections: this.selectionModel.getSelections(),
-            }
+            detail: this.selectionDetailGetters
         });
         this.canvas.dispatchEvent(selectionEvent);
     },
@@ -545,6 +562,7 @@ module.exports = {
             } else {
                 this.clearRowSelection();
             }
+            this.fireSyntheticRowSelectionChangedEvent();
         }
     },
     selectColumnsFromCells: function() {
@@ -669,8 +687,8 @@ module.exports = {
         newY = Math.min(maxRows - origin.y, Math.max(-origin.y, newY));
 
         this.clearMostRecentSelection();
-        this.select(origin.x, origin.y, newX, newY);
 
+        this.select(origin.x, origin.y, newX, newY);
         this.setDragExtent(this.newPoint(newX, newY));
 
         var colScrolled = this.insureModelColIsVisible(newX + origin.x, offsetX),
@@ -683,15 +701,16 @@ module.exports = {
 
     /**
      * @returns {undefined|CellEvent}
+     * @param {boolean} [useAllCells] - Search in all rows and columns instead of only rendered ones.
      * @memberOf Hypergrid#
      */
-    getGridCellFromLastSelection: function() {
+    getGridCellFromLastSelection: function(useAllCells) {
         var cellEvent,
             sel = this.selectionModel.getLastSelection();
 
         if (sel) {
             cellEvent = new this.behavior.CellEvent;
-            cellEvent.resetGridXDataY(sel.origin.x, sel.origin.y);
+            cellEvent.resetGridXDataY(sel.origin.x, sel.origin.y, null, useAllCells);
         }
 
         return cellEvent;

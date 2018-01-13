@@ -9,7 +9,7 @@
 window.onload = function() {
 
     var demo = window.demo = {
-        vent: false,
+        set vent(start) { window.grid[start ? 'logStart' : 'logStop'](); },
         reset: reset,
         setData: setData,
         toggleEmptyData: toggleEmptyData,
@@ -31,12 +31,12 @@ window.onload = function() {
             data: people1,
             margin: { bottom: '17px', right: '17px'},
             schema: Hypergrid.lib.fields.getSchema(people1),
+            plugins: require('fin-hypergrid-event-logger'),
             state: { color: 'orange' }
         },
         grid = window.grid = window.g = new Hypergrid('div#json-example', gridOptions),
         behavior = window.b = grid.behavior,
         dataModel = window.m = behavior.dataModel,
-        initial = true,
         idx = behavior.columnEnum;
 
 
@@ -77,17 +77,13 @@ window.onload = function() {
 
     function resetData() {
         setData(people1);
-        if (initial) {
-            initDashboard(demo, grid);
-            initial = false;
-        }
-        setTimeout(function() { initState(demo, grid); }, 50);
+        initState(demo, grid);
     }
-
-    resetData();
 
     initCellRenderers(demo, grid);
     initFormatters(demo, grid);
     initCellEditors(demo, grid);
     initEvents(demo, grid);
+    initDashboard(demo, grid);
+    initState(demo, grid);
 };

@@ -26,7 +26,7 @@ module.exports = {
                 internal: internal,
                 listener: listener,
                 decorator: function(e) {
-                    if (self.allowEventHandlers){
+                    if (self.allowEventHandlers) {
                         listener(e);
                     }
                 }
@@ -87,10 +87,14 @@ module.exports = {
     },
 
     allowEvents: function(allow){
-        if ((this.allowEventHandlers = !!allow)){
-            this.behavior.featureChain.attachChain();
-        } else {
-            this.behavior.featureChain.detachChain();
+        this.allowEventHandlers = !!allow;
+
+        if (this.behavior.featureChain) {
+            if (allow){
+                this.behavior.featureChain.attachChain();
+            } else {
+                this.behavior.featureChain.detachChain();
+            }
         }
 
         this.behavior.changed();
@@ -145,19 +149,11 @@ module.exports = {
      * @desc Synthesize and fire a `fin-row-selection-changed` event.
      */
     fireSyntheticRowSelectionChangedEvent: function() {
-        return dispatchEvent.call(this, 'fin-row-selection-changed', {
-            rows: this.getSelectedRows(),
-            columns: this.getSelectedColumns(),
-            selections: this.selectionModel.getSelections(),
-        });
-   },
+        return dispatchEvent.call(this, 'fin-row-selection-changed', this.selectionDetailGetters);
+    },
 
     fireSyntheticColumnSelectionChangedEvent: function() {
-        return dispatchEvent.call(this, 'fin-column-selection-changed', {
-            rows: this.getSelectedRows(),
-            columns: this.getSelectedColumns(),
-            selections: this.selectionModel.getSelections()
-        });
+        return dispatchEvent.call(this, 'fin-column-selection-changed', this.selectionDetailGetters);
     },
 
     /**
@@ -166,23 +162,17 @@ module.exports = {
      * @param {keyEvent} event - The canvas event.
      */
     fireSyntheticContextMenuEvent: function(event) {
-        event.rows = this.getSelectedRows();
-        event.columns = this.getSelectedColumns();
-        event.selections = this.selectionModel.getSelections();
+        Object.defineProperties(event, this.selectionDetailGetterDescriptors);
         return dispatchEvent.call(this, 'fin-context-menu', {}, event);
     },
 
     fireSyntheticMouseUpEvent: function(event) {
-        event.rows = this.getSelectedRows();
-        event.columns = this.getSelectedColumns();
-        event.selections = this.selectionModel.getSelections();
+        Object.defineProperties(event, this.selectionDetailGetterDescriptors);
         return dispatchEvent.call(this, 'fin-mouseup', {}, event);
     },
 
     fireSyntheticMouseDownEvent: function(event) {
-        event.rows = this.getSelectedRows();
-        event.columns = this.getSelectedColumns();
-        event.selections = this.selectionModel.getSelections();
+        Object.defineProperties(event, this.selectionDetailGetterDescriptors);
         return dispatchEvent.call(this, 'fin-mousedown', {}, event);
     },
 
@@ -341,6 +331,10 @@ module.exports = {
         var self = this;
 
         function handleMouseEvent(e, cb) {
+            if (self.getRowCount() === 0) {
+                return;
+            }
+
             var c = self.getGridCellFromMousePoint(e.detail.mouse),
                 primitiveEvent,
                 decoratedEvent;

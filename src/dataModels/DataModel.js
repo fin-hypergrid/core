@@ -19,6 +19,16 @@ var DataModel = Base.extend('DataModel', {
         return this.deprecated('getPrivateState()', 'grid.properties', '1.2.0');
     },
 
+    getRowMetadata: function(rowIndex, metadata) {
+        var dataRow = this.getRow(rowIndex);
+        return dataRow && (dataRow.__META || (dataRow.__META = metadata));
+    },
+
+    setRowMetadata: function(rowIndex, metadata) {
+        var dataRow = this.getRow(rowIndex);
+        return dataRow && (dataRow.__META = metadata);
+    },
+
     /**
      * @param {object} config
      * @param {string} declaredRendererName - The proposed cell renderer name (form the render properties).

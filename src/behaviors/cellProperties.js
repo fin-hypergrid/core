@@ -146,7 +146,7 @@ function getCellPropertiesObject(rowIndex, dataModel) {
  */
 function newCellPropertiesObject(rowIndex, dataModel) {
     var rowData = (dataModel || this.dataModel).getRow(rowIndex),
-        metaData = rowData.__META = rowData.__META || {},
+        metadata = rowData.__META = rowData.__META || {},
         props;
 
     if (this._index >= 0) {
@@ -157,7 +157,7 @@ function newCellPropertiesObject(rowIndex, dataModel) {
         props = this.properties.rowHeader;
     }
 
-    return (metaData[this.name] = Object.create(props));
+    return (metadata[this.name] = Object.create(props));
 }
 
 module.exports = cell;

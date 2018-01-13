@@ -1,5 +1,7 @@
 'use strict';
 
+var warnedDoubleClickDelay;
+
 /**
  * @summary Dynamic grid property getter/setters.
  * @desc  Dynamic grid properties can make use of a _backing store._
@@ -38,7 +40,28 @@ var dynamicPropertyDescriptors = {
             return this.var.subgrids;
         },
         set: function(subgrids) {
-            this.grid.behavior.subgrids = this.var.subgrids = subgrids;
+            this.var.subgrids = subgrids;
+
+            if (this.grid.behavior) {
+                this.grid.behavior.subgrids = subgrids;
+            }
+        }
+    },
+
+    /**
+     * @memberOf module:dynamicPropertyDescriptors
+     */
+    features: {
+        enumerable: true,
+        get: function() {
+            return this.var.features;
+        },
+        set: function(features) {
+            this.var.features = features;
+            if (this.grid.behavior) {
+                this.grid.behavior.initializeFeatureChain(features);
+                this.grid.allowEvents(this.grid.getRowCount());
+            }
         }
     },
 
@@ -128,18 +151,96 @@ var dynamicPropertyDescriptors = {
                 this.grid.behavior.changed();
             }
         }
-    }
+    },
+
+    /**
+     * @memberOf module:dynamicPropertyDescriptors
+     */
+    rowHeaderCheckboxes: {
+        enumerable: true,
+        get: function() {
+            return this.var.rowHeaderCheckboxes;
+        },
+        set: function(enabled) {
+            this.var.rowHeaderCheckboxes = enabled;
+            this.grid.renderer.resetRowHeaderColumnWidth();
+        }
+    },
+
+    /**
+     * @memberOf module:dynamicPropertyDescriptors
+     */
+    rowHeaderNumbers: {
+        enumerable: true,
+        get: function() {
+            return this.var.rowHeaderNumbers;
+        },
+        set: function(enabled) {
+            this.var.rowHeaderNumbers = enabled;
+            this.grid.renderer.resetRowHeaderColumnWidth();
+        }
+    },
+
+    /**
+     * Legacy property; now points to both `rowHeaderFeatures` props.
+     * @memberOf module:dynamicPropertyDescriptors
+     */
+    showRowNumbers: {
+        enumerable: false,
+        get: function() {
+            return this.rowHeaderCheckboxes || this.rowHeaderNumbers;
+        },
+        set: function(enabled) {
+            this.rowHeaderCheckboxes = this.rowHeaderNumbers = enabled;
+        }
+    },
+
+    // remove to expire warning:
+    doubleClickDelay: {
+        enumerable: true,
+        get: function() {
+            return this.var.doubleClickDelay;
+        },
+        set: function(delay) {
+            if (!warnedDoubleClickDelay) {
+                warnedDoubleClickDelay = true;
+                console.warn('The doubleClickDelay property has been deprecated as of v2.1.0. Setting this property no longer has any effect. Set double-click speed in your system\'s mouse preferences. (This warning will be removed in a future release.)');
+            }
+            this.var.doubleClickDelay = delay;
+        }
+    },
+
+    // The following grid line props are now dynamic (as of v2.1.0).
+    // They non-enumerable so they will not be output with `grid.saveState()`.
+    // The new (as of 2.1.0) props they refer to is output instead:
+    // `gridLinesHColor`, `gridLinesVColor`, `gridLinesHWidth`, and `gridLinesVWidth`
+    lineColor: {
+        get: function() { return this.gridLinesHColor; },
+        set: function(color) { this.gridLinesHColor = this.gridLinesVColor = color; }
+    },
+
+    lineWidth: {
+        get: function() { return this.gridLinesHWidth; },
+        set: function(width) { this.gridLinesHWidth = this.gridLinesVWidth = width; }
+    },
+
+    gridBorder: getGridBorderDescriptor(),
+    gridBorderLeft: getGridBorderDescriptor('Left'),
+    gridBorderRight: getGridBorderDescriptor('Right'),
+    gridBorderTop: getGridBorderDescriptor('Top'),
+    gridBorderBottom: getGridBorderDescriptor('Bottom')
 };
 
 function getRowPropertiesBySubgridAndRowIndex() { // to be called with grid.properties as context
     var subgrids = {};
-    this.grid.behavior.subgrids.forEach(function(dataModel) {
+    var behavior = this.grid.behavior;
+    behavior.subgrids.forEach(function(dataModel) {
         var key = dataModel.name || dataModel.type;
         for (var rowIndex = 0, rowCount = dataModel.getRowCount(); rowIndex < rowCount; ++rowIndex) {
-            var height = dataModel.getRow(rowIndex).__ROW_HEIGHT;
-            if (height !== undefined) {
+            var rowProps = behavior.getRowProperties(rowIndex, dataModel);
+            if (rowProps) {
                 var subgrid = subgrids[key] = subgrids[key] || {};
-                subgrid[rowIndex] = { height: height };
+                subgrid[rowIndex] = rowProps;
             }
         }
     });
@@ -275,6 +376,35 @@ function setCellPropertiesByColumnNameAndRowIndex(cellsHash) { // to be called w
     function nameMatches(column) {
         return column.name === columnName;
     }
+}
+
+function getGridBorderDescriptor(edge) {
+    edge = edge || '';
+
+    var propName = 'gridBorder' + edge,
+        styleName = 'border' + edge;
+
+    return {
+        enumerable: true,
+        get: function() {
+            return this.var[propName];
+        },
+        set: function(border) {
+            this.var[propName] = border;
+            if (!edge) {
+                this.var.gridBorderLeft = this.var.gridBorderRight = this.var.gridBorderTop = this.var.gridBorderBottom = border;
+            }
+            switch (border) {
+                case true:
+                    border = this.lineWidth + 'px solid ' + this.lineColor;
+                    break;
+                case false:
+                    border = null;
+                    break;
+            }
+            this.grid.canvas.canvas.style[styleName] = border;
+        }
+    };
 }
 
 module.exports = dynamicPropertyDescriptors;

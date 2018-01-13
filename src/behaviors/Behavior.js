@@ -5,6 +5,10 @@ var Point = require('rectangular').Point;
 var Base = require('../Base');
 var Column = require('./Column');
 var cellEventFactory = require('../lib/cellEventFactory');
+var Features = require('../features');
+var propClassEnum = require('../defaults.js').propClassEnum;
+
+
 var noExportProperties = [
     'columnHeader',
     'columnHeaderColumnSelection',
@@ -38,49 +42,64 @@ var Behavior = Base.extend('Behavior', {
          */
         this.grid = grid;
 
-        this.initializeFeatureChain(grid);
+        this.initializeFeatureChain();
 
         this.grid.behavior = this;
         this.reset(options);
     },
 
     /**
-     * @desc create the feature chain - this is the [chain of responsibility](http://c2.com/cgi/wiki?ChainOfResponsibilityPattern) pattern.
-     * @param {Hypergrid} grid
+     * @desc Create the feature chain - this is the [chain of responsibility](http://c2.com/cgi/wiki?ChainOfResponsibilityPattern) pattern.
+     * @param {Hypergrid} [grid] Unnecesary legacy parameter. May be omitted.
      * @memberOf Behavior#
      */
     initializeFeatureChain: function(grid) {
-        var self = this;
+        var constructors;
 
         /**
-         * @summary Hash of feature class names.
+         * @summary Controller chain of command.
+         * @desc Each feature is linked to the next feature.
+         * @type {Feature}
+         * @memberOf Behavior#
+         */
+        this.featureChain = undefined;
+
+        /**
+         * @summary Hash of instantiated features by class names.
          * @desc Built here but otherwise not in use.
          * @type {object}
          * @memberOf Behavior#
          */
         this.featureMap = {};
 
-        this.features.forEach(function(FeatureConstructor) {
-            var newFeature = new FeatureConstructor;
-            self.featureMap[newFeature.$$CLASS_NAME] = newFeature;
-            if (self.featureChain) {
-                self.featureChain.setNext(newFeature);
+        this.featureRegistry = this.featureRegistry || new Features;
+
+        if (this.grid.properties.features) {
+            var getFeatureConstructor = this.featureRegistry.get.bind(this.featureRegistry);
+            constructors = this.grid.properties.features.map(getFeatureConstructor);
+        } else if (this.features) {
+            constructors = this.features;
+            warnBehaviorFeaturesDeprecation.call(this);
+        }
+
+        constructors.forEach(function(FeatureConstructor, i) {
+            var feature = new FeatureConstructor;
+
+            this.featureMap[feature.$$CLASS_NAME] = feature;
+
+            if (i) {
+                this.featureChain.setNext(feature);
             } else {
-                /**
-                 * @summary Controller chain of command.
-                 * @desc Each feature is linked to the next feature.
-                 * @type {Feature}
-                 * @memberOf Behavior#
-                 */
-                self.featureChain = newFeature;
+                this.featureChain = feature;
             }
-        });
+        }, this);
+
         if (this.featureChain) {
-            this.featureChain.initializeOn(grid);
+            this.featureChain.initializeOn(this.grid);
         }
     },
 
-    features: [], // override in implementing class unless no features
+    features: [], // override in implementing class; or provide feature names in grid.properties.features; else no features
 
     /**
      * @param {object} [options]
@@ -131,21 +150,25 @@ var Behavior = Base.extend('Behavior', {
         return this.grid.renderer.visibleRows.length;
     },
 
-    get treeColumnIndex() {
-        return -1;
-    },
-
-    get rowColumnIndex() {
-        return -2;
-    },
-
     get leftMostColIndex() {
         return this.grid.properties.showRowNumbers ? this.rowColumnIndex : (this.hasTreeColumn() ? this.treeColumnIndex : 0);
     },
 
     clearColumns: function() {
-        var tc = this.treeColumnIndex;
-        var rc = this.rowColumnIndex;
+        var schema = this.dataModel.schema,
+            tc = this.treeColumnIndex,
+            rc = this.rowColumnIndex;
+
+        schema[tc] = schema[tc] || {
+            name: 'Tree',
+            header: 'Tree'
+        };
+
+        schema[rc] = schema[rc] || {
+            name: '',
+            header: ''
+        };
+
         /**
          * @type {Column[]}
          * @memberOf Behavior#
@@ -160,12 +183,17 @@ var Behavior = Base.extend('Behavior', {
 
         this.allColumns[tc] = this.columns[tc] = this.newColumn({
             index: tc,
-            header: this.dataModel.schema[tc].header
+            header: schema[tc].header
         });
         this.allColumns[rc] = this.columns[rc] = this.newColumn({
             index: rc,
-            header: this.dataModel.schema[rc].header
+            header: schema[rc].header
         });
+
+        this.columns[tc].properties.propClassLayers = this.columns[rc].properties.propClassLayers = [propClassEnum.COLUMNS];
+
+        // Signal the renderer to size the now-reset handle column before next render
+        this.grid.renderer.resetRowHeaderColumnWidth();
     },
 
     getActiveColumn: function(x) {
@@ -716,12 +744,75 @@ var Behavior = Base.extend('Behavior', {
 
     /**
      * @memberOf Behavior#
-     * @param {number} rowIndex - Data row coordinate local to datsModel.
+     * @param {number|CellEvent} yOrCellEvent - Data row index local to `dataModel`; or a `CellEvent` object.
+     * @param {boolean} [properties] - New properties object when one does not already exist. If you don't provide this and one does not already exist, this call will return `undefined`. _(Required when 3rd param provided.)_
+     * @param {dataModelAPI} [dataModel=this.dataModel] - This is the subgrid. You only need to provide the subgrid when it is not the data subgrid _and_ you did not give a `CellEvent` object in the first param (which already knows what subgrid it's in).
+     * @returns {object|undefined} The row properties object which will be one of:
+     * * The row properties object if it existed.
+     * * The value you provided in `properties` if the row properties for a new row properties object when the object did not already exist in the metadata
+     * * `undefined` if the row properties object did not exist _and_ you did not provide a value in `properties`.
+     */
+    getRowProperties: function(yOrCellEvent, properties, dataModel) {
+        if (typeof yOrCellEvent === 'object') {
+            yOrCellEvent = yOrCellEvent.dataCell.y;
+            dataModel = yOrCellEvent.subgrid;
+        }
+
+        var metadata = (dataModel || this.dataModel).getRowMetadata(yOrCellEvent, properties && {});
+        return metadata && (metadata.__ROW || (metadata.__ROW = properties));
+    },
+
+    /**
+     * Reset the row properties in its entirety to the given row properties object.
+     * @memberOf Behavior#
+     * @param {number|CellEvent} yOrCellEvent - Data row index local to `dataModel`; or a `CellEvent` object.
+     * @param {object} properties - The new row properties object.
+     * @param {dataModelAPI} [dataModel=this.dataModel] - This is the subgrid. You only need to provide the subgrid when it is not the data subgrid _and_ you did not give a `CellEvent` object in the first param (which already knows what subgrid it's in).
+     */
+    setRowProperties: function(yOrCellEvent, properties, dataModel) {
+        if (typeof yOrCellEvent === 'object') {
+            yOrCellEvent = yOrCellEvent.dataCell.y;
+            dataModel = yOrCellEvent.subgrid;
+        }
+
+        (dataModel || this.dataModel).getRowMetadata(yOrCellEvent, {}, dataModel).__ROW = properties;
+
+        this.stateChanged();
+    },
+
+    /**
+     * Sets a single row property on a specific individual row.
+     * @memberOf Behavior#
+     * @param {number|CellEvent} yOrCellEvent - Data row index local to `dataModel`; or a `CellEvent` object.
+     * @param {string} key - The property name.
+     * @param value - The new property value.
+     * @param {dataModelAPI} [dataModel=this.dataModel] - This is the subgrid. You only need to provide the subgrid when it is not the data subgrid _and_ you did not give a `CellEvent` object in the first param (which already knows what subgrid it's in).
+     */
+    setRowProperty: function(yOrCellEvent, key, value, dataModel) {
+        this.getRowProperties(yOrCellEvent, {}, dataModel)[key] = value;
+        this.stateChanged();
+    },
+
+    /**
+     * Add all the properties in the given row properties object to the row properties.
+     * @memberOf Behavior#
+     * @param {number|CellEvent} yOrCellEvent - Data row index local to `dataModel`; or a `CellEvent` object.
+     * @param {object} properties - An object containing new property values(s) to assign to the row properties.
+     * @param {dataModelAPI} [dataModel=this.dataModel] - This is the subgrid. You only need to provide the subgrid when it is not the data subgrid _and_ you did not give a `CellEvent` object in the first param (which already knows what subgrid it's in).
+     */
+    addRowProperties: function(yOrCellEvent, properties, dataModel) {
+        Object.assign(this.getRowProperties(yOrCellEvent, {}, dataModel), properties);
+        this.stateChanged();
+    },
+
+    /**
+     * @memberOf Behavior#
+     * @param {number} yOrCellEvent - Data row index local to `dataModel`.
      * @param {dataModelAPI} [dataModel=this.dataModel]
      */
-    getRowHeight: function(rowIndex, dataModel) {
-        var rowData = (dataModel || this.dataModel).getRow(rowIndex);
-        return rowData && rowData.__ROW_HEIGHT || this.grid.properties.defaultRowHeight;
+    getRowHeight: function(yOrCellEvent, dataModel) {
+        var rowProps = this.getRowProperties(yOrCellEvent, undefined, dataModel);
+        return rowProps && rowProps.height || this.grid.properties.defaultRowHeight;
     },
 
     /**
@@ -736,14 +827,17 @@ var Behavior = Base.extend('Behavior', {
     /**
      * @memberOf Behavior#
      * @desc set the pixel height of a specific row
-     * @param {number} rowIndex - Data row coordinate local to dataModel.
+     * @param {number} yOrCellEvent - Data row index local to dataModel.
      * @param {number} height - pixel height
      * @param {dataModelAPI} [dataModel=this.dataModel]
      */
-    setRowHeight: function(rowIndex, height, dataModel) {
-        var rowData = (dataModel || this.dataModel).getRow(rowIndex);
-        if (rowData) {
-            rowData.__ROW_HEIGHT = Math.max(5, Math.ceil(height));
+    setRowHeight: function(yOrCellEvent, height, dataModel) {
+        var rowProps = this.getRowProperties(yOrCellEvent, {}, dataModel),
+            oldHeight = rowProps.height;
+
+        rowProps.height = Math.max(5, Math.ceil(height));
+
+        if (rowProps.height !== oldHeight) {
             this.stateChanged();
         }
     },
@@ -1282,6 +1376,10 @@ var Behavior = Base.extend('Behavior', {
         };
     },
 
+    getRowHeaderColumn: function() {
+        return this.allColumns[this.rowColumnIndex];
+    },
+
     autosizeAllColumns: function() {
         this.checkColumnAutosizing(true);
         this.changed();
@@ -1290,7 +1388,7 @@ var Behavior = Base.extend('Behavior', {
     checkColumnAutosizing: function(force) {
         force = force === true;
         var autoSized = this.autoSizeRowNumberColumn() ||
-            this.hasTreeColumn() && this.allColumns[this.rowColumnIndex].checkColumnAutosizing(force);
+            this.hasTreeColumn() && this.getRowHeaderColumn().checkColumnAutosizing(force);
         this.allColumns.forEach(function(column) {
             autoSized = column.checkColumnAutosizing(force) || autoSized;
         });
@@ -1299,7 +1397,7 @@ var Behavior = Base.extend('Behavior', {
 
     autoSizeRowNumberColumn: function() {
         if (this.grid.properties.showRowNumbers && this.grid.properties.rowNumberAutosizing) {
-            return this.allColumns[this.rowColumnIndex].checkColumnAutosizing(true);
+            return this.getRowHeaderColumn().checkColumnAutosizing(true);
         }
     },
 
@@ -1390,6 +1488,57 @@ var Behavior = Base.extend('Behavior', {
        this.dataModel.getIndexedData();
     }
 });
+
+
+// define constants as immutable (i.e., !writable)
+Object.defineProperties(Behavior.prototype, {
+    treeColumnIndex: { value: -1 },
+    rowColumnIndex: { value: -2 }
+});
+
+
+function warnBehaviorFeaturesDeprecation() {
+    var featureNames = [], unregisteredFeatures = [], n = 0;
+
+    this.features.forEach(function(FeatureConstructor) {
+        var className = FeatureConstructor.prototype.$$CLASS_NAME || FeatureConstructor.name,
+            featureName = className || 'feature' + n++;
+
+        // build list of feature names
+        featureNames.push(featureName);
+
+        // build list of unregistered features
+        if (!this.featureRegistry.get(featureName, true)) {
+            var constructorName = FeatureConstructor.name || FeatureConstructor.prototype.$$CLASS_NAME || 'FeatureConstructor' + n,
+                params = [];
+            if (!className) {
+                params.push('\'' + featureName + '\'');
+            }
+            params.push(constructorName);
+            unregisteredFeatures.push(params.join(', '));
+        }
+    }, this);
+
+    if (featureNames.length) {
+        var sampleCode = 'Hypergrid.defaults.features = [\n' + join('\t\'', featureNames, '\',\n') + '];';
+
+        if (unregisteredFeatures.length) {
+            sampleCode += '\n\nThe following custom features are unregistered and will need to be registered prior to behavior instantiation:\n\n' +
+                join('Features.add(', unregisteredFeatures, ');\n');
+        }
+
+        if (n) {
+            sampleCode += '\n\n(You should provide meaningful names for your custom features rather than the generated names above.)';
+        }
+
+        console.warn('`grid.behavior.features` (array of feature constructors) has been deprecated as of version 2.1.0 in favor of `grid.properties.features` (array of feature names). Remove `features` array from your behavior and add `features` property to your grid state object (or Hypergrid.defaults), e.g.:\n\n' + sampleCode);
+    }
+}
+
+function join(prefix, array, suffix) {
+    return prefix + array.join(suffix + prefix) + suffix;
+}
+
 
 // synonyms
 

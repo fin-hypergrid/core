@@ -45,7 +45,6 @@ function createColumnProperties() {
         },
 
         header: {
-            enumerable: true,
             get: function() {
                 return column.header;
             },
@@ -58,7 +57,6 @@ function createColumnProperties() {
         },
 
         type: {
-            enumerable: true,
             get: function() {
                 return column.type;
             },
@@ -71,7 +69,6 @@ function createColumnProperties() {
         },
 
         calculator: {
-            enumerable: true,
             get: function() {
                 return column.calculator;
             },
@@ -107,24 +104,26 @@ function createColumnProperties() {
                     ? calculators[key] || key //null calculators use the key itself (anonymous functions)
                     : toFunction(calculator);
             }
+        },
+
+        toJSON: {
+            // although we don't generally want header, type, and calculator to be enumerable, we do want them to be serializable
+            value: function() {
+                return Object.assign({
+                    header: this.header,
+                    type: this.type,
+                    calculator: this.calculator
+                }, this);
+            }
         }
 
     });
 
-    Object.defineProperty(properties, 'rowHeader', {
-        value: Object.create(properties, createColumnProperties.rowHeaderDescriptors)
-    });
-
-    Object.defineProperty(properties, 'treeHeader', {
-        value: Object.create(properties, createColumnProperties.treeHeaderDescriptors)
-    });
-
-    Object.defineProperty(properties, 'columnHeader', {
-        value: Object.create(properties, createColumnProperties.columnHeaderDescriptors)
-    });
-
-    Object.defineProperty(properties, 'filterProperties', {
-        value: Object.create(properties, createColumnProperties.filterDescriptors)
+    Object.defineProperties(properties, {
+        rowHeader: { value: Object.create(properties, createColumnProperties.rowHeaderDescriptors) },
+        treeHeader: { value: Object.create(properties, createColumnProperties.treeHeaderDescriptors) },
+        columnHeader: { value: Object.create(properties, createColumnProperties.columnHeaderDescriptors) },
+        filterProperties: { value: Object.create(properties, createColumnProperties.filterDescriptors) }
     });
 
     return properties;
@@ -269,15 +268,17 @@ createColumnProperties.rowHeaderDescriptors = {
         configurable: true,
         enumerable: true,
         get: function() {
-            var result;
-            if (this.isDataRow) {
-                result = this.isRowSelected ? 'checked' : 'unchecked';
-            } else if (this.isHeaderRow) {
-                result = this.allRowsSelected ? 'checked' : 'unchecked';
-            } else if (this.isFilterRow) {
-                result = 'filter-off';
+            if (this.grid.properties.rowHeaderCheckboxes) {
+                var result;
+                if (this.isDataRow) {
+                    result = this.isRowSelected ? 'checked' : 'unchecked';
+                } else if (this.isHeaderRow) {
+                    result = this.allRowsSelected ? 'checked' : 'unchecked';
+                } else if (this.isFilterRow) {
+                    result = 'filter-off';
+                }
+                return result;
             }
-            return result;
         },
         set: function(value) {
             // replace self with a simple instance var

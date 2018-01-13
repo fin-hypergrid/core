@@ -7,6 +7,13 @@ var COLUMN_ONLY_PROPERTY = 'Attempt to set column-only property on a non-column 
 
 var warned = {};
 
+var propClassEnum = {
+    COLUMNS: 1,
+    STRIPES: 2,
+    ROWS: 3,
+    CELLS: 4
+};
+
 /**
  * This module lists the properties that can be set on a {@link Hypergrid} along with their default values.
  * Edit this file to override the defaults.
@@ -453,6 +460,20 @@ var defaults = {
      */
     gridLinesH: true,
 
+    /** @type {number}
+     * @default
+     * @memberOf module:defaults
+     * @see {@link module:dynamicPropertyDescriptors.lineWidth}
+     */
+    gridLinesHWidth: 1,
+
+    /** @type {string}
+     * @default
+     * @memberOf module:defaults
+     * @see {@link module:dynamicPropertyDescriptors.lineColor}
+     */
+    gridLinesHColor: 'rgb(199, 199, 199)',
+
     /**
      * @default
      * @type {boolean}
@@ -460,16 +481,48 @@ var defaults = {
      */
     gridLinesV: true,
 
-    /**
-     * Draw horizontal grid line before first rendered column.
+    /** @type {number}
      * @default
-     * @type {boolean}
+     * @memberOf module:defaults
+     * @see {@link module:dynamicPropertyDescriptors.lineWidth}
+     */
+    gridLinesVWidth: 1,
+
+    /** @type {string}
+     * @default
+     * @memberOf module:defaults
+     * @see {@link module:dynamicPropertyDescriptors.lineColor}
+     */
+    gridLinesVColor: 'rgb(199, 199, 199)',
+
+    /**
+     * Set canvas's CSS border to this string as well as `gridBorderLeft`, `gridBorderRight`, `gridBorderTop`, and `gridBorderBottom`.
+     * If set to `true`, uses current `lineWidth` and `lineColor`.
+     * If set to `false`, uses null.
+     *
+     * Caveat: The use of `grid.canvas.canvas.style.boxSizing = 'border-box'` is _not_ recommended due to
+     * the fact that the canvas is squashed slightly to accommodate the border resulting in blurred text.
+     *
+     * @default
+     * @type {boolean|string}
+     * @memberOf module:defaults
+     */
+    gridBorder: false,
+
+    /**
+     * Set canvas's left CSS border to this string.
+     * If set to `true`, uses current `lineWidth` and `lineColor`.
+     * If set to `false`, uses null.
+     * @default
+     * @type {boolean|string}
      * @memberOf module:defaults
      */
     gridBorderLeft: false,
 
     /**
-     * Draw horizontal grid line after last rendered column.
+     * Set canvas's right CSS border to this string.
+     * If set to `true`, uses current `lineWidth` and `lineColor`.
+     * If set to `false`, uses null.
      * @default
      * @type {boolean}
      * @memberOf module:defaults
@@ -477,7 +530,9 @@ var defaults = {
     gridBorderRight: false,
 
     /**
-     * Draw horizontal grid line above first rendered row.
+     * Set canvas's top CSS border to this string.
+     * If set to `true`, uses current `lineWidth` and `lineColor`.
+     * If set to `false`, uses null.
      * @default
      * @type {boolean}
      * @memberOf module:defaults
@@ -485,7 +540,9 @@ var defaults = {
     gridBorderTop: false,
 
     /**
-     * Draw horizontal grid line below last rendered row.
+     * Set canvas's bottom CSS border to this string.
+     * If set to `true`, uses current `lineWidth` and `lineColor`.
+     * If set to `false`, uses null.
      * @default
      * @type {boolean}
      * @memberOf module:defaults
@@ -493,20 +550,52 @@ var defaults = {
     gridBorderBottom: true,
 
     /**
-     * @default
-     * @type {cssColor}
-     * @memberOf module:defaults
-     */
-    lineColor: 'rgb(199, 199, 199)',
-
-    /**
-     * Caveat: `lineWidth` should be an integer (whole pixel)
+     * Define this property to style rule lines between fixed & scolling rows differently from `lineWidth`.
      * @default
      * @type {number}
      * @memberOf module:defaults
      */
-    lineWidth: 1,
+    fixedLinesHWidth: 2,
 
+    /**
+     * Define this property to render just the edges of the lines between fixed & scolling rows, creating a double-line effect. The value is the thickness of the edges. Typical definition would be `1` in tandem with setting `fixedLinesWidth` to `3`.
+     * @default
+     * @type {number}
+     * @memberOf module:defaults
+     */
+    fixedLinesHEdge: undefined, // undefined means no edge effect
+
+    /**
+     * Define this property to style rule lines between fixed & scolling rows differently from `lineColor`.
+     * @default
+     * @type {cssColor}
+     * @memberOf module:defaults
+     */
+    fixedLinesHColor: 'rgb(164,164,164)', // ~21% darker than `lineColor` default
+
+    /**
+     * Define this property to style rule lines between fixed & scolling columns differently from `lineWidth`.
+     * @default
+     * @type {number}
+     * @memberOf module:defaults
+     */
+    fixedLinesVWidth: 2,
+
+    /**
+     * Define this property to render just the edges of the lines between fixed & scolling columns, creating a double-line effect. The value is the thickness of the edges. Typical definition would be `1` in tandem with setting `fixedLinesWidth` to `3`.
+     * @default
+     * @type {number}
+     * @memberOf module:defaults
+     */
+    fixedLinesVEdge: undefined, // undefined means no edge effect
+
+    /**
+     * Define this property to style rule lines between fixed & scolling columns differently from `lineColor`.
+     * @default
+     * @type {cssColor}
+     * @memberOf module:defaults
+     */
+    fixedLinesVColor: 'rgb(164,164,164)', // ~21% darker than `lineColor` default
 
     /**
      * @default
@@ -734,38 +823,6 @@ var defaults = {
         return graphics.getTextHeight(font);
     },
 
-    get x() {
-        if (!warned.x) {
-            warned.x = true;
-            console.warn('config.x has been deprecated as of v1.2.10 in favor of config.dataCell.x. (Will be removed in a future release.)');
-        }
-        return this.dataCell.x;
-    },
-
-    get untranslatedX() {
-        if (!warned.untranslatedX) {
-            warned.untranslatedX = true;
-            console.warn('config.untranslatedX has been deprecated as of v1.2.10 in favor of config.gridCell.x. (Will be removed in a future release.)');
-        }
-        return this.gridCell.x;
-    },
-
-    get y() {
-        if (!warned.y) {
-            warned.y = true;
-            console.warn('config.y has been deprecated as of v1.2.10 in favor of config.gridCell.y. (Will be removed in a future release.)');
-        }
-        return this.gridCell.y;
-    },
-
-    get normalizedY() {
-        if (!warned.normalizedY) {
-            warned.normalizedY = true;
-            console.warn('config.normalizedY has been deprecated as of v1.2.10 in favor of config.dataCell.y. (Will be removed in a future release.)');
-        }
-        return this.dataCell.y;
-    },
-
     /**
      * @summary Execute value if "calculator" (function) or if column has calculator.
      * @desc This function is referenced here so:
@@ -795,8 +852,17 @@ var defaults = {
      * @default
      * @type {boolean}
      * @memberOf module:defaults
+     * @see {@link module:dynamicPropertyDescriptors.showRowNumbers}
      */
-    showRowNumbers: true,
+    rowHeaderNumbers: true,
+
+    /**
+     * @default
+     * @type {boolean}
+     * @memberOf module:defaults
+     * @see {@link module:dynamicPropertyDescriptors.showRowNumbers}
+     */
+    rowHeaderCheckboxes: true,
 
     /**
      * @default
@@ -892,6 +958,9 @@ var defaults = {
      */
     rowResize: false,
 
+
+    /* CELL EDITING */
+
     /**
      * @default
      * @type {boolean}
@@ -900,18 +969,13 @@ var defaults = {
     editable: true,
 
     /**
+     * Edit cell on double-click rather than single-click.
+     *
      * @default
      * @type {boolean}
      * @memberOf module:defaults
      */
     editOnDoubleClick: true,
-
-    /**
-     * @default
-     * @type {number}
-     * @memberOf module:defaults
-     */
-    doubleClickDelay: 325,
 
     /**
      * Grid-level property.
@@ -941,6 +1005,55 @@ var defaults = {
      * @memberOf module:defaults
      */
     editOnNextCell: false,
+
+
+    /* COLUMN SORTING */
+
+    /**
+     * Ignore sort handling in feature/ColumnSorting.js.
+     * Useful for excluding some columns but not other from participating in sorting.
+     *
+     * @default
+     * @type {boolean}
+     * @memberOf module:defaults
+     */
+    unsortable: false,
+
+    /**
+     * Sort column on double-click rather than single-click.
+     *
+     * Used by:
+     * * feature/ColumnSorting.js to decide which event to respond to (if any, see `unsortabe`).
+     * * feature/ColumnSelection.js to decide whether or not to wait for double-click.
+     * @default
+     * @type {boolean}
+     * @memberOf module:defaults
+     */
+    sortOnDoubleClick: true,
+
+    /**
+     * **This is a standard property definition for sort plug-in use.
+     * It is not referenced in core.**
+     *
+     * The maximum number of columns that may participate in a multi-column sort (via ctrl-click headers).
+     * @default
+     * @type {number}
+     * @memberOf module:defaults
+     */
+    maxSortColumns : 3,
+
+    /**
+     * **This is a standard property definition for sort plug-in use.
+     * It is not referenced in core.**
+     *
+     * Column(s) participating and subsequently hidden still affect sort.
+     *
+     * @default
+     * @type {boolean}
+     * @memberOf module:defaults
+     */
+    sortOnHiddenColumns: true,
+
 
     /**
      * @summary Retain row selections.
@@ -1214,7 +1327,29 @@ var defaults = {
      * @default
      * @memberOf module:defaults
      */
-    rowProperties: undefined,
+    rowStripes: undefined,
+
+    // for Renderer.prototype.assignProps
+    propClassEnum: propClassEnum,
+    propClassLayers: [ propClassEnum.COLUMNS, propClassEnum.STRIPES, propClassEnum.ROWS, propClassEnum.CELLS ],
+
+    /**
+     * Used to access registered features -- unless behavior has a non-empty `features` property (array of feature contructors).
+     */
+    features: [
+        'filters',
+        'cellselection',
+        'keypaging',
+        'columnresizing',
+        // 'rowresizing',
+        'rowselection',
+        'columnselection',
+        'columnmoving',
+        'columnsorting',
+        'cellclick',
+        'cellediting',
+        'onhover'
+    ],
 
     /** @summary How to truncate text.
      * @desc A "quaternary" value, one of:
@@ -1228,6 +1363,26 @@ var defaults = {
      */
     truncateTextWithEllipsis: true
 };
+
+
+function rowPropertiesDeprecationWarning() {
+    if (!warned.rowProperties) {
+        warned.rowProperties = true;
+        console.warn('The `rowProperties` property has been deprecated as of v3.0.0 in favor of `rowStripes`. (Will be removed in a future release.)');
+    }
+}
+
+Object.defineProperty(defaults, 'rowProperties', {
+    get: function() {
+        rowPropertiesDeprecationWarning();
+        return this.rowStripes;
+    },
+    set: function(rowProperties) {
+        rowPropertiesDeprecationWarning();
+        this.rowStripes = rowProperties;
+    }
+});
+
 
 /** @typedef {string} cssColor
  * @see https://developer.mozilla.org/en-US/docs/Web/CSS/color_value

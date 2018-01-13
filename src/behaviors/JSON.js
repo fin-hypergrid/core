@@ -3,7 +3,6 @@
 var Behavior = require('./Behavior');
 var columnEnumDecorators = require('./columnEnumDecorators');
 var DataModelJSON = require('../dataModels/JSON');
-var features = require('../features');
 
 /**
  * @name behaviors.JSON
@@ -30,21 +29,6 @@ var JSON = Behavior.extend('behaviors.JSON', {
             this.setPipeline(options.pipeline);
         }
     },
-
-    features: [
-        features.Filters,
-        features.CellSelection,
-        features.KeyPaging,
-        features.ColumnResizing,
-        // features.RowResizing,
-        features.RowSelection,
-        features.ColumnSelection,
-        features.ColumnMoving,
-        features.ColumnSorting,
-        features.CellClick,
-        features.CellEditing,
-        features.OnHover
-    ],
 
     createColumns: function() {
         Behavior.prototype.createColumns.call(this);
@@ -211,7 +195,7 @@ var JSON = Behavior.extend('behaviors.JSON', {
             this.createColumns();
         }
 
-        grid.allowEvents(this.dataModel.getRowCount() > 0);
+        grid.allowEvents(this.getRowCount());
     },
 
     /**

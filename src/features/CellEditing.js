@@ -15,25 +15,11 @@ var CellEditing = Feature.extend('CellEditing', {
      * @param {Object} event - the event details
      */
     handleDoubleClick: function(grid, event) {
-        if (
-            grid.properties.editOnDoubleClick &&
-            event.isDataCell
-        ) {
-            grid.onEditorActivate(event);
-        } else if (this.next) {
-            this.next.handleDoubleClick(grid, event);
-        }
+        edit.call(this, grid, event);
     },
 
     handleClick: function(grid, event) {
-        if (
-            !grid.properties.editOnDoubleClick &&
-            event.isDataCell
-        ) {
-            grid.onEditorActivate(event);
-        } else if (this.next) {
-            this.next.handleClick(grid, event);
-        }
+        edit.call(this, grid, event, true);
     },
 
     /**
@@ -70,5 +56,20 @@ var CellEditing = Feature.extend('CellEditing', {
     }
 
 });
+
+// Note: Keep ! in place to convert both sides to bool for
+// accurate equality test because either could be undefined.
+function edit(grid, event, onDoubleClick) {
+    if (
+        event.isDataCell &&
+        !event.getCellProperty('editOnDoubleClick') === !onDoubleClick // caution see note
+    ) {
+        grid.onEditorActivate(event);
+    }
+
+    if (this.next) {
+        this.next[onDoubleClick ? 'handleDoubleClick' : 'handleClick'](grid, event);
+    }
+}
 
 module.exports = CellEditing;

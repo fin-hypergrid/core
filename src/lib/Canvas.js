@@ -87,6 +87,9 @@ function Canvas(div, component) {
     this.addEventListener('click', function(e) {
         self.finclick(e);
     });
+    this.addEventListener('dblclick', function(e) {
+        self.findblclick(e);
+    });
     this.addEventListener('contextmenu', function(e) {
         self.fincontextmenu(e);
         e.preventDefault();
@@ -94,7 +97,6 @@ function Canvas(div, component) {
     });
 
     this.canvas.setAttribute('tabindex', 0);
-    this.canvas.contentEditable = true;
 
     this.resize();
 
@@ -123,7 +125,6 @@ Canvas.prototype = {
     repeatKeyStartTime: 0,
     currentKeys: [],
     hasMouse: false,
-    lastDoubleClickTime: 0,
     dragEndTime: 0,
     lastRepaintTime: 0,
     currentPaintCount: 0,
@@ -213,16 +214,36 @@ Canvas.prototype = {
         this.stopResizing();
     },
 
+    getDivBoundingClientRect: function() {
+        // Make sure our canvas has integral dimensions
+        var rect = this.div.getBoundingClientRect();
+        var top = Math.floor(rect.top),
+            left = Math.floor(rect.left),
+            width = Math.ceil(rect.width),
+            height = Math.ceil(rect.height);
+
+        return {
+            top: top,
+            right: left + width,
+            bottom: top + height,
+            left: left,
+            width: width,
+            height: height,
+            x: rect.x,
+            y: rect.y
+        };
+    },
+
     checksize: function() {
         //this is expensive lets do it at some modulo
-        var sizeNow = this.div.getBoundingClientRect();
+        var sizeNow = this.getDivBoundingClientRect();
         if (sizeNow.width !== this.size.width || sizeNow.height !== this.size.height) {
             this.resize();
         }
     },
 
     resize: function() {
-        var box = this.size = this.div.getBoundingClientRect();
+        var box = this.size = this.getDivBoundingClientRect();
 
         this.width = box.width;
         this.height = box.height;
@@ -351,6 +372,10 @@ Canvas.prototype = {
     },
 
     finmouseup: function(e) {
+        if (!this.mousedown) {
+            // ignore document:mouseup unless preceded by a canvas:mousedown
+            return;
+        }
         if (this.isDragging()) {
             this.dispatchNewMouseKeysEvent(e, 'fin-canvas-dragend', {
                 dragstart: this.dragstart,
@@ -388,27 +413,17 @@ Canvas.prototype = {
     },
 
     finclick: function(e) {
-        var delay = this.component.properties.doubleClickDelay;
-        if (delay < 100) {
-            dispatchClickEvent.call(this, e);
-        } else if (this.doubleClickTimer && Date.now() - this.lastClickTime < delay) {
-            //this is a double click...
-            clearTimeout(this.doubleClickTimer); // prevent click event
-            this.doubleClickTimer = undefined;
-            this.findblclick(e);
-        } else {
-            this.lastClickTime = Date.now();
-            this.doubleClickTimer = setTimeout(dispatchClickEvent.bind(this, e), delay);
-        }
+        this.mouseLocation = this.getLocal(e);
+        this.dispatchNewMouseKeysEvent(e, 'fin-canvas-click', {
+            isRightClick: this.isRightClick(e)
+        });
     },
 
     findblclick: function(e) {
         this.mouseLocation = this.getLocal(e);
-        this.lastDoubleClickTime = Date.now();
         this.dispatchNewMouseKeysEvent(e, 'fin-canvas-dblclick', {
             isRightClick: this.isRightClick(e)
         });
-        //console.log('dblclick', this.currentKeys);
     },
 
     getCharMap: function() {
@@ -501,24 +516,13 @@ Canvas.prototype = {
     },
 
     fincontextmenu: function(e) {
-        var delay = this.component.properties.doubleClickDelay;
-
         if (e.ctrlKey && this.currentKeys.indexOf('CTRL') === -1) {
             this.currentKeys.push('CTRL');
         }
 
-        if (delay < 100) {
-            dispatchContextMenuEvent.call(this, e);
-        } else if (this.doubleRightClickTimer && Date.now() - this.lastClickTime < delay) {
-            //this is a double click...
-            clearTimeout(this.doubleRightClickTimer); // prevent context menu event
-            this.doubleRightClickTimer = undefined;
-            this.findblclick(e);
-        } else {
-            this.lastClickTime = Date.now();
-
-            this.doubleRightClickTimer = setTimeout(dispatchContextMenuEvent.bind(this, e), delay);
-        }
+        this.dispatchNewMouseKeysEvent(e, 'fin-canvas-context-menu', {
+            isRightClick: this.isRightClick(e)
+        });
     },
 
     repaint: function() {
@@ -620,21 +624,6 @@ Canvas.prototype = {
         this.infoDiv.style.display = message ? 'block' : 'none';
     }
 };
-
-function dispatchClickEvent(e) {
-    this.doubleClickTimer = undefined;
-    this.mouseLocation = this.getLocal(e);
-    this.dispatchNewMouseKeysEvent(e, 'fin-canvas-click', {
-        isRightClick: this.isRightClick(e)
-    });
-}
-
-function dispatchContextMenuEvent(e) {
-    this.doubleRightClickTimer = undefined;
-    this.dispatchNewMouseKeysEvent(e, 'fin-canvas-context-menu', {
-        isRightClick: this.isRightClick(e)
-    });
-}
 
 function paintLoopFunction(now) {
     if (paintRequest) {
@@ -775,8 +764,8 @@ function makeCharMap() {
     map[119] = ['F8', 'F8SHIFT'];
     map[120] = ['F9', 'F9SHIFT'];
     map[121] = ['F10', 'F10SHIFT'];
-    map[122] = ['F11', 'F1S1HIFT'];
-    map[123] = ['F12', 'F121HIFT'];
+    map[122] = ['F11', 'F11SHIFT'];
+    map[123] = ['F12', 'F12SHIFT'];
 
     return map;
 }
