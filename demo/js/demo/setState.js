@@ -23,7 +23,7 @@ module.exports = function(demo, grid) {
         noDataMessage: 'No Data to Display',
         backgroundColor: 'white',
         font: 'normal small garamond',
-        rowProperties: [
+        rowStripes: [
             undefined,
             undefined,
             undefined,
