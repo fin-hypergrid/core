@@ -190,7 +190,7 @@ module.exports = function(demo, grid) {
 
             if (ctrl.name === 'treeview') {
                 label.onmousedown = input.onmousedown = function(event) {
-                    if (!input.checked && grid.behavior.dataModel.source.data !== demo.treeData) {
+                    if (!input.checked && grid.behavior.dataModel.dataSource.data !== demo.treeData) {
                         alert('Load tree data first ("Set Data 3" button).');
                         event.preventDefault();
                     }
@@ -369,7 +369,6 @@ module.exports = function(demo, grid) {
         var ctrl;
 
         grid.selectionModel.clear();
-        grid.behavior.dataModel.clearSelectedData();
 
         setProp.call(this);
 

@@ -3,13 +3,13 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8" >
     <style> body > div.hypergrid-container { width: 415px; margin-right: 10px; display: inline-block }</style>
+    <script src="build/fin-hypergrid.js"></script>
 </head>
 <body>
-<h1 style="margin:.5em; color:lightgrey">Hypergrid 2.1.2 multiple grids demo</h1>
-
-<script src="build/fin-hypergrid.js"></script>
+<h1 style="font-family:sans-serif; margin:.5em; color:lightgrey">Hypergrid <span id="version"></span> multiple grids demo</h1>
 
 <script>
+    document.getElementById('version').innerText = fin.Hypergrid.prototype.version;
     var data = [
         { symbol: 'APPL', name: 'Apple Inc.', prevclose: 93.13 },
         { symbol: 'MSFT', name: 'Microsoft Corporation', prevclose: 51.91 },

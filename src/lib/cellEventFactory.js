@@ -1,6 +1,5 @@
 'use strict';
 
-var deprecated = require('./deprecated');
 var WritablePoint = require('./WritablePoint');
 
 var writableDescriptor = { writable: true };
@@ -289,21 +288,7 @@ factory.cellEventProperties = Object.defineProperties({}, {
     isBottomTotalsHandle: { get: function() { return this.isBottomTotalsRow && this.isHandleColumn; } },
     isBottomTotalsCell:   { get: function() { return this.isBottomTotalsRow && this.isDataColumn; } },
 
-    $$CLASS_NAME: { value: 'CellEvent' },
-    deprecated: { value: deprecated },
-
-    isGridRow: { get: function() {
-        this.deprecated('isGridRow', '.isGridRow is deprecated as of v1.2.10 in favor of .isDataRow. (Will be removed in a future release.)');
-        return this.isDataRow;
-    } },
-    isGridColumn: { get: function() {
-        this.deprecated('isGridColumn', '.isGridColumn is deprecated as of v1.2.10 in favor of .isDataColumn. (Will be removed in a future release.)');
-        return this.isDataColumn;
-    } },
-    isGridCell: { get: function() {
-        this.deprecated('isGridCell', '.isGridCell is deprecated as of v1.2.10 in favor of .isDataCell. (Will be removed in a future release.)');
-        return this.isDataCell;
-    } },
+    $$CLASS_NAME: { value: 'CellEvent' }
 });
 
 /**

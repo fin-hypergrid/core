@@ -4,9 +4,8 @@
 
 var _ = require('object-iterators');
 
-var Behavior = require('../behaviors/Behavior');
 
-module.exports = {
+exports.mixin = {
 
     /**
      * @summary Add an event listener to me.
@@ -254,12 +253,6 @@ module.exports = {
     fireSyntheticDoubleClickEvent: function(cellEvent) {
         if (!this.abortEditing()) { return; }
 
-        if (this.behavior.cellDoubleClicked !== Behavior.prototype.cellDoubleClicked) {
-            this.deprecated('fin-double-click', 'behavior.cellDoubleClicked(gridCell, cellEvent) has been deprecated as of v1.2.6 in favor of handling in a \'fin-double-click\' event (event.detail.gridCell, event.primitiveEvent) and will be removed in a future release.');
-        }
-        // to deprecate, remove above warning + following line + abstract implementation in Behavior.js
-        this.behavior.cellDoubleClicked(cellEvent.gridCell, cellEvent);
-
         return dispatchEvent.call(this, 'fin-double-click', {}, cellEvent);
     },
 
@@ -325,6 +318,17 @@ module.exports = {
             oldValue: oldValue,
             input: control
         }, cellEvent);
+    },
+
+    /**
+     * @memberOf Hypergrid#
+     * @desc Synthesize and fire a `fin-column-drag-start` event.
+     */
+    fireDataChangedEvent: function(repaint) {
+        if (repaint) {
+            this.repaint();
+        }
+        return dispatchEvent.call(this, 'fin-data-changed', {});
     },
 
     delegateCanvasEvents: function() {

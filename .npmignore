@@ -1,10 +1,12 @@
 .*
 *.css
 *.html
+~*.*x
 
 /[0-9]*
 /demo
 /doc
+build
 /html/*.html
 /images/**
 !/images/index.js
@@ -18,10 +20,8 @@
 /*.sh
 /*.md
 
-*.index.js
-!/index.js
-!/css/index.js
-!/src/cellRenderers/index.js
-!/src/cellEditors/index.js
-!/src/renderer/index.js
-!/src/features/index.js
+/src/index.js
+/src/module-loader.js
+/src/beahviors/index.js
+/src/dataModels/index.js
+/src/lib/index.js

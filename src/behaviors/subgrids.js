@@ -20,7 +20,11 @@ var dataModels = require('../dataModels');
  *   * Remaining elements are used as additional parameters to the constructor.
  */
 
-module.exports = {
+/**
+ * Behavior.js mixes this module into its prototype.
+ * @mixin
+ */
+exports.mixin = {
     /**
      * An array where each element represents a subgrid to be rendered in the hypergrid.
      *

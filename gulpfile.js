@@ -1,7 +1,7 @@
 'use strict';
 
-var pkgjson     = require('./package.json'),
-    gulp        = require('gulp'),
+var gulp        = require('gulp'),
+    manifest    = require('./package.json'),
     $$          = require('gulp-load-plugins')(),
     browserify  = require('browserify'),
     source      = require('vinyl-source-stream'),
@@ -9,10 +9,10 @@ var pkgjson     = require('./package.json'),
     runSequence = require('run-sequence'),
     browserSync = require('browser-sync').create(),
     exec        = require('child_process').exec,
-    path        = require('path'),
-    pipe        = require('multipipe');
+    path        = require('path');
 
 var srcDir      = './src/',
+    builderDir  = srcDir + 'builder/',
     testDir     = './test/',
     jsFiles     = '**/*.js',
     demoDir     = './demo/',
@@ -25,14 +25,17 @@ gulp.task('test', test);
 gulp.task('doc', doc);
 gulp.task('images', swallowImages);
 gulp.task('browserify', bundleUp.bind(null,
-    pkgjson.name,
-    srcDir,
-    buildDir
+    manifest.name,
+    builderDir,
+    [
+        buildDir,
+        buildDir.replace('demo', manifest.version)
+    ]
 ));
 gulp.task('browserify-demo', bundleUp.bind(null,
     'index',
     './demo/js/demo/',
-    './demo/js/demo/build/'
+    ['./demo/js/demo/build/']
 ));
 
 gulp.task('reloadBrowsers', reloadBrowsers);
@@ -61,7 +64,8 @@ gulp.task('watch', function () {
         srcDir + '**', '!' + srcDir + 'jsdoc/**',
         './css/*.css',
         './html/*.html',
-        demoDir + 'js/' + jsFiles, '!' + demoDir + 'js/demo/build/' + jsFiles,
+        demoDir + 'js/' + jsFiles,
+        '!' + demoDir + 'js/demo/build/' + jsFiles,
         testDir + '**'
     ], [
         'build'
@@ -83,11 +87,11 @@ gulp.task('default', ['build', 'watch'], browserSyncLaunchServer);
 function lint() {
     return gulp.src([
         'index.js',
-        srcDir + jsFiles, '!' + srcDir + '**/old/**/',
-        demoDir + 'js/' + jsFiles, '!' + demoDir + 'js/demo/build/' + jsFiles,
-        testDir + jsFiles,
+        srcDir + jsFiles,
+        demoDir + 'js/' + jsFiles,
+        '!' + demoDir + 'js/demo/build/' + jsFiles,
+        testDir + jsFiles
     ])
-        .pipe($$.excludeGitignore())
         .pipe($$.eslint())
         .pipe($$.eslint.format())
         .pipe($$.eslint.failAfterError());
@@ -98,28 +102,31 @@ function test(cb) {
         .pipe($$.mocha({reporter: 'spec'}));
 }
 
-function bundleUp(destName, srcDir, buildDir) {
+function bundleUp(destName, srcDir, buildDirs) {
     var options = {
         entries: srcDir + 'index.js',
         debug: true
     };
 
-    return browserify(options)
-        .bundle()
-        .pipe(source(options.entries)).on('error', $$.util.log)
+    function dest(dir) {
+        stream = stream.pipe(gulp.dest(dir));
+    }
+
+    var stream = browserify(options)
+        .bundle().on('error', $$.util.log)
+        .pipe(source(options.entries))
         .pipe(buffer())
-        .pipe(
-            $$.mirror(
-                pipe(
-                    $$.rename(destName + '.js')
-                ),
-                pipe(
-                    $$.rename(destName + '.min.js'),
-                    $$.uglify().on('error', $$.util.log)
-                )
-            )
-        )
-        .pipe(gulp.dest(buildDir));
+        .pipe($$.rename(destName + '.js'));
+
+    buildDirs.forEach(dest);
+
+    stream
+        .pipe($$.rename(destName + '.min.js'))
+        .pipe($$.uglify().on('error', $$.util.log));
+
+    buildDirs.forEach(dest);
+
+    return stream;
 }
 
 function doc(cb) {

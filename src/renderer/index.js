@@ -4,7 +4,7 @@
 'use strict';
 
 var Base = require('../Base');
-var images = require('../../images/index');
+var images = require('../../images');
 
 
 var propClassGet = [
@@ -75,7 +75,7 @@ var paintCellsFunctions = [];
 
 
 /** @typedef {object} CanvasRenderingContext2D
- * @see [CanvasRenderingContext2D](https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D)
+ * @see [CanvasRenderingContext2D](https://developer.mozilla.org/docs/Web/API/CanvasRenderingContext2D)
  */
 
 /** @typedef {object} visibleColumnDescriptor
@@ -246,17 +246,6 @@ var Renderer = Base.extend('Renderer', {
     },
 
     /**
-     * Previously used by fin-canvas.
-     * @memberOf Renderer.prototype
-     * @returns {Object} a property value at a key, delegates to the grid
-     * @deprecated
-     */
-    resolveProperty: function(key) {
-        this.deprecated('resolveProperty', 'The .resolveProperty(key) method is deprecated as of v1.2.10 in favor of the .grid.properties object dereferenced with [key]. (Will be removed in a future release.)');
-        return this.properties[key];
-    },
-
-    /**
      * @memberOf Renderer.prototype
      * @summary Notify the fin-hypergrid every time we've repainted.
      * @desc This is the entry point from fin-canvas.
@@ -287,28 +276,10 @@ var Renderer = Base.extend('Renderer', {
 
     /**
      * @memberOf Renderer.prototype
-     * @returns {number[]} Rows we just rendered.
-     */
-    getVisibleRows: function() {
-        this.deprecated('getVisibleRows', 'The getVisibleRows() method has been deprecated as of v1.2.0. (Will be removed in a future version.) Previously returned the this.visibleRows array but because this.visibleRows is no longer a simple array of integers but is now an array of objects, it now returns an array mapped to this.visibleRows[*].rowIndex. Note however that this mapping is not equivalent to what this method previously returned because while each object\'s .rowIndex property is still adjusted for scrolling within the data subgrid, the index is now local to (zero-based within) each subgrid');
-        return this.visibleRows.map(function(vr) { return vr.rowIndex; });
-    },
-
-    /**
-     * @memberOf Renderer.prototype
      * @returns {number} Number of columns we just rendered.
      */
     getVisibleColumnsCount: function() {
         return this.visibleColumns.length - 1;
-    },
-
-    /**
-     * @memberOf Renderer.prototype
-     * @returns {number} Columns we just rendered.
-     */
-    getVisibleColumns: function() {
-        this.deprecated('visibleColumns', 'The getVisibleColumns() method has been deprecated as of v1.2.0. (Will be removed in a future version.) Previously returned the this.visibleColumns but because this.visibleColumns is no longer a simple array of integers but is now an array of objects, it now returns an array mapped to the equivalent visibleColumns[*].columnIndex.');
-        return this.visibleColumns.map(function(vc) { return vc.columnIndex; });
     },
 
     /**
@@ -741,16 +712,6 @@ var Renderer = Base.extend('Renderer', {
         return this.grid.getHScrollValue();
     },
 
-    getColumnEdges: function() {
-        this.deprecated('columnEdges', 'The getColumnEdges() mehtod has been deprecated as of version 1.2.0 in favor of visibleColumns[*].top. (Will be removed in a future version.) Note however that columnEdges had one additional element (representing the right edge of the last visible column) which visibleColumns lacks. Instead you can reference visibleColumns[*].bottom.');
-        return this.visibleColumns.map(function(vc) { return vc.left; }).concat([this.visibleColumns[this.visibleColumns.length - 1].right]);
-    },
-
-    getRowEdges: function() {
-        this.deprecated('rowEdges', 'The getRowEdges() method has been deprecated as of version 1.2.0 in favor of visibleRows[*].top. (Will be removed in a future version.) Note however that rowEdges had one additional element (representing the bottom edge of the last visible row) which visibleRows lacks. Instead you can reference visibleRows[*].bottom.');
-        return this.visibleRows.map(function(vr) { return vr.top; }).concat([this.visibleRows[this.visibleRows.length - 1].bottom]);
-    },
-
     /**
      * @memberOf Renderer.prototype
      * @returns {boolean} The last col was rendered (is visible)
@@ -793,14 +754,6 @@ var Renderer = Base.extend('Renderer', {
         }
 
         return result;
-    },
-
-    /**
-     * @memberOf Renderer.prototype
-     * @returns {fin-canvas} my [fin-canvas](https://github.com/stevewirts/fin-canvas)
-     */
-    getCanvas: function() {
-        return this.deprecated('getCanvas()', 'grid.canvas', '1.2.2');
     },
 
     /**

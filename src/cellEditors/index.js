@@ -3,11 +3,7 @@
 var Registry = require('../lib/Registry');
 
 
-var deprecated = {
-    celleditor: undefined,
-    CellEditor: undefined
-};
-
+var warnedBaseClass;
 
 /**
  * @classdesc Registry of cell editor constructors.
@@ -38,10 +34,10 @@ var CellEditors = Registry.extend('CellEditors', {
     },
 
     get: function(name) {
-        if (name in deprecated) {
-            if (!deprecated.warned) {
+        if (name && name.toLowerCase() === 'celleditor') {
+            if (!warnedBaseClass) {
                 console.warn('grid.cellEditors.get("' + name + '") method call has been deprecated as of v2.1.0 in favor of grid.cellEditors.BaseClass property. (Will be removed in a future release.)');
-                deprecated.warned = true;
+                warnedBaseClass = true;
             }
             return this.BaseClass;
         }

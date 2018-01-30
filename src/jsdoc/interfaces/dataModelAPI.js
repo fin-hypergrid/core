@@ -5,6 +5,22 @@
  */
 
 /**
+ * @typedef interfaceExtender
+ * One of:
+ * * function - An explicit fallback implementation.
+ * * `-Infinity` - No fallback; fail silently.
+ * * `Infinity` - No fallback; throw error.
+ * * otherwise - Generate a fallback function that issues a one-time "unsupported" warning and returns this value (typically `undefined` but could be anything).
+ */
+
+/**
+ * @typedef {object} interfaceExtenderCollection
+ * Hash of additional method names the data source is expected to implement:
+ * * keys — string (the method names)
+ * * values — interfaceExtender
+ */
+
+/**
  * @method
  * @name dataModelAPI#getRowCount
  * @returns {number} The number of data rows currently contained in the model.

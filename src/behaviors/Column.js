@@ -4,12 +4,13 @@
 
 var overrider = require('overrider');
 
-var deprecated = require('../lib/deprecated');
 var HypergridError = require('../lib/error');
-var images = require('../../images/index');
+var images = require('../../images');
 
 /** @summary Create a new `Column` object.
  * @see {@link module:Cell} is mixed into Column.prototype.
+ * @mixes cellProperties.mixin
+ * @mixes columnProperties.mixin
  * @constructor
  * @param behavior
  * @param {number|string|object} indexOrOptions - One of:
@@ -81,15 +82,10 @@ function Column(behavior, indexOrOptions) {
 Column.prototype = {
     constructor: Column.prototype.constructor,
     $$CLASS_NAME: 'Column',
-    deprecated: deprecated,
 
     HypergridError: HypergridError,
 
     mixIn: overrider.mixIn,
-
-    set: function(options) {
-        return this.deprecated('set(options)', 'setProperties(options)', '1.2.0', arguments);
-    },
 
     /**
      * @summary Index of this column in the `fields` array.
@@ -119,7 +115,6 @@ Column.prototype = {
      */
     set header(headerText) {
         this.dataModel.schema[this.index].header = headerText;
-        this.dataModel.prop(null, this.index, 'header', headerText);
         this.behavior.grid.repaint();
     },
     get header() {
@@ -143,8 +138,7 @@ Column.prototype = {
             } else {
                 schema[this.index].calculator = calculator;
             }
-            this.behavior.prop(null, this.index, 'calculator', calculator);
-            this.behavior.applyAnalytics();
+            this.behavior.reindex();
         }
     },
     get calculator() {
@@ -160,16 +154,11 @@ Column.prototype = {
      */
     set type(type) {
         this._type = type;
-        //TODO: This is calling reindex for every column during grid init. Maybe defer all reindex calls until after an grid 'ready' event
-        this.dataModel.prop(null, this.index, 'type', type);
+        //TODO: This is calling reindex for every column during grid init. Maybe defer all reindex calls until after a grid 'ready' event
         this.behavior.reindex();
     },
     get type() {
         return this._type;
-    },
-
-    getUnfilteredValue: function(y) {
-        return this.deprecated('getUnfilteredValue(y)', null, '1.2.0', arguments, 'No longer supported');
     },
 
     getValue: function(y) {
@@ -274,10 +263,6 @@ Column.prototype = {
         this.addProperties(ownProperties);
     },
 
-    getProperties: function() {
-        return this.deprecated('getProperties()', 'properties', '1.2.0');
-    },
-
     /** This method is provided because some grid renderer optimizations require that the grid renderer be informed when column colors change. Due to performance concerns, they cannot take the time to figure it out for themselves. Along the same lines, making the property a getter/setter (in columnProperties.js), though doable, might present performance concerns as this property is possibly the most accessed of all column properties.
      * @param color
      */
@@ -285,19 +270,6 @@ Column.prototype = {
         if (this.properties.backgroundColor !== color) {
             this.properties.backgroundColor = color;
             this.behavior.grid.renderer.rebundleGridRenderers();
-        }
-    },
-
-    /**
-     * @param {object} properties
-     * @param {boolean} [preserve=false]
-     */
-    setProperties: function(properties, preserve) {
-        if (!preserve) {
-            this.deprecated('setProperties', 'setProperties(properties) has been deprecated in favor of properties (setter) as of v1.2.0. (Will be removed in a future version.) This advice only pertains to usages of setProperties when called with a single parameter. When called with a truthy second parameter, use the new addProperties(properties) call instead.');
-            this.properties = properties;
-        } else {
-            this.deprecated('setPropertiesPreserve', 'setProperties(properties, preserve)', 'addProperties(properties)', '1.2.0', arguments, 'This warning pertains to setProperties only when preserve is truthy. When preserve is faulty, use the new properties setter.');
         }
     },
 
@@ -354,7 +326,7 @@ Column.prototype = {
     }
 };
 
-Column.prototype.mixIn(require('./cellProperties'));
-Column.prototype.mixIn(require('./columnProperties'));
+Column.prototype.mixIn(require('./cellProperties').mixin);
+Column.prototype.mixIn(require('./columnProperties').mixin);
 
 module.exports = Column;

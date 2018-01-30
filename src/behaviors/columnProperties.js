@@ -2,9 +2,7 @@
 
 var toFunction = require('../lib/toFunction');
 
-var FIELD = 'columnProperties.field is deprecated as of v1.1.0 in favor of columnProperties.name. (Will be removed in a future release.)',
-    COLUMN_NAME = 'columnProperties.columnName is deprecated as of v1.1.0 in favor of columnProperties.name. (Will be removed in a future release.)',
-    COLUMN_ONLY_PROPERTY = 'Attempt to set column-only property on a non-column properties object.';
+var COLUMN_ONLY_PROPERTY = 'Attempt to set column-only property on a non-column properties object.';
 
 /**
  * @this {Column}
@@ -32,14 +30,12 @@ function createColumnProperties() {
 
         field: { // read-only (no setter)
             get: function() {
-                if (FIELD) { console.warn(FIELD); FIELD = undefined; }
                 return column.name;
             }
         },
 
         columnName: { // read-only (no setter)
             get: function() {
-                if (COLUMN_NAME) { console.warn(COLUMN_NAME); COLUMN_NAME = undefined; }
                 return column.name;
             }
         },
@@ -471,4 +467,10 @@ createColumnProperties.columnHeaderDescriptors = {
     rightIcon: { writable: true, value: undefined},
 };
 
-module.exports.createColumnProperties = createColumnProperties;
+/**
+ * Column.js mixes this module into its prototype.
+ * @mixin
+ */
+exports.mixin = {
+    createColumnProperties: createColumnProperties
+};
