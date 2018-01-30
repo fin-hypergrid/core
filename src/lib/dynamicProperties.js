@@ -237,7 +237,7 @@ function getRowPropertiesBySubgridAndRowIndex() { // to be called with grid.prop
     behavior.subgrids.forEach(function(dataModel) {
         var key = dataModel.name || dataModel.type;
         for (var rowIndex = 0, rowCount = dataModel.getRowCount(); rowIndex < rowCount; ++rowIndex) {
-            var rowProps = behavior.getRowProperties(rowIndex, dataModel);
+            var rowProps = behavior.getRowProperties(rowIndex, undefined, dataModel);
             if (rowProps) {
                 var subgrid = subgrids[key] = subgrids[key] || {};
                 subgrid[rowIndex] = rowProps;

@@ -2,13 +2,14 @@
 
 var Base = require('../Base');
 
+/**
+ * @class
+ * @param {object} [options] - The following options can alternatively be set in the prototype of an extending class.
+ * @param {boolean} [options.singletons=false] - The registry will consist of singletons which will be instantiated as they are added.
+ * (Otherwise the registry consists of constructors which are instantiated later on as needed.)
+ * @param {boolean} [options.private=false] - This instance will use a private registry.
+ */
 var Registry = Base.extend('Registry', {
-    /**
-     * @param {object} [options] - The following options can alternatively be set in the prototype of an extending class.
-     * @param {boolean} [options.singletons=false] - The registry will consist of singletons which will be instantiated as they are added.
-     * (Otherwise the registry consists of constructors which are instantiated later on as needed.)
-     * @param {boolean} [options.private=false] - This instance will use a private registry.
-     */
     initialize: function(options) {
         this.options = options;
 
@@ -24,18 +25,14 @@ var Registry = Base.extend('Registry', {
     /**
      * @summary Register and instantiate a singleton.
      * @desc Adds an item to the registry using the provided name (or the class name), converted to all lower case.
+     * @param {string} [name] - Case-insensitive item key. If not given, `Constructor.prototype.$$CLASS_NAME` is used.
+     * @param {function} Constructor
      *
-     * > All native cell renderers are "preregistered" in `singletons`. Add more by calling `add`.
+     * > Note: `$$CLASS_NAME` is normally set by providing a string as the (optional) first parameter (`alias`) in your {@link https://www.npmjs.com/package/extend-me|extend} call.
      *
-     * @param {string} [name] - Case-insensitive renderer key. If not given, `YourCellRenderer.prototype.$$CLASS_NAME` is used.
+     * @returns {function|Constructor} A newly registered item, either `Constructor` or singleton created by `new Constructor`.
      *
-     * @param {CellRenderer} Constructor - A constructor, typically extended from `CellRenderer` (or a descendant therefrom).
-     *
-     * > Note: `$$CLASS_NAME` can be easily set up by providing a string as the (optional) first parameter (`alias`) in your {@link https://www.npmjs.com/package/extend-me|CellEditor.extend} call.
-     *
-     * @returns {CellRenderers} A newly registered constructor extended from {@link CellRenderers}.
-     *
-     * @memberOf CellRenderers.prototype
+     * @memberOf Registry#
      */
     add: function(name, Constructor) {
         if (typeof name === 'function') {
@@ -58,8 +55,8 @@ var Registry = Base.extend('Registry', {
      * @summary Register a synonym for an existing item.
      * @param {string} synonymName
      * @param {string} existingName
-     * @returns {CellRenderers} The previously registered constructor this new synonym points to.
-     * @memberOf CellRenderers.prototype
+     * @returns {function|Constructor} The previously registered item this new synonym points to.
+     * @memberOf Registry#
      */
     addSynonym: function(synonymName, existingName) {
         return (this.items[synonymName] = this.get(existingName));
@@ -67,12 +64,16 @@ var Registry = Base.extend('Registry', {
 
     /**
      * Fetch a registered singleton.
-     * @param {string} name
+     * @param {string} [name]
      * @param {boolean} [noThrow] - Avoid throwing error if no such item; just return `undefined`.
-     * @returns {CellRenderers} A registered constructor extended from {@link CellRenderers}.
-     * @memberOf CellRenderers.prototype
+     * @returns {function|Constructor|undefined} A registered constructor item or `undefined` if none such.
+     * @memberOf Registry#
      */
     get: function(name, noThrow) {
+        if (!name) {
+            return;
+        }
+
         var result = this.items[name]; // for performance reasons, do not convert to lower case
 
         if (!result) {
@@ -93,13 +94,17 @@ var Registry = Base.extend('Registry', {
 
     /**
      * @summary Lookup registered item and return a new instance thereof.
-     * @returns New instance of the named item.
+     * @returns New instance of the named constructor or `undefined` if none such.
      * @param {string} name - Name of a registered item.
      * @param {string} [options] - Properties to add to the instantiated item primarily for `mustache` use.
-     * @memberOf CellEditors#
+     * @memberOf Registry#
      */
     create: function(name, options) {
         var Constructor = this.get(name);
+
+        if (typeof Constructor !== 'function') {
+            return;
+        }
 
         if (Constructor.abstract) {
             throw new this.HypergridError('Attempt to instantiate the abstract "' + name + '" class.');
