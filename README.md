@@ -8,7 +8,7 @@ It also highlights a DOM-based custom external editor triggered via hypergrid ev
 <img src="images/README/gridshot04.gif">
 
 ## Table of Contents
-* [Current Release](#current-release-210---13-january-2018)
+* [Current Release](#current-release-211---29-january-2018)
 * [Demos](#demos)
 * [Features](#features)
 * [Testing](#testing)
@@ -16,9 +16,9 @@ It also highlights a DOM-based custom external editor triggered via hypergrid ev
 * [Roadmap](#roadmap)
 * [Contributing](#contributors)
 
-### Current Release (2.1.0 - 13 January 2018)
+### Current Release (2.1.1 - 29 January 2018)
 
-**Hypergrid 2.1.0** includes bug fixes as well as some new properties and methods that offer new capabilities.
+**Hypergrid 2.1.1** includes bug fixes as well as some new properties and methods that offer new capabilities.
 
 _For a complete list of changes, see the [release notes](https://github.com/fin-hypergrid/core/releases)._
 
