@@ -600,6 +600,8 @@ var Renderer = Base.extend('Renderer', {
      * @param {CanvasRenderingContext2D} gc
      */
     renderGrid: function(gc) {
+        this.grid.deferredBehaviorChange();
+
         gc.beginPath();
 
         this.buttonCells = {};

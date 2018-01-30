@@ -334,8 +334,9 @@ exports.mixin = {
         }
 
         this.computeCellsBounds();
-        this.repaint();
-        this.resizeScrollbars();
+
+        // schedule to happen *after* the repaint
+        setTimeout(this.resizeScrollbars.bind(this));
     },
 
     /**
