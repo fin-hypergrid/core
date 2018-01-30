@@ -1,7 +1,7 @@
 'use strict';
 
 var CellRenderer = require('./CellRenderer');
-var images = require('../../images/index');
+var images = require('../../images');
 
 var WHITESPACE = /\s\s+/g;
 

@@ -1,22 +1,26 @@
 'use strict';
 
 var Base = require('../Base');
+var modules = require('../Hypergrid/modules');
 
 /**
+ * > This constructor (actually {@link DataModel#initialize}) will be called upon instantiation of this class or of any class that extends from this class. See {@link https://github.com/joneit/extend-me|extend-me} for more info.
+ * @name dataModels.JSON
+ * @param {Hypergrid} grid
+ * @param {object} [options] - Not used here.
  * @constructor
  */
 var DataModel = Base.extend('DataModel', {
-    grid: null,
+
     initialize: function(grid, options) {
         this.grid = grid;
-    },
 
-    changed: function() {
-        this.deprecated('changed()', 'grid.behavior.changed()', '1.1.0');
-    },
+        if (!this.on) {
+            // mix this in now (rather than at declaration time) in case developer wants to replace `modules.events`.
+            DataModel.prototype.mixIn(modules.events); // so data source can talk back (trigger events)
+        }
 
-    getPrivateState: function() {
-        return this.deprecated('getPrivateState()', 'grid.properties', '1.2.0');
+        this.on('data-changed', grid.fireDataChangedEvent.bind(grid, true));
     },
 
     getRowMetadata: function(rowIndex, metadata) {
@@ -28,6 +32,8 @@ var DataModel = Base.extend('DataModel', {
         var dataRow = this.getRow(rowIndex);
         return dataRow && (dataRow.__META = metadata);
     },
+
+    makeInterface: require('./interfaceFactory').makeInterface,
 
     /**
      * @param {object} config
@@ -75,5 +81,6 @@ var DataModel = Base.extend('DataModel', {
     }
 
 });
+
 
 module.exports = DataModel;

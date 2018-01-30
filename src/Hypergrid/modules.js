@@ -12,5 +12,6 @@
  */
 
 module.exports = {
-    Scrollbar: require('finbars')
+    Scrollbar: require('finbars'),
+    events: require('pubsubstar').mixin
 };

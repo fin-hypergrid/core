@@ -1,6 +1,5 @@
 'use strict';
 
-var graphics = require('./lib/graphics');
 var HypergridError = require('./lib/error');
 
 var COLUMN_ONLY_PROPERTY = 'Attempt to set column-only property on a non-column properties object.';
@@ -793,36 +792,6 @@ var defaults = {
      */
     readOnly: false,
 
-    // inherited by cell renderers
-
-    /**
-     * This function is referenced here so it will be available to the renderer and cell renderers.
-     * @default {@link module:defaults.getTextWidth|getTextWidth}
-     * @type {function}
-     * @memberOf module:defaults
-     */
-    getTextWidth: function(gc, string) {
-        if (!warned.getTextWidth) {
-            warned.getTextWidth = true;
-            console.warn('getTextWidth(gc, string) has been deprecated on the properties (or config) object as of v1.2.4 in favor of the graphics context (aka gc) object and will be removed from the properties object in a future release. Please change your calling context to gc.getTextWidth(string), excluding the first parameter (gc) from your call.');
-        }
-        return graphics.getTextWidth.apply(gc, string);
-    },
-
-    /**
-     * This function is referenced here so it will be available to the renderer and cell renderers.
-     * @default {@link module:defaults.getTextHeight|getTextHeight}
-     * @type {function}
-     * @memberOf module:defaults
-     */
-    getTextHeight: function(font) {
-        if (!warned.getTextHeight) {
-            warned.getTextHeight = true;
-            console.warn('getTextHeight(font) has been deprecated on the properties (or config) object as of v1.2.4 in favor of the graphics context (aka gc) object and will be removed from the properties object in a future release. Please change your calling context to gc.getTextHeight(font).');
-        }
-        return graphics.getTextHeight(font);
-    },
-
     /**
      * @summary Execute value if "calculator" (function) or if column has calculator.
      * @desc This function is referenced here so:
@@ -1174,7 +1143,7 @@ var defaults = {
      *   * _field name_ - Fetches the string from the named field in the same row, assumed to be a URL ready for decorating. (May contain only alphanumerics and underscore; no spaces or other punctuation.)
      *   * _otherwise_ Assumed to contains a URL ready for decorating.
      * * `function` - A function to execute to get the URL ready for decorating. The function is passed a single parameter, `cellEvent`, from which you can get the field `name`, `dataRow`, _etc._
-     * * `Array` - An array to "apply" to {@link https://developer.mozilla.org/en-US/docs/Web/API/Window/open window.open} in its entirety. The first element is interpreted as above for `string` or `function`.
+     * * `Array` - An array to "apply" to {@link https://developer.mozilla.org/docs/Web/API/Window/open window.open} in its entirety. The first element is interpreted as above for `string` or `function`.
      *
      * In the case of `string` or `Array`, the link is further unpacked by {@link module:CellClick.openLink|openLink} and then sent to `grid.windowOpen`.
      *
@@ -1364,11 +1333,10 @@ var defaults = {
     truncateTextWithEllipsis: true
 };
 
-
 function rowPropertiesDeprecationWarning() {
     if (!warned.rowProperties) {
         warned.rowProperties = true;
-        console.warn('The `rowProperties` property has been deprecated as of v3.0.0 in favor of `rowStripes`. (Will be removed in a future release.)');
+        console.warn('The `rowProperties` property has been deprecated as of v2.1.0 in favor of `rowStripes`. (Will be removed in a future release.)');
     }
 }
 
@@ -1383,12 +1351,11 @@ Object.defineProperty(defaults, 'rowProperties', {
     }
 });
 
-
 /** @typedef {string} cssColor
- * @see https://developer.mozilla.org/en-US/docs/Web/CSS/color_value
+ * @see https://developer.mozilla.org/docs/Web/CSS/color_value
  */
 /** @typedef {string} cssFont
- * @see https://developer.mozilla.org/en-US/docs/Web/CSS/font
+ * @see https://developer.mozilla.org/docs/Web/CSS/font
  */
 
 function exec(vf) {

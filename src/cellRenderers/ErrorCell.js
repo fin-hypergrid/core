@@ -30,7 +30,6 @@ var ErrorCell = CellRenderer.extend('ErrorCell', {
      * @memberOf ErrorCell.prototype
      */
     paint: function(gc, config, message) {
-        //var images = require('../../images/index');
         var x = config.bounds.x,
             y = config.bounds.y,
             // width = config.bounds.width,

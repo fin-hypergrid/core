@@ -5,8 +5,8 @@ var columnEnumDecorators = require('./columnEnumDecorators');
 var DataModelJSON = require('../dataModels/JSON');
 
 /**
+ * > This constructor (actually {@link behaviors.JSON#initialize}) will be called upon instantiation of this class or of any class that extends from this class. See {@link https://github.com/joneit/extend-me|extend-me} for more info.
  * @name behaviors.JSON
- * @desc > Same parameters as {@link behaviors.Behavior#initialize|initialize}, which is called by this constructor.
  * @constructor
  * @extends Behavior
  */
@@ -16,18 +16,8 @@ var JSON = Behavior.extend('behaviors.JSON', {
         this.columnEnum = {};
     },
 
-    /**
-     * @summary Constructor logic, called _after_{@link Behavior#initialize|Behavior.initialize()}.
-     * @desc This method will be called upon instantiation of this class or of any class that extends from this class.
-     * > All `initialize()` methods in the inheritance chain are called, in turn, each with the same parameters that were passed to the constructor, beginning with that of the most "senior" class through that of the class of the new instance.
-     *
-     * @memberOf behaviors.JSON.prototype
-     */
     initialize: function(grid, options) {
         this.setData(options);
-        if (options.pipeline) {
-            this.setPipeline(options.pipeline);
-        }
     },
 
     createColumns: function() {
@@ -90,67 +80,17 @@ var JSON = Behavior.extend('behaviors.JSON', {
 
     /**
      * @memberOf behaviors.JSON.prototype
-     * @description Set the fields array.
-     * @param {string[]} fieldNames - The field names.
-     */
-    setFields: function(fieldNames) {
-        //were defining the columns based on field names....
-        //we must rebuild the column definitions
-        this.dataModel.setFields(fieldNames);
-        this.createColumns();
-    },
-
-    /**
-     * @see {@link dataModels.JSON#setPipeline}
-     * @param {object} [DataSources] - New pipeline description. _(See {@link dataModels.JSON#setPipeline}.)_
-     * @param {object} [options] - Takes first argument position when `DataSources` omitted. _(See {@link dataModels.JSON#setPipeline}.)_
-     * @param {boolean} [options.apply=true] Apply data transformations to the new data.
-     * @memberOf behaviors.JSON.prototype
-     */
-    setPipeline: function(DataSources, options) {
-        this.dataModel.setPipeline.apply(this.dataModel, arguments);
-
-        if (!Array.isArray(DataSources)) {
-            options = DataSources;
-        }
-
-        if (!options || options.apply === undefined || options.apply) {
-            this.reindex();
-        }
-    },
-
-    /**
-     * Pop pipeline stack.
-     * @see {@link dataModels.JSON#unstashPipeline}
-     * @param {string} [whichStash]
-     * @param {object} [options] - Takes first argument position when `DataSources` omitted.
-     * @param {boolean} [options.apply=true] Apply data transformations to the new data.
-     * @memberOf behaviors.JSON.prototype
-     */
-    unstashPipeline: function(stash, options) {
-        if (typeof stash === 'object') {
-            options = stash;
-            stash = undefined;
-        }
-
-        this.dataModel.unstashPipeline(stash);
-
-        if (!options || options.apply === undefined || options.apply) {
-            this.reindex();
-        }
-    },
-
-    /**
-     * @memberOf behaviors.JSON.prototype
-     * @description Set the data field.
+     * @summary Set grid data.
+     * @desc Exits without doing anything if:
+     * * `dataRows` undefined; or
+     * * `dataRows` omitted and `options.data` undefined
      * @param {function|object[]} [dataRows=options.data] - Array of uniform data row objects or function returning same.
+     * Passed as 1st param to {@link dataModel.JSON#setData}.
      * @param {object} [options] - Takes first argument position when `dataRows` omitted.
      * @param {function|object} [options.data] - Array of uniform data row objects or function returning same.
-     * Passed as 1st param to {@link dataModel.JSON#setData}. If falsy, method aborted.
-     * @param {function|object} [options.fields] - Array of field names or function returning same.
+     * Only used when `dataRows` was omitted.
+     * @param {function|object} [options.schema] - Array of column schema objects or function returning same.
      * Passed as 2nd param to {@link dataModel.JSON#setData}.
-     * @param {function|object} [options.calculators] - Array of calculators or function returning same.
-     * Passed as 3rd param to {@link dataModel.JSON#setData}.
      * @param {boolean} [options.apply=true] Apply data transformations to the new data.
      */
     setData: function(dataRows, options) {
@@ -173,7 +113,7 @@ var JSON = Behavior.extend('behaviors.JSON', {
 
         var grid = this.grid,
             schema = this.unwrap(options.schema), // *always* define a new schema on reset
-            schemaChanged = schema || !this.subgrids.lookup.data.schema.length, // schema will change if a new schema was provided OR data model has an empty schema now, which triggers schema generation on setData below
+            schemaChanged = schema || !this.subgrids.lookup.data.getColumnCount(), // schema will change if a new schema was provided OR data model has an empty schema now, which triggers schema generation on setData below
             reindex = options.apply === undefined || options.apply; // defaults to true
 
         // Inform interested data models of data.
@@ -198,55 +138,20 @@ var JSON = Behavior.extend('behaviors.JSON', {
         grid.allowEvents(this.getRowCount());
     },
 
-    /**
-     * @summary Rebinds the data without reshaping it.
-     * @desc See {@link behaviors.JSON#setData|setData}'s parameter descriptions.
-     * @param dataRows
-     * @param options
-     * @memberOf behaviors.JSON.prototype
-     */
-    updateData: function(dataRows, options) {
-        this.deprecated('updateData(dataRows, options)', 'setData(dataRows, options)', 'v1.2.10', arguments,
-            'To update data without changing column definitions, call setData _without a schema._');
-    },
-
-    /**
-     * @memberOf behaviors.JSON.prototype
-     * @description Build the fields and headers from the supplied column definitions.
-     * ```javascript
-     * myJsonBehavior.setColumns([
-     *     { header: 'Stock Name', name: 'short_description' },
-     *     { header: 'Status', name: 'trading_phase' },
-     *     { header: 'Reference Price', name: 'reference_price' }
-     * ]);
-     * ```
-     * @param {Array} columnDefinitions - an array of objects with fields 'title', and 'field'
-     */
-    setColumns: function(columnDefinitions) {
-        console.warn('This function does not do anything');
-    },
-
     //Not being used. Should be repurposed??
     setDataProvider: function(dataProvider) {
         this.dataModel.setDataProvider(dataProvider);
     },
 
-    hasHierarchyColumn: function() {
-        return this.deprecated('hasHierarchyColumn()', 'hasTreeColumn()', '1.3.3', arguments);
-    },
-
     hasTreeColumn: function() {
-        return this.dataModel.isTree() && this.grid.properties.showTreeColumn;
-    },
-
-    getVisibleColumns: function() {
-        return this.deprecated('getVisibleColumns()', 'getActiveColumns()', '1.0.6', arguments);
+        return this.grid.properties.showTreeColumn && this.dataModel.isTree();
     },
 
     getSelections: function() {
         return this.grid.selectionModel.getSelections();
-    },
+    }
 });
+
 
 JSON.columnEnumDecorators = columnEnumDecorators;
 

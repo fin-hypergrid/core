@@ -3,11 +3,7 @@
 var Registry = require('../lib/Registry');
 
 
-var deprecated = {
-    emptycell: undefined,
-    EmptyCell: undefined
-};
-
+var warnedBaseClass;
 
 /**
  * @classdesc Registry of cell renderer singletons.
@@ -37,10 +33,10 @@ var CellRenderers = Registry.extend('CellRenderers', {
     },
 
     get: function(name) {
-        if (name in deprecated) {
-            if (!deprecated.warned) {
+        if (name && name.toLowerCase() === 'emptycell') {
+            if (!warnedBaseClass) {
                 console.warn('grid.cellRenderers.get("' + name + '").constructor has been deprecated as of v2.1.0 in favor of grid.cellRenderers.BaseClass property. (Will be removed in a future release.)');
-                deprecated.warned = true;
+                warnedBaseClass = true;
             }
             this.BaseClass.constructor = this.BaseClass;
             return this.BaseClass;

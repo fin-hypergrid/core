@@ -131,6 +131,7 @@ var CellEditor = Base.extend('CellEditor', {
                 // Editing successfully stopped
                 // -> send the event down the feature chain
                 var finEvent = grid.canvas.newEvent(e, 'fin-editor-keydown', {
+                    grid: grid,
                     alt: e.altKey,
                     ctrl: e.ctrlKey,
                     char: keyChar,
@@ -187,9 +188,6 @@ var CellEditor = Base.extend('CellEditor', {
             this.checkEditorPositionFlag = true;
             this.checkEditor();
         }
-    },
-    beginEditAt: function(Constructor, name) {
-        return this.deprecated('beginEditAt(point)', 'beginEditing()', '1.0.6');
     },
 
     /**

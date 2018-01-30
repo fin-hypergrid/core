@@ -11,14 +11,15 @@ var DataModel = require('./DataModel');
  */
 var HeaderSubgrid = DataModel.extend('HeaderSubgrid', {
     initialize: function(grid, options) {
+        options = options || {};
+
         this.behavior = grid.behavior;
 
-        /**
-         * @type {dataRowObject}
-         */
-        this.dataRow = {}; // for meta data (__HEIGHT)
+        var fallbacks = this.makeInterface(options);
+        this.getRowMetadata = fallbacks.getRowMetadata;
+        this.setRowMetadata = fallbacks.setRowMetadata;
 
-        if (options && options.name) {
+        if (options.name) {
             this.name = options.name;
         }
     },
@@ -44,6 +45,14 @@ var HeaderSubgrid = DataModel.extend('HeaderSubgrid', {
 
     getRow: function(y) {
         return this.dataRow;
+    },
+
+    getRowMetadata: function(y, metadata) {
+        return this.metadata || (this.metadata = metadata);
+    },
+
+    setRowMetadata: function(y, metadata) {
+        return (this.metadata = metadata);
     }
 });
 
