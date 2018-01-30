@@ -841,7 +841,7 @@ var Hypergrid = Base.extend('Hypergrid', {
      */
     behaviorShapeChanged: function() {
         this.needsShapeChanged = true;
-        deferBehaviorChange.call(this);
+        this.repaint();
     },
 
     /**
@@ -850,7 +850,24 @@ var Hypergrid = Base.extend('Hypergrid', {
      */
     behaviorStateChanged: function() {
         this.needsStateChanged = true;
-        deferBehaviorChange.call(this);
+        this.repaint();
+    },
+
+    /**
+     * Called from renderer/index.js
+     */
+    deferredBehaviorChange: function() {
+        if (this.needsShapeChanged) {
+            if (this.divCanvas) {
+                this.synchronizeScrollingBoundaries(); // calls computeCellsBounds and repaint (state change)
+            }
+        } else if (this.needsStateChanged) {
+            if (this.divCanvas) {
+                this.computeCellsBounds();
+            }
+        }
+
+        this.needsShapeChanged = this.needsStateChanged = false;
     },
 
     /**
@@ -1850,28 +1867,6 @@ var Hypergrid = Base.extend('Hypergrid', {
         console.warn('Attempt to reset grid.theme (properties layer). Use grid.applyTheme or the grid.properties.theme setter to apply a new theme.');
     }
 });
-
-
-function deferBehaviorChange() {
-    this.deferredBehaviorChange = this.deferredBehaviorChange || setTimeout(behaviorChange.bind(this));
-}
-
-function behaviorChange() {
-    delete this.deferredBehaviorChange;
-
-    if (this.needsShapeChanged) {
-        if (this.divCanvas) {
-            this.synchronizeScrollingBoundaries(); // calls computeCellsBounds and repaint (state change)
-        }
-    } else if (this.needsStateChanged) {
-        if (this.divCanvas) {
-            this.computeCellsBounds();
-            this.repaint();
-        }
-    }
-
-    this.needsShapeChanged = this.needsStateChanged = false;
-}
 
 
 /**
