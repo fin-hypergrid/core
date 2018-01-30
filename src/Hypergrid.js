@@ -151,6 +151,8 @@ var Hypergrid = Base.extend('Hypergrid', {
         document.addEventListener('mousedown', this.mouseCatcher = function() {
             this.abortEditing();
         }.bind(this));
+
+        setTimeout(this.repaint.bind(this));
     },
 
     terminate: function() {
