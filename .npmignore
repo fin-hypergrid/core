@@ -2,7 +2,7 @@
 *.css
 *.html
 
-/add-ons
+/[0-9]*
 /demo
 /doc
 /html/*.html
@@ -24,3 +24,4 @@
 !/src/cellRenderers/index.js
 !/src/cellEditors/index.js
 !/src/renderer/index.js
+!/src/features/index.js
