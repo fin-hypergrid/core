@@ -85,7 +85,7 @@ var Registry = Base.extend('Registry', {
         }
 
         if (!noThrow && !result) {
-            var classDesc = this.$$CLASS_NAME.replace(/[A-Z]/g, ' $1').trim().toLowerCase();
+            var classDesc = this.BaseClass.$$CLASS_NAME.replace(/([A-Z])/g, ' $1').trim().toLowerCase();
             throw new this.HypergridError('Expected "' + name + '" to be a registered ' + classDesc + '.');
         }
 
