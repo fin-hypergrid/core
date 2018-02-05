@@ -145,16 +145,16 @@ function getCellPropertiesObject(rowIndex, dataModel) {
  * @private
  */
 function newCellPropertiesObject(rowIndex, dataModel) {
-    var rowData = (dataModel || this.dataModel).getRow(rowIndex),
-        metadata = rowData.__META = rowData.__META || {},
-        props;
-
-    if (this._index >= 0) {
+    var metadata = (dataModel || this.dataModel).getRowMetadata(rowIndex, {}),
         props = this.properties;
-    } else if (this._index === this.behavior.treeColumnIndex) {
-        props = this.properties.treeHeader;
-    } else if (this._index === this.behavior.rowColumnIndex) {
-        props = this.properties.rowHeader;
+
+    switch (this._index) {
+        case this.behavior.treeColumnIndex:
+            props = this.properties.treeHeader;
+            break;
+        case this.behavior.rowColumnIndex:
+            props = this.properties.rowHeader;
+            break;
     }
 
     return (metadata[this.name] = Object.create(props));
