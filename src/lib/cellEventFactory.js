@@ -10,19 +10,40 @@ var eumerableDescriptor = { writable: true, enumerable: true };
 // var nullSubgrid = {};
 
 factory.cellEventProperties = Object.defineProperties({}, {
+    /**
+     * The raw value of the cell, unformatted.
+     * @memberOf CellEvent#
+     */
     value: {
         get: function() { return this.subgrid.getValue(this.dataCell.x, this.dataCell.y); },
         set: function(value) { this.subgrid.setValue(this.dataCell.x, this.dataCell.y, value); }
     },
 
+    /**
+     * An object representing the whole data row, including hidden columns.
+     * @type {object}
+     * @memberOf CellEvent#
+     */
     dataRow: {
         get: function() { return this.subgrid.getRow(this.dataCell.y); }
     },
 
+    /**
+     * The formatted value of the cell.
+     * @memberOf CellEvent#
+     */
     formattedValue: {
         get: function() { return this.grid.formatValue(this.properties.format, this.value); }
     },
 
+    /**
+     * The bounds of the cell.
+     * @property {number} left
+     * @property {number} top
+     * @property {number} width
+     * @property {number} height
+     * @memberOf CellEvent#
+     */
     bounds: { get: function() {
         return this._bounds || (this._bounds = {
             x: this.visibleColumn.left,
@@ -58,13 +79,30 @@ factory.cellEventProperties = Object.defineProperties({}, {
         }
         return this._cellOwnProperties; // null return means there is no cell properties object
     } },
+    /**
+     * @returns {string} Cell properties object if it exists, else the column properties object it would have as a prototype if did exist.
+     * @method
+     * @memberOf CellEvent#
+     */
     properties: { get: function() {
         return this.cellOwnProperties || this.columnProperties;
     } },
+    /**
+     * @param {string} key - Property name.
+     * @returns {string} Property value.
+     * @method
+     * @memberOf CellEvent#
+     */
     getCellProperty: { value: function(key) {
         // included for completeness but `.properties[key]` is preferred
         return this.properties[key];
     } },
+    /**
+     * @param {string} key - Property name.
+     * @param {string} value - Property value.
+     * @method
+     * @memberOf CellEvent#
+     */
     setCellProperty: { value: function(key, value) {
         // do not use `.cellOwnProperties[key] = value` because object may be null (this method creates new object as needed)
         this._cellOwnProperties = this.column.setCellProperty(this.dataCell.y, key, value, this.subgrid);
@@ -96,7 +134,7 @@ factory.cellEventProperties = Object.defineProperties({}, {
         this.rowProperties[key] = value; // todo: call `stateChanged()` after refac-as-flags
     } },
 
-    // special methods for use by renderer which reuses cellEvent object for performance reasons
+    // special method for use by renderer which reuses cellEvent object for performance reasons
     reset: { value: function(visibleColumn, visibleRow) {
         // getter caches
         this._columnProperties = undefined;
@@ -128,6 +166,7 @@ factory.cellEventProperties = Object.defineProperties({}, {
      * @param {number} gridC - Horizontal grid cell coordinate adjusted for horizontal scrolling after fixed columns.
      * @param {number} gridY - Raw vertical grid cell coordinate.
      * @returns {boolean} Visibility.
+     * @method
      * @memberOf CellEvent#
      */
     resetGridCY: { value: function(gridC, gridY) {
@@ -145,6 +184,7 @@ factory.cellEventProperties = Object.defineProperties({}, {
      * @param {number} gridX - Raw horizontal grid cell coordinate.
      * @param {number} gridY - Raw vertical grid cell coordinate.
      * @returns {boolean} Visibility.
+     * @method
      * @memberOf CellEvent#
      */
     resetGridXY: { value: function(gridX, gridY) {
@@ -163,6 +203,7 @@ factory.cellEventProperties = Object.defineProperties({}, {
      * @param {number} dataY - Vertical data cell coordinate.
      * @param {dataModelAPI} [subgrid=this.behavior.subgrids.data]
      * @returns {boolean} Visibility.
+     * @method
      * @memberOf CellEvent#
      */
     resetDataXY: { value: function(dataX, dataY, subgrid) {
@@ -182,6 +223,7 @@ factory.cellEventProperties = Object.defineProperties({}, {
      * @param {dataModelAPI} [subgrid=this.behavior.subgrids.data]
      * @param {boolean} [useAllCells] - Search in all rows and columns instead of only rendered ones.
      * @returns {boolean} Visibility.
+     * @method
      * @memberOf CellEvent#
      */
     resetGridXDataY: { value: function(gridX, dataY, subgrid, useAllCells) {
@@ -218,6 +260,7 @@ factory.cellEventProperties = Object.defineProperties({}, {
      * Copy self with or without own properties
      * @param {boolan} [assign=false] - Copy the own properties to the clone.
      * @returns {CellEvent}
+     * @method
      * @memberOf CellEvent#
      */
     clone: { value: function(assign) {
@@ -243,50 +286,165 @@ factory.cellEventProperties = Object.defineProperties({}, {
         }
     },
 
-    // "Visible" means scrolled into view.
+    /** "Visible" means scrolled into view.
+     * @type {boolean}
+     * @memberOf CellEvent#
+     */
     isRowVisible:    { get: function() { return !!this.visibleRow; } },
+    /** "Visible" means scrolled into view.
+     * @type {boolean}
+     * @memberOf CellEvent#
+     */
     isColumnVisible: { get: function() { return !!this.visibleColumn; } },
+    /** "Visible" means scrolled into view.
+     * @type {boolean}
+     * @memberOf CellEvent#
+     */
     isCellVisible:   { get: function() { return this.isRowVisible && this.isColumnVisible; } },
 
+
+    /** A data row is any row in the data subgrid; all other rows (headers, footers, _etc._) are not data rows.
+     * @type {boolean}
+     * @memberOf CellEvent#
+     */
     isDataRow:    { get: function() { return this.subgrid.isData; } },
+    /** A data column is any column that is not the row number column or the tree column.
+     * @type {boolean}
+     * @memberOf CellEvent#
+     */
     isDataColumn: { get: function() { return this.gridCell.x >= 0; } },
+    /** A data cell is a cell in both a data row and a data column.
+     * @type {boolean}
+     * @memberOf CellEvent#
+     */
     isDataCell:   { get: function() { return this.isDataRow && this.isDataColumn; } },
 
+
+    /** @type {boolean}
+     * @memberOf CellEvent#
+     */
     isRowSelected:    { get: function() { return this.isDataRow && this.selectionModel.isRowSelected(this.dataCell.y); } },
+    /** @type {boolean}
+     * @memberOf CellEvent#
+     */
     isColumnSelected: { get: function() { return this.isDataColumn && this.selectionModel.isColumnSelected(this.gridCell.x); } },
+    /** @type {boolean}
+     * @memberOf CellEvent#
+     */
     isCellSelected:   { get: function() { return this.selectionModel.isCellSelected(this.gridCell.x, this.dataCell.y); } },
 
+
+    /** @type {boolean}
+     * @memberOf CellEvent#
+     */
     isRowHovered:    { get: function() { return this.grid.canvas.hasMouse && this.isDataRow && this.grid.hoverCell && this.grid.hoverCell.y === this.gridCell.y; } },
+    /** @type {boolean}
+     * @memberOf CellEvent#
+     */
     isColumnHovered: { get: function() { return this.grid.canvas.hasMouse && this.isDataColumn && this.grid.hoverCell && this.grid.hoverCell.x === this.gridCell.x; } },
+    /** @type {boolean}
+     * @memberOf CellEvent#
+     */
     isCellHovered:   { get: function() { return this.isRowHovered && this.isColumnHovered; } },
 
+
+    /** @type {boolean}
+     * @memberOf CellEvent#
+     */
     isRowFixed:    { get: function() { return this.isDataRow && this.dataCell.y < this.grid.properties.fixedRowCount; } },
+    /** @type {boolean}
+     * @memberOf CellEvent#
+     */
     isColumnFixed: { get: function() { return this.isDataColumn && this.gridCell.x < this.grid.properties.fixedColumnCount; } },
+    /** @type {boolean}
+     * @memberOf CellEvent#
+     */
     isCellFixed:   { get: function() { return this.isRowFixed && this.isColumnFixed; } },
 
+
+    /** @type {boolean}
+     * @memberOf CellEvent#
+     */
     isHandleColumn: { get: function() { return this.gridCell.x === this.behavior.rowColumnIndex && this.grid.properties.showRowNumbers; } },
+    /** @type {boolean}
+     * @memberOf CellEvent#
+     */
     isHandleCell:   { get: function() { return this.isHandleColumn && this.isDataRow; } },
 
+
+    /** @type {boolean}
+     * @memberOf CellEvent#
+     */
     isTreeColumn: { get: function() { return this.gridCell.x === this.behavior.treeColumnIndex; } },
 
+
+    /** @type {boolean}
+     * @memberOf CellEvent#
+     */
     isHeaderRow:    { get: function() { return this.subgrid.isHeader; } },
+    /** @type {boolean}
+     * @memberOf CellEvent#
+     */
     isHeaderHandle: { get: function() { return this.isHeaderRow && this.isHandleColumn; } },
+    /** @type {boolean}
+     * @memberOf CellEvent#
+     */
     isHeaderCell:   { get: function() { return this.isHeaderRow && this.isDataColumn; } },
 
+
+    /** @type {boolean}
+     * @memberOf CellEvent#
+     */
     isFilterRow:    { get: function() { return this.subgrid.isFilter; } },
+    /** @type {boolean}
+     * @memberOf CellEvent#
+     */
     isFilterHandle: { get: function() { return this.isFilterRow && this.isHandleColumn; } },
+    /** @type {boolean}
+     * @memberOf CellEvent#
+     */
     isFilterCell:   { get: function() { return this.isFilterRow && this.isDataColumn; } },
 
+
+    /** @type {boolean}
+     * @memberOf CellEvent#
+     */
     isSummaryRow:    { get: function() { return this.subgrid.isSummary; } },
+    /** @type {boolean}
+     * @memberOf CellEvent#
+     */
     isSummaryHandle: { get: function() { return this.isSummaryRow && this.isHandleColumn; } },
+    /** @type {boolean}
+     * @memberOf CellEvent#
+     */
     isSummaryCell:   { get: function() { return this.isSummaryRow && this.isDataColumn; } },
 
+
+    /** @type {boolean}
+     * @memberOf CellEvent#
+     */
     isTopTotalsRow:    { get: function() { return this.subgrid === this.behavior.subgrids.lookup.topTotals; } },
+    /** @type {boolean}
+     * @memberOf CellEvent#
+     */
     isTopTotalsHandle: { get: function() { return this.isTopTotalsRow && this.isHandleColumn; } },
+    /** @type {boolean}
+     * @memberOf CellEvent#
+     */
     isTopTotalsCell:   { get: function() { return this.isTopTotalsRow && this.isDataColumn; } },
 
+
+    /** @type {boolean}
+     * @memberOf CellEvent#
+     */
     isBottomTotalsRow:    { get: function() { return this.subgrid === this.behavior.subgrids.lookup.bottomTotals; } },
+    /** @type {boolean}
+     * @memberOf CellEvent#
+     */
     isBottomTotalsHandle: { get: function() { return this.isBottomTotalsRow && this.isHandleColumn; } },
+    /** @type {boolean}
+     * @memberOf CellEvent#
+     */
     isBottomTotalsCell:   { get: function() { return this.isBottomTotalsRow && this.isDataColumn; } },
 
     $$CLASS_NAME: { value: 'CellEvent' },
@@ -307,14 +465,7 @@ factory.cellEventProperties = Object.defineProperties({}, {
 });
 
 /**
- * @classdesc `CellEvent` is a very low-level object that needs to be super-efficient. JavaScript objects are well known to be light weight in general, but at this level we need to be careful.
- *
- * These objects were originally only being created on mouse events. This was no big deal as mouse events are few and far between. However, as of v1.2.0, the renderer now also creates one for each visible cell on each and every grid paint.
- *
- * For this reason, to maintain performance, each grid gets a custom definition of `CellEvent`, created by this class factory, with the following optimizations:
- *
- * * Use of `extend-me` is avoided because its `initialize` chain is a bit too heavy here.
- * * Custom versions of `CellEvent` for each grid lightens the load on the constructor.
+ * @name cellEventFactory
  *
  * @summary Create a custom `CellEvent` class.
  *
@@ -322,37 +473,50 @@ factory.cellEventProperties = Object.defineProperties({}, {
  *
  * @param {HyperGrid} grid
  *
- * @returns {CellEvent}
+ * @returns {function}
  */
 function factory(grid) {
 
     /**
      * @summary Create a new CellEvent object.
+     *
+     * @classdesc `CellEvent` is a very low-level object that needs to be super-efficient. JavaScript objects are well known to be light weight in general, but at this level we need to be careful.
+     *
+     * These objects were originally only being created on mouse events. This was no big deal as mouse events are few and far between. However, as of v1.2.0, the renderer now also creates one for each visible cell on each and every grid paint.
+     *
+     * For this reason, to maintain performance, each grid gets a custom definition of `CellEvent`, created by this class factory, with the following optimizations:
+     *
+     * * Use of `extend-me` is avoided because its `initialize` chain is a bit too heavy here.
+     * * Custom versions of `CellEvent` for each grid lightens the load on the constructor.
+     *
      * @desc All own enumerable properties are mixed into cell editor:
      * * Includes `this.column` defined by constructor (as enumerable).
      * * Excludes `this.gridCell`, `this.dataCell`, `this.visibleRow.subgrid` defined by constructor (as non-enumerable).
      * * Any additional (enumerable) members mixed in by application's `getCellEditorAt` override.
      *
-     * Including params calls {CellEvent#resetGridCY}.
-     * (See also the alternatives {@link CellEvent#resetGridXY}, {@link CellEvent#resetDataXY}, and {@link CellEvent#resetGridXDataY}.)
+     * Including the params calls {@link CellEvent#resetGridCY resetGridCY(gridX, gridY)}.
+     * Alternatively, instantiate without params and/or later call one of these:
+     * * {@link CellEvent#resetGridXY resetGridXY(...)}
+     * * {@link CellEvent#resetDataXY resetDataXY(...)}
+     * * {@link CellEvent#resetGridXDataY resetGridXDataY(...)}
      *
      * @param {number} [gridX] - grid cell coordinate (adjusted for horizontal scrolling after fixed columns).
      * @param {number} [gridY] - grid cell coordinate, adjusted (adjusted for vertical scrolling if data subgrid)
-     * @constructor
+     * @constructor CellEvent
      */
     function CellEvent(gridX, gridY) {
         // remaining instance vars are non-enumerable so `CellEditor` constructor won't mix them in (for mustache use).
         Object.defineProperties(this, {
             /**
              * @name visibleColumn
-             * @type {visibleColumnDescriptor}
+             * @type {visibleColumnArray}
              * @memberOf CellEvent#
              */
             visibleColumn: writableDescriptor,
 
             /**
              * @name visibleRow
-             * @type {visibleRowDescriptor}
+             * @type {visibleRowArray}
              * @memberOf CellEvent#
              */
             visibleRow: writableDescriptor,
@@ -366,6 +530,9 @@ function factory(grid) {
 
             /**
              * @name gridCell
+             * @property {number} x - The active column index, adjusted for column scrolling after fixed columns; _i.e.,_
+             * an index suitable for dereferencing the column object to which the cell belongs via {@link Behavior#getActiveColumn}.
+             * @property {number} y - The vertical grid coordinate, unaffected by subgrid, row scrolling, and fixed rows.
              * @type {WritablePoint}
              * @memberOf CellEvent#
              */
@@ -375,6 +542,9 @@ function factory(grid) {
 
             /**
              * @name dataCell
+             * @property {number} x - The data model's column index, unaffected by column scrolling; _i.e.,_
+             * an index suitable for dereferencing the column object to which the cell belongs via {@link Behavior#getColumn}.
+             * @property {number} y - The data model's row index, adjusted for data row scrolling after fixed rows.
              * @type {WritablePoint}
              * @memberOf CellEvent#
              */
@@ -382,7 +552,13 @@ function factory(grid) {
                 value: new WritablePoint
             },
 
-            // column is enumerable so it will be copied to cell event on CellEvent.prototype.initialize.
+            /**
+             * A reference to the {@link Column} object representing the column to which the cell belongs.
+             * @name column
+             * @type {Column}
+             * Enumerable so it will be copied to cell event on CellEvent.prototype.initialize.
+             * @memberOf CellEvent#
+             */
             column: eumerableDescriptor,
 
             // getter caches
