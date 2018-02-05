@@ -78,7 +78,7 @@ var paintCellsFunctions = [];
  * @see [CanvasRenderingContext2D](https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D)
  */
 
-/** @typedef {object} visibleColumnDescriptor
+/** @typedef {object} visibleColumnArray
  * @property {number} index - A back reference to the element's array index in {@link Renderer#visibleColumns}.
  * @property {number} columnIndex - Dereferences {@link Behavior#columns}, the subset of _active_ columns, specifying which column to show in that position.
  * @property {number} left - Pixel coordinate of the left edge of this column, rounded to nearest integer.
@@ -86,7 +86,7 @@ var paintCellsFunctions = [];
  * @property {number} width - Width of this column in pixels, rounded to nearest integer.
  */
 
-/** @typedef {object} visibleRowDescriptor
+/** @typedef {object} visibleRowArray
  * @property {number} index - A back reference to the element's array index in {@link Renderer#visibleRows}.
  * @property {number} rowIndex - Local vertical row coordinate within the subgrid to which the row belongs, adjusted for scrolling.
  * @property {dataModelAPI} subgrid - A reference to the subgrid to which the row belongs.
@@ -148,7 +148,7 @@ var Renderer = Base.extend('Renderer', {
          * 1. The first element will be -1 if the row handle column is being rendered.
          * 2. A zero-based list of consecutive of integers representing the fixed columns (if any).
          * 3. An n-based list of consecutive of integers representing the scrollable columns (where n = number of fixed columns + the number of columns scrolled off to the left).
-         * @type {visibleColumnDescriptor}
+         * @type {visibleColumnArray}
          */
         this.visibleColumns = Object.defineProperties([], visibleColumnPropertiesDescriptorFn(this.grid));
 
@@ -162,7 +162,7 @@ var Renderer = Base.extend('Renderer', {
          *   2. An n-based list of consecutive of integers representing the scrollable rows (where n = number of fixed rows + the number of rows scrolled off the top).
          *
          * Note that non-scrollable subgrids can come both before _and_ after the scrollable subgrid.
-         * @type {visibleRowDescriptor}
+         * @type {visibleRowArray}
          */
         this.visibleRows = [];
 
