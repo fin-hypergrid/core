@@ -158,7 +158,7 @@ var ColumnMoving = Feature.extend('ColumnMoving', {
      */
     handleMouseDown: function(grid, event) {
         if (
-            grid.behavior.isColumnReorderable() &&
+            grid.properties.columnsReorderable &&
             !event.isColumnFixed
         ) {
             if (event.isHeaderCell) {
@@ -207,7 +207,7 @@ var ColumnMoving = Feature.extend('ColumnMoving', {
      */
     handleMouseMove: function(grid, event) {
         if (
-            grid.behavior.isColumnReorderable() &&
+            grid.properties.columnsReorderable &&
             !event.isColumnFixed &&
             !this.dragging &&
             event.isHeaderCell &&
