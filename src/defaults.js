@@ -13,6 +13,10 @@ var propClassEnum = {
     ROWS: 3,
     CELLS: 4
 };
+var propClassLayersMap = {
+    DEFAULT: [propClassEnum.COLUMNS, propClassEnum.STRIPES, propClassEnum.ROWS, propClassEnum.CELLS],
+    NO_ROWS: [propClassEnum.CELLS]
+};
 
 /**
  * This module lists the properties that can be set on a {@link Hypergrid} along with their default values.
@@ -1269,19 +1273,18 @@ var defaults = {
      */
     columnsReorderable: true,
 
-    /** @summary Apply cell properties before `getCell`.
-     * @type {boolean}
-     * @default
-     * @memberOf module:defaults
-     */
-    applyCellProperties: true,
-
     /** @summary Reapply cell properties after `getCell`.
      * @type {boolean}
      * @default
      * @memberOf module:defaults
      */
-    reapplyCellProperties: false,
+    set reapplyCellProperties(value) {
+        if (!warned.reapplyCellProperties) {
+            console.log('The `.reapplyCellProperties` property has been deprecated as of v2.1.3 in favor of using the new `.propClassLayers` property. (May be removed in a future version.) This property is now a setter which sets `.propClassLayers` to `.propClassLayersMap.DEFAULT` (grid ← columns ← stripes ← rows ← cells) on truthy or `propClassLayersMap.NO_ROWS` (grid ← columns ← cells) on falsy, which is what you will see on properties stringification. This will give the same effect in most cases as the former property implementation, but not in all cases due to it no longer being applied dynamically. Developers should discontinue use of this property and start specifying `.propClassLayers` instead.');
+            warned.reapplyCellProperties = true;
+        }
+        this.propClassLayers = value ? propClassLayersMap.NO_ROWS : propClassLayersMap.DEFAULT;
+    },
 
     /** @summary Column grab within this number of pixels from top of cell.
      * @type {number}
@@ -1331,7 +1334,8 @@ var defaults = {
 
     // for Renderer.prototype.assignProps
     propClassEnum: propClassEnum,
-    propClassLayers: [ propClassEnum.COLUMNS, propClassEnum.STRIPES, propClassEnum.ROWS, propClassEnum.CELLS ],
+    propClassLayersMap: propClassLayersMap,
+    propClassLayers: propClassLayersMap.DEFAULT,
 
     /**
      * Used to access registered features -- unless behavior has a non-empty `features` property (array of feature contructors).

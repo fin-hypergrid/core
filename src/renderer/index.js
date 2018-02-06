@@ -4,25 +4,8 @@
 'use strict';
 
 var Base = require('../Base');
-var images = require('../../images/index');
-
-
-var propClassGet = [
-    undefined,
-    function(cellEvent) {
-        return cellEvent.columnProperties;
-    },
-    function(cellEvent) {
-        var rowStripes = cellEvent.isDataRow && cellEvent.columnProperties.rowStripes;
-        return rowStripes && rowStripes[cellEvent.dataCell.y % rowStripes.length];
-    },
-    function(cellEvent) {
-        return cellEvent.rowOwnProperties;
-    },
-    function(cellEvent) {
-        return cellEvent.cellOwnProperties;
-    }
-];
+var images = require('../../images');
+var layerProps = require('./layer-props');
 
 
 var visibleColumnPropertiesDescriptorFn = function(grid) {
@@ -1039,11 +1022,6 @@ var Renderer = Base.extend('Renderer', {
         // * mutate cell renderer choice (instance of which is returned)
         var cellRenderer = behavior.dataModel.getCell(config, config.renderer);
 
-        // Overwrite possibly mutated cell properties, if requested to do so by `getCell` override
-        if (cellEvent.cellOwnProperties && config.reapplyCellProperties) {
-            Object.assign(config, cellEvent.cellOwnProperties);
-        }
-
         behavior.cellPropertiesPrePaintNotification(config);
 
         //allow the renderer to identify itself if it's a button
@@ -1067,26 +1045,10 @@ var Renderer = Base.extend('Renderer', {
 
     /**
      * Overridable for alternative or faster logic.
-     * @param cellEvent
+     * @param CellEvent
+     * @returns {object} Layered config object.
      */
-    assignProps: function(cellEvent) {
-        var i, base, assignments,
-            propLayers = cellEvent.columnProperties.propClassLayers;
-
-        if (propLayers[0] !== 1) {
-            i = 0; // all prop layers
-            base = this.grid.properties;
-        } else {
-            i = 1; // skip column prop layer
-            base = cellEvent.columnProperties; // because column has grid properties as prototype
-        }
-
-        for (assignments = [Object.create(base)]; i < propLayers.length; ++i) {
-            assignments.push(propClassGet[propLayers[i]](cellEvent));
-        }
-
-        return Object.assign.apply(Object, assignments);
-    },
+    assignProps: layerProps,
 
     /**
      * @param {number|CellEvent} colIndexOrCellEvent - This is the "data" x coordinate.

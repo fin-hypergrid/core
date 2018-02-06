@@ -1086,7 +1086,7 @@ var Behavior = Base.extend('Behavior', {
      * @return {boolean} Can re-order columns.
      */
     isColumnReorderable: function() {
-        return this.grid.properties.columnsReorderable;
+        return this.deprecated('isColumnReorderable()', 'grid.properties.columnsReorderable', '2.1.3');
     },
 
     /**
