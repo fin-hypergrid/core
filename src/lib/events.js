@@ -62,7 +62,11 @@ module.exports = {
         if (listenerList) {
             listenerList.find(function(info, index) {
                 if (info.listener === listener) {
-                    listenerList.splice(index, 1); // remove it from the list
+                    if (listenerList.length === 1) {
+                        delete this.listeners[eventName];
+                    } else {
+                        listenerList.splice(index, 1); // remove it from the list
+                    }
                     this.canvas.removeEventListener(eventName, info.decorator);
                     return true;
                 }
@@ -78,7 +82,7 @@ module.exports = {
      */
     removeAllEventListeners: function(internal) {
         _(this.listeners).each(function(listenerList, key) {
-            listenerList.forEach(function(info) {
+            listenerList.slice().forEach(function(info) {
                 if (internal || !info.internal) {
                     this.removeEventListener(key, info.listener);
                 }

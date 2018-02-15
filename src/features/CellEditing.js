@@ -14,11 +14,16 @@ var CellEditing = Feature.extend('CellEditing', {
      * @param {Hypergrid} grid
      * @param {Object} event - the event details
      */
-    handleDoubleClick: function(grid, event) {
+    handleClick: function(grid, event) {
         edit.call(this, grid, event);
     },
 
-    handleClick: function(grid, event) {
+    /**
+     * @memberOf CellEditing.prototype
+     * @param {Hypergrid} grid
+     * @param {Object} event - the event details
+     */
+    handleDoubleClick: function(grid, event) {
         edit.call(this, grid, event, true);
     },
 
@@ -57,12 +62,10 @@ var CellEditing = Feature.extend('CellEditing', {
 
 });
 
-// Note: Keep ! in place to convert both sides to bool for
-// accurate equality test because either could be undefined.
 function edit(grid, event, onDoubleClick) {
     if (
         event.isDataCell &&
-        !event.getCellProperty('editOnDoubleClick') === !onDoubleClick // caution see note
+        !(event.getCellProperty('editOnDoubleClick') ^ onDoubleClick) // both same (true or falsy)?
     ) {
         grid.onEditorActivate(event);
     }

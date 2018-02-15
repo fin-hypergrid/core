@@ -759,7 +759,7 @@ var Behavior = Base.extend('Behavior', {
         }
 
         var metadata = (dataModel || this.dataModel).getRowMetadata(yOrCellEvent, properties && {});
-        return metadata && (metadata.__ROW || (metadata.__ROW = properties));
+        return metadata && (metadata.__ROW || properties && (metadata.__ROW = properties));
     },
 
     /**
@@ -1086,7 +1086,7 @@ var Behavior = Base.extend('Behavior', {
      * @return {boolean} Can re-order columns.
      */
     isColumnReorderable: function() {
-        return this.grid.properties.columnsReorderable;
+        return this.deprecated('isColumnReorderable()', 'grid.properties.columnsReorderable', '2.1.3');
     },
 
     /**

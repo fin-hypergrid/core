@@ -45,7 +45,7 @@ var CellEditors = Registry.extend('CellEditors', {
             }
             return this.BaseClass;
         }
-        return this.super.get.call(this, name);
+        return this.super.get.call(this, name, true);
     }
 
 });

@@ -50,14 +50,12 @@ var ColumnSorting = Feature.extend('ColumnSorting', {
 
 });
 
-// Note: Keep ! in place to convert both sides to bool for
-// accurate equality test because either could be undefined.
 function sort(grid, event, onDoubleClick) {
     var columnProperties;
     if (
         event.isHeaderCell &&
         !(columnProperties = event.columnProperties).unsortable &&
-        !columnProperties.sortOnDoubleClick === !onDoubleClick // caution see note
+        !(columnProperties.sortOnDoubleClick ^ onDoubleClick) // both same (true or falsy)?
     ) {
         grid.fireSyntheticColumnSortEvent(event.gridCell.x, event.primitiveEvent.detail.keys);
     }
