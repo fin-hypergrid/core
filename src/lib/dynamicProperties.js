@@ -40,7 +40,7 @@ var dynamicPropertyDescriptors = {
             return this.var.subgrids;
         },
         set: function(subgrids) {
-            this.var.subgrids = subgrids;
+            this.var.subgrids = subgrids.slice();
 
             if (this.grid.behavior) {
                 this.grid.behavior.subgrids = subgrids;
@@ -57,7 +57,7 @@ var dynamicPropertyDescriptors = {
             return this.var.features;
         },
         set: function(features) {
-            this.var.features = features;
+            this.var.features = features.slice();
             if (this.grid.behavior) {
                 this.grid.behavior.initializeFeatureChain(features);
                 this.grid.allowEvents(this.grid.getRowCount());
@@ -211,8 +211,8 @@ var dynamicPropertyDescriptors = {
     },
 
     // The following grid line props are now dynamic (as of v2.1.0).
-    // They non-enumerable so they will not be output with `grid.saveState()`.
-    // The new (as of 2.1.0) props they refer to is output instead:
+    // They're non-enumerable so they will not be output with `grid.saveState()`.
+    // The new (as of 2.1.0) props they refer to are output instead:
     // `gridLinesHColor`, `gridLinesVColor`, `gridLinesHWidth`, and `gridLinesVWidth`
     lineColor: {
         get: function() { return this.gridLinesHColor; },
@@ -379,10 +379,7 @@ function setCellPropertiesByColumnNameAndRowIndex(cellsHash) { // to be called w
 }
 
 function getGridBorderDescriptor(edge) {
-    edge = edge || '';
-
-    var propName = 'gridBorder' + edge,
-        styleName = 'border' + edge;
+    var propName = 'gridBorder' + (edge || '');
 
     return {
         enumerable: true,
@@ -391,18 +388,12 @@ function getGridBorderDescriptor(edge) {
         },
         set: function(border) {
             this.var[propName] = border;
+
             if (!edge) {
                 this.var.gridBorderLeft = this.var.gridBorderRight = this.var.gridBorderTop = this.var.gridBorderBottom = border;
             }
-            switch (border) {
-                case true:
-                    border = this.lineWidth + 'px solid ' + this.lineColor;
-                    break;
-                case false:
-                    border = null;
-                    break;
-            }
-            this.grid.canvas.canvas.style[styleName] = border;
+
+            this.grid.resetGridBorder(edge);
         }
     };
 }

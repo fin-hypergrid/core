@@ -10,6 +10,7 @@ var _ = require('object-iterators'); // fyi: installs the Array.prototype.find p
 var injectCSS = require('inject-stylesheet-template').bind(require('../css'));
 
 var Base = require('./Base');
+var themes = require('./themes');
 var defaults = require('./defaults');
 var dynamicPropertyDescriptors = require('./lib/dynamicProperties');
 var Canvas = require('./lib/Canvas');
@@ -26,6 +27,7 @@ var EDGE_STYLES = ['top', 'bottom', 'left', 'right'],
 
 /**
  * @mixes scrolling.mixin
+ * @mixes themes.instanceMixin
  * @constructor
  * @param {string|Element} [container] - CSS selector or Element
  * @param {object} [options]
@@ -153,10 +155,39 @@ var Hypergrid = Base.extend('Hypergrid', {
         }.bind(this));
 
         setTimeout(this.repaint.bind(this));
+
+        Hypergrid.grids.push(this);
+
+        this.resetGridBorder('Top');
+        this.resetGridBorder('Right');
+        this.resetGridBorder('Bottom');
+        this.resetGridBorder('Left');
     },
 
     terminate: function() {
         document.removeEventListener('mousedown', this.mouseCatcher);
+        this.canvas.stop();
+        Hypergrid.grids.splice(this.grids.indexOf(this), 1);
+    },
+
+
+    resetGridBorder: function(edge) {
+        edge = edge || '';
+
+        var propName = 'gridBorder' + edge,
+            styleName = 'border' + edge,
+            props = this.properties,
+            border = props[propName];
+
+        switch (border) {
+            case true:
+                border = props.lineWidth + 'px solid ' + props.lineColor;
+                break;
+            case false:
+                border = null;
+                break;
+        }
+        this.canvas.canvas.style[styleName] = border;
     },
 
     registerCellEditor: function(Constructor, name) {
@@ -252,8 +283,6 @@ var Hypergrid = Base.extend('Hypergrid', {
      * @memberOf Hypergrid#
      */
     clearState: function() {
-        this._theme = Object.create(defaults);
-
         /**
          * @name properties
          * @type {object}
@@ -266,7 +295,7 @@ var Hypergrid = Base.extend('Hypergrid', {
          * Note: Any changes the application developer may wish to make to the {@link module:defaults|defaults} object should be made _before_ reaching this point (_i.e.,_ prior to any grid instantiations).
          * @memberOf Hypergrid#
          */
-        this.properties = Object.defineProperties(Object.create(this.theme, dynamicPropertyDescriptors), {
+        this.properties = Object.defineProperties(this.initThemeLayer(), {
             grid: { value: this },
             var: { value: new Var() }
         });
@@ -1819,137 +1848,8 @@ var Hypergrid = Base.extend('Hypergrid', {
     get charMap() {
         return this.behavior.charMap;
     },
-
-    applyTheme: function(theme) {
-        // Before calling the inner `applyTheme` method, delete all the own props of this grid instance's theme layer (defined by previous call)
-        var themeLayer = this.theme;
-        Object.getOwnPropertyNames(themeLayer).forEach(function(propName) {
-            delete themeLayer[propName];
-        });
-
-        // Don't call the inner `applyTheme` method with a null theme because this would copy the default theme into this grid instance's theme layer which is not what we want; we just want to remove the instance's theme (already done, above) to reveal the global them underneath.
-        if (!theme || typeof theme === 'object' && Object.getOwnPropertyNames(theme).length === 0) {
-            return;
-        }
-
-        applyTheme.call(this, theme);
-    },
-
-    /**
-     * Get registered theme name or unregistered or anonymous theme object.
-     * @returns {string|undefined|object} One of:
-     * * **string:** When theme name is registered (except 'default').
-     * * **undefined:** When theme layer is empty (or theme name is 'default').
-     * * **object:** When theme name is not registered.
-     */
-    getTheme: function() {
-        var theme = this.theme,
-            themeName = theme.themeName;
-        return themeName === 'default' || !Object.getOwnPropertyNames(theme).length
-            ? undefined // default theme or no theme
-            : themeName in Hypergrid.themes
-            ? themeName // registered theme name
-            : theme; // unregistered theme object
-    },
-
-    /**
-     * @summary The theme layer in the properties hierarchy.
-     * @desc The theme layer is the second layer, above the `defaults` layer, and below the `properties` layer.
-     * Attempting to reset the theme throws an error (to guard against confusion with the `properties.theme` setter).
-     * @name theme
-     * @type {object}
-     * @summary The prototype layer where theme look and feel properties can be defined.
-     * @type {object}
-     * @memberOf Hypergrid#
-     */
-    get theme() {
-        return this._theme;
-    },
-    set theme(theme) {
-        console.warn('Attempt to reset grid.theme (properties layer). Use grid.applyTheme or the grid.properties.theme setter to apply a new theme.');
-    }
 });
 
-
-/**
- * @param {string} [themeName] - A registry name for the new theme. May be omitted if the theme has an embedded name (in `theme.themeName`).
- * _If omitted, the 2nd parameter (`theme`) is promoted to first position._
- */
-function registerTheme(name, theme) {
-    if (arguments.length === 1) {
-        theme = name;
-        name = theme.themeName;
-    }
-
-    if (!name) {
-        throw new Base.prototype.HypergridError('Cannot register a theme without a name.');
-    }
-
-    if (name === 'default') {
-        throw new Base.prototype.HypergridError('Cannot register a theme named "default".');
-    }
-
-    theme.themeName = theme.themeName || name;
-
-    Hypergrid.themes[name] = theme;
-}
-
-/**
- * Apply props from the given theme object to context's `theme` object.
- * In practice, this is one of:
- * * **When called by grid instance method:**
- * The instance's `theme` layer in the properties hierarchy.
- * * **When called by shared method:**
- * The `defaults` layer at the bottom of the properties hierarchy (_i.e.,_ the global theme).
- *
- * Note that a `themeName` property is always added to mask (in the case of an instance theme) or override (in the case of the global theme) `defaults.themeName`.
- * @this {Hypergrid|Hypergrid.constructor}
- * @param {object|string} [theme=Hypergrid.themes.default] - One of:
- * * **string:** A registered theme name.
- * * **object:** A theme object.
- * @param {string|undefined} [theme.themeName=undefined] - When `theme` is an object but this property is omitted, defaults to an explicit `undefined`.
- * @memberOf Hypergrid~
- * @private
- */
-function applyTheme(theme) {
-    switch (typeof theme) {
-        case 'undefined':
-        case 'object':
-            if (theme && Object.getOwnPropertyNames(theme).length) { break; }
-            theme = 'default';
-            // fallthrough
-        case 'string':
-            theme = Hypergrid.themes[theme];
-            if (theme) { break; }
-            // fallthrough
-        default:
-            throw new Base.prototype.HypergridError('Unknown theme "' + theme + '"');
-    }
-
-    var newThemePropertyDescriptors = Object.getOwnPropertyDescriptors(theme);
-
-    // When no theme name, set it to explicit `undefined` (to mask defaults.themeName).
-    if (!('themeName' in newThemePropertyDescriptors)) {
-        newThemePropertyDescriptors.themeName = {
-            configurable: true,
-            value: undefined
-        };
-    }
-
-    // Make sure all the new theme props are configurable so they can be deleted by the next call.
-    _(newThemePropertyDescriptors).each(function(descriptor, key) {
-        if (key in dynamicPropertyDescriptors) {
-            // Dynamic properties are defined on properties layer; defining these
-            // r-values on the theme layer is ineffective so let's not allow it.
-            delete newThemePropertyDescriptors[key];
-        } else {
-            descriptor.configurable = true;
-        }
-    });
-
-    // Apply the theme (i.e., add new members to theme layer)
-    Object.defineProperties(this.theme, newThemePropertyDescriptors);
-}
 
 /**
  * Creates an instance variable backer for use by the getters and setters described in {@link dynamicPropertyDescriptors}.
@@ -1958,16 +1858,14 @@ function applyTheme(theme) {
  * @private
  */
 function Var() {
-    var BACKING_STORE = '.var.';
-    Object.getOwnPropertyNames(dynamicPropertyDescriptors).forEach(function(name) {
-        var descriptor = dynamicPropertyDescriptors[name];
-        if (
-            methodContains(descriptor.get, BACKING_STORE) ||
-            methodContains(descriptor.set, BACKING_STORE)
-        ) {
-            this[name] = defaults[name];
-        }
-    }, this);
+    this.gridRenderer = defaults.gridRenderer;
+    this.rowHeaderCheckboxes = defaults.rowHeaderCheckboxes;
+    this.rowHeaderNumbers = defaults.rowHeaderNumbers;
+    this.gridBorder = defaults.gridBorder;
+    this.gridBorderTop = defaults.gridBorderTop;
+    this.gridBorderRight = defaults.gridBorderRight;
+    this.gridBorderBottom = defaults.gridBorderBottom;
+    this.gridBorderLeft = defaults.gridBorderLeft;
 }
 
 function methodContains(method, sarg) {
@@ -2074,9 +1972,22 @@ Hypergrid.localization = {
 
 Hypergrid.prototype.setController.onerror = 'warn';
 
+Hypergrid.mixIn = Hypergrid.prototype.mixIn;
+
 Hypergrid.prototype.mixIn(require('./lib/events'));
 Hypergrid.prototype.mixIn(require('./lib/selection'));
 Hypergrid.prototype.mixIn(require('./lib/scrolling').mixin);
+
+Hypergrid.prototype.mixIn(themes.mixin);
+Hypergrid.mixIn(themes.sharedMixin);
+
+/**
+ * @summary List of grid instances.
+ * @desc Added in {@link Hypergrid constructor}; removed in {@link Hypergrid#terminate terminate()}.
+ * Used in themes.js.
+ * @type {Hypergrid[]}
+ */
+Hypergrid.grids = [];
 
 /** @name defaults
  * @memberOf Hypergrid
@@ -2091,7 +2002,7 @@ Hypergrid.prototype.mixIn(require('./lib/scrolling').mixin);
 Hypergrid.defaults = defaults;
 
 /** @name properties
- * @memberOf Hypergrid
+ * @memberOf Hypergrid[
  * @type {object}
  * @summary Synonym for {@link Hypergrid.defaults}.
  */
@@ -2104,27 +2015,6 @@ Hypergrid.properties = defaults;
  * @see {@link dataModels}
  */
 Hypergrid.dataModels = require('./dataModels');
-
-/** @name themes
- * @memberOf Hypergrid
- * @type {object}
- * @summary The Hypergrid theme registry.
- * @desc The standard registry consists of a single theme, `default`, built from values in defaults.js.
- * App developers are free to add in additional themes, such as those in {@link https://openfin.github.com/fin-hypergrid-themes/themes}:
- * ```javascript
- * Object.assign(Hypergrid.themes, require('fin-hypergrid-themes/themes'));
- * ```
- */
-Hypergrid.themes = require('./themes');
-
-Hypergrid.registerTheme = registerTheme;
-Hypergrid.applyTheme = applyTheme;
-Object.defineProperty(Hypergrid, 'theme', { // global theme setter/getter
-    get: function() {
-        return Hypergrid.defaults;
-    },
-    set: applyTheme
-});
 
 Hypergrid.modules = require('./lib/modules');
 

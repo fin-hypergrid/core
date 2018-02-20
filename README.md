@@ -16,9 +16,9 @@ It also highlights a DOM-based custom external editor triggered via hypergrid ev
 * [Roadmap](#roadmap)
 * [Contributing](#contributors)
 
-### Current Release (2.1.3 - 6 February 2018)
+### Current Release (2.1.4 - 20 February 2018)
 
-**Hypergrid 2.1.3** includes bug fixes as well as some new properties and methods that offer new capabilities.
+**Hypergrid 2.1.4** includes bug fixes and new properties and methods that offer new capabilities.
 
 _For a complete list of changes, see the [release notes](https://github.com/fin-hypergrid/core/releases)._
 
