@@ -12,6 +12,13 @@
  */
 var Base = require('extend-me').Base;
 
+Object.defineProperty(Base.prototype, 'version', {
+    enumerable: true,
+    writable: false, // read-only
+    configurable: false,
+    value: require('../package.json').version
+});
+
 Base.prototype.deprecated = require('./lib/deprecated');
 Base.prototype.HypergridError = require('./lib/error');
 

@@ -5,8 +5,10 @@
 var overrider = require('overrider');
 
 var deprecated = require('../lib/deprecated');
+var toFunction = require('../lib/toFunction');
 var HypergridError = require('../lib/error');
 var images = require('../../images/index');
+
 
 /** @summary Create a new `Column` object.
  * @see {@link module:Cell} is mixed into Column.prototype.
@@ -137,6 +139,9 @@ Column.prototype = {
      */
     set calculator(calculator) {
         var schema = this.dataModel.schema;
+
+        calculator = resolveCalculator.call(this, calculator);
+
         if (calculator !== schema[this.index].calculator) {
             if (calculator === undefined) {
                 delete schema[this.index].calculator;
@@ -353,6 +358,62 @@ Column.prototype = {
         return this.behavior.grid.localization.get(localizerName).format;
     }
 };
+
+var REGEX_ARROW_FUNC = /^(\(.*\)|\w+)\s*=>/;
+
+/**
+ * Calculators are functions. Column calculators are saved in `grid.properties.calculators` using the function name as key. Anonymous functions use the stringified function itself as the key. This may seem pointless, but this achieves the objective here which is to share function instances.
+ * @throws {HypergridError} Unexpected input.
+ * @throws {HypergridError} Arrow function not permitted.
+ * @throws {HypergridError} Unknown function.
+ * @this {Column}
+ * @param {function|string} calculator - One of:
+ * * calculator function
+ * * stringified calculator function with or without function name
+ * * function name of a known function (already in `calculators`)
+ * * falsy value
+ * @returns {function} Shared calculator instance or `undefined` if input was falsy.
+ */
+function resolveCalculator(calculator) {
+    if (!calculator) {
+        return undefined;
+    }
+
+    if (typeof calculator === 'function') {
+        calculator = calculator.toString();
+    } else if (typeof calculator !== 'string') {
+        throw new HypergridError('Expected function OR string containing function OR function name the "' + this.name + '" column calculator.');
+    }
+
+    var matches, key,
+        calculators = this.behavior.grid.properties.calculators || (this.behavior.grid.properties.calculators = {});
+
+    if (/^\w+$/.test(calculator)) {
+        key = calculator; // just a function name
+        if (!calculators[key]) {
+            throw new HypergridError('Unknown function name "' + key + '" for "' + this.name + '" column calculator.');
+        }
+    } else {
+        matches = calculator.match(/^function\s*(\w+)\(/);
+
+        if (matches) {
+            key = matches[1]; // function name extracted from stringified function
+        } else {
+            key = calculator; // anonymous stringified function
+        }
+
+        if (!calculators[key]) { // neither a string nor a function (previoulsy functionified string)?
+            if (REGEX_ARROW_FUNC.test(calculator)) {
+                throw new HypergridError('Arrow function not permitted as column calculator (for column "' + this.name + '").');
+            }
+            calculators[key] = calculator;
+        }
+    }
+
+    calculators[key] = toFunction(calculators[key]); // functionifies existing `calculators` entries as well as new entries
+
+    return calculators[key];
+}
 
 Column.prototype.mixIn(require('./cellProperties'));
 Column.prototype.mixIn(require('./columnProperties'));

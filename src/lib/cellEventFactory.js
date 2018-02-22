@@ -553,10 +553,11 @@ function factory(grid) {
             },
 
             /**
-             * A reference to the {@link Column} object representing the column to which the cell belongs.
+             * A reference to the cell's {@link Column} object.
+             *
+             * Enumerable so it will be copied to cell event on CellEvent.prototype.initialize.
              * @name column
              * @type {Column}
-             * Enumerable so it will be copied to cell event on CellEvent.prototype.initialize.
              * @memberOf CellEvent#
              */
             column: eumerableDescriptor,

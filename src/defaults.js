@@ -26,6 +26,14 @@ var propClassLayersMap = {
 
 var defaults = {
 
+    /**
+     * @summary The global theme name.
+     * @default
+     * @type {string}
+     * @memberOf module:defaults
+     */
+    themeName: 'default',
+
     set name(x) { throw new HypergridError(COLUMN_ONLY_PROPERTY); },
     set type(x) { throw new HypergridError(COLUMN_ONLY_PROPERTY); },
     set header(x) { throw new HypergridError(COLUMN_ONLY_PROPERTY); },
@@ -53,15 +61,6 @@ var defaults = {
         'HeaderSubgrid',
         'data'
     ],
-
-    /**
-     * @summary The global theme name.
-     * @desc Note that local themes (applied to grid instances) will have an overriding `themeName` property in their theme layer in the properties hierarchy.
-     * @default
-     * @type {string}
-     * @memberOf module:defaults
-     */
-    themeName: 'default',
 
     /**
      * The font for data cells.
@@ -551,7 +550,7 @@ var defaults = {
      * @type {boolean}
      * @memberOf module:defaults
      */
-    gridBorderBottom: true,
+    gridBorderBottom: false,
 
     /**
      * Define this property to style rule lines between fixed & scolling rows differently from `lineWidth`.
@@ -1376,14 +1375,16 @@ function rowPropertiesDeprecationWarning() {
     }
 }
 
-Object.defineProperty(defaults, 'rowProperties', {
-    get: function() {
-        rowPropertiesDeprecationWarning();
-        return this.rowStripes;
-    },
-    set: function(rowProperties) {
-        rowPropertiesDeprecationWarning();
-        this.rowStripes = rowProperties;
+Object.defineProperties(defaults, {
+    rowProperties: {
+        get: function() {
+            rowPropertiesDeprecationWarning();
+            return this.rowStripes;
+        },
+        set: function(rowProperties) {
+            rowPropertiesDeprecationWarning();
+            this.rowStripes = rowProperties;
+        }
     }
 });
 
