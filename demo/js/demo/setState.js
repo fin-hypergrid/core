@@ -137,8 +137,7 @@ module.exports = function(demo, grid) {
                         font: '10pt Tahoma',
                         color: 'lightblue',
                         backgroundColor: 'red',
-                        halign: 'left',
-                        reapplyCellProperties: true
+                        halign: 'left'
                     }
                 }
             }

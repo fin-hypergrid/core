@@ -1,5 +1,7 @@
 'use strict';
 
+var HypergridError = require('./error');
+
 /**
  * @param {function|string} string
  * @returns {function}
@@ -13,24 +15,24 @@ module.exports = function(string) {
         case 'string':
             break;
         default:
-            throw 'Expected string, function, or undefined.';
+            throw new HypergridError('Expected string, function, or undefined.');
     }
 
     var args = string.match(/^function\s*\w*\s*\(([^]*?)\)/);
     if (!args) {
-        throw 'Expected function keyword with formal parameter list.';
+        throw new HypergridError('Expected function keyword with formal parameter list.');
     }
     args = args[1].split(',').map(function(s, i) {
         s = s.match(/\s*(\w*)\s*/); // trim each argument
         if (!s && i) {
-            throw 'Expected formal parameter.';
+            throw new HypergridError('Expected formal parameter.');
         }
         return s[1];
     });
 
-    var body = string.match(/{\s*([^]*?)\s*}/);
+    var body = string.match(/{\s*([^]*?)\s*}\s*$/);
     if (!body) {
-        throw 'Expected function body.';
+        throw new HypergridError('Expected function body.');
     }
     body = body[1];
 

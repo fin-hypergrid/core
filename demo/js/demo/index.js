@@ -20,7 +20,7 @@ window.onload = function() {
         initState = require('./setState'),
         initCellRenderers = require('./cellrenderers'),
         initFormatters = require('./formatters'),
-        initCellEditors = require('./cellEditors'),
+        initCellEditors = require('./celleditors'),
         initDashboard = require('./dashboard'),
         initEvents = require('./events');
 

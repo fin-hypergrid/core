@@ -1,7 +1,5 @@
 'use strict';
 
-var toFunction = require('../lib/toFunction');
-
 var FIELD = 'columnProperties.field is deprecated as of v1.1.0 in favor of columnProperties.name. (Will be removed in a future release.)',
     COLUMN_NAME = 'columnProperties.columnName is deprecated as of v1.1.0 in favor of columnProperties.name. (Will be removed in a future release.)',
     COLUMN_ONLY_PROPERTY = 'Attempt to set column-only property on a non-column properties object.';
@@ -76,33 +74,7 @@ function createColumnProperties() {
                 if (this !== column.properties) {
                     throw new column.HypergridError(COLUMN_ONLY_PROPERTY);
                 }
-
-                if (!calculator) {
-                    column.calculator = undefined;
-                    return;
-                }
-
-                if (typeof calculator === 'function') {
-                    calculator = calculator.toString();
-                } else if (typeof calculator !== 'string') {
-                    throw new this.grid.HypergridError('Expected function or string containing function or function name.');
-                }
-
-                var matches, key = calculator,
-                    calculators = this.grid.properties.calculators = this.grid.properties.calculators || {};
-
-                if (/^\w+$/.test(calculator)) { // just a function name?
-                    calculator = calculators[calculator];
-                } else {
-                    matches = calculator.match(/^function\s*(\w+)\(/);
-                    if (matches) {
-                        key = matches[1];
-                    }
-                }
-
-                column.calculator = calculators[key] = typeof calculators[key] === 'function'
-                    ? calculators[key] || key //null calculators use the key itself (anonymous functions)
-                    : toFunction(calculator);
+                column.calculator = calculator;
             }
         },
 
