@@ -1868,10 +1868,6 @@ function Var() {
     this.gridBorderLeft = defaults.gridBorderLeft;
 }
 
-function methodContains(method, sarg) {
-    return method && method.toString().indexOf(sarg) !== -1;
-}
-
 function findOrCreateContainer(boundingRect) {
     var div = document.getElementById('hypergrid'),
         used = div && !div.firstElementChild;
