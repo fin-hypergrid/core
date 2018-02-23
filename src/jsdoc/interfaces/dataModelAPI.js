@@ -263,54 +263,38 @@ Object.setPrototypeOf(DataModel.prototype, DataSourceBase.prototype);
  */
 
 /**
- * @method dataModelAPI#installProperties
- * @returns {dataRowObject[]}
- */
-
-/**
- * @method dataModelAPI#defineProperty
- * @summary Install a property.
- * @desc This method installs a property into the _bottom layer._
- * @see {@link dataModelAPI#definePropertyBubbler}
- * @param {string} [key] - Property name.
- * @param {object} [descriptor] - The property descriptor.
- * @returns {dataRowObject[]}
- */
-
-/**
- * @method dataModelAPI#installPropertyBubblers
- * @returns {dataRowObject[]}
- */
-
-/**
- * @method dataModelAPI#definePropertyBubbler
- * @desc Install a property bubbler.
+ * @method dataModelAPI#install
+ * @summary Install methods into data model.
+ * @desc Injects default implementations of the methods named in the first param (`api`) into the data model's prototype that are no-ops. This allows _ad hoc_ calls to unimplemented functions to fail silently.
  *
- * This method installs a _property bubbler_ into the _bottom layer._
- * It will not install instance variables; the property needs to be a getter, setter, or method.
+ * When the data model is _stacked_ (_i.e.,_ a linked list of _data transformers,_ linked one to the next with a `next` property, ending with a _data source_ (with no `next` property), these default implementations will forward a call made on an upper layer to the nearest lower layer with an actual implementation.
  *
- * _Definition:_ A **property bubbler** is a getter, setter, or method that just "catches" an attempted invocation and fails _silently_ (meaining without throwing an error). It's called a bubbler because in data models that implement a multi-stage _transformation chain_ (a linked chain of of _data transformers,_ or _data sources_), the invocation is forwarded to each link in that chain before finally failing.
+ * When the 2nd param (`installAsFallbacks`) is truthy _and_ `api` is a hash, assigns the contained fallback method implementations to the final (data source) layer.
  *
- * @param {string} [key] - Property name.
- * @param {object} [descriptor] - The property descriptor.
- * @returns {boolean} Indicates if the property was installed.
- */
-
-/**
- * @method dataModelAPI#supports
- * @desc Checks if the method is supported.
- * @param string {key}
- * @returns {boolean} The method is supported.
- * @returns {dataRowObject[]}
+ * @param {object|string[]} [api=this] - Collection of methods or a list of method names.
+ *
+ * The following keys are however ignored:
+ * * _When `api` is a hash:_
+ *   * Keys defined as accessors (getters/setters)
+ *   * Keys not defined as functions
+ * * Keys named `initialize` or `constructor`
+ * * Keys not named in `api['!!keys']` if defined (_i.e.,_ a whitelist)
+ * * Keys named in `api['!keys']` if defined (_i.e.,_ a blacklist)
+ *
+ * @param {boolean} [install=false] - Installs the method. (Otherwise, just installs the bubbler.)
  */
 
 /**
  * @method dataModelAPI#DataSourceError
+ * @desc A direct descendent of `Error`.
  * @returns {dataRowObject[]}
  */
 
 /**
  * @method dataModelAPI#drillDownCharMap
+ * @desc Characters that can be used to construct cell values representing drill downs in a tree structure.
+ *
+ * A specialized cell renderer is often employed to produce better results using graphics instead of characters.
  * @returns {dataRowObject[]}
  */
 
@@ -320,8 +304,7 @@ Object.setPrototypeOf(DataModel.prototype, DataSourceBase.prototype);
  *
  * The data model may respond to clicks by adding/removing/decorating data rows (_e.g.,_ a drill-down).
  * If it does so, the click is considered to be "consumed."
- * When a click is consumed, data models should publish 'data-changed' to the grid; or 'data-prereindex' and 'data-postreindex', which in turn triggers a 'data-changed' event. (The grid responds to 'data-' events by
- * synthesizing and firing 'fin-data-' events on the `<canvas>` element.)
+ * When a click is consumed, data models should publish 'data-changed' to the grid; or 'data-prereindex' and 'data-postreindex', which in turn triggers a 'data-changed' event. Hypergrid takes appropriate actions on receipt of 'data-*' events before synthesizing and firing 'fin-data-*' events.
  * @param {CellEvent} event
  * @returns {boolean} - Click was consumed by the data model.
  */
@@ -329,20 +312,29 @@ Object.setPrototypeOf(DataModel.prototype, DataSourceBase.prototype);
 /**
  * Synonym for {@link dataModelAPI#isDrillDown isDrillDown}.
  * @method dataModelAPI#isTree
- * @returns {boolean} If the row had a drill down control and the click caused it's state to change.
+ * @param {number} y - Data row index.
+ * @returns {boolean} The row has a drill down control.
  */
 
 /**
- * Called whenever user clicks in a data cell.
- * Synonym for isDrillDown
+ * Called by Hypergrid's CellClick feature whenever user clicks on the grid.
  * @method dataModelAPI#isDrillDown
- * @returns {boolean} If the cell is in a drill-down column.
+ * @param {number} y - Data row index.
+ * @returns {boolean} The row has a drill down control.
  */
 
 /**
- * Synonym for getRowIndex
+ * Synonym for getRowIndex.
  * @method dataModelAPI#getDataIndex
- * @returns {number}
+ * @param {number} y - Transformed data row index.
+ * @returns {number} Untransformed data row index.
+ */
+
+/**
+ *
+ * @method dataModelAPI#getDataIndex
+ * @param {number} y - Transformed data row index.
+ * @returns {number} Untransformed data row index.
  */
 
 /**
@@ -356,7 +348,7 @@ Object.setPrototypeOf(DataModel.prototype, DataSourceBase.prototype);
  * @method dataModelAPI#getSchema
  * @desc Get list of columns. The order of the columns in the list defines the column indexes.
  *
- * On initial call and again whenever the schema changes, the data model should dispatch the `data-schema-changed` event. This tells Hypergrid to {@link module:dataModel/schema.enrich enrich} the schema and recreate the column objects.
+ * On initial call and again whenever the schema changes, the data model must dispatch the `data-schema-changed` event, which tells Hypergrid to {@link module:dataModel/schema.enrich enrich} the schema and recreate the column objects.
  * @returns {columnSchema[]}
  */
 
@@ -364,7 +356,7 @@ Object.setPrototypeOf(DataModel.prototype, DataSourceBase.prototype);
  * @method dataModelAPI#setSchema
  * @desc Define column indexes. May include `header`, `type`, and `calculator` properties for each column.
  *
- * When the schema changes, the data model should dispatch the `data-schema-changed` event. This tells Hypergrid to {@link module:dataModel/schema.enrich enrich} the schema and recreate the column objects.
+ * When the schema changes, the data model should dispatch the `data-schema-changed` event, which tells Hypergrid to {@link module:dataModel/schema.enrich enrich} the schema and recreate the column objects.
  *
  * It is not necessary to call on every data update when you expect to reuse the existing schema.
  * ##### Parameters:

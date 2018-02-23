@@ -234,8 +234,8 @@ function getCellEditorAt(columnIndex, rowIndex, editorName, cellEvent) {
  * @param {dataModelAPI} dataModel
  */
 function addPolyfills(dataModel) {
-    if (!dataModel.bubble) {
-        dataModel.bubble = function(api, fallback) {
+    if (!dataModel.install) {
+        dataModel.install = function(api, fallback) {
             if (fallback && !Array.isArray(api)) {
                 api = api || this;
                 Object.keys(api).filter(function(key) {
@@ -259,8 +259,8 @@ function addPolyfills(dataModel) {
  * @private
  */
 function addFallbacks(dataModel, grid) {
-    dataModel.bubble(fallbacks, true);
-    dataModel.bubble({ dispatchEvent: dispatchEvent.bind(grid) }, true);
+    dataModel.install(fallbacks, true);
+    dataModel.install({ dispatchEvent: dispatchEvent.bind(grid) }, true);
 }
 
 var REGEX_DATA_EVENT_STRING = /^data-((schema-|shape-)?changed|(pre|post)reindex)$/;
