@@ -1491,6 +1491,21 @@ function reapplyCellProperties(value) {
     this.propClassLayers = value ? propClassLayersMap.NO_ROWS : propClassLayersMap.DEFAULT;
 }
 
+function deleteProp(propName) {
+    var descriptor = Object.getOwnPropertyDescriptor(this, propName);
+    if (!descriptor) {
+        return false; // own property not found
+    } else if (!descriptor.get) {
+        return delete this[propName]; // non-accessor property found (returns !descriptor.configurable)
+    } else if (descriptor.get.toString().indexOf('.var.')) {
+        this.var[propName] = Object.getPrototypeOf(this)[propName];
+    } else {
+        return true; // property not deletable
+    }
+    this.grid.repaint();
+    return false; // delete was successful
+}
+
 /**
  * @summary Execute value if "calculator" (function) or if column has calculator.
  * @desc This function is referenced here so:
@@ -1514,6 +1529,7 @@ function exec(vf) {
 // Add non-enumerable "utility" props so they will be available wherever props are available.
 Object.defineProperties(defaults, {
     mixIn: { value: require('overrider').mixIn },
+    delete: { value: deleteProp },
     propClassEnum: { value: propClassEnum },
     propClassLayersMap: { value: propClassLayersMap },
     navKey: { value: navKey },
