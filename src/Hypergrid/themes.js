@@ -131,23 +131,21 @@ function applyTheme(theme) {
         }
 
         Object.keys(theme).forEach(function(key) {
-            if (!(key in dynamicPropertyDescriptors)) {
-                grids.forEach(function(grid) {
-                    delete grid.properties[key];
-                });
-            } else if (key in dynamicCosmetics) {
-                grids.forEach(function(grid) {
-                    grid.properties[key] = theme[key];
-                });
-            } else {
-                // Dynamic properties are defined on properties layer; defining these
-                // r-values on the theme layer is ineffective so let's not allow it.
-                var message = pseudopropAdvice[key];
-                message = message
-                    ? 'Ignoring unexpected pseudo-prop ' + key + ' in theme object. Use actual props ' + message + ' instead.'
-                    : 'Ignoring invalid property ' + key + ' in theme object.';
-                console.warn(message);
-                delete theme[key];
+            if (key in dynamicPropertyDescriptors) {
+                if (key in dynamicCosmetics) {
+                    grids.forEach(function(grid) {
+                        grid.properties[key] = theme[key];
+                    });
+                } else {
+                    // Dynamic properties are defined on properties layer; defining these
+                    // r-values on the theme layer is ineffective so let's not allow it.
+                    var message = pseudopropAdvice[key];
+                    message = message
+                        ? 'Ignoring unexpected pseudo-prop ' + key + ' in theme object. Use actual props ' + message + ' instead.'
+                        : 'Ignoring invalid property ' + key + ' in theme object.';
+                    console.warn(message);
+                    delete theme[key];
+                }
             }
         });
 
@@ -236,10 +234,12 @@ var sharedMixin = {
      * ```javascript
      * var myTheme = require('fin-hypergrid-themes').buildTheme();
      * ```
+     * If omitted, the theme named in the first parameter is unregistered.
+     * Grid instances that have previously applied the named theme are unaffected by this action (whether re-registering or unregistering).
      * @memberOf Hypergrid.
      */
     registerTheme: function(name, theme) {
-        if (arguments.length === 1) {
+        if (typeof name === 'object') {
             theme = name;
             name = theme.themeName;
         }
@@ -269,9 +269,15 @@ var sharedMixin = {
      * @memberOf Hypergrid.
      */
     registerThemes: function(themeCollection) {
-        _(themeCollection).each(function(theme, name) {
-            this.registerTheme(name, theme);
-        }, this);
+        if (themeCollection) {
+            _(themeCollection).each(function(theme, name) {
+                this.registerTheme(name, theme);
+            }, this);
+        } else {
+            Object.keys(registry).forEach(function(themeName) {
+                this.registerTheme(themeName);
+            }, this);
+        }
     },
 
     /**
