@@ -3,65 +3,56 @@
  * @summary Hypergrid 3 data model API.
  * @desc Hypergrid 3 data models have a minimal _required interface,_ as outlined below.
  *
- * #### TL;DR
- *
- * The only mandatory requirement is to implement the three methods, `getRowCount()`, `getSchema()`, and `getValue(x, y)`.
- *
  * #### Standard interface
  *
- * * {@link dataModelAPI#apply apply()}<sup>stubbed</sup>
- * * {@link dataModelAPI#click click()}<sup>stubbed-false</sup>
- * * {@link dataModelAPI#getCell getCell(config, rendererName)}<sup>injected, overridable</sup>
- * * {@link dataModelAPI#getCellEditorAt getCellEditorAt(columnIndex, rowIndex, editorName, cellEvent)}<sup>injected, overridable</sup>
- * * {@link dataModelAPI#getColumnCount getColumnCount()}<sup>injected</sup>
- * * {@link dataModelAPI#getData getData(metaDataFieldName)}<sup>injected</sup>
- * * {@link dataModelAPI#getMetadataStore getMetadataStore()}<sup>injected</sup>
- * * {@link dataModelAPI#getRowIndex getRowIndex(y)}<sup>injected</sup>
- * * {@link dataModelAPI#getRow getRow(y)}<sup>injected</sup><br>
- * * {@link dataModelAPI#getRowMetadata getRowMetadata(y, newRowMetadata)}<sup>injected</sup><br>
- * * {@link dataModelAPI#getRowCount getRowCount()}<sup>required!</sup>
- * * {@link dataModelAPI#getSchema getSchema()}<sup>required!</sup>
- * * {@link dataModelAPI#getValue getValue(x, y)}<sup>required!</sup>
- * * {@link dataModelAPI#isDrillDown isDrillDown()}<sup>stubbed-false</sup><br>
- * * {@link dataModelAPI#setMetadataStore setMetadataStore()}<sup>injected</sup>
- * * {@link dataModelAPI#setRowMetadata setRowMetadata(y, newRowMetadata)}<sup>injected</sup><br>
- * * {@link dataModelAPI#setSchema setSchema(newSchema)}<sup>optional, 1</sup><br>
- * * {@link dataModelAPI#setValue setValue(x, y, value)}<sup>optional, 2</sup><br>
+ * TL;DR — The only mandatory requirement is to implement the three methods, `getRowCount()`, `getSchema()`, and `getValue(x, y)`.
  *
- * Footnotes:
+ * Method | Required | Optional | Injected | Notes
+ * --- | :-: | :-: | :-: | ---
+ * {@link dataModelAPI#addRow addRow(dataRow, y)} | | `•` | | Proposed interface.
+ * {@link dataModelAPI#apply apply()} | | | `•` | No-op implementation.
+ * {@link dataModelAPI#click click()} | | | `•` | No-op implementation that returns `false`.
+ * {@link dataModelAPI#delRow delRow(y, dataRow)} | | `•` | | Proposed interface.
+ * {@link dataModelAPI#getCell getCell(config, rendererName)} | | | `•` | Overridable.
+ * {@link dataModelAPI#getCellEditorAt getCellEditorAt(columnIndex, rowIndex, editorName, cellEvent)} | | | `•` | Overridable.
+ * {@link dataModelAPI#getColumnCount getColumnCount()} | | | `•` |
+ * {@link dataModelAPI#getData getData(metaDataFieldName)} | | | `•` |
+ * {@link dataModelAPI#getMetadataStore getMetadataStore()} | | | `•` |
+ * {@link dataModelAPI#getRowIndex getRowIndex(y)} | | | `•` |
+ * {@link dataModelAPI#getRow getRow(y)} | | | `•` |
+ * {@link dataModelAPI#getRowMetadata getRowMetadata(y, newRowMetadata)} | | | `•` |
+ * {@link dataModelAPI#getRowCount getRowCount()} | `•` | | |
+ * {@link dataModelAPI#getSchema getSchema()} | `•` | | |
+ * {@link dataModelAPI#getValue getValue(x, y)} | `•` | | |
+ * {@link dataModelAPI#isDrillDown isDrillDown()} | | | `•` | No-op implementation that returns `false`.
+ * {@link dataModelAPI#setMetadataStore setMetadataStore()} | | | `•` |
+ * {@link dataModelAPI#setRow setRow(y, dataRow)} | | `•` | | Proposed interface.
+ * {@link dataModelAPI#setRowMetadata setRowMetadata(y, newRowMetadata)} | | | `•` |
+ * {@link dataModelAPI#setSchema setSchema(newSchema)} | | `•` | | Only called when the application calls it directly (`dataModel.setSchema()`) or indirectly by invoking Hypergrid's `behavior.schema` setter.
+ * {@link dataModelAPI#setValue setValue(x, y, value)} | | `•` | | Only called on attempt to close a cell editor. Note that cells are editable by default; set the {@link module:defaults.editable editable} property to `false` to make cell(s) non-editable (_i.e.,_ read-only) so this method will never be called.
  *
- * Superscript | Footnote
- * :-: | ---
- * required! | Method is required to be implemented by all data models.
- * stubbed | When not supported by the data model, to prevent calls from throwing an error, Hypergrid injects a stub with no return value.
- * stubbed-false | When not supported by the data model, Hypergrid injects a stub that specifically returns `false`.
- * injected | When not supported by the data model, Hypergrid injects a functional implementation. _**Caution:**_ These implementations may or may not be appropriate for your application (see [`fallbacks`](https://github.com/fin-hypergrid/core/blob/v3.0.0/src/behaviors/dataModel.js#L301)).
- * overridable | Called by Hypergrid; not intended to ever be called by the data model itself. The injected default is subject to being overridden by the application. Although a custom data model could in theory supply these, doing so would be very rare.
- * optional | Implementation required if and only if called by the application, either directly on the data model, or through a Hypergrid proxy (which may be a method, getter, or setter), or autonomously by Hypergrid itself when certain features are activated.
- * 1 | `setSchema` is only called when the application calls it directly (`dataModel.setSchema()`) or indirectly by invoking Hypergrid's `behavior.schema` setter.
- * 2 | `setValue` is only called on attempt to close a cell editor. Note that cells are editable by default; set the {@link module:defaults.editable editable} property to `false` to make cell(s) non-editable (_i.e.,_ read-only).
- *
- * #### Suggested interface
- *
- * The following methods are not required to be implemented. Implement at your own discretion, based on your application's specific needs.
- *
- * Because Hypergrid never calls any of these methods, these methods' specifications are theoretical. They are being put forward here so that data models might aim for some level of interoperability.
- *
- * * {@link dataModelAPI#addRow addRow(dataRow, y)}
- * * {@link dataModelAPI#delRow delRow(y, dataRow)}
- * * {@link dataModelAPI#setRow setRow(y, dataRow)}
+ * Definitions:
+ * * Implementation **Required** — The method is required to be implemented by all data models.
+ * * Fallback **Injected** — When not supported by the data model, Hypergrid injects a functional implementation. _**Caution:**_ These implementations may or may not be appropriate for your application. Check the code!
+ * * Implementation **Optional** — Required only if the application intends to call it, either directly on the data model, or through a Hypergrid proxy method; or autonomously by Hypergrid itself when certain features are activated.
+ * * **No-op implementation** — Fails silently when called.
+ * * **Overridable** — Called by Hypergrid; not intended to ever be called by the data model itself. The injected default is subject to being overridden by the application. Although a custom data model could in theory supply these, doing so would be very rare.
+ * * **Proposed interface** — These specifications are theoretical. Hypergrid never calls any of these methods. They are being put forward here just so that data models might aim for some level of interoperability. Implement at your own discretion, based on your application's specific needs.
  *
  * #### Utility methods
  *
- * Hypergrid only references the following utility methods when implemented. These are all implemented in `DataSourceBase`.
+ * Hypergrid only references the following when implemented (as they are in `DataSourceBase`).
+ *
+ * * {@link dataModelAPI#install install(api, injectFallbacks)}
+ * * {@link dataModelAPI#drillDownCharMap drillDownCharMap}
+ *
+ * #### `Error` implementation
+ *
+ * Hypergrid never uses this but data models should always do so when they need to throw an error:
  *
  * * {@link dataModelAPI#DataSourceError DataSourceError(message)}
- * * {@link dataModelAPI#defineProperty defineProperty(key, descriptor}
- * * {@link dataModelAPI#definePropertyBubbler definePropertyBubbler(key, descriptor)}
- * * {@link dataModelAPI#drillDownCharMap drillDownCharMap}
- * * {@link dataModelAPI#getOwnerOf getOwnerOf(methodName)}
- * * {@link dataModelAPI#installProperties installProperties(object)}
- * * {@link dataModelAPI#installPropertyBubblers installPropertyBubblers(api)}
+ *
+ * This helps identify the error as coming from the data model and not from Hypergrid (which always uses its own `HypergridError`) or the application.
  *
  * #### Data events
  *
@@ -104,14 +95,13 @@ var data = [
     }
 };
 ```
- * This above simple example is a plain object namespace.
- * Data models are more typically class instances (albeit not a requirement).
+ * This simple example is a plain object namespace.
  *
  * #### Data model base class
  *
- * Data models typically extend from `DataSourceBase` (_i.e.,_ have as its prototype the prototype of `DataSourceBase`). (This is also not a requirement.)
+ * Although not a requirement, data models are more typically class instances, typically extending from `DataSourceBase` (_i.e.,_ have as its prototype the prototype of `DataSourceBase`).
  *
- * There are many ways to do this. For instance, to "extend" the above example:
+ * There are many ways to "extend" a class do this. For instance, to "extend" the above example:
 ```javascript
 Object.setPrototypeOf(dataModel, DataSourceBase.prototype);
 ```
@@ -119,7 +109,11 @@ Object.setPrototypeOf(dataModel, DataSourceBase.prototype);
 ```javascript
 Object.setPrototypeOf(DataModel.prototype, DataSourceBase.prototype);
 ```
- * But the usual practice is to use `DataSourceBase.extend`. For example, `DataSourcelLocal`, the default data model that comes with Hypergrid, [does this](https://github.com/fin-hypergrid/datasaur-local/blob/master/index.js#L27). `DataSourceBase` supports data models with multi-stage data transformations and includes implementations of some utility methods. Extending from `DataSourceBase` is not a requirement, just so long as the data model conforms to the interface. `DataSourceBase` can be found in the [`datasaur-base`] module.
+ * But the usual practice is to use `DataSourceBase.extend`. For example, `DataSourcelLocal`, the default data model that comes with Hypergrid, [does this](https://github.com/fin-hypergrid/datasaur-local/blob/master/index.js#L27). `DataSourceBase` supports "stacked" data models (with multi-stage data transformations). It also includes an implementation of the `install` utility method.
+ *
+ * But again, extending from `DataSourceBase` is not a requirement, just so long as the data model conforms to the interface. And for that reason, a rudimentary version of `install` is injected into custom data models when they lack an implementation of their own.
+ *
+ * `DataSourceBase` can be found in the [`datasaur-base`] module.
  */
 
 /** @typdef {object} columnSchema
@@ -139,8 +133,10 @@ Object.setPrototypeOf(DataModel.prototype, DataSourceBase.prototype);
 
 /**
  * @method dataModelAPI#dispatchEvent
+ * @desc This method must be injected by Hypergrid; it should not be overridden.
+ * #### Parameters:
  * @param {string} eventName - Event string (name).
- * @param {object} [eventDetail={}] - Optional event object.
+ * @param {object} [eventDetail={}] - Optional event detail data.
  */
 
 /** @event dataModelAPI#data-schema-changed
@@ -175,18 +171,22 @@ Object.setPrototypeOf(DataModel.prototype, DataSourceBase.prototype);
 
 /**
  * @method dataModelAPI#getRow
- * @desc Blah.
- * ##### Parameters:
+ * @desc Get a row of data.
+ *
+ * The injected default implementation is an object of lazy getters.
+ * #### Parameters:
  * @param {number} rowIndex
- * @returns {number|undefined} The data row with the given `rowIndex`; or `undefined` if no such row.
+ * @returns {number|undefined} The data row corresponding to the given `rowIndex`; or `undefined` if no such row.
  */
 
 /**
  * @method dataModelAPI#setRow
- * @desc Blah.
- * ##### Parameters:
- * @param {number} rowIndex
- * @param {dataRowObject} dataRow
+ * @desc Update or blank row in place.
+ *
+ * _Note parameter order is the reverse of `addRow`._
+ * #### Parameters:
+ * @param {number} y
+ * @param {object} [dataRow] - if omitted or otherwise falsy, row renders as blank
  */
 
 /**
@@ -201,19 +201,12 @@ Object.setPrototypeOf(DataModel.prototype, DataSourceBase.prototype);
  */
 
 /**
- * Only called by Hypergrid when it receives the `data-prereindex` or `data-postreindex` events.
- * These events are typically triggered before and after data model remaps the rows (in its `apply` method).
- * @method dataModelAPI#getRowIndex
- * @returns {dataRowObject[]}
- */
-
-/**
  * @method dataModelAPI#setRowMetadata
  * @desc Set the row's metadata object, which is a hash of cell properties objects, for those cells that have property overrides, keyed by column name; plus a row properties object with key `__ROW` when there are row properties.
  *
  * The default implementations of `getRowMetadata` and `setRowMetadata` store the metadata in an in-memory table. If this is not appropriate, override these methods to store the meta somewhere else (_e.g.,_ with the data in a hidden column, in another database table, in local storage, _etc._).
  *
- * ##### Parameters:
+ * #### Parameters:
  * @param {number} y - Row index.
  * @param {object} [newMetadata] - When omitted, delete the row's metadata.
  */
@@ -229,7 +222,7 @@ Object.setPrototypeOf(DataModel.prototype, DataSourceBase.prototype);
  * If implemented, Hypergrid makes a single call to `setMetadataStore` when data model is reset (see {@link Behavior#resetDataModel}) with no arguments. Therefore this method needs to expect a no-arg overload and handle it appropriately.
  *
  * Hypergrid never calls `getMetadataStore`.
- * ##### Parameters:
+ * #### Parameters:
  * @param [newMetadataStore] - New metadata store object. Omitted on data model reset.
  */
 
@@ -239,7 +232,7 @@ Object.setPrototypeOf(DataModel.prototype, DataSourceBase.prototype);
  *
  * The default implementations of `getRowMetadata` and `setRowMetadata` store the metadata in an in-memory table. If this is not appropriate, override these methods to store the meta somewhere else (_e.g.,_ with the data in a hidden column, in another database table, in local storage, _etc._).
  *
- * ##### Parameters:
+ * #### Parameters:
  * @param {number} y - Row index.
  * @param {object} [prototype] - When row found but no metadata found, set the row's metadata to new object created from this object when defined.
  * Typical defined value is `null`, which creates a plain object with no prototype, or `Object.prototype` for a more "natural" object.
@@ -265,11 +258,11 @@ Object.setPrototypeOf(DataModel.prototype, DataSourceBase.prototype);
 /**
  * @method dataModelAPI#install
  * @summary Install methods into data model.
- * @desc Injects default implementations of the methods named in the first param (`api`) into the data model's prototype that are no-ops. This allows _ad hoc_ calls to unimplemented functions to fail silently.
+ * @desc Injects default implementations of the methods named in the 1st param (`api`) into the data model's prototype that are no-ops. This allows _ad hoc_ calls to unimplemented functions to fail silently.
  *
  * When the data model is _stacked_ (_i.e.,_ a linked list of _data transformers,_ linked one to the next with a `next` property, ending with a _data source_ (with no `next` property), these default implementations will forward a call made on an upper layer to the nearest lower layer with an actual implementation.
  *
- * When the 2nd param (`installAsFallbacks`) is truthy _and_ `api` is a hash, assigns the contained fallback method implementations to the final (data source) layer.
+ * When the 2nd param (`injectFallbacks`) is truthy _and_ `api` is a hash, assigns the contained fallback method implementations to the final (data source) layer.
  *
  * @param {object|string[]} [api=this] - Collection of methods or a list of method names.
  *
@@ -281,7 +274,7 @@ Object.setPrototypeOf(DataModel.prototype, DataSourceBase.prototype);
  * * Keys not named in `api['!!keys']` if defined (_i.e.,_ a whitelist)
  * * Keys named in `api['!keys']` if defined (_i.e.,_ a blacklist)
  *
- * @param {boolean} [install=false] - Installs the method. (Otherwise, just installs the bubbler.)
+ * @param {boolean} [injectFallbacks=false] - Installs the method. (Otherwise, just installs the bubbler.)
  */
 
 /**
@@ -301,47 +294,53 @@ Object.setPrototypeOf(DataModel.prototype, DataSourceBase.prototype);
 /**
  * @method dataModelAPI#click
  * @summary Mouse was clicked on a grid row.
- *
- * The data model may respond to clicks by adding/removing/decorating data rows (_e.g.,_ a drill-down).
+ * @desc The data model may respond to clicks by adding/removing/decorating data rows (_e.g.,_ a drill-down).
  * If it does so, the click is considered to be "consumed."
  * When a click is consumed, data models should publish 'data-changed' to the grid; or 'data-prereindex' and 'data-postreindex', which in turn triggers a 'data-changed' event. Hypergrid takes appropriate actions on receipt of 'data-*' events before synthesizing and firing 'fin-data-*' events.
+ * #### Parameters:
  * @param {CellEvent} event
  * @returns {boolean} - Click was consumed by the data model.
  */
 
 /**
- * Synonym for {@link dataModelAPI#isDrillDown isDrillDown}.
  * @method dataModelAPI#isTree
+ * @desc Synonym for {@link dataModelAPI#isDrillDown isDrillDown}.
+ * #### Parameters:
  * @param {number} y - Data row index.
  * @returns {boolean} The row has a drill down control.
  */
 
 /**
- * Called by Hypergrid's CellClick feature whenever user clicks on the grid.
  * @method dataModelAPI#isDrillDown
+ * @desc Called by Hypergrid's CellClick feature whenever user clicks on the grid.
+ * #### Parameters:
  * @param {number} y - Data row index.
  * @returns {boolean} The row has a drill down control.
  */
 
 /**
- * Synonym for getRowIndex.
- * @method dataModelAPI#getDataIndex
+ * @method dataModelAPI#getRowIndex
+ * @desc Only called by Hypergrid when it receives the `data-prereindex` or `data-postreindex` events.
+ * These events are typically triggered before and after data model remaps the rows (in its `apply` method).
+ * #### Parameters:
  * @param {number} y - Transformed data row index.
  * @returns {number} Untransformed data row index.
  */
 
 /**
- *
  * @method dataModelAPI#getDataIndex
+ * @desc Synonym for getRowIndex.
+ * #### Parameters:
  * @param {number} y - Transformed data row index.
  * @returns {number} Untransformed data row index.
  */
 
 /**
  * @method dataModelAPI#getData
- * ##### Parameters:
+ * @desc All grid data.
+ * #### Parameters:
  * @param {string} [metadataFieldName] - If provided, the output will include the row metadata object in a "hidden" field with this name.
- * @returns {dataRowObject[]}
+ * @returns {dataRowObject[]} All the grid's data rows.
  */
 
 /**
@@ -359,22 +358,34 @@ Object.setPrototypeOf(DataModel.prototype, DataSourceBase.prototype);
  * When the schema changes, the data model should dispatch the `data-schema-changed` event, which tells Hypergrid to {@link module:dataModel/schema.enrich enrich} the schema and recreate the column objects.
  *
  * It is not necessary to call on every data update when you expect to reuse the existing schema.
- * ##### Parameters:
+ * #### Parameters:
  * @param {Array.<columnSchema|string>} [newSchema] - String elements are immediately converted (by `enrich`) to columnSchema objects.
  */
 
 /**
  * @method dataModelAPI#addRow
+ * @desc Insert or append a new row.
+ *
+ * _Note parameter order is the reverse of `setRow`._
+ * #### Parameters:
+ * @param {object} dataRow
+ * @param {number} [y=Infinity] - The index of the new row. If `y` >= row count, row is appended to end; otherwise row is inserted at `y` and row indexes of all remaining rows are incremented.
  */
 
 /**
  * @method dataModelAPI#delRow
+ * @desc Rows are removed entirely and no longer render.
+ * Indexes of all remaining rows are decreased by `rowCount`.
+ * #### Parameters:
+ * @param {number} y
+ * @param {number} [rowCount=1]
+ * @returns {dataRowObject[]}
  */
 
 /**
  * @method dataModelAPI#getValue
  * @desc Get a cell's value given its column & row indexes.
- * ##### Parameters:
+ * #### Parameters:
  * @param {number} columnIndex
  * @param {number} rowIndex
  * @returns {string|number|boolean|null} The member with the given `columnIndex` from the data row with the given `rowIndex`.
@@ -383,7 +394,7 @@ Object.setPrototypeOf(DataModel.prototype, DataSourceBase.prototype);
 /**
  * @method dataModelAPI#setValue
  * @desc Set a cell's value given its column & row indexes and a new value.
- * ##### Parameters:
+ * #### Parameters:
  * @param {number} columnIndex
  * @param {number} rowIndex
  * @param {*} newValue
@@ -392,7 +403,7 @@ Object.setPrototypeOf(DataModel.prototype, DataSourceBase.prototype);
 /**
  * @method dataModelAPI#setData
  * @desc Blah.
- * ##### Parameters:
+ * #### Parameters:
  * @param {dataRowObject[]} data - An array of congruent raw data objects.
  * @param {columnSchema[]} - Ordered array of column schema.
  */
@@ -422,6 +433,7 @@ Object.setPrototypeOf(DataModel.prototype, DataSourceBase.prototype);
  *
  * Overriding `getCell` still has great facility when the rendering needs to be a function of the data values, but other than that, every effort should be made to avoid overriding `getCell` whenever possible.
  *
+ * #### Parameters:
  * @param {CellEditor#renderConfig} config
  * @param {string} rendererName - Same as `config.renderer`, the proposed cell renderer name.
  * @returns {CellRenderer} An instantiated cell renderer.
@@ -446,7 +458,7 @@ Object.setPrototypeOf(DataModel.prototype, DataSourceBase.prototype);
  *
  * The only requirement for this method (or its override) is to return a reference to an instantiated cell editor, which is all the default implementation does. This is typically the cell editor whose name is in the {@link module:defaults.editor config.editor} property (assumed to be a "registered" cell editor). It doesn't have to be that cell editor, however; any object conforming to the CellEditor interface will do.
  *
- * ##### Parameters:
+ * #### Parameters:
  *
  * @param {number} columnIndex - Absolute column index. I.e., the position of the column in the data source's original `fields` array, as echoed in `behavior.allColumns[]`.
  *
