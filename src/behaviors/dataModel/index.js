@@ -43,7 +43,7 @@ var warned = {};
  * Behavior.js mixes this module into its prototype.
  * @mixin
  */
-var mixin = {
+exports.mixin = {
     /**
      * Create a new data model
      * @param {object} [options]
@@ -100,7 +100,7 @@ var mixin = {
     decorateDataModel: function(newDataModel, options) {
         addPolyfills(newDataModel);
         addFallbacks(newDataModel, this.grid);
-        addHooks(newDataModel);
+        addDefaultHooks(newDataModel);
 
         newDataModel.setMetadataStore(options && options.metadata);
 
@@ -133,24 +133,6 @@ var mixin = {
     },
 
     /**
-     * @summary Calls `isDrillDown()` on the data model.
-     * @see {@link https://fin-hypergrid.github.io/doc/dataModelAPI.html#isDrillDown|isDrillDown}
-     * @memberOf Behavior#
-     */
-    isDrillDown: function(x) {
-        return this.dataModel.isDrillDown(x);
-    },
-
-    /**
-     * @summary Calls `click()` on the data model.
-     * @see {@link https://fin-hypergrid.github.io/doc/dataModelAPI.html#click|click}
-     * @memberOf Behavior#
-     */
-    click: function(y) {
-        return this.dataModel.click(y);
-    },
-
-    /**
      * @summary Calls `apply()` on the data model.
      * @see {@link https://fin-hypergrid.github.io/doc/dataModelAPI.html#reindex|reindex}
      * @memberOf Behavior#
@@ -176,7 +158,7 @@ var mixin = {
      * @param {number} y - the row index of interest
      */
     getRow: function(y) {
-        return this.dataModel.getRow(y);
+        return this.deprecated('getRow(y)', 'dataModel.getRow(y)', '3.0.0', arguments, 'We removed grid.getRow(y) and grid.behavior.getRow(). If you are determined to call getRow, call it on the data model directily. However, calling .getRow(y) is not recommended; always try to use .getValue(x, y) instead. See https://github.com/fin-hypergrid/core/wiki/getRow(y)-and-getData()-(ab)use for more information');
     },
 
     /**
@@ -207,7 +189,8 @@ var mixin = {
      * @memberOf Behavior#
      */
     cellClicked: function(event) {
-        return this.isDrillDown(event.dataCell.x) && this.click(event.dataCell.y);
+        return this.dataModel.isDrillDown(event.dataCell.x) &&
+            this.dataModel.click(event.dataCell.y);
     }
 };
 
@@ -220,7 +203,7 @@ function myCustomGetCell(config, rendererName) {
     return getCell(config, rendererName);
 }
 ```
- * Alternatively, copy in the default implementation body (which is just one line):
+ * Alternatively, copy in the default implementation body (a one-liner):
  ```js
  function myCustomGetCell(config, rendererName) {
     // custom logic here that mutates config and/or renderName
@@ -239,14 +222,14 @@ function getCell(config, rendererName) {
  ```js
  var getCellEditorAt = require('fin-hypergrid/src/behaviors/dataModel').getCellEditorAt;
  function myCustomGetCellEditorAt(columnIndex, rowIndex, editorName, cellEvent) {
-    // custom logic here that mutates config and/or renderName
+    // custom logic here, may mutate config and/or renderName
     return getCellEditorAt(columnIndex, rowIndex, editorName, cellEvent);
 }
  ```
- * Alternatively, copy in the default implementation body (which is just one line):
+ * Alternatively, copy in the default implementation body (a one-liner):
  ```js
  function myCustomGetCellEditorAt(columnIndex, rowIndex, editorName, cellEvent) {
-    // custom logic here that mutates editorName
+    // custom logic here, may mutate editorName
     return cellEvent.grid.cellEditors.create(editorName, cellEvent);
 }
  ```
@@ -365,7 +348,7 @@ function addFriendlierDrillDownMapKeys() {
 /**
  * @param {dataModelAPI} dataModel
  */
-function addHooks(dataModel) {
+function addDefaultHooks(dataModel) {
     if (!dataModel.getCell) {
         dataModel.getCell = getCell;
     }
@@ -374,10 +357,3 @@ function addHooks(dataModel) {
         dataModel.getCellEditorAt = getCellEditorAt;
     }
 }
-
-
-module.exports = {
-    getCell: getCell,
-    getCellEditorAt: getCellEditorAt,
-    mixin: mixin
-};

@@ -48,7 +48,9 @@ module.exports = {
         return rows;
     },
 
-    setData: function(data) {},
+    setData: function(data) {
+        // fail silently because JSON.js::setData currently calls this for every subgrid
+    },
 
     setValue: function(x, y, value) {
         console.warn('dataModel.setValue(' + x + ', ' + y + ', "' + value + '") called but no implementation. Data not saved.');

@@ -151,10 +151,10 @@ function newCellPropertiesObject(rowIndex, dataModel) {
 
     switch (this.index) {
         case this.behavior.treeColumnIndex:
-            props = this.properties.treeHeader;
+            props = props.treeHeader;
             break;
         case this.behavior.rowColumnIndex:
-            props = this.properties.rowHeader;
+            props = props.rowHeader;
             break;
         default:
             if (dataModel && dataModel.type === 'filter') {

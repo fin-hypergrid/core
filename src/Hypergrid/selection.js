@@ -178,20 +178,19 @@ exports.mixin = {
      * @memberOf Hypergrid#
      */
     getRowSelection: function(hiddenColumns) {
-        var column, rows,
-            self = this,
+        var dataModel = this.behavior.dataModel,
             selectedRowIndexes = this.selectionModel.getSelectedRows(),
             columns = getColumns.call(this, hiddenColumns),
             result = {};
 
         for (var c = 0, C = columns.length; c < C; c++) {
-            column = columns[c];
-            rows = result[column.name] = new Array(selectedRowIndexes.length);
+            var column = columns[c],
+                rows = result[column.name] = new Array(selectedRowIndexes.length);
             selectedRowIndexes.forEach(getValue);
         }
 
         function getValue(selectedRowIndex, j) {
-            var dataRow = self.getRow(selectedRowIndex);
+            var dataRow = dataModel.getRow(selectedRowIndex);
             rows[j] = valOrFunc(dataRow, column);
         }
 
@@ -204,7 +203,7 @@ exports.mixin = {
      * @memberOf Hypergrid#
      */
     getRowSelectionMatrix: function(hiddenColumns) {
-        var self = this,
+        var dataModel = this.behavior.dataModel,
             selectedRowIndexes = this.selectionModel.getSelectedRows(),
             columns = getColumns.call(this, hiddenColumns),
             result = new Array(columns.length);
@@ -216,7 +215,7 @@ exports.mixin = {
         }
 
         function getValue(selectedRowIndex, r) {
-            var dataRow = self.getRow(selectedRowIndex);
+            var dataRow = dataModel.getRow(selectedRowIndex);
             result[c][r] = valOrFunc(dataRow, column);
         }
 
@@ -224,19 +223,19 @@ exports.mixin = {
     },
 
     getColumnSelectionMatrix: function() {
-        var dataRow,
-            self = this,
+        var behavior = this.behavior,
+            dataModel = behavior.dataModel,
             headerRowCount = this.getHeaderRowCount(),
             selectedColumnIndexes = this.getSelectedColumns(),
             numRows = this.getRowCount(),
             result = new Array(selectedColumnIndexes.length);
 
         selectedColumnIndexes.forEach(function(selectedColumnIndex, c) {
-            var column = self.behavior.getActiveColumn(selectedColumnIndex),
+            var column = behavior.getActiveColumn(selectedColumnIndex),
                 values = result[c] = new Array(numRows);
 
             for (var r = headerRowCount; r < numRows; r++) {
-                dataRow = self.getRow(r);
+                var dataRow = dataModel.getRow(r);
                 values[r] = valOrFunc(dataRow, column);
             }
         });
@@ -245,19 +244,19 @@ exports.mixin = {
     },
 
     getColumnSelection: function() {
-        var dataRow,
-            self = this,
+        var behavior = this.behavior,
+            dataModel = behavior.dataModel,
             headerRowCount = this.getHeaderRowCount(),
             selectedColumnIndexes = this.getSelectedColumns(),
             result = {},
             rowCount = this.getRowCount();
 
         selectedColumnIndexes.forEach(function(selectedColumnIndex) {
-            var column = self.behavior.getActiveColumn(selectedColumnIndex),
+            var column = behavior.getActiveColumn(selectedColumnIndex),
                 values = result[column.name] = new Array(rowCount);
 
             for (var r = headerRowCount; r < rowCount; r++) {
-                dataRow = self.getRow(r);
+                var dataRow = dataModel.getRow(r);
                 values[r] = valOrFunc(dataRow, column);
             }
         });
@@ -266,8 +265,8 @@ exports.mixin = {
     },
 
     getSelection: function() {
-        var dataRow,
-            self = this,
+        var behavior = this.behavior,
+            dataModel = behavior.dataModel,
             selections = this.getSelections(),
             rects = new Array(selections.length);
 
@@ -280,11 +279,11 @@ exports.mixin = {
                 columns = {};
 
             for (var c = 0, x = rect.origin.x; c < colCount; c++, x++) {
-                var column = self.behavior.getActiveColumn(x),
+                var column = behavior.getActiveColumn(x),
                     values = columns[column.name] = new Array(rowCount);
 
                 for (var r = 0, y = rect.origin.y; r < rowCount; r++, y++) {
-                    dataRow = self.getRow(y);
+                    var dataRow = dataModel.getRow(y);
                     values[r] = valOrFunc(dataRow, column);
                 }
             }
@@ -296,8 +295,8 @@ exports.mixin = {
     },
 
     getSelectionMatrix: function() {
-        var dataRow,
-            self = this,
+        var behavior = this.behavior,
+            dataModel = behavior.dataModel,
             selections = this.getSelections(),
             rects = new Array(selections.length);
 
@@ -311,10 +310,10 @@ exports.mixin = {
 
             for (var c = 0, x = rect.origin.x; c < colCount; c++, x++) {
                 var values = rows[c] = new Array(rowCount),
-                    column = self.behavior.getActiveColumn(x);
+                    column = behavior.getActiveColumn(x);
 
                 for (var r = 0, y = rect.origin.y; r < rowCount; r++, y++) {
-                    dataRow = self.getRow(y);
+                    var dataRow = dataModel.getRow(y);
                     values[r] = valOrFunc(dataRow, column);
                 }
             }
