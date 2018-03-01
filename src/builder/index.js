@@ -20,7 +20,7 @@
 var fin = window.fin = window.fin || {};
 
 // Create the `fin.Hypergrid` object, which serves both as a "class" (constructor) and a namespace:
-var Hypergrid = fin.Hypergrid = require('../Hypergrid/index');
+var Hypergrid = fin.Hypergrid = require('../Hypergrid');
 
 // Install the module loader
 Hypergrid.require = require('./module-loader');
@@ -44,10 +44,10 @@ Object.defineProperties(Hypergrid.modules, {
 
 // Install internal modules may not be overridden so non-configurable, non-writable
 Object.defineProperties(Hypergrid.src, {
-    lib: { value: require('../lib/index') },
-    behaviors: { value: require('../behaviors/index') },
-    dataModels: { value: require('../dataModels/index') },
-    features: { value: require('../features/index') },
+    lib: { value: require('../lib') },
+    behaviors: { value: require('../behaviors') },
+    dataModels: { value: require('../dataModels') },
+    features: { value: require('../features') },
     Base: { value: require('../Base') },
     defaults: { value: require('../defaults') }
 });

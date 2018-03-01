@@ -1,6 +1,6 @@
 'use strict';
 
-var dataModels = require('../../dataModels/index');
+var dataModels = require('../../dataModels');
 
 /** @typedef subgridConstructorRef
  * @summary Type definition.

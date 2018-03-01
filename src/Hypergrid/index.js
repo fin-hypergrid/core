@@ -7,13 +7,13 @@ require('../lib/polyfills'); // Installs misc. polyfills into global objects, as
 var Point = require('rectangular').Point;
 var Rectangle = require('rectangular').Rectangle;
 var _ = require('object-iterators'); // fyi: installs the Array.prototype.find polyfill, as needed
-var injectCSS = require('inject-stylesheet-template').bind(require('../../css/index'));
+var injectCSS = require('inject-stylesheet-template').bind(require('../../css'));
 
 var Base = require('../Base');
 var defaults = require('../defaults');
 var dynamicPropertyDescriptors = require('../lib/dynamicProperties');
 var Canvas = require('../lib/Canvas');
-var Renderer = require('../renderer/index');
+var Renderer = require('../renderer');
 var SelectionModel = require('../lib/SelectionModel');
 var Localization = require('../lib/Localization');
 var Behavior = require('../behaviors/Behavior');

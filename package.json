@@ -2,6 +2,7 @@
   "name": "fin-hypergrid",
   "version": "3.0.0",
   "description": "Canvas-based high-performance grid",
+  "main": "src/Hypergrid",
   "repository": {
     "type": "git",
     "url": "git://github.com/openfin/fin-hypergrid.git"
