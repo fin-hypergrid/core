@@ -1,23 +1,15 @@
 'use strict';
 
-var _ = require('object-iterators');
-
 var dispatchEvent = require('../events.js').dispatchEvent;
 var enrichSchema = require('./schema').enrich;
 
-var eventStringsByHandlerName = {
-    fireSyntheticDataSchemaChangedEvent: 'fin-canvas-data-schema-changed',
-    fireSyntheticDataChangedEvent: 'fin-canvas-data-changed',
-    fireSyntheticDataShapeChangedEvent: 'fin-canvas-data-shape-changed',
-    fireSyntheticDataPrereindexEvent: 'fin-canvas-data-prereindex',
-    fireSyntheticDataPostreindexEvent: 'fin-canvas-data-postreindex'
-};
+var handlersByEventString;
 
 /**
  * Hypergrid/index.js mixes this module into its prototype.
  * @mixin
  */
-exports.mixin = {
+var mixin = {
 
     /**
      * @memberOf Hypergrid#
@@ -75,16 +67,29 @@ exports.mixin = {
             this.fireSyntheticDataShapeChangedEvent(event);
     },
 
-    delegateDataModelEvents: function() {
+    delegateDataEvents: function() {
+        Object.keys(handlersByEventString).forEach(function(eventString) {
+            this.addDataEventListener(eventString, handlersByEventString[eventString]);
+        }, this);
+    },
+
+    addDataEventListener: function(eventString, handler) {
         var grid = this;
 
-        _(eventStringsByHandlerName).each(function(eventString, handlerName) {
-            grid.addInternalEventListener(eventString, function(event) {
-                grid[handlerName](event || {});
-            });
+        grid.addInternalEventListener('fin-canvas-' + eventString, function(event) {
+            handler.call(grid, event || {});
         });
     }
 
+};
+
+
+handlersByEventString = {
+    'data-schema-changed': mixin.fireSyntheticDataSchemaChangedEvent,
+    'data-changed': mixin.fireSyntheticDataChangedEvent,
+    'data-shape-changed': mixin.fireSyntheticDataShapeChangedEvent,
+    'data-prereindex': mixin.fireSyntheticDataPrereindexEvent,
+    'data-postreindex': mixin.fireSyntheticDataPostreindexEvent
 };
 
 
@@ -139,3 +144,8 @@ function reselectRowsByUnderlyingIndexes(sourceIndexes) {
 
     return rowIndexes.length;
 }
+
+module.exports = {
+    mixin: mixin,
+    handlers: handlersByEventString
+};

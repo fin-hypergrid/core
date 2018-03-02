@@ -276,7 +276,7 @@ function addFallbacks(dataModel, grid) {
     dataModel.install({ dispatchEvent: dispatchEvent.bind(grid) }, true);
 }
 
-var REGEX_DATA_EVENT_STRING = /^data-((schema-|shape-)?changed|(pre|post)reindex)$/;
+var REGEX_DATA_EVENT_STRING = /^data(-[a-z]+)+$/;
 
 /**
  * @private
@@ -286,7 +286,7 @@ var REGEX_DATA_EVENT_STRING = /^data-((schema-|shape-)?changed|(pre|post)reindex
  */
 function dispatchEvent(eventName, eventDetail) {
     if (!REGEX_DATA_EVENT_STRING.test(eventName)) {
-        throw new HypergridError('Expected event string to match ' + REGEX_DATA_EVENT_STRING + '.');
+        throw new HypergridError('Expected data event string to match ' + REGEX_DATA_EVENT_STRING + '.');
     }
     this.canvas.dispatchEvent(new CustomEvent('fin-canvas-' + eventName, eventDetail));
 }
@@ -303,7 +303,7 @@ function addDeprecationWarnings() {
         enumerable: false,
         get: function() {
             if (!warned.grid) {
-                console.warn('`this.grid` (dataModel.grid) property has been deprecated as of v3.0.0 and will be removed in a future version. Data models should have no direct knowledge of or access to the grid. (If you need access to the grid object within your `getCell` or `getCellEditAt` override functions, define it in a closure.)');
+                console.warn('`this.grid` (dataModel.grid) property has been deprecated as of v3.0.0 and will definitely be removed in a future version. Data models should have no direct knowledge of or access to the grid. (If your data model needs to call grid methods, add a data event to your grid with grid.addDataEventListener(\'data-my-event\', myHandler) and trigger it from your data model with this.dispatchEvent(\'data-my-event\'). If you need access to the grid object from within a `getCell` or `getCellEditAt` override, define `grid` and the override in a closure.)');
                 warned.grid = true;
             }
             return grid;
