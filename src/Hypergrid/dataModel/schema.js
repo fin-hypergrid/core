@@ -106,7 +106,7 @@ function initSchemaEnum() {
         converters.forEach(function(converter) {
             var convertedKey = converter(columnSchema.name);
             if (!(convertedKey in schema)) {
-                schema[convertedKey] = columnIndex;
+                schema[convertedKey] = schema[columnIndex];
             }
         });
     });

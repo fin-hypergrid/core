@@ -2,24 +2,24 @@
 
 module.exports = function(demo, grid) {
 
-    var idx = grid.behavior.schema;
+    var schema = grid.behavior.schema;
 
     var greenland = { color: '#116611', backgroundColor: '#e8ffe8', font: 'italic small garamond' };
 
     var state = {
         columnIndexes: [
-            idx.lastName,
-            idx.totalNumberOfPetsOwned,
-            idx.height,
-            idx.birthDate,
-            idx.birthTime,
-            idx.birthState,
-            // idx.residenceState,
-            idx.employed,
-            // idx.firstName,
-            idx.income,
-            idx.travel,
-            // idx.squareOfIncome
+            schema.lastName.index,
+            schema.totalNumberOfPetsOwned.index,
+            schema.height.index,
+            schema.birthDate.index,
+            schema.birthTime.index,
+            schema.birthState.index,
+            // schema.residenceState.index,
+            schema.employed.index,
+            // schema.firstName.index,
+            schema.income.index,
+            schema.travel.index,
+            // schema.squareOfIncome.index
         ],
 
         noDataMessage: 'No Data to Display',

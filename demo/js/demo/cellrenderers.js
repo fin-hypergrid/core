@@ -4,7 +4,7 @@
 
 module.exports = function(demo, grid) {
 
-    var idx = grid.behavior.schema;
+    var schema = grid.behavior.schema;
 
     //GET CELL
     //all formatting and rendering per cell can be overridden in here
@@ -15,22 +15,22 @@ module.exports = function(demo, grid) {
                 rowIndex = config.dataCell.y;
 
             if (demo.styleRowsFromData) {
-                n = grid.behavior.getColumn(idx.totalNumberOfPetsOwned).getValue(rowIndex);
+                n = grid.behavior.getColumn(schema.totalNumberOfPetsOwned.index).getValue(rowIndex);
                 hex = (155 + 10 * (n % 11)).toString(16);
                 config.backgroundColor = '#' + hex + hex + hex;
             }
 
             switch (colIndex) {
-                case idx.lastName:
+                case schema.lastName.index:
                     config.color = config.value != null && (config.value + '')[0] === 'S' ? 'red' : '#191919';
                     config.link = true;
                     break;
 
-                case idx.income:
+                case schema.income.index:
                     travel = 60;
                     break;
 
-                case idx.travel:
+                case schema.travel.index:
                     travel = 105;
                     break;
             }
@@ -42,7 +42,7 @@ module.exports = function(demo, grid) {
             }
 
             //Testing
-            if (colIndex === idx.totalNumberOfPetsOwned) {
+            if (colIndex === schema.totalNumberOfPetsOwned.index) {
                 /*
                  * Be sure to adjust the data set to the appropriate type and shape in widedata.js
                  */
