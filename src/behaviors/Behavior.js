@@ -754,8 +754,8 @@ var Behavior = Base.extend('Behavior', {
      */
     getRowProperties: function(yOrCellEvent, properties, dataModel) {
         if (typeof yOrCellEvent === 'object') {
-            yOrCellEvent = yOrCellEvent.dataCell.y;
             dataModel = yOrCellEvent.subgrid;
+            yOrCellEvent = yOrCellEvent.dataCell.y;
         }
 
         var metadata = (dataModel || this.dataModel).getRowMetadata(yOrCellEvent, properties && {});
@@ -771,8 +771,8 @@ var Behavior = Base.extend('Behavior', {
      */
     setRowProperties: function(yOrCellEvent, properties, dataModel) {
         if (typeof yOrCellEvent === 'object') {
-            yOrCellEvent = yOrCellEvent.dataCell.y;
             dataModel = yOrCellEvent.subgrid;
+            yOrCellEvent = yOrCellEvent.dataCell.y;
         }
 
         (dataModel || this.dataModel).getRowMetadata(yOrCellEvent, {}, dataModel).__ROW = properties;
