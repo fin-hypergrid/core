@@ -539,11 +539,12 @@ var Behavior = Base.extend('Behavior', {
      */
     getValue: function(xOrCellEvent, y, dataModel) {
         if (typeof xOrCellEvent !== 'object') {
+            var x = xOrCellEvent;
             xOrCellEvent = new this.CellEvent;
             if (dataModel) {
-                xOrCellEvent.resetDataXY(xOrCellEvent, y, dataModel);
+                xOrCellEvent.resetDataXY(x, y, dataModel);
             } else {
-                xOrCellEvent.resetGridCY(xOrCellEvent, y);
+                xOrCellEvent.resetGridCY(x, y);
             }
         }
         return xOrCellEvent.value;
@@ -575,11 +576,12 @@ var Behavior = Base.extend('Behavior', {
         if (typeof xOrCellEvent === 'object') {
             value = y;
         } else {
+            var x = xOrCellEvent;
             xOrCellEvent = new this.CellEvent;
             if (dataModel) {
-                xOrCellEvent.resetDataXY(xOrCellEvent, y, dataModel);
+                xOrCellEvent.resetDataXY(x, y, dataModel);
             } else {
-                xOrCellEvent.resetGridCY(xOrCellEvent, y);
+                xOrCellEvent.resetGridCY(x, y);
             }
         }
         xOrCellEvent.value = value;
@@ -605,7 +607,7 @@ var Behavior = Base.extend('Behavior', {
     getCellOwnProperties: function(xOrCellEvent, y, dataModel) {
         switch (arguments.length) {
             case 1: // xOrCellEvent is cellEvent
-                return xOrCellEvent.column.getCellOwnProperties(xOrCellEvent.dataCell.y, xOrCellEvent.visibleRow.subgrid);
+                return xOrCellEvent.column.getCellOwnProperties(xOrCellEvent.dataCell.y, xOrCellEvent.subgrid);
             case 2: case 3: // xOrCellEvent is x
                 return this.getColumn(xOrCellEvent).getCellOwnProperties(y, dataModel);
         }
@@ -661,9 +663,9 @@ var Behavior = Base.extend('Behavior', {
     setCellProperties: function(xOrCellEvent, y, properties, dataModel) {
         if (typeof xOrCellEvent === 'object') {
             properties = y;
-            xOrCellEvent.column.setCellProperties(xOrCellEvent.dataCell.y, properties, xOrCellEvent.visibleRow.subgrid);
+            return xOrCellEvent.column.setCellProperties(xOrCellEvent.dataCell.y, properties, xOrCellEvent.subgrid);
         } else {
-            this.getColumn(xOrCellEvent).setCellProperties(y, properties, dataModel);
+            return this.getColumn(xOrCellEvent).setCellProperties(y, properties, dataModel);
         }
     },
 
@@ -678,9 +680,9 @@ var Behavior = Base.extend('Behavior', {
     addCellProperties: function(xOrCellEvent, y, properties, dataModel) {
         if (typeof xOrCellEvent === 'object') {
             properties = y;
-            xOrCellEvent.column.addCellProperties(xOrCellEvent.dataCell.y, properties, xOrCellEvent.visibleRow.subgrid); // y omitted so y here is actually properties
+            return xOrCellEvent.column.addCellProperties(xOrCellEvent.dataCell.y, properties, xOrCellEvent.subgrid); // y omitted so y here is actually properties
         } else {
-            this.getColumn(xOrCellEvent).addCellProperties(y, properties, dataModel);
+            return this.getColumn(xOrCellEvent).addCellProperties(y, properties, dataModel);
         }
     },
 
