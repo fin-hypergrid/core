@@ -121,6 +121,8 @@ var Hypergrid = Base.extend('Hypergrid', {
          */
         this.cellEditors = new CellEditors({ grid: this });
 
+        this.initCanvas();
+
         if (this.options.Behavior) {
             this.setBehavior(this.options); // also sets this.options.pipeline and this.options.data
         } else if (this.options.data) {
@@ -797,7 +799,6 @@ var Hypergrid = Base.extend('Hypergrid', {
             // 2. Called from `setData` _and_ wasn't called explicitly since instantiation
             var Behavior = options.Behavior || behaviorJSON;
             this.behavior = new Behavior(this, options);
-            this.initCanvas();
             this.initScrollbars();
             this.refreshProperties();
             this.behavior.reindex();
