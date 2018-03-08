@@ -99,7 +99,7 @@ module.exports = {
 
     /**
      * @summary Gets the number of "header rows".
-     * @desc Defined as the sum of all rows of all subgrids before the (first) data subgrid.
+     * @desc Defined as the sum of all rows in all subgrids before the (first) data subgrid.
      * @memberOf behaviors.JSON.prototype
      */
     getHeaderRowCount: function() {
@@ -113,6 +113,34 @@ module.exports = {
         });
 
         return result;
+    },
+
+    /**
+     * @summary Gets the number of "footer rows".
+     * @desc Defined as the sum of all rows in all subgrids after the (last) data subgrid.
+     * @memberOf behaviors.JSON.prototype
+     */
+    getFooterRowCount: function() {
+        var gotData;
+        return this.subgrids.reduce(function(rows, subgrid) {
+            if (gotData && !subgrid.isData) {
+                rows += subgrid.getRowCount();
+            } else {
+                gotData = subgrid.isData;
+            }
+            return rows;
+        }, 0);
+    },
+
+    /**
+     * @summary Gets the total number of logical rows.
+     * @desc Defined as the sum of all rows in all subgrids.
+     * @memberOf behaviors.JSON.prototype
+     */
+    getLogicalRowCount: function() {
+        return this.subgrids.reduce(function(rows, subgrid) {
+            return (rows += subgrid.getRowCount());
+        }, 0);
     }
 };
 

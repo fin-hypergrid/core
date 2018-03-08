@@ -1188,7 +1188,7 @@ var Behavior = Base.extend('Behavior', {
      */
     getFixedRowCount: function() {
         return (
-            this.grid.getHeaderRowCount() +
+            this.getHeaderRowCount() +
             this.grid.properties.fixedRowCount
         );
     },
