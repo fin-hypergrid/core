@@ -303,7 +303,7 @@ function addDeprecationWarnings() {
         enumerable: false,
         get: function() {
             if (!warned.grid) {
-                console.warn('`this.grid` (dataModel.grid) property has been deprecated as of v3.0.0 and will definitely be removed in a future version. Data models should have no direct knowledge of or access to the grid. (If your data model needs to call grid methods, add a data event to your grid with grid.addDataEventListener(\'data-my-event\', myHandler) and trigger it from your data model with this.dispatchEvent(\'data-my-event\'). If you need access to the grid object from within a `getCell` or `getCellEditAt` override, define `grid` and the override in a closure.)');
+                console.warn('`this.grid` (dataModel.grid) property has been deprecated as of v3.0.0 and will definitely be removed in a future release. Data models should have no direct knowledge of or access to the grid. (If your data model needs to call grid methods, add a data event to your grid with grid.addDataEventListener(\'data-my-event\', myHandler) and trigger it from your data model with this.dispatchEvent(\'data-my-event\'). If you need access to the grid object from within a `getCell` or `getCellEditAt` override, define `grid` and the override in a closure.)');
                 warned.grid = true;
             }
             return grid;

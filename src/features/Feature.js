@@ -293,7 +293,4 @@ var Feature = Base.extend('Feature', {
 });
 
 
-Feature.abstract = true; // don't instantiate directly
-
-
 module.exports = Feature;

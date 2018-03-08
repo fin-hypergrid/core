@@ -15,35 +15,26 @@ var HeaderSubgrid = DataSourceBase.extend('HeaderSubgrid', {
     format: 'header', // override column format
 
     initialize: function(nextDataSource, options) {
-        this.properties = options.grid.properties;
-        this.behavior = options.grid.behavior;
+        this.grid = options.grid;
     },
 
     getRowCount: function() {
-        return this.properties.showHeaderRow ? 1 : 0;
+        return this.grid.properties.showHeaderRow ? 1 : 0;
     },
 
     getValue: function(x, y) {
-        var column = this.behavior.getColumn(x);
+        var column = this.grid.behavior.getColumn(x);
         return column.header || column.name; // use field name when header undefined
     },
 
     setValue: function(x, y, value) {
         if (y < this.getRowCount()) {
-            this.behavior.getColumn(x).header = value;
+            this.grid.behavior.getColumn(x).header = value;
         }
     },
 
     getRow: function(y) {
         return this.dataRow;
-    },
-
-    getRowMetadata: function(y, prototype) {
-        return this.metadata || prototype !== undefined && (this.metadata = Object.create(prototype));
-    },
-
-    setRowMetadata: function(y, metadata) {
-        return (this.metadata = metadata);
     }
 });
 

@@ -153,7 +153,7 @@ var columnEnumDeprecationDescriptor = {
 
 function warnColumnEnumDeprecation() {
     if (!warned.columnEnumDecorators) {
-        console.warn('.columnEnumDecorators and .columnEnumKey have both been deprecated as of v3.0.0 and no longer have any meaning. (Will be removed in a future version.) Note that .columnEnum is also deprecated in favor of .schema, which now serves as a column enum. (See https://fin-hypergrid.github.io/doc/dataModel.api#initSchema.)');
+        console.warn('.columnEnumDecorators and .columnEnumKey have both been deprecated as of v3.0.0 and no longer have any meaning. (Will be removed in a future release.) Note that .columnEnum is also deprecated in favor of .schema, which now serves as a column enum. (See https://fin-hypergrid.github.io/doc/dataModel.api#initSchema.)');
         warned.columnEnumDecorators = true;
     }
 }

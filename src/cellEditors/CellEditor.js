@@ -474,7 +474,4 @@ function nullPattern() {}
 function px(n) { return n + 'px'; }
 
 
-CellEditor.abstract = true; // don't instantiate directly
-
-
 module.exports = CellEditor;
