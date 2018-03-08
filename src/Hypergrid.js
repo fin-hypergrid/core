@@ -1030,14 +1030,16 @@ var Hypergrid = Base.extend('Hypergrid', {
     /**
      * @memberOf Hypergrid#
      * @desc Switch the cursor for a grid instance.
-     * @param {string} cursorName - A well know cursor name.
+     * @param {string|string[]} cursorName - A well know cursor name.
      * @see [cursor names](http://www.javascripter.net/faq/stylesc.htm)
      */
     beCursor: function(cursorName) {
         if (!cursorName) {
-            cursorName = 'default';
+            cursorName = ['default'];
+        } else if (!Array.isArray(cursorName)) {
+            cursorName = [cursorName];
         }
-        this.div.style.cursor = cursorName;
+        cursorName.forEach(function(name) { this.cursor = name; }, this.div.style);
     },
 
     /**
