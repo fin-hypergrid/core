@@ -1769,6 +1769,22 @@ var Hypergrid = Base.extend('Hypergrid', {
         return this.behavior.getHeaderRowCount();
     },
 
+    /**
+     * @returns {number} The total number of rows of all subgrids following the data subgrid.
+     * @memberOf Hypergrid#
+     */
+    getFooterRowCount: function() {
+        return this.behavior.getFooterRowCount();
+    },
+
+    /**
+     * @returns {number} The total number of logical rows of all subgrids.
+     * @memberOf Hypergrid#
+     */
+    getLogicalRowCount: function() {
+        return this.behavior.getLogicalRowCount();
+    },
+
     isShowFilterRow: function() {
         return this.deprecated('isShowFilterRow()', 'properties.showFilterRow', 'v1.2.10');
     },

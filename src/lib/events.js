@@ -335,7 +335,7 @@ module.exports = {
         var self = this;
 
         function handleMouseEvent(e, cb) {
-            if (self.getRowCount() === 0) {
+            if (self.getLogicalRowCount() === 0) {
                 return;
             }
 

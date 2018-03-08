@@ -8,8 +8,8 @@
 
 var Feature = require('./Feature');
 
-var canDragCursorName = '-webkit-grab',
-    draggingCursorName = '-webkit-grabbing';
+var GRAB = 'grab',
+    GRABBING = 'grabbing';
 
 var columnAnimationTime = 150;
 var dragger;
@@ -163,7 +163,7 @@ var ColumnMoving = Feature.extend('ColumnMoving', {
         ) {
             if (event.isHeaderCell) {
                 this.dragArmed = true;
-                this.cursor = draggingCursorName;
+                this.cursor = GRABBING;
                 grid.clearSelections();
             }
         }
@@ -213,7 +213,7 @@ var ColumnMoving = Feature.extend('ColumnMoving', {
             event.isHeaderCell &&
             event.mousePoint.y < grid.properties.columnGrabMargin
         ) {
-            this.cursor = canDragCursorName;
+            this.cursor = GRAB;
         } else {
             this.cursor = null;
         }
@@ -223,7 +223,7 @@ var ColumnMoving = Feature.extend('ColumnMoving', {
         }
 
         if (event.isHeaderCell && this.dragging) {
-            this.cursor = draggingCursorName; //move';
+            this.cursor = GRABBING; //move';
         }
     },
 
@@ -386,7 +386,7 @@ var ColumnMoving = Feature.extend('ColumnMoving', {
 
         style.zIndex = '4';
         this.setCrossBrowserProperty(d, 'transform', 'translate(' + startX + 'px, ' + -2 + 'px)');
-        style.cursor = draggingCursorName;
+        style.cursor = GRABBING;
         grid.repaint();
     },
 
@@ -472,7 +472,7 @@ var ColumnMoving = Feature.extend('ColumnMoving', {
 
         this.setCrossBrowserProperty(d, 'transform', 'translate(' + x + 'px, -5px)');
         style.zIndex = '5';
-        style.cursor = draggingCursorName;
+        style.cursor = GRABBING;
         grid.repaint();
     },
 

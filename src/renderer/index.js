@@ -1282,15 +1282,7 @@ function computeCellsBounds() {
     }
 
     // get height of total number of rows in all subgrids following the data subgrid
-    footerHeight = gridProps.defaultRowHeight *
-        subgrids.reduce(function(rows, subgrid) {
-            if (scrollableSubgrid) {
-                rows += subgrid.getRowCount();
-            } else {
-                scrollableSubgrid = subgrid.isData;
-            }
-            return rows;
-        }, 0);
+    footerHeight = gridProps.defaultRowHeight * behavior.getFooterRowCount();
 
     for (
         base = r = g = y = 0, G = subgrids.length, Y = bounds.height - footerHeight;
