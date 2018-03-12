@@ -19,7 +19,6 @@
     "datasaur-base": "github:fin-hypergrid/datasaur-base#3.0.0",
     "datasaur-local": "github:fin-hypergrid/datasaur-local#3.0.0",
     "extend-me": "^2.7.0",
-    "fin-hypergrid-field-tools": "^1.0.2",
     "finbars": "^1.6.0",
     "inject-stylesheet-template": "^1.0.1",
     "mustache": "^2.3.0",

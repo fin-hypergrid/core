@@ -4,6 +4,8 @@
  * @module dataModel/schema
  */
 
+var headerifiers = require('../../lib/headerifiers');
+
 /**
  * @function module:dataModel/schema.enrich
  * @summary Called via `data-schema-changed` event by data model implementation of `setSchema` when implemented, otherwise by `getSchema`, whenever the schema changes.
@@ -26,23 +28,43 @@
  *
  * @param {dataRowObject[]}
  *
- * @this {dataModelAPI}
+ * @this {Hypergrid}
  */
 exports.enrich = function(schema) {
-    schema = schema || this.getSchema();
+    var dataModel = this.behavior.dataModel;
+
+    schema = schema || dataModel.getSchema();
 
     // Make sure each element of `schema` is an object with a `name` property.
-    // Set `index` property.
     schema.forEach(function(columnSchema, index) {
         if (typeof columnSchema === 'string') {
-            schema[index] = columnSchema = { name: columnSchema };
+            schema[index] = { name: columnSchema };
         }
+    });
+
+    // There shouldn't be any meta data columns in the schema proper.
+    schema = schema.filter(function(columnSchema) {
+        return columnSchema.name.substr(0, 2) !== '__';
+    });
+
+    // Set `index` property.
+    schema.forEach(function(columnSchema, index) {
         columnSchema.index = index;
     });
 
-    initSchemaEnum.call(this);
+    // Set `header` property.
+    var headerifier = headerifiers[this.properties.headerify];
+    if (headerifier) {
+        schema.forEach(function(columnSchema) {
+            if (!columnSchema.header) {
+                columnSchema.header = headerifier(columnSchema.name);
+            }
+        });
+    }
 
-    initDataRowProxy.call(this);
+    initSchemaEnum.call(dataModel);
+
+    initDataRowProxy.call(dataModel);
 };
 
 // schema dictionary (enum)

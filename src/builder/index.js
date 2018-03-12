@@ -37,8 +37,8 @@ Object.defineProperties(Hypergrid.modules, {
     'object-iterators': { value: require('object-iterators') },
     overrider: { value: require('overrider') },
     rectangular: { value: require('rectangular') },
-    'datasaur-base': { value: require('datasaur-base') },
-    'datasaur-local': { value: require('datasaur-local') }
+    'datasaur-base': { value: require('datasaur-base') }, // may be removed in a future release
+    'datasaur-local': { value: require('datasaur-local') } // may be removed in a future release
 });
 
 // Install internal modules may not be overridden so non-configurable, non-writable

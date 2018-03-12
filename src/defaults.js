@@ -500,6 +500,22 @@ var defaults = {
     renderFalsy: false,
 
     /**
+     * The name of a registered headerify function.
+     *
+     * If the named headerify function is defined, it is applied to the schema:
+     * 1. Whenever the schema changes
+     * 2. For each column that does not already have an explicitly defined header
+     *
+     * When this property does not name a defined headerify function, undefined column headers default to their column names.
+     *
+     * @see lib/headerifiers.js
+     * @default
+     * @type {string}
+     * @memberOf module:defaults
+     */
+    headerify: 'titleize',
+
+    /**
      * Enable rendering of horizontal grid lines.
      * @default
      * @type {boolean}

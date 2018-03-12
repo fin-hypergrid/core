@@ -9,23 +9,19 @@ module.exports = {
     InclusiveRectangle: require('./InclusiveRectangle')
 };
 
-var warned = {};
+var warned;
 
 Object.defineProperty(module.exports, 'fields', {
     get: function() {
-        if (!warned.fields) {
-            console.warn('The `Hypergrid.lib.fields` module has been "externalized" as of v3.0.0. This reference will break in a future release. Use `require(\'fin-hypergrid-field-tools\')` instead.');
-            warned.fields = true;
-        }
-        return require('fin-hypergrid-field-tools');
+        throw new Error('The `Hypergrid.lib.fields` module has been retired as of v3.0.0 and incorporated into schema enrichment (triggered by the new `data-schema-changed` data event), which is influenced by the new `headerify` grid property.');
     }
 });
 
 Object.defineProperty(module.exports, 'DataSourceOrigin', {
     get: function() {
-        if (!warned.DataSourceOrigin) {
-            console.warn('The `DataSourceOrigin` module has been retired as of v3.0.0. A new data model, `datasaur-local`, is now bundled with the Hypergrid build and used as the default. However, it may be removed from the build in a future release. Developers are advised to provide their own data model going forward. For example: `new Hypergrid({ DataSource: require(\'datasaur-local\') })`. Or provide a data model instance in the `dataSource` (small "d") option.');
-            warned.DataSourceOrigin = true;
+        if (!warned) {
+            console.warn('The `DataSourceOrigin` module has been retired as of v3.0.0. The new default data model, `datasaur-local`, will be returned instead. Note, however, that it may be removed from the build in a future release. Developers are advised and encouraged to provide their own data model going forward. For example: `new Hypergrid({ DataSource: require(\'datasaur-local\') })`; or provide a live data model instance in the `dataSource` (small "d") option.');
+            warned = true;
         }
         return require('datasaur-local');
     }

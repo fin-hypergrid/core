@@ -1,7 +1,7 @@
 'use strict';
 
 var dispatchEvent = require('../events.js').dispatchEvent;
-var enrichSchema = require('./schema').enrich;
+var schema = require('./schema');
 
 var handlersByEventString;
 
@@ -17,7 +17,7 @@ var mixin = {
      * @see {@link dataModelAPI#event:data-schema-changed data-schema-changed}
      */
     fireSyntheticDataSchemaChangedEvent: function(event) {
-        enrichSchema.call(this.behavior.dataModel, event && event.schema);
+        schema.enrich.call(this, event && event.schema);
         return dispatchEvent.call(this, 'fin-data-schema-changed', event);
     },
 
