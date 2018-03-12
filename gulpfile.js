@@ -7,7 +7,6 @@ var gulp        = require('gulp'),
     source      = require('vinyl-source-stream'),
     buffer      = require('vinyl-buffer'),
     runSequence = require('run-sequence'),
-    browserSync = require('browser-sync').create(),
     exec        = require('child_process').exec,
     path        = require('path');
 
@@ -15,8 +14,7 @@ var srcDir      = './src/',
     builderDir  = srcDir + 'builder/',
     testDir     = './test/',
     jsFiles     = '**/*.js',
-    demoDir     = './demo/',
-    buildDir    = demoDir + 'build/';
+    buildDir    = './build/';
 
 //  //  //  //  //  //  //  //  //  //  //  //
 
@@ -29,17 +27,9 @@ gulp.task('browserify', bundleUp.bind(null,
     builderDir,
     [
         buildDir,
-        buildDir.replace('demo', manifest.version)
+        './' + manifest.version
     ]
 ));
-gulp.task('browserify-demo', bundleUp.bind(null,
-    'index',
-    './demo/js/demo/',
-    ['./demo/js/demo/build/']
-));
-
-gulp.task('reloadBrowsers', reloadBrowsers);
-gulp.task('serve', browserSyncLaunchServer);
 
 gulp.task('css-templates', function() {
     return templates('./css/*.css', 'css');
@@ -53,34 +43,12 @@ gulp.task('build', function(callback) {
         'css-templates',
         'test',
         'browserify',
-        'browserify-demo',
         //'doc',
         callback
     );
 });
 
-gulp.task('watch', function () {
-    gulp.watch([
-        srcDir + '**', '!' + srcDir + 'jsdoc/**',
-        './css/*.css',
-        './html/*.html',
-        demoDir + 'js/' + jsFiles,
-        '!' + demoDir + 'js/demo/build/' + jsFiles,
-        testDir + '**'
-    ], [
-        'build'
-    ]);
-
-    gulp.watch([
-        demoDir + '*.html',
-        demoDir + 'css/demo.css',
-        buildDir + '*'
-    ], [
-        'reloadBrowsers'
-    ]);
-});
-
-gulp.task('default', ['build', 'watch'], browserSyncLaunchServer);
+gulp.task('default', ['build']);
 
 //  //  //  //  //  //  //  //  //  //  //  //
 
@@ -88,8 +56,6 @@ function lint() {
     return gulp.src([
         'index.js',
         srcDir + jsFiles,
-        demoDir + 'js/' + jsFiles,
-        '!' + demoDir + 'js/demo/build/' + jsFiles,
         testDir + jsFiles
     ])
         .pipe($$.eslint())
@@ -135,20 +101,6 @@ function doc(cb) {
         console.log(stderr);
         cb(err);
     });
-}
-
-function browserSyncLaunchServer() {
-    browserSync.init({
-        server: {
-            // Serve up our build folder
-            baseDir: demoDir
-        },
-        port: 9000
-    });
-}
-
-function reloadBrowsers() {
-    browserSync.reload();
 }
 
 function clearBashScreen() {

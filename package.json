@@ -5,7 +5,7 @@
   "main": "src/Hypergrid",
   "repository": {
     "type": "git",
-    "url": "git://github.com/openfin/fin-hypergrid.git"
+    "url": "git://github.com/fin-hypergrid/core.git"
   },
   "author": "SWirts, JEiten, DJones, NMichaud",
   "license": "MIT",
@@ -19,12 +19,10 @@
     "datasaur-base": "github:fin-hypergrid/datasaur-base#3.0.0",
     "datasaur-local": "github:fin-hypergrid/datasaur-local#3.0.0",
     "extend-me": "^2.7.0",
-    "fin-hypergrid-event-logger": "^1.0.4",
     "fin-hypergrid-field-tools": "^1.0.2",
     "finbars": "^1.6.0",
     "inject-stylesheet-template": "^1.0.1",
     "mustache": "^2.3.0",
-    "npm": "^5.6.0",
     "object-iterators": "1.3.0",
     "overrider": "^0",
     "rectangular": "1.0.1",
@@ -32,10 +30,6 @@
     "synonomous": "^2.1.2"
   },
   "devDependencies": {
-    "browser-sync": "^2.10.0",
-    "browserify": "^15.2.0",
-    "chai": "^3.5.0",
-    "css-injector": "^1.1.0",
     "gulp": "^3.9.0",
     "gulp-concat": "^2.6.0",
     "gulp-each": "^0.1.1",
@@ -45,11 +39,6 @@
     "gulp-imagine-64": "^1.0.1",
     "gulp-load-plugins": "^1.1.0",
     "gulp-mocha": "^6.0.0",
-    "gulp-rename": "^1.2.2",
-    "gulp-uglify": "^3.0.0",
-    "gulp-util": "^3.0.7",
-    "run-sequence": "^1.1.4",
-    "vinyl-buffer": "^1.0.1",
-    "vinyl-source-stream": "^2.0.0"
+    "run-sequence": "^1.1.4"
   }
 }

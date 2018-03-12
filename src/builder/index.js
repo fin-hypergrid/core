@@ -37,7 +37,6 @@ Object.defineProperties(Hypergrid.modules, {
     'object-iterators': { value: require('object-iterators') },
     overrider: { value: require('overrider') },
     rectangular: { value: require('rectangular') },
-    'fin-hypergrid-field-tools': { value: require('fin-hypergrid-field-tools') },
     'datasaur-base': { value: require('datasaur-base') },
     'datasaur-local': { value: require('datasaur-local') }
 });
