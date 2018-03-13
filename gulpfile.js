@@ -4,7 +4,8 @@ var gulp        = require('gulp'),
     $$          = require('gulp-load-plugins')(),
     runSequence = require('run-sequence'),
     exec        = require('child_process').exec,
-    path        = require('path');
+    path        = require('path'),
+    pkg         = require('./package.json');
 
 var srcDir      = './src/',
     testDir     = './test/',
@@ -54,7 +55,7 @@ function test(cb) {
 }
 
 function doc(cb) {
-    exec(path.resolve('jsdoc.sh'), function (err, stdout, stderr) {
+    exec(path.resolve('jsdoc.sh; sed -E "s/Hypergrid API Documentation/Hypergrid ' + pkg.version + ' API Documentation/" <doc/index.html >tmp; mv tmp doc/index.html'), function (err, stdout, stderr) {
         console.log(stdout);
         console.log(stderr);
         cb(err);
