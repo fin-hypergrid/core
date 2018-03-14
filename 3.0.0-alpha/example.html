@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" >
+    <meta http-equiv="Cache-Control" content="must-revalidate" />
+    <link rel="icon" type="image/png" href="img/hypergrid-icon.png">
+</head>
+<body>
+
+    <script src="build/fin-hypergrid.js"></script>
+
+    <script>
+        var data = [
+            { symbol: 'APPL', name: 'Apple Inc.', prevclose: 93.13 },
+            { symbol: 'MSFT', name: 'Microsoft Corporation', prevclose: 51.91 },
+            { symbol: 'TSLA', name: 'Tesla Motors Inc.', prevclose: 196.40 },
+            { symbol: 'IBM', name: 'International Business Machines Corp', prevclose: 155.35 }
+        ];
+        var grid = new fin.Hypergrid();
+        grid.setData(data);
+        grid.addProperties({
+            showRowNumbers: false
+        });
+    </script>
+
+</body>
+</html>

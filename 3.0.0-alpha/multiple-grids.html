@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" >
+    <meta http-equiv="Cache-Control" content="must-revalidate" />
+    <link rel="icon" type="image/png" href="img/hypergrid-icon.png">
+    <style> body > div.hypergrid-container { width: 415px; margin-right: 10px; display: inline-block }</style>
+    <script src="build/fin-hypergrid.js"></script>
+</head>
+<body>
+<h1 style="font-family:sans-serif; margin:.5em; color:lightgrey">Hypergrid <span id="version"></span> multiple grids demo</h1>
+
+<script>
+    document.getElementById('version').innerText = fin.Hypergrid.prototype.version;
+    var data = [
+        { symbol: 'APPL', name: 'Apple Inc.', prevclose: 93.13 },
+        { symbol: 'MSFT', name: 'Microsoft Corporation', prevclose: 51.91 },
+        { symbol: 'TSLA', name: 'Tesla Motors Inc.', prevclose: 196.40 },
+        { symbol: 'IBM', name: 'International Business Machines Corp', prevclose: 155.35 }
+    ];
+    var grid = [], options = { data: data, boundingRect: { height: '90px' } };
+    for (var i = 0; i < 14; ++i) {
+        grid[i] = new fin.Hypergrid(options);
+        grid[i].properties.editor = 'textfield';
+        grid[i].properties.editOnDoubleClick = false;
+    }
+</script>
+</body>
+</html>
+
