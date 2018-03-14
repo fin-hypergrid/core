@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Tutorial: Cell Editors</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-defaults.html">defaults</a></li><li><a href="module-dynamicPropertyDescriptors.html">dynamicPropertyDescriptors</a></li><li><a href="module-effects.html">effects</a></li><li><a href="module-fields.html">fields</a></li><li><a href="module-images.html">images</a></li><li><a href="module-localization.html">localization</a></li><li><a href="module-src_behaviors_cellProperties.html">src/behaviors/cellProperties</a></li></ul><h3>Classes</h3><ul><li><a href="Base.html">Base</a></li><li><a href="Behavior.html">Behavior</a></li><li><a href="behaviors.JSON.html">JSON</a></li><li><a href="Button.html">Button</a></li><li><a href="CellClick.html">CellClick</a></li><li><a href="CellEditing.html">CellEditing</a></li><li><a href="CellEditor.html">CellEditor</a></li><li><a href="CellEditors.html">CellEditors</a></li><li><a href="CellEvent.html">CellEvent</a></li><li><a href="CellRenderer.html">CellRenderer</a></li><li><a href="CellRenderers.html">CellRenderers</a></li><li><a href="CellSelection.html">CellSelection</a></li><li><a href="Color.html">Color</a></li><li><a href="Column.html">Column</a></li><li><a href="ColumnMoving.html">ColumnMoving</a></li><li><a href="ColumnResizing.html">ColumnResizing</a></li><li><a href="ColumnSelection.html">ColumnSelection</a></li><li><a href="ColumnSorting.html">ColumnSorting</a></li><li><a href="Combo.html">Combo</a></li><li><a href="DataModel.html">DataModel</a></li><li><a href="dataModels.JSON.html">JSON</a></li><li><a href="DataSourceOrigin.html">DataSourceOrigin</a></li><li><a href="Date.html">Date</a></li><li><a href="ErrorCell.html">ErrorCell</a></li><li><a href="Feature.html">Feature</a></li><li><a href="Features.html">Features</a></li><li><a href="Filters.html">Filters</a></li><li><a href="HeaderSubgrid.html">HeaderSubgrid</a></li><li><a href="Hypergrid.html">Hypergrid</a></li><li><a href="KeyPaging.html">KeyPaging</a></li><li><a href="LastSelection.html">LastSelection</a></li><li><a href="module-localization-DateFormatter.html">DateFormatter</a></li><li><a href="module-localization-Formatter.html">Formatter</a></li><li><a href="module-localization-Localization.html">Localization</a></li><li><a href="module-localization-NumberFormatter.html">NumberFormatter</a></li><li><a href="Number.html">Number</a></li><li><a href="OnHover.html">OnHover</a></li><li><a href="Registry.html">Registry</a></li><li><a href="Renderer.html">Renderer</a></li><li><a href="RowResizing.html">RowResizing</a></li><li><a href="RowSelection.html">RowSelection</a></li><li><a href="SelectionModel.html">SelectionModel</a></li><li><a href="SimpleCell.html">SimpleCell</a></li><li><a href="Slider.html">Slider</a></li><li><a href="SparkBar.html">SparkBar</a></li><li><a href="SparkLine.html">SparkLine</a></li><li><a href="Spinner.html">Spinner</a></li><li><a href="Textfield.html">Textfield</a></li><li><a href="ThumbwheelScrolling.html">ThumbwheelScrolling</a></li><li><a href="TreeCell.html">TreeCell</a></li><li><a href="WritablePoint.html">WritablePoint</a></li></ul><h3>Namespaces</h3><ul><li><a href="dataModels.html">dataModels</a></li></ul><h3>Mixins</h3><ul><li><a href="mixin.html">mixin</a></li><li><a href="sharedMixin.html">sharedMixin</a></li></ul><h3>Interfaces</h3><ul><li><a href="dataControlInterface.html">dataControlInterface</a></li><li><a href="dataModelAPI.html">dataModelAPI</a></li><li><a href="localizerInterface.html">localizerInterface</a></li></ul><h3>Global</h3><ul><li><a href="global.html#assignProps">assignProps</a></li><li><a href="global.html#cancelEditing">cancelEditing</a></li><li><a href="global.html#cellEventFactory">cellEventFactory</a></li><li><a href="global.html#computeCellsBounds">computeCellsBounds</a></li><li><a href="global.html#dataRow">dataRow</a></li><li><a href="global.html#deferredBehaviorChange">deferredBehaviorChange</a></li><li><a href="global.html#deprecated">deprecated</a></li><li><a href="global.html#dispatchEvent">dispatchEvent</a></li><li><a href="global.html#errorEffectEnd">errorEffectEnd</a></li><li><a href="global.html#findCell">findCell</a></li><li><a href="global.html#getActiveColumns">getActiveColumns</a></li><li><a href="global.html#getColumns">getColumns</a></li><li><a href="global.html#getMinimumLeftPositionToShowColumn">getMinimumLeftPositionToShowColumn</a></li><li><a href="global.html#getTextWidthTruncated">getTextWidthTruncated</a></li><li><a href="global.html#handleKeyDown">handleKeyDown</a></li><li><a href="global.html#initialize">initialize</a></li><li><a href="global.html#rebundleGridRenderers">rebundleGridRenderers</a></li><li><a href="global.html#registry">registry</a></li><li><a href="global.html#reset">reset</a></li><li><a href="global.html#resetCellPropertiesCache">resetCellPropertiesCache</a></li><li><a href="global.html#resetRowHeaderColumnWidth">resetRowHeaderColumnWidth</a></li><li><a href="global.html#resolveCalculator">resolveCalculator</a></li><li><a href="global.html#validateEditorValue">validateEditorValue</a></li><li><a href="global.html#valOrFunc">valOrFunc</a></li><li><a href="global.html#visibleColumns">visibleColumns</a></li><li><a href="global.html#visibleRows">visibleRows</a></li></ul>
+</nav>
+<div id="main">
+
+    <h1 class="page-title">Tutorial: Cell Editors</h1>
+
+    <section>
+
+<header>
+    
+
+    <h2>Cell Editors</h2>
+</header>
+
+<article>
+    <p>A cell editor is an input control superimposed on the grid.</p>
+<h3>API</h3><p>For detailed functional descriptions of overrideable methods, see <a href="CellEditor.html"><code>CellEditor</code></a>.</p>
+<h3>Usage</h3><p>The following examples require a grid object:</p>
+<pre class="prettyprint source lang-javascript"><code>var grid = new Hypergrid(...);
+var behavior = grid.behavior;
+var dataModel = behavior.dataModel;</code></pre><h4>Assignment</h4><p>Cells are only editable when assigned (associated with) a cell editor. There are two ways of making such an assignment:</p>
+<ul>
+<li><strong>Declaratively</strong> at setup time</li>
+<li><strong>Programmatically</strong> at render time</li>
+</ul>
+<p><strong>Declarative cell editor assignment.</strong> Define the <code>editor</code> render property at setup time:</p>
+<pre class="prettyprint source lang-javascript"><code>behavior.setColumnProperties(columnIndex, {
+    editor: 'textfield' // case-insensitive
+});</code></pre><p><strong>NOTE:</strong> There is no preset grid default for <code>editor</code> so if you make an explicit declaration (above) and you don't make a programmatic assignment (below), the cell will not be editable.</p>
+<p><strong>Programmatic cell editor assignment.</strong> Override the declared assignment at render time by overriding <code>dataModel.getCellEditorAt</code>:</p>
+<pre class="prettyprint source lang-javascript"><code>dataModel.getCellEditorAt = function(columnIndex, rowIndex, declaredEditorName, options) {
+    var editorName = declaredEditorName;
+    if (...) {
+        editorName = 'textfield'; // case-insensitive
+    }
+    return grid.cellEditors.create(editorName, options);
+}</code></pre><p>Notes:</p>
+<ol>
+<li>See <a href="DataModel.html#getCellEditorAt"><code>getCellEditorAt</code></a> for parameter details.</li>
+<li>The method override above pertains to this grid instance. To affect all instances, override the prototype's definition.</li>
+<li>The ellipsis (...) in the sample code above selects a specific cell (or column). Otherwise the assignment would affect all cells in the grid which is usually not what we want to do.</li>
+</ol>
+<h4>Text Format</h4><p>Cell editors that present data in text form will respect the cell's <code>format</code> render property (used primarily by the cell renderer):</p>
+<pre class="prettyprint source lang-javascript"><code>behavior.setColumnProperties(columnIndex, {
+    editor: 'textfield',
+    format: 'number' // also case-insensitive
+});</code></pre><p><a id="getCellEditorAt-1"></a>At render time, override <em>or</em> ignore the declared format (available in <code>options.format</code>):</p>
+<pre class="prettyprint source lang-javascript"><code>dataModel.getCellEditorAt = function(columnIndex, rowIndex, declaredEditorName, options) {
+    if (...) {
+        options.format = 'number'; // override
+        // or:
+        options.format = undefined; // ignore (falsy defers to cell editor's localizer)
+    }
+    return grid.cellEditors.create(declaredEditorName, options);
+}</code></pre><h4>Templates</h4><p>All cell editors (textual or graphical) create their DOM node from a template, typically defined on the cell editor object's prototype. We will learn more about creating custom cell editors later on. For now, just consider the following template of a hypothetical cell editor called <code>Checkbox</code>:</p>
+<pre class="prettyprint source lang-javascript"><code>var Checkbox = CellEditor.extend('Checkbox', {
+    template: '&lt;input type=&quot;checkbox&quot; {{chkattr}}>'
+};
+grid.cellEditors.add(Checkbox);</code></pre><p>A word about <a href="https://mustache.github.io">mustache</a> data merge variables. These are useful for decorating the cell editor's markup with state. For example, <code>{{chkattr}}</code> in the above is such a variable, intended as a placeholder for a <code>checked</code> attribute in the <code>&lt;input&gt;</code> tag. Mustache variables are defined on the instantiation <code>options</code> object at grid render time:</p>
+<pre class="prettyprint source lang-javascript"><code>dataModel.getCellEditorAt = function(columnIndex, rowIndex, declaredEditorName, options) {
+    if (columnIndex === behavior.columnEnum.CITIZEN ) {
+        options.chkattr = this.getValue(columnIndex, rowIndex) ? 'checked=&quot;checked&quot;' : '';
+    }
+
+    return grid.cellEditors.create(declaredEditorName, options);
+}</code></pre><p>Members of <code>options</code> will add (or override) instance members. On instantiation, the template is processed by Mustache to merge in the <code>checked</code> object property and the template will be rendered like this:</p>
+<pre class="prettyprint source lang-html"><code>&lt;input type=&quot;checkbox&quot; checked=&quot;checked&quot;></code></pre><p>A better approach puts the logic on the cell editor object in a <code>chkattr</code> getter:</p>
+<pre class="prettyprint source lang-javascript"><code>grid.cellEditors.add(CellEditor.extend('Checkbox', {
+    template: '&lt;input type=&quot;checkbox&quot; {{chkattr}}>',
+    getEditorValue: function() {
+        return this.input.checked;
+    },
+    //setEditorValue: function(value) {
+    //    this.input.checked = value;
+    //},
+    chkattr: {
+        get: function() { 
+            return this.initialValue ? 'checked=&quot;checked&quot;' : ''; 
+        } 
+    }
+}));</code></pre><p>Custom cell editors are generally easy to create. The above example is more complicated than usual because it uses a <code>defineProperty</code> <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/defineProperty">accessor descriptor</a>, necessary to define a getter. (You cannot use getter/setter literal syntax here as you can in a true prototype object.) See <em>Create a custom cell editor</em> below for more information.</p>
+<p>Tip: Best practice is to define custom cell editors when feasible rather than using the <code>options</code> instantiation parameter to override instance members.</p>
+<h4>Object access</h4><p>Sometimes templates do not provide enough flexibility. Or some developers simply prefer the programmatic over the declarative approach. (Both approaches have their pros and cons.) In these cases, the cell editor object and its generated DOM elements can be manipulated <em>after</em> instantiation:</p>
+<pre class="prettyprint source lang-javascript"><code>&lt;a id=&quot;getCellEditorAt-2&quot;/>>&lt;/a>dataModel.getCellEditorAt = function(columnIndex, rowIndex, declaredEditorName, options) {
+    var cellEditor = grid.cellEditors.create(declaredEditorName, options);
+
+    if (columnIndex === behavior.columnEnum.CITIZEN && this.getValue(columnIndex, rowIndex)) {
+        cellEditor.input.setAttribute('checked', 'checked');
+    }
+
+    return cellEditor;
+}</code></pre><p><em><strong>NOTE:</strong></em> The <code>create</code> call will return <code>undefined</code> if the named editor was unregistered. This would throw an error in the above example. To ignore such an error (and simply make the cell uneditable), check <code>cellEditor</code> before trying to access it:</p>
+<pre class="prettyprint source lang-javascript"><code>    if (cellEditor && ...) { ... }</code></pre><h4>Data coordinates in <code>getCellEditorAt</code></h4><p><code>columnIndex</code> is the position of the column in the <code>fields</code> array. As this array is typically derived from the data source, its order is undefined. The <code>behavior.columnEnum</code> hash maps column names to indices. Keys are all upper case with underscores inserted between &quot;camelCase&quot; words (&quot;CAMEL_CASE&quot;). Although syntactically convenient and efficient, be aware that <code>columnEnum</code> is recreated on every call to <code>behavior.createColumns()</code> (called by <code>behavior.setData()</code>) so any local references to the hash must be updated at that time.</p>
+<p>As an alternative to dealing with <code>columnIndex</code> at all, <code>options.column.name</code> contains the actual column name.</p>
+<p><code>rowIndex</code> is the position in the data row, offset by the number of header rows -- which is all the rows above the first data row, including the filter row.</p>
+<p>See the full <a href="DataModel.html#getCellEditorAt"><code>getCellEditorAt</code></a> API.</p>
+<h3>Preregistered Cell Editors</h3><p>The following cell editors are preregistered in <code>grid.cellEditors</code>. See each for its template and notes on browser limitations.</p>
+<ul>
+<li><a href="http://openfin.github.io/fin-hypergrid/doc/Color.html">Color</a></li>
+<li><a href="http://openfin.github.io/fin-hypergrid/doc/ComboBox.html">ComboBox</a></li>
+<li><a href="http://openfin.github.io/fin-hypergrid/doc/Date.html">Date</a></li>
+<li><a href="http://openfin.github.io/fin-hypergrid/doc/Number.html">Number</a></li>
+<li><a href="http://openfin.github.io/fin-hypergrid/doc/Slider.html">Slider</a></li>
+<li><a href="http://openfin.github.io/fin-hypergrid/doc/Spinner.html">Spinner</a></li>
+<li><a href="http://openfin.github.io/fin-hypergrid/doc/Textfield.html">Textfield</a></li>
+</ul>
+<h3>Development</h3><p>Custom cell editor development falls into two broad classes:</p>
+<ul>
+<li>General (graphical) editors &mdash; extend from <a href="CellEditor.html"><code>CellEditor</code></a></li>
+<li>Text editors &mdash; extend from <a href="Textfield.html"><code>Textfield</code></a> (which itself extends from <code>CellEditor</code>)</li>
+</ul>
+<p>Development of <strong>text-based cell editors</strong> is relatively simple because they consist of a single <code>&lt;input&gt;</code> element and use localizers (formatters/de-formatters) to do the heavy lifting.</p>
+<h4>Get the <a href="Textfield.html"><code>Textfield</code></a> base class</h4><p>All custom text cell editors extend from the <a href="Textfield.html"><code>Textfield</code></a> constructor. <a href="Textfield.html"><code>Textfield</code></a> is preregistered in <code>grid.cellEditors</code>, making it is accessible via <code>get</code>:</p>
+<pre class="prettyprint source lang-javascript"><code>var Textfield = grid.cellEditors.get('textfield');</code></pre><p>You don't have to use <code>get</code>; it merely looks in the registry and returns a reference to the constructor. Registering modules by name allows string references which are easy to persist. If you're not interesting in persisting these mappings, you can reference your cell editor constructors directly. For example, if you're using the npm module with Browserify, you can also do:</p>
+<pre class="prettyprint source lang-javascript"><code>var Textfield = require('fin-hypergrid/src/cellEditors/Textfield');</code></pre><h4>Create a custom cell editor</h4><p>Cell editors are &quot;classes&quot; that extend from <code>CellEditor</code> (or a descendant thereof). Here's a simple extension of <a href="Textfield.html"><code>Textfield</code></a> that limits input to 5 chars (for <em>hh:mm</em>) by modifying the template:</p>
+<pre class="prettyprint source lang-javascript"><code>var template = Textfield.prototype.template.replace(' ', ' maxlength=&quot;5&quot; ');
+
+var Time = Textfield.extend('Time', {
+    template: template
+});</code></pre><p>The above creates a custom &quot;class&quot; <code>Time</code> using <em>prototypal inheritance</em> to extend (inherit from) <code>Textfield</code> (which itself was extended from <code>CellEditor</code>). See <a href="http://github.com/joneit/extend-me">http://github.com/joneit/extend-me</a> for details on this <code>extend</code> function. In a nutshell:</p>
+<ul>
+<li>The object literal contains the new constructor's prototype members (which may include overrides of members on the base class's prototype).</li>
+<li>On instantiation, the <code>initialize</code> method is called on every ancestor prototype first, from most senior to most recent, before our prototype's version is called._</li>
+<li>The optional class name (<code>'Time'</code>, in this case) aids in debugging.</li>
+</ul>
+<h4>Registration</h4><p>Register your new cell editor to make it accessible by name for easy assignment (as discussed above):</p>
+<pre class="prettyprint source lang-javascript"><code>grid.cellEditors.add(Time); // omitting name uses class name
+grid.cellEditors.add('Time', Time); // specify a name if class was not named</code></pre><h4>Localizers/Formatters</h4><p>Formatters are contained within localizers which are objects that are languistically and regionally sensitive to alphabet, numbering systems, notation for numbers and date, etc. Localizers know how to:</p>
+<ul>
+<li>Format primitive types into human-friendly form.</li>
+<li>De-format (parse) edited values back into primitive types.</li>
+<li>Optional: Validate edits that they conform to the format.</li>
+</ul>
+<p>Localizers are APIs (not instantiated objects) with both <code>format</code> and <code>parse</code> methods. Cell editors use both these methods. (Cell renderers also use localizers, but only the <code>format</code> method.)</p>
+<p>To load and edit the data in the <em>hh:mm</em> format, we will use the <code>hhmm</code> localizer. (See the example in the full <em><a href="tutorial-localization_.html">Localizers (formatters and deformatters)</a></em> tutorial.) First make sure to register it (so it can be referenced by name):</p>
+<pre class="prettyprint source lang-javascript"><code>grid.localization.add('hh:mm', hhmm); // name may be omitted when included in localizer</code></pre><p>If we can guarantee our custom <code>Time</code> cell editor will only be used on columns that already render data in the <em>hh:mm</em> format, then we're done because the cell editor will by default import the column's format. In this case the following is sufficient:</p>
+<pre class="prettyprint source lang-javascript"><code>grid.behavior.setColumnProperties(columnIndex, {
+    editor: 'time',
+    format: 'hh:mm' // used by both cell renderer and cell editor
+});</code></pre><p>Cell render format and edit format do not have to match, however. For example, to render the raw data without formatting (total minutes) but still edit in <em>hh:mm</em> format:</p>
+<pre class="prettyprint source lang-javascript"><code>grid.behavior.setColumnProperties(columnIndex, {
+    editor: 'time'
+});
+
+var Time = Textfield.extend({
+    localizer: 'hh:mm',
+    template: template
+});</code></pre><p>Or you can specify distinct formatters for rendering <em>vs.</em> editing:</p>
+<pre class="prettyprint source lang-javascript"><code>grid.behavior.setColumnProperties(columnIndex, {
+    editor: 'time',
+    format: '00h00m' // used only by cell renderer
+});
+
+var Time = Textfield.extend({
+    localizer: 'hhmm',
+    format: null, // lock localizer from being overwritten with 00h00m
+    template: template
+});</code></pre><h4>Validation</h4><p>Without validation, data may be saved incorrectly or not at all. With validation, the user is informed of the problem and has the opportunity to correct it.</p>
+<p>Validation is provided by the localizer in an <a href="localizerInterface.html#invalid"><code>invalid</code></a> method. See <code>hhmm</code>'s implementation of <code>invalid()</code> for an example.</p>
+<p>The localizer's <code>invalid</code> method is called automatically by the cell editor's <code>validateEditorValue</code> method, returning <code>true</code> or an error message on validation failure.</p>
+<p>Alternatively, you can override <code>validateEditorValue</code> with your own logic that doesn't depend on the localizer.</p>
+<h4>Feedback</h4><p>Validation failure triggers an <em>error effect,</em> giving the user the opportunity to re-edit the value instead of just discarding it and closing.</p>
+<p>Specifically, the cell editor its <a href="CellEditor.html#errorEffectBegin"><code>errorEffectBegin</code></a> method with the error message. This in turn calls the error effect function in <code>errorEffect</code> which is <code>shaker</code> by default.</p>
+<p>After every third failure in an editing session, an alert is displayed:</p>
+<pre style="font-family:monospace;margin:0 3em;padding:1em;border:1px solid grey;background:#DDD">
+Invalid value. To resolve, do one of the following:
+
+    * Correct the error and try again.
+        - or -
+    * Cancel editing by pressing the "esc" (escape) key.
+</pre>
+
+<p>If an error message was returned by <code>invalid</code> and/or the localizer has a defined <a href="localizerInterface.html#expectation"><code>expectation</code></a> message, they will be included in the alert:</p>
+<pre style="font-family:monospace;margin:0 3em;padding:1em;border:1px solid grey;background:#DDD">
+Additional information about this error:
+
+    * Error message (if there is one) would go here.
+
+    * Expectation message (if defined) would go here.
+</pre>
+
+<p>Note that multiple lines become separate bullet points.</p>
+<h3>Complex cell editors</h3><p>Cell editors can be arbitrarily complex. Instead of a simple <code>&lt;input&gt;</code> element, the cell editor's template can be a container element, which can contain any kind of GUI you can imagine &mdash; with or without text input.</p>
+<p>There are two design paradigms for a complex cell editor with a text box differ in whether or not they modify the text being edited:</p>
+<ul>
+<li><strong>Dynamic Paradigm:</strong> User interactions with the graphical elements during editing instantaneously update the text being edited. On save, the text element can be editable or it can be read-only. As the text element contains all the information, it is validated and parsed as usual.</li>
+<li><strong>Delayed Paradigm:</strong> User interactions with the graphical elements during editing do not affect the text. On save, the information from the state of the graphical elements is combined with the text data before parsing or transforms the primitive data after parsing.</li>
+</ul>
+<p>We shall now further develop our <code>Time</code> cell editor example:</p>
+<ul>
+<li>We're going to show the time as 12-hour time with AM and PM rather than as 24-hour time.</li>
+<li>Rather than typing AM or PM, user will click on it to toggle it.</li>
+</ul>
+<p><em>NOTE: This is just an example for illustrative purposes. I'm not suggesting it's a practical user interface.</em></p>
+<p>We keep the text input element and add an AM/PM indicator to it's right that toggles on a mouse click. This example uses the <em>Delayed Paradigm</em> outlined above: The text input element holds just the time in 12-hour mode; the AM/PM indicator is not part of the text and clicking it has no effect on the text.</p>
+<p>The following markup for a complex cell editor consists of a <code>&lt;div&gt;</code> containing an <code>&lt;input&gt;</code> element along with some text: </p>
+<pre class="prettyprint source lang-html"><code>&lt;div style=&quot;background-color:white; text-align:right; font-size:10px; padding-right:4px; font-weight:bold; border:1px solid black&quot;>
+    &lt;input type=&quot;text&quot; lang=&quot;{{locale}}&quot; style=&quot;background-color:transparent; width:80%; height:100%; float:left; border:0; padding:0; font-family:monospace; font-size:11px; text-align:right; {{style}}&quot;>
+    AM
+&lt;/div></code></pre><p><em>NOTE: In practice, a CSS class is preferred over in-line styles. Regardless, always preserve the mustache variables, including <code>{{style}}</code> as shown.</em></p>
+<p>Because this cell editor includes a text box, we continue to extend from <code>Textfield</code>:</p>
+<pre class="prettyprint source lang-javascript"><code>var Time = Textfield.extend({
+    template: '&lt;div> ... &lt;/div>'; // above markup
+});</code></pre><p>Complex cell editors need to know the element that holds the value (because unlike as in a simple cell editor, the actual input element <code>input</code> and the root DOM element <code>el</code> <em>are no longer the same</em>):</p>
+<pre class="prettyprint source lang-javascript"><code>var Time = Textfield.extend({
+    template: template,
+
+    initialize: function() {
+        this.input = this.el.querySelector('input'); // needed by various CellEditor methods
+    }
+});</code></pre><p>We will also need...</p>
+<ol>
+<li><strong>Event handlers</strong> &mdash; to flip AM/PM on a mouse click.</li>
+<li><strong>Method overrides</strong> &mdash; additional logic to combine AM/PM with the 12-hour time in the text box.</li>
+</ol>
+<h4>Add an event handler</h4><p>Listen for the mouseclick and toggle the graphic (AM -&gt; PM -&gt; AM ...):</p>
+<pre class="prettyprint source lang-javascript"><code>var Time = Textfield.extend({
+    template: template,
+
+    initialize: function() {
+        this.input = this.el.querySelector('input');
+        this.meridian = this.el.querySelector('span'); // optional; just for our convenience 
+
+        // Flip AM/PM on any click
+        this.el.onclick = function() {
+            this.meridian.textContent = this.meridian.textContent === 'AM' ? 'PM' : 'AM';  field
+        }.bind(this);
+        this.input.onclick = function(e) {
+            e.stopPropagation(); // ignore clicks in the text FIELD
+        };
+
+        // nice-to-have: show outline on `el` rather than `input`
+        // alternatively, set `outline:0` on the input style and forget about it
+        this.input.onfocus = function(e) {
+            var target = e.target;
+            this.el.style.outline = this.outline = this.outline || window.getComputedStyle(target).outline;
+            target.style.outline = 0;
+        }.bind(this);
+        this.input.onblur = function(e) {
+            this.el.style.outline = 0;
+        }.bind(this);
+    }
+});</code></pre><h4>Update the localizer to 12-hour time</h4><p>Compare the following to the 24-hour time version in the <em><a href="tutorial-localization_.html">Localizers (formatters and deformatters)</a></em> tutorial:</p>
+<pre class="prettyprint source lang-javascript"><code>var hhmm = {
+    // returns formatted string from number
+    format: function(mins) {
+        var hh = Math.floor(mins / 60) % 12 || 12, // modulo 12 hrs with 0 becoming 12
+            mm = (mins % 60 + 100 + '').substr(1, 2);
+        return hh + ':' + mm;
+    },
+
+    invalid: function(hhmm) {
+        return !/^(0?[1-9]|1[0-2]):[0-5]\d$/.test(hhmm); // 12:59 max
+    },
+
+    // returns number from formatted string
+    parse: function(hhmm) {
+        var parts = hhmm.match(/^(\d+):(\d{2})$/);
+        return Number(parts[1]) * 60 + Number(parts[2]);
+    }
+};</code></pre><h4>Loading GUI state</h4><p>The state of the graphical elements needs to be loaded (set) at the beginning of an edit session, as implied by the primitive data. In this example, the only GUI element is the AM/PM toggle, set based on the time's relation to noon.</p>
+<p>GUI elements are initialized by overriding the <a href="CellEditor.html#setEditorValue"><code>setEditorValue</code></a> method:</p>
+<pre class="prettyprint source lang-javascript"><code>var NOON = 12 * 60;
+
+Time.prototype.setEditorValue = function(value) {
+    this.input.value = this.localizer.format(value); // pasted in from base class implementation
+    this.el.textContent = value &lt; NOON ? 'AM' : 'PM';
+};</code></pre><h4>Saving GUI state: Delayed Paradigm</h4><p>For the <em>Delayed Paradigm</em> only, GUI state needs to be saved at the conclusion of an edit session but before saving. This is done by overriding the <a href="CellEditor.html#setEditorValue"><code>setEditorValue</code></a> method.</p>
+<p>The GUI state is inspected and used used to either:</p>
+<ol>
+<li><strong>Decorate the text</strong> input before it is run through the parser; or</li>
+<li><strong>Transform the data</strong> primitive coming out of the parser.</li>
+</ol>
+<p>This example uses the <em>Delayed Paradigm</em> so the state of the AM/PM toggle is saved at the conclusion of editing by transforming the data. Specifically, 12 hours is added for afternoon values only:</p>
+<pre class="prettyprint source lang-javascript"><code>Time.prototype.getEditorValue = function(value) {
+    value = this.localizer.parse(this.input.value); // pasted in from base class implementation
+    if (this.el.textContent === 'PM') {
+        value += NOON;
+    }
+    return value;
+};</code></pre><p>NOTE: Code pasted in above was for illustrative purposes. In practice, you might make direct calls to the base class methods instead:</p>
+<pre class="prettyprint source lang-javascript"><code>var CellEditor = grid.cellEditors.get('celleditor');</code></pre><p>and replace commented lines above with:</p>
+<pre class="prettyprint source lang-javascript"><code>    CellEditor.prototype.setEditorValue.call(this, value);</code></pre><p>and</p>
+<pre class="prettyprint source lang-javascript"><code>    value = CellEditor.prototype.getEditorValue.call(this, value);</code></pre><p>respectively.</p>
+<h4>Saving GUI state: Dynamic Paradigm</h4><p>The <em>Dynamic Paradigm</em> as outlined above means that the GUI elements hold state that is always reflected in the contents of the text element.</p>
+<p>For our <code>Time</code> cell editor, this means that the AM or PM would be inside the text element. The user can edit it as text, or he could click the control to toggle it.</p>
+<p><em>NOTE: On a practical level, the GUI should no longer be a piece of text because the AM or PM would appear doubled (once in the text box and again to its right). Perhaps a checkbox to indicate afternoon/evening instead.</em></p>
+<p>For this to work correctly requires <em>two-way binding</em> between the GUI elements and text, meaning that:</p>
+<ol>
+<li>User's changes to the GUI state instantaneously affect the text; and</li>
+<li>User's edits to the text instantaneously affect the GUI state.</li>
+</ol>
+<p>This requires adding logic as needed to your GUI element event handlers or listeners to express the element's state in the text. For example, we could add the following line to the end of the GUI handler developed above:</p>
+<pre class="prettyprint source lang-javascript"><code>this.input.value.replace(/(AM|PM)$/i, this.meridian.textContent);</code></pre><p>You could obviously get much more elaborate than this, maintaining models and view-controllers for each GUI element, <em>etc.;</em> if it were anything more complex than this, that might be a good idea.</p>
+<p>The base class is already listening for <code>keyup</code> events on the text element. To bind the text edit events to the GUI state, we could just add our code there. For example, we could say:</p>
+<pre class="prettyprint source lang-javascript"><code>Time.prototype.keyup = function(e) {
+    CellEditor.prototype.keyup.call(this, e);
+
+    var meridian = this.input.value.match(/(AM|PM)$/i);
+    if (meridian) {
+        this.meridian = meridian[0].toUpperCase();
+    }
+}</code></pre><p>This would also require changing <code>hhmm.invalid</code> and <code>hhmm.parse</code> to accept AM or PM.</p>
+<p>Finally, for some good news: We can discard the <code>setEditorValue</code> and <code>getEditorValue</code> overrides.</p>
+<h3>Graphical editors</h3><p>Purely graphical editors (with no text box) would descend directly from <code>CellEditor</code>.</p>
+<p>One thing to keep in mind about these is that while the dimensions of the container element are automatically constrained to those of the cell, the child GUI elements can nonetheless be rendered by the browser <em>outside</em> the div. This is useful when your GUI cannot all fit inside the cell boundaries. Just make sure the <a href="https://developer.mozilla.org/en-US/docs/Web/CSS/overflow">overflow</a> CSS property is set to <code>visible</code> (which is the default). </p>
+</article>
+
+</section>
+
+</div>
+
+<br class="clear">
+
+<footer>
+    © 2018 <a href="http://www.openfin.co" target="_blank">OpenFin</a> All Rights Reserved.
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Tutorial: Column objects and column schema</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-defaults.html">defaults</a></li><li><a href="module-dynamicPropertyDescriptors.html">dynamicPropertyDescriptors</a></li><li><a href="module-effects.html">effects</a></li><li><a href="module-fields.html">fields</a></li><li><a href="module-images.html">images</a></li><li><a href="module-localization.html">localization</a></li><li><a href="module-src_behaviors_cellProperties.html">src/behaviors/cellProperties</a></li></ul><h3>Classes</h3><ul><li><a href="Base.html">Base</a></li><li><a href="Behavior.html">Behavior</a></li><li><a href="behaviors.JSON.html">JSON</a></li><li><a href="Button.html">Button</a></li><li><a href="CellClick.html">CellClick</a></li><li><a href="CellEditing.html">CellEditing</a></li><li><a href="CellEditor.html">CellEditor</a></li><li><a href="CellEditors.html">CellEditors</a></li><li><a href="CellEvent.html">CellEvent</a></li><li><a href="CellRenderer.html">CellRenderer</a></li><li><a href="CellRenderers.html">CellRenderers</a></li><li><a href="CellSelection.html">CellSelection</a></li><li><a href="Color.html">Color</a></li><li><a href="Column.html">Column</a></li><li><a href="ColumnMoving.html">ColumnMoving</a></li><li><a href="ColumnResizing.html">ColumnResizing</a></li><li><a href="ColumnSelection.html">ColumnSelection</a></li><li><a href="ColumnSorting.html">ColumnSorting</a></li><li><a href="Combo.html">Combo</a></li><li><a href="DataModel.html">DataModel</a></li><li><a href="dataModels.JSON.html">JSON</a></li><li><a href="DataSourceOrigin.html">DataSourceOrigin</a></li><li><a href="Date.html">Date</a></li><li><a href="ErrorCell.html">ErrorCell</a></li><li><a href="Feature.html">Feature</a></li><li><a href="Features.html">Features</a></li><li><a href="Filters.html">Filters</a></li><li><a href="HeaderSubgrid.html">HeaderSubgrid</a></li><li><a href="Hypergrid.html">Hypergrid</a></li><li><a href="KeyPaging.html">KeyPaging</a></li><li><a href="LastSelection.html">LastSelection</a></li><li><a href="module-localization-DateFormatter.html">DateFormatter</a></li><li><a href="module-localization-Formatter.html">Formatter</a></li><li><a href="module-localization-Localization.html">Localization</a></li><li><a href="module-localization-NumberFormatter.html">NumberFormatter</a></li><li><a href="Number.html">Number</a></li><li><a href="OnHover.html">OnHover</a></li><li><a href="Registry.html">Registry</a></li><li><a href="Renderer.html">Renderer</a></li><li><a href="RowResizing.html">RowResizing</a></li><li><a href="RowSelection.html">RowSelection</a></li><li><a href="SelectionModel.html">SelectionModel</a></li><li><a href="SimpleCell.html">SimpleCell</a></li><li><a href="Slider.html">Slider</a></li><li><a href="SparkBar.html">SparkBar</a></li><li><a href="SparkLine.html">SparkLine</a></li><li><a href="Spinner.html">Spinner</a></li><li><a href="Textfield.html">Textfield</a></li><li><a href="ThumbwheelScrolling.html">ThumbwheelScrolling</a></li><li><a href="TreeCell.html">TreeCell</a></li><li><a href="WritablePoint.html">WritablePoint</a></li></ul><h3>Namespaces</h3><ul><li><a href="dataModels.html">dataModels</a></li></ul><h3>Mixins</h3><ul><li><a href="mixin.html">mixin</a></li><li><a href="sharedMixin.html">sharedMixin</a></li></ul><h3>Interfaces</h3><ul><li><a href="dataControlInterface.html">dataControlInterface</a></li><li><a href="dataModelAPI.html">dataModelAPI</a></li><li><a href="localizerInterface.html">localizerInterface</a></li></ul><h3>Global</h3><ul><li><a href="global.html#assignProps">assignProps</a></li><li><a href="global.html#cancelEditing">cancelEditing</a></li><li><a href="global.html#cellEventFactory">cellEventFactory</a></li><li><a href="global.html#computeCellsBounds">computeCellsBounds</a></li><li><a href="global.html#dataRow">dataRow</a></li><li><a href="global.html#deferredBehaviorChange">deferredBehaviorChange</a></li><li><a href="global.html#deprecated">deprecated</a></li><li><a href="global.html#dispatchEvent">dispatchEvent</a></li><li><a href="global.html#errorEffectEnd">errorEffectEnd</a></li><li><a href="global.html#findCell">findCell</a></li><li><a href="global.html#getActiveColumns">getActiveColumns</a></li><li><a href="global.html#getColumns">getColumns</a></li><li><a href="global.html#getMinimumLeftPositionToShowColumn">getMinimumLeftPositionToShowColumn</a></li><li><a href="global.html#getTextWidthTruncated">getTextWidthTruncated</a></li><li><a href="global.html#handleKeyDown">handleKeyDown</a></li><li><a href="global.html#initialize">initialize</a></li><li><a href="global.html#rebundleGridRenderers">rebundleGridRenderers</a></li><li><a href="global.html#registry">registry</a></li><li><a href="global.html#reset">reset</a></li><li><a href="global.html#resetCellPropertiesCache">resetCellPropertiesCache</a></li><li><a href="global.html#resetRowHeaderColumnWidth">resetRowHeaderColumnWidth</a></li><li><a href="global.html#resolveCalculator">resolveCalculator</a></li><li><a href="global.html#validateEditorValue">validateEditorValue</a></li><li><a href="global.html#valOrFunc">valOrFunc</a></li><li><a href="global.html#visibleColumns">visibleColumns</a></li><li><a href="global.html#visibleRows">visibleRows</a></li></ul>
+</nav>
+<div id="main">
+
+    <h1 class="page-title">Tutorial: Column objects and column schema</h1>
+
+    <section>
+
+<header>
+    
+
+    <h2>Column objects and column schema</h2>
+</header>
+
+<article>
+    <h1>Column models</h1><p>This tutorial discusses grid columns, specifically:</p>
+<ul>
+<li>The various column arrays and how to access them</li>
+<li>Column objects and how they are generated</li>
+<li>How to override column properties</li>
+<li>How to define which columns to display</li>
+<li>What is a column schema and how to define one</li>
+</ul>
+<h3>The <code>fields[]</code> array</h3><p>The <code>hyper-analytics</code> npm module's interface maintains the following three arrays [source: hyper-analytics/js/DataSource.js]. These are the low-level column representations.</p>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>set fn</th>
+<th>get fn</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>fields[]</code></td>
+<td><code>setFields(f)</code> <br> where <code>f</code> is the new fields array</td>
+<td><code>getFields()</code></td>
+<td>Defines the column indexes. Contains an ordered list of column names. These names must match the keys in the data row hash.</td>
+</tr>
+<tr>
+<td><code>headers[]</code></td>
+<td><code>setHeaders(h)</code> <br> where <code>h</code> is the new headers array</td>
+<td><code>getHeaders()</code></td>
+<td>Defines the column headers, the strings shown at the top of each column. This array must coordinate with the <code>fields[]</code> array.</td>
+</tr>
+<tr>
+<td><code>data[]</code></td>
+<td><code>setData(d)</code> <br> where <code>d</code> is the new data row array</td>
+<td><code>getData()</code></td>
+<td>Each row is a data hash. All row hashes are uniform (have the same keys). Only the keys listed in the <code>fields[]</code> array will be used.</td>
+</tr>
+</tbody>
+</table>
+<p>Notes:</p>
+<ol>
+<li>In the above, &quot;fields&quot; is synonymous with &quot;columns.&quot;</li>
+<li>The <code>fields[]</code> array can be explicitly specified when the data source is instantiated. If not specified, the <code>fields[]</code> array is automatically derived from the keys of the first data row's hash (<code>data[0]</code>). This ensures that the <code>fields[]</code> array will always be defined.</li>
+<li>When automatically derived from the data, the order of the columns should be considered arbitrary, and not necessarily reflecting the order of the columns in the result set coming from the database. The reason for this is that the order of the members of a hash in JavaScript is inherently undefined.</li>
+<li>Hypergrid does not in fact specify an array on instantiation (see <code>setData()</code> in dataModels/JSON.js). Therefore, Hypergrid uses the derived list.</li>
+<li>The <code>fields[]</code> array can also be explicitly (re)set later with <code>setFields()</code>, although again, this is not used by Hypergrid and is not needed. The only reason for specifying a <code>fields[]</code> array would be to specify an ordered subset of the columns in the data rows. However, Hypergrid now accomplishes this function at a higher level, so the order of the columns in the low-level <code>fields[]</code> array is simply unimportant.</li>
+</ol>
+<h3>Column object arrays</h3><p>Hypergrid maintains several column arrays in its <code>behavior</code> object. The elements of these arrays are objects that map to the <code>fields[]</code> and <code>headers[]</code> arrays, and are described in the next section.</p>
+<p>Column array properties of <code>grid.behavior</code> include [source: hypergrid/src/behaviors/Behavior.js]:</p>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>get fn</th>
+<th>count fn</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>allColumns[]</code></td>
+<td><code>getColumn(i)</code> <br> where <code>i</code> is the column index</td>
+<td><code>getColumnCount()</code></td>
+<td>Array of column objects derived from the data source's <code>fields[]</code> array, thus having the same number of elements in the same order.</td>
+</tr>
+<tr>
+<td><code>columns[]</code></td>
+<td><code>getActiveColumn(j)</code> <br> where <code>j</code> is the active column index</td>
+<td><code>getActiveColumnCount()</code></td>
+<td>Array of column objects defining which columns to display on the grid and in what order. This array will always be a subset of the <code>allColumns[]</code> array.</td>
+</tr>
+</tbody>
+</table>
+<h4>Column order</h4><p>In addition to defining which columns are active in the grid, the <code>columns[]</code> array defines the current left-to-right order of columns in the grid. The index to this array is the column's position in the grid.</p>
+<p>Changing the order of the elements in this array effectively changes the order in which they are displayed on the grid. The &quot;Column Picker&quot; user interface alters this array.</p>
+<p>Note that not all the &quot;active&quot; columns in the <code>columns[]</code> array will necessarily be visible at any given time due to limited horizontal space. Unless the grid is wide enough to show all the active columns, some will necessarily be (horizontally) scrolled out of view.</p>
+<h4>Absolute index <em>vs.</em> Active index</h4><p>A column's <em>absolute index</em> is its position within the <code>allColumns[]</code> array.
+A column's <em>active index</em> is its position in the <code>columns[]</code> array (and hence the grid).</p>
+<h3>Column objects</h3><p>There is one <code>Column</code> for each column. Each one contains denormalized data from parallel elements of the <code>fields[]</code> and <code>headers[]</code> arrays, including the array index, as follows [source: hypergrid/src/behaviors/Columns.js]:</p>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>index</code></td>
+<td>The position of the column in the <code>fields[]</code> array.</td>
+</tr>
+<tr>
+<td><code>name</code></td>
+<td>The column name from the <code>fields[]</code> array; an actual database field name; a key in the data row hashes.</td>
+</tr>
+<tr>
+<td><code>header</code></td>
+<td>The column alias. Can be set explicitly or can be derived from <code>name</code>.</td>
+</tr>
+<tr>
+<td><code>type</code></td>
+<td>The data type of the column. Can be set explicitly or can be derived by inspection of the column data.</td>
+</tr>
+</tbody>
+</table>
+<h3>Column schema</h3><p>Column schema is a serialized hierarchical datagram that can be loaded and saved. You will need a column schema if you intend to use the <strong>filter-tree</strong> data filter module. Even if you do not need it for filter-tree, it is still useful standard way to define column metadata for saving and reloading.</p>
+<p>The hierarchical design is optional; flat schema are perfectly valid. Arranging columns into a hierarchy is purely for display purposes. This allows users of grids with large numbers of columns to organize their data more efficiently. For example, nested columns could be shown in drop-down lists or as grouped columns with a group header above them. The number of levels of nesting is up to the app designer, although it should be pointed out that most browsers will not render drop-down groups more than one level deep. (This does not preclude writing custom drop-down controls that could do this.)</p>
+</article>
+
+</section>
+
+</div>
+
+<br class="clear">
+
+<footer>
+    © 2018 <a href="http://www.openfin.co" target="_blank">OpenFin</a> All Rights Reserved.
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

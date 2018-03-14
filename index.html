@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>fin-hypergrid CDN</title>
+
+  <meta http-equiv="Content-Type" content="text/html;charset=utf-8" >
+  <meta http-equiv="Cache-Control" content="must-revalidate" />
+
+  <link rel="stylesheet" type="text/css" href="../stylesheet.css">
+
+  <script>
+    var countdown = true;
+    window.onload = function() {
+        var jumpto = document.querySelector('input'),
+            countdown = document.querySelector('span'),
+            n = 10;
+
+      setInterval(function() {
+          if (jumpto.checked) {
+            countdown.innerText = --n;
+            if (!n) {
+                window.location.href = 'demo/index.html';
+            }
+          }
+      }, 1000);
+    };
+  </script>
+
+  <style>
+    div.links {
+      margin: 1em 1em 1em 2em;
+      padding: .4em .8em;
+      background-color: #eee;
+    }
+  </style>
+</head>
+<body>
+
+<div class="page">
+
+  <h2>Hypergrid core demos &amp; documentation</h2>
+
+  <p>Hypergrid demos have been moved to a new <code>demo</code> folder which always contains the latest versions.</p>
+
+  <div class="links">
+    <a class="code" href='demo'>https://fin-hypergrid.github.io/core<b>/demo</b></a><br>
+  </div>
+  <p><label><input type="checkbox" checked> Jump to demo in <span style="padding:0 .5em; background-color:#ffc">5</span> seconds&hellip;</label></p>
+
+  <p>For historical versions, substitute the version number for <code>demo</code>. For example, to see the 2.1.5 demo specifically:</p>
+
+  <div class="links">
+    <a class="code" href='2.1.5'>https://fin-hypergrid.github.io/core<b>/2.1.5</b></a><br>
+  </div>
+
+  <p>For the other demos, add the specific demo's filename. For example:</p>
+  <div class="links">
+    <a class="code" href='demo/basic.html'>https://fin-hypergrid.github.io/core<b>/demo/basic.html</b></a>
+    <a class="code" href='demo/computed-column.html'>https://fin-hypergrid.github.io/core<b>/demo/computed-column.html</b></a>
+    <a class="code" href='demo/example.html'>https://fin-hypergrid.github.io/core<b>/demo/example.html</b></a>
+    <a class="code" href='demo/multiple-grids.html'>https://fin-hypergrid.github.io/core<b>/demo/multiple-grids.html</b></a>
+    <a class="code" href='demo/row-props.html'>https://fin-hypergrid.github.io/core<b>/demo/row-props.html</b></a>
+  </div>
+  And again, for historical versions of the other demos, substitute the version number for <code>demo</code> as above.
+
+</div>
+
+</body>
+</html>

@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" >
+    <meta http-equiv="Cache-Control" content="must-revalidate" />
+    <link rel="icon" type="image/png" href="img/hypergrid-icon.png">
+</head>
+<body>
+
+
+<script src="build/fin-hypergrid.js"></script>
+<script>
+    /*
+     * As with ALL HyperGrid Demos. This code is for EXEMPLARY purposes ONLY.
+     * THIS IS NOT PRODUCTION CODE.
+     * We intend this as a community guideline, where users can adopt and take ownership of.
+     *
+     */
+
+
+
+    function generateRandomData () {
+        var data = [
+            {s: 'APPL', n: 'Apple', c: 93.13},
+            {s: 'MSFT', n: 'Microsoft', c: 51.91},
+            {s: 'TSLA', n: 'Tesla', c: 196.48},
+            {s: 'IBM', n: 'IBM', c: 155.35}
+        ];
+
+        data.forEach(function (dr) {
+            for (var i = 1; i <= 9; ++i) {
+                ['s', 'n', 'c'].find(function (key) {
+                    dr[key + i] = mangle(dr[key])
+                });
+            }
+        });
+        for (var i = 0; i < 256 - 4; ++i) {
+            var row = {};
+            for (var fld in data[0]) {
+                row[fld] = mangle(data[0][fld]);
+            }
+            data.push(row);
+        }
+
+        function mangle(s) {
+            return s.toString().split('').map(function (c) {
+                if (/\d/.test(c)) {
+                    return Math.random() * 9 + 1 | 0;
+                } else if (/[A-Z]/.test(c)) {
+                    return String.fromCharCode(Math.random() * 26 + 65 | 0);
+                } else if (/[a-z]/.test(c)) {
+                    return String.fromCharCode(Math.random() * 26 + 97 | 0);
+                } else {
+                    return c;
+                }
+            }).join('');
+        }
+
+        return data;
+    }
+
+    /*
+     * An Example of how to hook into the Grid's 'fin-column-sort' event
+     */
+    function MySorterAPI (grid){
+        var self = this;
+        this.grid = grid;
+        this.data = generateRandomData();
+        grid.setData(this.data);
+        grid.addEventListener('fin-column-sort', function toggleSort(event){
+            var c = event.detail.column;
+            self.toggleSort(c);
+
+        });
+
+        //Build a in-memory sorting Index
+        this.index = new Array(this.data.length);
+        this.unsort();
+
+        grid.behavior.dataModel.getValue = function (c, r){
+            var row = self.data[self.index[r]];
+            if (!row) {
+                return null;
+            }
+            return row[this.dataSource.schema[c].name];
+        }
+
+    }
+    MySorterAPI.prototype = {
+        $$CLASS_NAME: 'mysorterapi',
+        constructor: MySorterAPI,
+        columnIndex: null,
+        toggleSort: function (c) {
+            if (this.columnIndex === c) {
+                //Unsort Column
+                //grid.behavior.setCellProperty(c, 0, 'rightIcon', '');
+                grid.behavior.getColumn(this.columnIndex).properties.backgroundColor = "white";
+                this.columnIndex = null
+                this.unsort();
+            } else {
+                //Sort on a Single Column
+                if (this.columnIndex) {
+                    //grid.behavior.setCellProperty(c, 0, 'rightIcon', '');
+                    grid.behavior.getColumn(this.columnIndex).properties.backgroundColor = "white";
+                }
+                this.columnIndex = c;
+                //grid.behavior.setCellProperty(this.columnIndex, 0, 'rightIcon', 'down-rectangle');
+                grid.behavior.getColumn(this.columnIndex).properties.backgroundColor = "red";
+                this.sort();
+            }
+            this.grid.behavior.changed();
+            this.grid.repaint();
+        },
+        ascendingComparator: function (a, b) {
+            if (a > b) {
+                return 1;
+            }
+            if (a < b) {
+                return -1;
+            }
+            // a must be equal to b
+            return 0;
+        },
+        descendingComparator: function (a, b) {
+            //Handles string and number comparisons
+            if (a < b) {
+                return 1;
+            }
+            if (a > b) {
+                return -1;
+            }
+            // a must be equal to b
+            return 0;
+        },
+        sort: function () {
+            //Sort the index
+            var field = grid.behavior.getColumn(this.columnIndex).properties.name;
+            var self = this;
+            this.index.sort(function(a, b) {
+                var i = self.data[a][field],
+                    j = self.data[b][field];
+                return self.descendingComparator(i, j);
+            });
+        },
+        unsort: function(){
+            //Unsort the index
+            for(var i = 0; i< this.index.length; i++){
+                this.index[i] = i;
+            }
+        }
+    };
+
+
+    //API Usage
+    var grid = new fin.Hypergrid();
+
+
+     grid.installPlugins(MySorterAPI);
+
+    //MISC
+    grid.addProperties({
+        foregroundSelectionFont: '13px Tahoma, Geneva, sans-serif',
+        backgroundColor: 'white',
+        columnClip: false,
+        editor: 'textfield'
+    });
+</script>
+</body>
+</html>

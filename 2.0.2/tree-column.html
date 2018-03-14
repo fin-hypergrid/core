@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" >
+    <meta http-equiv="Cache-Control" content="must-revalidate" />
+    <link rel="icon" type="image/png" href="img/hypergrid-icon.png">
+</head>
+<body>
+
+    <button onclick="grid.plugins.computeEngine.toggleGroups()">Toggle Groups</button>
+    <script src="build/fin-hypergrid.js"></script>
+    <script>
+        /*
+        * As with ALL HyperGrid Demos. This code is for EXEMPLARY purposes ONLY.
+        * THIS IS NOT PRODUCTION CODE.
+        * We intend this as a community guideline, where users can adopt and take ownership of.
+        *
+        * */
+
+
+        //HELPER OBJECTS
+        function DataNodeLeaf(row){
+            this.row = row
+        }
+
+        DataNodeLeaf.prototype = {
+            constructor: DataNodeLeaf,
+            getRowArray: function() {
+                row = this.row;
+                var data = [],
+                    i = 0;
+                for (col in row) {
+                    if (row.hasOwnProperty(col)) {
+                        data[i] = row[col];
+                        i++;
+                    }
+                }
+                return data;
+            }
+        };
+
+        function DataNodeGroup(key){
+            this.key = key;
+        }
+
+        DataNodeGroup.prototype = {
+            constructor: DataNodeGroup,
+            getRowArray: function () {
+                return [];
+            }
+        };
+
+
+        // END OF HELPER OBJECTS
+
+        function ComputeEngine(grid){
+            var self = this;
+
+            this.grid = grid;
+            this.ageGrouped = false;
+            this.drillDownCharMap = {
+                OPEN: '\u25bc', // BLACK DOWN-POINTING TRIANGLE aka '▼'
+                CLOSE: '\u25b6' // BLACK RIGHT-POINTING TRIANGLE aka '▶'
+            };
+            this.__data  =  [
+                { age: 10, name: 'Joe', sport: 'Basketball' },
+                { age: 10, name: 'Susan', sport: 'Soccer' },
+                { age: 12, name: 'Mike', sport: 'Gymnastics' },
+                { age: 12, name: 'Michelle', sport: 'Ballet' }
+            ];
+            this.treeColumnarData = []; //Decided to store the tree column values as a column oriented array
+            this.view = [];
+            this.groups = {};
+
+            this.buildView();
+
+            /* DRILLDOWN COLUMN INTERNAL API */
+            grid.mixIn.call(grid.behavior.dataModel, {
+
+                isTree : function () {
+                    return self.ageGrouped;
+                },
+
+                isTreeCol : function (x) {
+                    return x === this.grid.behavior.treeColumnIndex;
+                },
+
+                isLeafNode: function (y){
+                    return self.view[y] instanceof DataNodeLeaf;
+                },
+                getValue: function (x, y) {
+                    if (!this.isTreeCol(x)) {
+                        var view = self.view[y];
+                        return view.getRowArray()[x];
+                    }
+                    // If its a tree column fetch from column oriented array
+                    return self.treeColumnarData[y];
+                },
+                // If your api will asjust the number of rows shown
+                getRowCount: function () {
+                  return self.view.length;
+                },
+                //Clicking the drilldown column
+                toggleRow: function (y, expand, event) {
+                    var changed = false,
+                        view;
+                    if (this.isTree(event.dataCell.x) && !this.isLeafNode(event.dataCell.y)){
+                        view = self.view[event.dataCell.y];
+                        self.groups[view.key].__EXPANDED = !self.groups[view.key].__EXPANDED;
+                        self.buildView();
+                        changed = true;
+                    }
+                    return changed;
+                },
+
+                // Not necessary to override cellEditors, up to the user
+                getCellEditorAt : function(x, y, declaredEditorName, cellEvent) {
+
+                    if (cellEvent.isDataCell && !this.grid.behavior.dataModel.isLeafNode(cellEvent.dataCell.y)) {
+                        // Override renderer on parent rows
+                        cellEditor = undefined;
+                    }
+
+                    return cellEditor;
+                }
+            });
+        }
+
+        // GROUPING LOGIC
+        ComputeEngine.prototype = {
+            constructor: ComputeEngine,
+            toggleGroups: function () {
+                var self = this;
+                this.grid.clearSelections();
+                this.ageGrouped = !this.ageGrouped;
+                if (this.ageGrouped){
+                    this.groups = {};
+                    this.__data.forEach(function(cv, i){
+                        if (!self.groups[cv.age]){
+                            self.groups[cv.age] = {};
+                        }
+                        self.groups[cv.age].__EXPANDED = self.groups[cv.age].__EXPANDED || false;
+                        self.groups[cv.age].leaves =  self.groups[cv.age].leaves || [];
+                        self.groups[cv.age].leaves.push(i);
+                    });
+                }
+                this.buildView();
+                this.grid.behavior.changed();
+            },
+
+            buildView: function () {
+                var groups = this.groups,
+                    self = this;
+                this.view = [];
+                this.treeColumnarData = [];
+
+                if (!this.ageGrouped) {
+                    this.__data.forEach(function(el){
+                        self.view.push(new DataNodeLeaf(el));
+                    });
+                    return;
+                }
+                for (k in groups) {
+                    if (groups.hasOwnProperty(k)){
+                        this.view.push(new DataNodeGroup(k));
+
+                        if (groups[k].__EXPANDED) {
+                            this.treeColumnarData.push(this.drillDownCharMap.OPEN + k);
+                            for (var i = 0, l = groups[k].leaves; i < l.length; i++) {
+                                this.treeColumnarData.push('');
+                                this.view.push(new DataNodeLeaf(this.__data[l[i]]));
+                            }
+                        } else {
+                            this.treeColumnarData.push(this.drillDownCharMap.CLOSE + k);
+                        }
+                    }
+                }
+            }
+        };
+
+
+        var grid = new fin.Hypergrid({Behavior: window.fin.Hypergrid.behaviors.JSON});
+
+        grid.installPlugins([ComputeEngine]);
+        //Passing the underlying data allows the grid to build Column Schema build
+        //When the grid goes to get painted, the overrided dataModel.getValue function will be called
+        grid.setData(grid.plugins.computeEngine.__data);
+        grid.addProperties({
+            showTreeColumn: true
+        });
+
+
+    </script>
+</body>
+</html>
