@@ -1242,6 +1242,7 @@ function computeCellsBounds() {
 
         width = Math.ceil(behavior.getColumnWidth(vx));
 
+        gap = false;
         if (x) {
             if ((gap = hasFixedColumnGap && c === fixedColumnCount)) {
                 x += fixedWidthV - lineWidthV;
@@ -1256,6 +1257,7 @@ function computeCellsBounds() {
             left = x;
             widthSpaced = width;
         }
+
         this.visibleColumns[c] = this.visibleColumnsByIndex[vx] = vc = {
             index: c,
             columnIndex: vx,
@@ -1298,6 +1300,7 @@ function computeCellsBounds() {
         // For each row of each subgrid...
         for (R = r + subrows; r < R && y < Y; r++) {
             vy = r;
+            gap = false;
             if (scrollableSubgrid) {
                 if ((gap = hasFixedRowGap && r === fixedRowCount)) {
                     y += fixedWidthH - lineWidthH;
