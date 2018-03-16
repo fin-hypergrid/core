@@ -219,7 +219,8 @@ var JSON = DataModel.extend('dataModels.JSON', {
      * @memberOf dataModels.JSON.prototype
      */
     reindex: function(options) {
-        var selectedRowSourceIndexes = getUnderlyingIndexesOfSelectedRows.call(this);
+        var selectedRowSourceIndexes = getSelectedDataRowIndexes.call(this),
+            selectedColumnNames = getSelectedColumNames.call(this);
 
         this.pipeline.forEach(function(dataSource) {
             if (dataSource) {
@@ -229,7 +230,10 @@ var JSON = DataModel.extend('dataModels.JSON', {
             }
         });
 
+        this.grid.selectionModel.reset();
+
         reselectRowsByUnderlyingIndexes.call(this, selectedRowSourceIndexes);
+        reselectColumnsByNames.call(this, selectedColumnNames);
     },
 
     /**
@@ -721,50 +725,73 @@ var JSON = DataModel.extend('dataModels.JSON', {
  * @this {dataModels.JSON}
  * @memberOf dataModels.JSON~
  */
-function getUnderlyingIndexesOfSelectedRows() {
-    var sourceIndexes = [],
-        dataSource = this.dataSource;
+function getSelectedDataRowIndexes() {
+    if (this.grid.properties.restoreRowSelections) {
+        var dataSource = this.dataSource;
 
-    if (this.grid.properties.checkboxOnlyRowSelections) {
-        this.grid.getSelectedRows().forEach(function(selectedRowIndex) {
-            sourceIndexes.push(dataSource.getDataIndex(selectedRowIndex));
+        return this.grid.getSelectedRows().map(function(selectedRowIndex) {
+            return dataSource.getDataIndex(selectedRowIndex);
         });
     }
+}
 
-    return sourceIndexes;
+function getSelectedColumNames() {
+    if (this.grid.properties.restoreColumnSelections) {
+        var behavior = this.grid.behavior;
+
+        return this.grid.getSelectedColumns().map(function(selectedColumnIndex) {
+            return behavior.getActiveColumn(selectedColumnIndex).name;
+        });
+    }
 }
 
 /**
  * Re-establish grid row selections based on underlying data row indexes saved by `getSelectedDataRowsBackingSelectedGridRows` which should be called first.
  * @private
  * @this {dataModels.JSON}
+ * @param {number[]} [dataRowIndexes] - List of underlying data row indexes. If omitted, this function is a no-op.
+ * @returns {number} Number of rows reselected or `undefined` if `dataRowIndexes` was undefined.
  * @memberOf dataModels.JSON~
  */
-function reselectRowsByUnderlyingIndexes(sourceIndexes) {
-    var i, r,
-        rowCount = this.getRowCount(),
-        selectedRowCount = sourceIndexes.length,
-        rowIndexes = [],
-        selectionModel = this.grid.selectionModel;
+function reselectRowsByUnderlyingIndexes(dataRowIndexes) {
+    if (dataRowIndexes) {
+        var i, r,
+            rowCount = this.getRowCount(),
+            selectedRowCount = dataRowIndexes.length,
+            gridRowIndexes = [],
+            selectionModel = this.grid.selectionModel;
 
-    selectionModel.clearRowSelection();
-
-    if (this.grid.properties.checkboxOnlyRowSelections) {
         for (r = 0; selectedRowCount && r < rowCount; ++r) {
-            i = sourceIndexes.indexOf(this.dataSource.getDataIndex(r));
+            i = dataRowIndexes.indexOf(this.dataSource.getDataIndex(r));
             if (i >= 0) {
-                rowIndexes.push(r);
-                delete sourceIndexes[i]; // might make indexOf increasingly faster as deleted elements are not enumerable
+                gridRowIndexes.push(r);
+                delete dataRowIndexes[i]; // might make indexOf increasingly faster as deleted elements are not enumerable
                 selectedRowCount--; // count down so we can bail early if all found
             }
         }
 
-        rowIndexes.forEach(function(rowIndex) {
+        gridRowIndexes.forEach(function(rowIndex) {
             selectionModel.selectRow(rowIndex);
         });
-    }
 
-    return rowIndexes.length;
+        return gridRowIndexes.length;
+    }
+}
+
+function reselectColumnsByNames(sourceColumnNames) {
+    if (sourceColumnNames) {
+        var behavior = this.grid.behavior,
+            selectionModel = this.grid.selectionModel;
+
+        return sourceColumnNames.reduce(function(reselectedCount, columnName) {
+            var activeColumnIndex = behavior.getActiveColumnIndex(columnName);
+            if (activeColumnIndex) {
+                selectionModel.selectColumn(activeColumnIndex);
+                reselectedCount++;
+            }
+            return reselectedCount;
+        }, 0);
+    }
 }
 
 /**

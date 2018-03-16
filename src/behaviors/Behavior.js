@@ -201,18 +201,16 @@ var Behavior = Base.extend('Behavior', {
     },
 
     /**
-     * The "grid index" given a "data index" (or column object)
+     * The "grid index" of an active column given a "data index" (number), column name (string), or column object
      * @param {Column|number} columnOrIndex
      * @returns {undefined|number} The grid index of the column or undefined if column not in grid.
      * @memberOf Hypergrid#
      */
-    getActiveColumnIndex: function(columnOrIndex) {
-        var index = columnOrIndex instanceof Column ? columnOrIndex.index : columnOrIndex;
-        for (var i = 0; i < this.columns.length; ++i) {
-            if (this.columns[i].index === index) {
-                return i;
-            }
-        }
+    getActiveColumnIndex: function(columnOrIndexOrName) {
+        var value = columnOrIndexOrName instanceof Column ? columnOrIndexOrName.index : columnOrIndexOrName,
+            key = typeof index === 'number' ? 'index' : 'name';
+
+        return this.columns.findIndex(function(column) { return column[key] === value; });
     },
 
     getVisibleColumn: function() {

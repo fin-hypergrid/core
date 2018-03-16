@@ -45,11 +45,9 @@ window.onload = function() {
     console.log('Indexes:'); console.dir(idx);
 
     function setData(data, options) {
-        options = !data.length ? undefined : options || {
-            schema: Hypergrid.lib.fields.getSchema(data)
-        };
+        options = Object.assign({}, options);
+        options.schema = options.schema || [];
         grid.setData(data, options);
-        behavior.reindex();
     }
 
     function reset() {

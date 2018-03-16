@@ -1354,6 +1354,22 @@ var defaults = {
         'onhover'
     ],
 
+    /** @summary Restore row selections across data transformations (`reindex` calls).
+     * @desc The restoration is based on the underlying data row indexes.
+     * @type {boolean}
+     * @default
+     * @memberOf module:defaults
+     */
+    restoreRowSelections: true,
+
+    /** @summary Restore column selections across data transformations (`reindex` calls).
+     * @desc The restoration is based on the column names.
+     * @type {boolean}
+     * @default
+     * @memberOf module:defaults
+     */
+    restoreColumnSelections: true,
+
     /** @summary How to truncate text.
      * @desc A "quaternary" value, one of:
      * * `undefined` - Text is not truncated.
