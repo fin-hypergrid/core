@@ -111,17 +111,17 @@ factory.cellEventProperties = Object.defineProperties({}, {
     rowOwnProperties: {
         // undefined return means there is no row properties object
         get: function() {
-            return this.behavior.getRowProperties(this);
+            return this.behavior.getRowProperties(this, undefined, this.subgrid);
         }
     },
     rowProperties: {
         get: function() {
             // use carefully! creates new object as needed; only use when object definitely needed: for setting prop with `.rowProperties[key] = value` or `Object.assign(.rowProperties, {...})`; use getRowProperty(key) instead for getting a property that may not exist because it will not create a new object
-            return this.behavior.getRowProperties(this, {});
+            return this.behavior.getRowProperties(this, null, this.subgrid);
         },
         set: function(properties) {
             // for resetting whole row properties object: `.rowProperties = {...}`
-            this.behavior.setRowProperties(this, properties); // calls `stateChanged()`
+            this.behavior.setRowProperties(this, properties, this.subgrid); // calls `stateChanged()`
         }
     },
     getRowProperty: { value: function(key) {

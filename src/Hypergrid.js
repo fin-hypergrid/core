@@ -19,8 +19,8 @@ var SelectionModel = require('./lib/SelectionModel');
 var Localization = require('./lib/Localization');
 var Behavior = require('./behaviors/Behavior');
 var behaviorJSON = require('./behaviors/JSON');
-var CellRenderers = require('./cellRenderers');
-var CellEditors = require('./cellEditors');
+var cellRenderers = require('./cellRenderers');
+var cellEditors = require('./cellEditors');
 
 var EDGE_STYLES = ['top', 'bottom', 'left', 'right'],
     RECT_STYLES = EDGE_STYLES.concat(['width', 'height', 'position']);
@@ -109,17 +109,19 @@ var Hypergrid = Base.extend('Hypergrid', {
 
         /**
          * @name cellRenderers
-         * @type {CellRenderer}
+         * @type {Registry}
          * @memberOf Hypergrid#
          */
-        this.cellRenderers = new CellRenderers();
+        this.cellRenderers = cellRenderers;
 
         /**
+         * Private version of cell editors registry with a bound `create` method for use by `getCellEditorAt`.
          * @name cellEditors
-         * @type {CellEditor}
+         * @type {Registry}
          * @memberOf Hypergrid#
          */
-        this.cellEditors = new CellEditors({ grid: this });
+        this.cellEditors = Object.create(cellEditors);
+        Object.defineProperty(this.cellEditors, 'create', { value: createCellEditor.bind(this) });
 
         this.initCanvas();
 
@@ -302,7 +304,7 @@ var Hypergrid = Base.extend('Hypergrid', {
             var: { value: new Var() }
         });
 
-        // For all all default props of object type, if a dynamic prop, invoke setter; else deep clone it so changes
+        // For all default props of object type, if a dynamic prop, invoke setter; else deep clone it so changes
         // made to inner props won't go to object on theme or defaults layers which are shared by other instances.
         Object.keys(defaults).forEach(function(key) {
             var value = defaults[key];
@@ -609,7 +611,16 @@ var Hypergrid = Base.extend('Hypergrid', {
      * @see [Memento pattern](http://en.wikipedia.org/wiki/Memento_pattern)
      */
     setState: function(state) {
-        this.behavior.setState(state);
+        this.addState(state, true);
+    },
+
+    /**
+     * @memberOf Hypergrid#
+     * @desc Add to the state object.
+     * @param {object} state
+     */
+    addState: function(state, settingState) {
+        this.behavior.addState(state, settingState);
         this.refreshProperties();
         this.behaviorChanged();
     },
@@ -636,7 +647,10 @@ var Hypergrid = Base.extend('Hypergrid', {
 
         var space = options.space === undefined ? '\t' : options.space,
             properties = this.properties,
-            calculators = properties.calculators;
+            calculators = properties.calculators,
+            blacklist = options.blacklist = options.blacklist || [];
+
+        blacklist.push('columnProperties'); // Never output this synonym of 'columns'
 
         if (calculators) {
             if (options.compact) {
@@ -654,8 +668,8 @@ var Hypergrid = Base.extend('Hypergrid', {
         this.headerify = options.headerify;
 
         var json = JSON.stringify(properties, function(key, value) {
-            if (options.blacklist && this === properties && options.blacklist.indexOf(key) >= 0) {
-                value = undefined;
+            if (this === properties && options.blacklist.indexOf(key) >= 0) {
+                value = undefined; // JSON.stringify ignores undefined props
             } else if (key === 'calculator') {
                 if (calculators) {
                     // convert function reference to registry key
@@ -829,6 +843,13 @@ var Hypergrid = Base.extend('Hypergrid', {
     },
 
     /**
+     * @memberOf Behavior#
+     */
+    reindex: function() {
+        this.needsReindex = this.needsShapeChanged = true;
+    },
+
+    /**
      * @memberOf Hypergrid#
      * @summary _(See {@link Hypergrid.prototype#setData}.)_
      * @desc Binds the data and reshapes the grid (new column objects created)
@@ -889,6 +910,11 @@ var Hypergrid = Base.extend('Hypergrid', {
      * Called from renderer/index.js
      */
     deferredBehaviorChange: function() {
+        if (this.needsReindex) {
+            this.behavior.reindex();
+            this.needsReindex = false;
+        }
+
         if (this.needsShapeChanged) {
             if (this.divCanvas) {
                 this.synchronizeScrollingBoundaries(); // calls computeCellsBounds and repaint (state change)
@@ -1944,6 +1970,13 @@ function deepClone(object) {
         }
     });
     return result;
+}
+
+function createCellEditor(name, props) {
+    var CellEditor = cellEditors.get(name);
+    if (CellEditor) {
+        return new CellEditor(this, props);
+    }
 }
 
 /**

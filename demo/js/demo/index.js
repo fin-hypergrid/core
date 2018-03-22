@@ -27,10 +27,20 @@ window.onload = function() {
     // convert field names containing underscore to camel case by overriding column enum decorator
     Hypergrid.behaviors.JSON.prototype.columnEnumKey = Hypergrid.behaviors.JSON.columnEnumDecorators.toCamelCase;
 
+    var schema = Hypergrid.lib.fields.getSchema(people1);
+
+    // as of v2.1.6, column properties can also be initialized from custom schema (as well as from a grid state object).
+    // The following demonstrates this. Note that demo/setState.js also sets props of 'height' column. The setState
+    // call therein was changed to addState to accommodate (else schema props defined here would have been cleared).
+    Object.assign(schema.find(function(columnSchema) { return columnSchema.name === 'height'; }), {
+        halign: 'right',
+        // format: 'foot' --- for demo purposes, this prop being set in setState.js (see)
+    });
+
     var gridOptions = {
             data: people1,
             margin: { bottom: '17px', right: '17px'},
-            schema: Hypergrid.lib.fields.getSchema(people1),
+            schema: schema,
             plugins: require('fin-hypergrid-event-logger'),
             state: { color: 'orange' }
         },

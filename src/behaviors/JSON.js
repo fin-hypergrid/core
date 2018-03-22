@@ -40,12 +40,11 @@ var JSON = Behavior.extend('behaviors.JSON', {
         });
 
         this.dataModel.schema.forEach(function(columnSchema, index) {
-            this.addColumn({
-                index: index,
-                header: columnSchema.header,
-                calculator: columnSchema.calculator
-            });
-
+            if (typeof columnSchema === 'string') {
+                this.dataModel.schema[index] = columnSchema = { name: columnSchema };
+            }
+            columnSchema.index = index;
+            this.addColumn(columnSchema);
             columnEnum[this.columnEnumKey(columnSchema.name)] = index;
         }, this);
     },

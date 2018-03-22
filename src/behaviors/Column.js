@@ -6,20 +6,28 @@ var overrider = require('overrider');
 
 var deprecated = require('../lib/deprecated');
 var toFunction = require('../lib/toFunction');
+var assignOrDelete = require('../lib/misc').assignOrDelete;
 var HypergridError = require('../lib/error');
-var images = require('../../images/index');
+var images = require('../../images');
+
+
+var warned = {};
 
 
 /** @summary Create a new `Column` object.
  * @see {@link module:Cell} is mixed into Column.prototype.
+ * @mixes cellProperties.columnMixin
+ * @mixes columnProperties.mixin
  * @constructor
- * @param behavior
- * @param {number|string|object} indexOrOptions - One of:
- * * If a positive number, valid index into `fields` array.
- * * If a string, a name in the `fields` array.
- * * If an object, must contain either an `index` or a `name` property.
+ * @param {Behavior} behavior
+ * @param {object} columnSchema
+ * @param {number} columnSchema.index
+ * @param {string} columnSchema.name
+ * @param {string} [columnSchema.header] - Displayed in column headers. If not defined, name is used.
+ * @param {function} [columnSchema.calculator] - Define to make a computed column.
+ * @param {string} [columnSchema.type] - For possible data model use. (Not used in core.)
  *
- * Positive values of `index` are "real" fields; see also {@link Column#setProperties|setProperties} which is called to set the remaining properties specified in `options`.
+ * Positive values of `index` are "real" fields.
  *
  * Negative values of `index` are special cases:
  * `index` | Meaning
@@ -27,55 +35,86 @@ var images = require('../../images/index');
  *    -1   | Row header column
  *    -2   | Tree (drill-down) column
  */
-function Column(behavior, indexOrOptions) {
-    var index, schema, options, icon;
+function Column(behavior, columnSchema) {
+    switch (typeof columnSchema) {
+        case 'number':
+            if (!warned.number) {
+                console.warn('Column(behavior: object, index: number) overload has been deprecated as of v2.1.6 in favor of Column(behavior: object, columnSchema: object) overload with defined columnSchema.index. (Will be removed in a future release.)');
+                warned.number = true;
+            }
+            columnSchema = {
+                index: columnSchema
+            };
+            break;
+        case 'string':
+            if (!warned.string) {
+                console.warn('Column(behavior:object, name: string) overload (where name is sought in schema) has been deprecated as of v2.1.6 in favor of Column(behavior: object, columnSchema: object) overload with defined columnSchema.index. (Will be removed in a future release.)');
+                warned.string = true;
+            }
+            var name, index;
+            name = columnSchema;
+            index = behavior.dataModel.schema.findIndex(function(columnSchema) {
+                return columnSchema.name === name;
+            });
+            if (index < 0) {
+                throw new ReferenceError('Column named "' + name + '" not found in schema.');
+            }
+            columnSchema = {
+                name: name,
+                index: index
+            };
+            break;
+        case 'object':
+            if (columnSchema.index === undefined) {
+                if (!warned.object) {
+                    console.warn('Column(behavior:object, columnSchema: object) overload (where columnSchema.index is undefined but columnSchema.name is sought in schema) has been deprecated as of v2.1.6 in favor of defined columnSchema.index. (Will be removed in a future release.)');
+                    warned.object = true;
+                }
+                name = columnSchema.name;
+                index = behavior.dataModel.schema.findIndex(function(columnSchema) {
+                    return columnSchema.name === name;
+                });
+                if (index < 0) {
+                    throw new ReferenceError('Column named "' + name + '" not found in schema.');
+                }
+                columnSchema.index = index;
+            }
+            break;
+    }
+
+    if (columnSchema.index === undefined) {
+        throw new HypergridError('Column index required.');
+    }
 
     this.behavior = behavior;
     this.dataModel = behavior.dataModel;
 
-    schema = this.behavior.dataModel.schema;
+    // set `index` and `name` as read-only properties
+    Object.defineProperties(this, {
+        index: {
+            value: columnSchema.index
+        },
+        name: {
+            enumerable: true,
+            value: columnSchema.name || columnSchema.index.toString()
+        }
+    });
 
-    switch (typeof indexOrOptions) {
-        case 'number':
-            index = indexOrOptions;
-            options = {};
-            break;
-        case 'string':
-            index = getIndexFromName(indexOrOptions);
-            options = {};
-            break;
-        case 'object':
-            options = indexOrOptions;
-            index = options.index !== undefined
-                ? options.index
-                : getIndexFromName(options.name);
-    }
+    this.properties = this.schema = columnSchema; // see {@link Column#properties properties} setter
 
-    function getIndexFromName(name) {
-        return schema.findIndex(function(columnSchema, i) {
-            return columnSchema.name === name;
-        });
-    }
-
-    if (index === undefined) {
-        throw 'Column not found in data.';
-    }
-
-    this._index = index;
-
-    this.properties = options;
-
-    switch (index) {
+    switch (columnSchema.index) {
         case this.behavior.treeColumnIndex:
             // Width of icon + 3-pixel spacer (checked and unchecked should be same width)
-            icon = images[Object.create(this.properties.treeHeader, { isDataRow: { value: true } }).leftIcon];
+            var icon = images[Object.create(this.properties.treeHeader, { isDataRow: { value: true } }).leftIcon];
             this.properties.minimumColumnWidth = icon ? icon.width + 3 : 0;
             break;
+
         case this.behavior.rowColumnIndex:
             break;
+
         default:
-            if (index < 0) {
-                throw '`index` out of range';
+            if (columnSchema.index < 0) {
+                throw new RangeError('New column index ' + columnSchema.index + ' out of range.');
             }
     }
 }
@@ -94,38 +133,21 @@ Column.prototype = {
     },
 
     /**
-     * @summary Index of this column in the `fields` array.
-     * @returns {number}
-     */
-    get index() { // read-only (no setter)
-        return this._index;
-    },
-
-    /**
-     * @summary Name of this column from the `fields` array.
-     * @returns {string|undefined} Returns `undefined` if the column is not in the schema (such as for handle column).
-     */
-    get name() { // read-only (no setter)
-        var columnSchema = this.dataModel.schema[this._index];
-        return columnSchema && columnSchema.name;
-    },
-
-    /**
      * @summary Get or set the text of the column's header.
      * @desc The _header_ is the label at the top of the column.
      *
      * Setting the header updates both:
-     * * the `fields` (aka, header) array in the underlying data source; and
+     * * the `schema` (aka, header) array in the underlying data source; and
      * * the filter.
      * @type {string}
      */
-    set header(headerText) {
-        this.dataModel.schema[this.index].header = headerText;
-        this.dataModel.prop(null, this.index, 'header', headerText);
+    set header(header) {
+        this.schema.header = header;
+        this.dataModel.prop(null, this.index, 'header', header);
         this.behavior.grid.repaint();
     },
     get header() {
-        return this.dataModel.schema[this.index].header;
+        return this.schema.header;
     },
 
     /**
@@ -138,22 +160,14 @@ Column.prototype = {
      * @type {string}
      */
     set calculator(calculator) {
-        var schema = this.dataModel.schema;
-
         calculator = resolveCalculator.call(this, calculator);
-
-        if (calculator !== schema[this.index].calculator) {
-            if (calculator === undefined) {
-                delete schema[this.index].calculator;
-            } else {
-                schema[this.index].calculator = calculator;
-            }
-            this.behavior.prop(null, this.index, 'calculator', calculator);
-            this.behavior.applyAnalytics();
+        if (calculator !== this.schema.calculator) {
+            this.schema.calculator = calculator;
+            this.behavior.grid.reindex(); // deferred reindex as there may be several of these calls at instantiation
         }
     },
     get calculator() {
-        return this.dataModel.schema[this.index].calculator;
+        return this.schema.calculator;
     },
 
     /**
@@ -164,13 +178,13 @@ Column.prototype = {
      * @type {string}
      */
     set type(type) {
-        this._type = type;
+        this.schema.type = type;
         //TODO: This is calling reindex for every column during grid init. Maybe defer all reindex calls until after an grid 'ready' event
         this.dataModel.prop(null, this.index, 'type', type);
         this.behavior.reindex();
     },
     get type() {
-        return this._type;
+        return this.schema.type;
     },
 
     getUnfilteredValue: function(y) {
@@ -274,9 +288,25 @@ Column.prototype = {
     get properties() {
         return this._properties;
     },
-    set properties(ownProperties) {
-        this._properties = this.createColumnProperties();
-        this.addProperties(ownProperties);
+    set properties(properties) {
+        this.addProperties(properties, true);
+    },
+
+    /**
+     * Copy a properties collection to this column's properties object.
+     *
+     * When a value is `undefined` or `null`, the property is deleted except when a setter or non-configurable in which case it's set to `undefined`.
+     * @param {object|undefined} properties - Properties to copy to column's properties object. If `undefined`, this call is a no-op.
+     * @param {boolean} [settingState] - Clear column's properties object before copying properties.
+     */
+    addProperties: function(properties, settingState) {
+        if (!properties) {
+            return;
+        }
+        if (settingState || !this._properties) {
+            this._properties = this.createColumnProperties();
+        }
+        assignOrDelete(this._properties, properties);
     },
 
     getProperties: function() {
@@ -303,19 +333,6 @@ Column.prototype = {
             this.properties = properties;
         } else {
             this.deprecated('setPropertiesPreserve', 'setProperties(properties, preserve)', 'addProperties(properties)', '1.2.0', arguments, 'This warning pertains to setProperties only when preserve is truthy. When preserve is faulty, use the new properties setter.');
-        }
-    },
-
-    addProperties: function(properties) {
-        var key, descriptor, obj = this.properties;
-
-        for (key in properties) {
-            if (properties.hasOwnProperty(key)) {
-                descriptor = Object.getOwnPropertyDescriptor(obj, key);
-                if (!descriptor || descriptor.writable || descriptor.set) {
-                    obj[key] = properties[key];
-                }
-            }
         }
     },
 
@@ -359,7 +376,9 @@ Column.prototype = {
     }
 };
 
-var REGEX_ARROW_FUNC = /^(\(.*\)|\w+)\s*=>/;
+var REGEX_ARROW_FUNC = /^(\(.*\)|\w+)\s*=>/,
+    REGEX_NAMED_FUNC = /^function\s+(\w+)\(/,
+    REGEX_ANON_FUNC = /^function\s*\(/;
 
 /**
  * Calculators are functions. Column calculators are saved in `grid.properties.calculators` using the function name as key. Anonymous functions use the stringified function itself as the key. This may seem pointless, but this achieves the objective here which is to share function instances.
@@ -379,10 +398,12 @@ function resolveCalculator(calculator) {
         return undefined;
     }
 
+    var forColumnName = ' (for column "' + this.name + '").';
+
     if (typeof calculator === 'function') {
         calculator = calculator.toString();
     } else if (typeof calculator !== 'string') {
-        throw new HypergridError('Expected function OR string containing function OR function name the "' + this.name + '" column calculator.');
+        throw new HypergridError('Expected calculator function OR string containing calculator function OR calculator name' + forColumnName);
     }
 
     var matches, key,
@@ -391,26 +412,22 @@ function resolveCalculator(calculator) {
     if (/^\w+$/.test(calculator)) {
         key = calculator; // just a function name
         if (!calculators[key]) {
-            throw new HypergridError('Unknown function name "' + key + '" for "' + this.name + '" column calculator.');
+            throw new HypergridError('Unknown calculator name "' + key + forColumnName);
         }
-    } else {
-        matches = calculator.match(/^function\s*(\w+)\(/);
-
-        if (matches) {
-            key = matches[1]; // function name extracted from stringified function
-        } else {
-            key = calculator; // anonymous stringified function
-        }
-
-        if (!calculators[key]) { // neither a string nor a function (previoulsy functionified string)?
-            if (REGEX_ARROW_FUNC.test(calculator)) {
-                throw new HypergridError('Arrow function not permitted as column calculator (for column "' + this.name + '").');
-            }
-            calculators[key] = calculator;
-        }
+    } else if ((matches = calculator.match(REGEX_NAMED_FUNC))) {
+        key = matches[1]; // function name extracted from stringified function
+    } else if (calculator.test(REGEX_ANON_FUNC)) {
+        key = calculator; // anonymous stringified function
+    } else if (REGEX_ARROW_FUNC.test(calculator)) {
+        throw new HypergridError('Arrow function not permitted as column calculator ' + forColumnName);
     }
 
-    calculators[key] = toFunction(calculators[key]); // functionifies existing `calculators` entries as well as new entries
+    if (!calculators[key]) { // neither a string nor a function (previously functionified string)?
+        calculators[key] = calculator;
+    }
+
+    // functionify existing entries as well as new `calculators` entries
+    calculators[key] = toFunction(calculators[key]);
 
     return calculators[key];
 }

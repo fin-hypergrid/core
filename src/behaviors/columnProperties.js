@@ -443,4 +443,4 @@ createColumnProperties.columnHeaderDescriptors = {
     rightIcon: { writable: true, value: undefined},
 };
 
-module.exports.createColumnProperties = createColumnProperties;
+exports.createColumnProperties = createColumnProperties;
