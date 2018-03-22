@@ -61,9 +61,19 @@ module.exports = function(demo, grid) {
             Add10: 'function(dataRow,columnName) { return dataRow[columnName] + 10; }'
         },
 
+        // ANTI-PATTERNS FOLLOW
+        //
+        // Setting column, row, cell props here in a state object is a legacy feature.
+        // Developers may find it more useful to set column props in column schema (as of v2.1.6),
+        // row props in row metadata (as of v2.1.0), and cell props in column metadata (as of v2.0.2),
+        // which would then persist across setState calls which clear these properties objects
+        // before applying new values. In this demo, we have changed the setState call below to addState
+        // (which does not clear the properties object first) to show how to set a column prop here *and*
+        // a different prop on the same column in schema (in index.js).
+
         columns: {
             height: {
-                halign: 'right',
+                // halign: 'right', --- for demo purposes, this prop being set in index.js (see)
                 format: 'foot'
             },
 
@@ -144,7 +154,7 @@ module.exports = function(demo, grid) {
         }
     };
 
-    grid.setState(state);
+    grid.addState(state); // changed from setState so 'height' props set with schema in index.js wouldn't be cleared
 
     grid.takeFocus();
 

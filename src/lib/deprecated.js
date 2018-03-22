@@ -8,7 +8,7 @@ if (!console.warn) {
     };
 }
 
-var regexIsMethod = /^\w+\(.*\)$/;
+var regexIsMethod = /^[\w\.]+\(.*\)$/;
 
 /**
  * User is warned and new property is returned or new method is called and the result is returned.
@@ -44,7 +44,7 @@ var deprecated = function(methodName, dotProps, since, args, notes) {
         } else if (warned[methodName]) {
             --warned[methodName];
             memberType = regexIsMethod.test(dotProps) ? 'method' : 'property';
-            warning = 'The .' + methodName + ' method is deprecated as of v' + since +
+            warning = 'The .' + methodName + ' method has been deprecated as of v' + since +
                 ' in favor of the .' + chain.join('.') + ' ' + memberType + '.' +
                 ' (Will be removed in a future release.)';
 

@@ -5,8 +5,10 @@ var Point = require('rectangular').Point;
 var Base = require('../Base');
 var Column = require('./Column');
 var cellEventFactory = require('../lib/cellEventFactory');
-var Features = require('../features');
+var featureRegistry = require('../features');
+var Synonomous = require('synonomous');
 var propClassEnum = require('../defaults.js').propClassEnum;
+var assignOrDelete = require('../lib/misc').assignOrDelete;
 
 
 var noExportProperties = [
@@ -42,6 +44,8 @@ var Behavior = Base.extend('Behavior', {
          */
         this.grid = grid;
 
+        this.synonomous = new Synonomous;
+
         this.initializeFeatureChain();
 
         this.grid.behavior = this;
@@ -72,7 +76,7 @@ var Behavior = Base.extend('Behavior', {
          */
         this.featureMap = {};
 
-        this.featureRegistry = this.featureRegistry || new Features;
+        this.featureRegistry = this.featureRegistry || featureRegistry;
 
         if (this.grid.properties.features) {
             var getFeatureConstructor = this.featureRegistry.get.bind(this.featureRegistry);
@@ -130,6 +134,9 @@ var Behavior = Base.extend('Behavior', {
         }
 
         this.scrollPositionX = this.scrollPositionY = 0;
+
+        this.rowPropertiesPrototype = Object.create(this.grid.properties,
+            require('./rowProperties').rowPropertiesPrototypeDescriptors);
 
         this.clearColumns();
         this.createColumns();
@@ -201,18 +208,16 @@ var Behavior = Base.extend('Behavior', {
     },
 
     /**
-     * The "grid index" given a "data index" (or column object)
+     * The "grid index" of an active column given a "data index" (number), column name (string), or column object
      * @param {Column|number} columnOrIndex
      * @returns {undefined|number} The grid index of the column or undefined if column not in grid.
      * @memberOf Hypergrid#
      */
-    getActiveColumnIndex: function(columnOrIndex) {
-        var index = columnOrIndex instanceof Column ? columnOrIndex.index : columnOrIndex;
-        for (var i = 0; i < this.columns.length; ++i) {
-            if (this.columns[i].index === index) {
-                return i;
-            }
-        }
+    getActiveColumnIndex: function(columnOrIndexOrName) {
+        var value = columnOrIndexOrName instanceof Column ? columnOrIndexOrName.index : columnOrIndexOrName,
+            key = typeof index === 'number' ? 'index' : 'name';
+
+        return this.columns.findIndex(function(column) { return column[key] === value; });
     },
 
     getVisibleColumn: function() {
@@ -237,15 +242,21 @@ var Behavior = Base.extend('Behavior', {
     },
 
     addColumn: function(options) {
-        var column = this.newColumn(options);
-        this.columns.push(column);
-        this.allColumns.push(column);
+        var column = this.newColumn(options),
+            columns = this.columns,
+            allColumns = this.allColumns;
+
+        columns.push(column);
+        this.synonomous.decorateList(columns.length - 1, columns);
+
+        allColumns.push(column);
+        this.synonomous.decorateList(allColumns.length - 1, allColumns);
+
         return column;
     },
 
     createColumns: function() {
         this.clearColumns();
-        this.clearAllCellProperties();
         //concrete implementation here
     },
 
@@ -327,58 +338,99 @@ var Behavior = Base.extend('Behavior', {
      * @desc clear all table state
      */
     clearState: function() {
-       this.grid.clearState();
+        this.grid.clearState();
+        this.createColumns();
     },
 
     /**
      * @memberOf Behavior#
      * @desc Restore this table to a previous state.
      * See the [memento pattern](http://c2.com/cgi/wiki?MementoPattern).
-     * @param {Object} memento - an encapsulated representation of table state
+     * @param {Object} properties - assignable grid properties
      */
-    setState: function(memento) {
-
-        if (memento.rowHeights) {
-            this.deprecated('rowHeights', 'rowHeights, the hash of row heights you provided to setState method, is no longer supported as of v1.2.0 and will be ignored. Instead, for each row height you wish to set, use `rows: { subgrid: { y: { height: heightInPixels } } }` substituting the name (or type) of the subgrid for `subgrid`, the local zero-based rowIndex within the subgrid for `y`, and the row height in pixels for `heightInPixels`; or make individual calls to `setRowHeight(y, heightInPixels, dataModel)`. The dataModel arg is optional and defaults to this.dataModel (the data subgrid); specify to set row heights in other data models, such as header row, filter cell row, individual summary rows, etc.');
-        }
-
-        this.createColumns();
-
-        var state = this.grid.properties;
-        Object.keys(memento).forEach(function(key) {
-            state[key] = memento[key];
-        }, this);
-
-        this.setAllColumnProperties(memento.columnProperties);
-
-        this.dataModel.reindex();
+    setState: function(properties) {
+        this.addState(properties, true);
     },
 
-    setAllColumnProperties: function(columnProperties) {
-        if (columnProperties) {
-            columnProperties.forEach(function(properties, i) {
-                this.getColumn(i).properties = properties;
-            }, this);
+    /**
+     *
+     * @param {Object} properties - assignable grid properties
+     * @param {boolean} [settingState] - Clear properties object before assignments.
+     */
+    addState: function(properties, settingState) {
+        if (settingState) {
+            this.clearState();
         }
+
+        var gridProps = this.grid.properties;
+
+        gridProps.settingState = settingState;
+        assignOrDelete(gridProps, properties);
+        delete gridProps.settingState;
+
+        this.reindex();
+    },
+
+    /**
+     * @summary Sets properties for active columns.
+     * @desc Sets multiple columns' properties from elements of given array or collection. Keys may be column indexes or column names. The properties collection is cleared first. Falsy elements are ignored.
+     * @param {object[]|undefined} columnsHash - If undefined, this call is a no-op.
+     */
+    setAllColumnProperties: function(columnsHash) {
+        this.addAllColumnProperties(columnsHash, true);
+    },
+
+    /**
+     * @summary Adds properties for multiple columns.
+     * @desc Adds . The properties collection is optionally cleared first. Falsy elements are ignored.
+     * @param {object[]|undefined} columnsHash - If undefined, this call is a no-op.
+     * @param {boolean} [settingState] - Clear columns' properties objects before copying properties.
+     */
+    addAllColumnProperties: function(columnsHash, settingState) {
+        if (!columnsHash) {
+            return;
+        }
+
+        var columns = this.grid.behavior.getColumns();
+
+        Object.keys(columnsHash).forEach(function(key) {
+            var column = columns[key];
+            if (column) {
+                column.addProperties(columnsHash[key], settingState);
+            }
+        });
     },
 
     setColumnOrder: function(columnIndexes) {
         if (Array.isArray(columnIndexes)){
-            this.columns.length = columnIndexes.length;
-            columnIndexes.forEach(function(index, i) {
-                this.columns[i] = this.allColumns[index];
-            }, this);
+            var columns = this.columns,
+                allColumns = this.allColumns;
+
+            // avoid recreating the array to keep refs valid; just empty it (including name dictionary)
+            columns.length = 0;
+            var tc = this.treeColumnIndex.toString(), rc = this.rowColumnIndex.toString();
+            Object.keys(columns).forEach(function(key) {
+                switch (key) {
+                    case tc:
+                    case rc:
+                        break;
+                    default:
+                        delete columns[key];
+                }
+            });
+
+            columnIndexes.forEach(function(index) {
+                columns.push(allColumns[index]);
+            });
+
+            this.synonomous.decorateList(columns);
         }
     },
 
     setColumnOrderByName: function(columnNames) {
-        if (Array.isArray(columnNames)){
-            this.columns.length = columnNames.length;
-            columnNames.forEach(function(columnName, i) {
-                this.columns[i] = this.allColumns.find(function(column) {
-                    return column.name === columnName;
-                });
-            }, this);
+        if (Array.isArray(columnNames)) {
+            var allColumns = this.allColumns;
+            this.setColumnOrder(columnNames.map(function(name) { return allColumns[name].index; }));
         }
     },
 
@@ -720,128 +772,12 @@ var Behavior = Base.extend('Behavior', {
     },
 
     /**
-     * @summary The total height of the "fixed rows."
-     * @desc The total height of all (non-scrollable) rows preceding the (scrollable) data subgrid.
-     * @memberOf Behavior#
-     * @return {number} The height in pixels of the fixed rows area of the hypergrid, the total height of:
-     * 1. All rows of all subgrids preceding the data subgrid.
-     * 2. The first `fixedRowCount` rows of the data subgrid.
-     */
-    getFixedRowsHeight: function() {
-        var dataModel, isData, r, R,
-            subgrids = this.subgrids,
-            height = 0;
-
-        for (var i = 0; i < subgrids.length && !isData; ++i) {
-            dataModel = subgrids[i];
-            isData = dataModel.isData;
-            R = isData ? this.grid.properties.fixedRowCount : dataModel.getRowCount();
-            for (r = 0; r < R; ++r) {
-                height += this.getRowHeight(r, dataModel);
-            }
-        }
-
-        return height;
-    },
-
-    /**
-     * @memberOf Behavior#
-     * @param {number|CellEvent} yOrCellEvent - Data row index local to `dataModel`; or a `CellEvent` object.
-     * @param {boolean} [properties] - New properties object when one does not already exist. If you don't provide this and one does not already exist, this call will return `undefined`. _(Required when 3rd param provided.)_
-     * @param {dataModelAPI} [dataModel=this.dataModel] - This is the subgrid. You only need to provide the subgrid when it is not the data subgrid _and_ you did not give a `CellEvent` object in the first param (which already knows what subgrid it's in).
-     * @returns {object|undefined} The row properties object which will be one of:
-     * * The row properties object if it existed.
-     * * The value you provided in `properties` if the row properties for a new row properties object when the object did not already exist in the metadata
-     * * `undefined` if the row properties object did not exist _and_ you did not provide a value in `properties`.
-     */
-    getRowProperties: function(yOrCellEvent, properties, dataModel) {
-        if (typeof yOrCellEvent === 'object') {
-            dataModel = yOrCellEvent.subgrid;
-            yOrCellEvent = yOrCellEvent.dataCell.y;
-        }
-
-        var metadata = (dataModel || this.dataModel).getRowMetadata(yOrCellEvent, properties && {});
-        return metadata && (metadata.__ROW || properties && (metadata.__ROW = properties));
-    },
-
-    /**
-     * Reset the row properties in its entirety to the given row properties object.
-     * @memberOf Behavior#
-     * @param {number|CellEvent} yOrCellEvent - Data row index local to `dataModel`; or a `CellEvent` object.
-     * @param {object} properties - The new row properties object.
-     * @param {dataModelAPI} [dataModel=this.dataModel] - This is the subgrid. You only need to provide the subgrid when it is not the data subgrid _and_ you did not give a `CellEvent` object in the first param (which already knows what subgrid it's in).
-     */
-    setRowProperties: function(yOrCellEvent, properties, dataModel) {
-        if (typeof yOrCellEvent === 'object') {
-            dataModel = yOrCellEvent.subgrid;
-            yOrCellEvent = yOrCellEvent.dataCell.y;
-        }
-
-        (dataModel || this.dataModel).getRowMetadata(yOrCellEvent, {}, dataModel).__ROW = properties;
-
-        this.stateChanged();
-    },
-
-    /**
-     * Sets a single row property on a specific individual row.
-     * @memberOf Behavior#
-     * @param {number|CellEvent} yOrCellEvent - Data row index local to `dataModel`; or a `CellEvent` object.
-     * @param {string} key - The property name.
-     * @param value - The new property value.
-     * @param {dataModelAPI} [dataModel=this.dataModel] - This is the subgrid. You only need to provide the subgrid when it is not the data subgrid _and_ you did not give a `CellEvent` object in the first param (which already knows what subgrid it's in).
-     */
-    setRowProperty: function(yOrCellEvent, key, value, dataModel) {
-        this.getRowProperties(yOrCellEvent, {}, dataModel)[key] = value;
-        this.stateChanged();
-    },
-
-    /**
-     * Add all the properties in the given row properties object to the row properties.
-     * @memberOf Behavior#
-     * @param {number|CellEvent} yOrCellEvent - Data row index local to `dataModel`; or a `CellEvent` object.
-     * @param {object} properties - An object containing new property values(s) to assign to the row properties.
-     * @param {dataModelAPI} [dataModel=this.dataModel] - This is the subgrid. You only need to provide the subgrid when it is not the data subgrid _and_ you did not give a `CellEvent` object in the first param (which already knows what subgrid it's in).
-     */
-    addRowProperties: function(yOrCellEvent, properties, dataModel) {
-        Object.assign(this.getRowProperties(yOrCellEvent, {}, dataModel), properties);
-        this.stateChanged();
-    },
-
-    /**
-     * @memberOf Behavior#
-     * @param {number} yOrCellEvent - Data row index local to `dataModel`.
-     * @param {dataModelAPI} [dataModel=this.dataModel]
-     */
-    getRowHeight: function(yOrCellEvent, dataModel) {
-        var rowProps = this.getRowProperties(yOrCellEvent, undefined, dataModel);
-        return rowProps && rowProps.height || this.grid.properties.defaultRowHeight;
-    },
-
-    /**
      * @memberOf Behavior#
      * @desc The value is lazily initialized and comes from the properties mechanism for '`defaultRowHeight`', which should be ~20px.
      * @returns {number} The row height in pixels.
      */
     getDefaultRowHeight: function() {
         return this.deprecated('getDefaultRowHeight()', 'grid.properties.defaultRowHeight', '1.2.0');
-    },
-
-    /**
-     * @memberOf Behavior#
-     * @desc set the pixel height of a specific row
-     * @param {number} yOrCellEvent - Data row index local to dataModel.
-     * @param {number} height - pixel height
-     * @param {dataModelAPI} [dataModel=this.dataModel]
-     */
-    setRowHeight: function(yOrCellEvent, height, dataModel) {
-        var rowProps = this.getRowProperties(yOrCellEvent, {}, dataModel),
-            oldHeight = rowProps.height;
-
-        rowProps.height = Math.max(5, Math.ceil(height));
-
-        if (rowProps.height !== oldHeight) {
-            this.stateChanged();
-        }
     },
 
     /**
@@ -1555,6 +1491,7 @@ Behavior.prototype.applyAnalytics = Behavior.prototype.reindex;
 
 // mix-ins
 Behavior.prototype.mixIn(require('./subgrids'));
+Behavior.prototype.mixIn(require('./rowProperties').mixin);
 
 
 module.exports = Behavior;

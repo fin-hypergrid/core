@@ -19,14 +19,21 @@ var DataModel = Base.extend('DataModel', {
         return this.deprecated('getPrivateState()', 'grid.properties', '1.2.0');
     },
 
-    getRowMetadata: function(rowIndex, metadata) {
+    getRowMetadata: function(rowIndex, prototype) {
         var dataRow = this.getRow(rowIndex);
-        return dataRow && (dataRow.__META || (dataRow.__META = metadata));
+        return dataRow && (dataRow.__META || (prototype !== undefined && (dataRow.__META = Object.create(prototype))));
     },
 
     setRowMetadata: function(rowIndex, metadata) {
         var dataRow = this.getRow(rowIndex);
-        return dataRow && (dataRow.__META = metadata);
+        if (dataRow) {
+            if (metadata) {
+                dataRow.__META = metadata;
+            } else {
+                delete dataRow.__META;
+            }
+        }
+        return !!dataRow;
     },
 
     /**
