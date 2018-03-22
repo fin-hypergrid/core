@@ -2,6 +2,9 @@
 
 'use strict';
 
+var assignOrDelete = require('../lib/misc').assignOrDelete;
+
+
 /**
  * Column.js mixes this module into its prototype.
  * @module
@@ -23,23 +26,26 @@ var cell = {
 
     /**
      * @param {number} rowIndex - Data row coordinate.
-     * @param {Object} properties - Hash of cell properties.
+     * @param {object|undefined} properties - Hash of cell properties. If `undefined`, this call is a no-op.
      * @returns {*}
      * @memberOf Column#
      */
     setCellProperties: function(rowIndex, properties, dataModel) {
-        return Object.assign(newCellPropertiesObject.call(this, rowIndex, dataModel), properties);
+        if (properties) {
+            return assignOrDelete(newCellPropertiesObject.call(this, rowIndex, dataModel), properties);
+        }
     },
 
     /**
      * @param {number} rowIndex - Data row coordinate.
-     * @param {Object} properties - Hash of cell properties.
-     * @param {boolean} [preserve=false] - Falsy creates new object; truthy copies `properties` members into existing object.
-     * @returns {*}
+     * @param {object|undefined} properties - Hash of cell properties. If `undefined`, this call is a no-op.
+     * @returns {object} Cell's own properties object, which will be created by this call if it did not already exist.
      * @memberOf Column#
      */
     addCellProperties: function(rowIndex, properties, dataModel) {
-        return Object.assign(getCellPropertiesObject.call(this, rowIndex, dataModel), properties);
+        if (properties) {
+            return assignOrDelete(getCellPropertiesObject.call(this, rowIndex, dataModel), properties);
+        }
     },
 
     /**
