@@ -359,7 +359,7 @@ var defaults = {
      * @type {string}
      * @memberOf module:defaults
      */
-    filterEditor: undefined,
+    filterEditor: 'TextField',
 
     /**
      * @default

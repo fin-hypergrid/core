@@ -345,7 +345,7 @@ createColumnProperties.filterDescriptors = {
         get: function() {
             var result;
             if (this.filterable) {
-                result = this.value.length ? 'filter-on' : 'filter-off';
+                result = this.filter ? 'filter-on' : 'filter-off';
             }
             return result;
         },
