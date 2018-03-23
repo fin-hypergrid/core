@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" >
+    <meta http-equiv="Cache-Control" content="must-revalidate" />
+    <link rel="icon" type="image/png" href="img/hypergrid-icon.png">
+    <link rel="stylesheet" href="css/row-props.css">
+</head>
+<body>
+
+<h1 style="margin:.5em; color:lightgrey">Hypergrid <span id="version"></span> performance workbench</h1>
+
+<div id="controls" class="nowrap">
+    <label id="controller" title="Uncheck to hide other controls.">
+        <input type="checkbox" onchange="this.parentElement.parentElement.classList.toggle('nowrap')">
+        Wrap controls
+    </label>
+    <div class="radio-group">
+        Render:
+        <label title="grid.properties.enableContinuousRepaint = false; // next requestAnimationFrame AND repaint() was called to set flag">
+            <input type="radio" name="paint" onclick="update(false, false);" checked>
+            framed + flag set
+        </label>
+        <label title="grid.properties.enableContinuousRepaint = true // each requestAnimationFrame">
+            <input type="radio" name="paint" onclick="update(false, true);">
+            framed always
+        </label>
+        <label title="Call cancelAnimationFrame; then renderGrid as often as possible to render data changes.">
+            <input type="radio" name="paint" onclick="update(true)">
+            blast
+        </label>
+    </div>
+    <label>
+        <input type="checkbox" onclick="simulate(this.checked)">
+        sim updates
+        <span id="fps" title="Warning: Chrome's built in FPS meter is not accurate in blast mode (i.e., when not using requestAnimationFrame)."></span>
+        <input type="range" id="changes" style="width:100px" min="1" max="500" value="1" oninput="this.nextElementSibling.innerHTML=CHANGES=this.value">
+        (<span>1</span>)
+        <input type="button" onclick="grid.clearAllCellProperties()" value="Clear">
+    </label>
+    <div class="radio-group">
+        Render by:
+        <label title="setGridRenderer('by-cells');
+——————————————————
+This is the partial renderer, only rendering the cells that have changed since the last render. This only works for a static grid; when grid shape changes (including scrolling), it resets and defers to `by-columns-and-rows` for a full grid render.">
+            <input type="radio" name="renderer" onclick="setGridRenderer('by-cells')">
+            cells (partial)
+        </label>
+
+        <label title="setGridRenderer('by-columns-discrete');
+——————————————————
+Renders each column with its own background rect, and then its cells. If the colors of the column backgrounds are all opaque, this can serve as an alternative to clipping.">
+            <input type="radio" name="renderer" onclick="setGridRenderer('by-columns-discrete')">
+            columns (discrete)
+        </label>
+
+        <label title="setGridRenderer('by-columns');
+——————————————————
+Renders all cells over consolidated column backgrounds, if any. (These column backgrounds are however unsuitable as a clipping alternative because they are all drawn before any of the cells are drawn.)">
+            <input type="radio" name="renderer" onclick="setGridRenderer('by-columns')">
+            columns (consolidated)
+        </label>
+
+        <label title="setGridRenderer('by-columns-and-rows');
+——————————————————
+Renders all cells over consolidated row backgrounds, if any; otherwise over consolidated column backgrounds, if any. (Such column backgrounds are however unsuitable as a clipping alternative because they are all drawn before any of the cells are drawn.)">
+            <input type="radio" name="renderer" onclick="setGridRenderer('by-columns-and-rows')" checked>
+            columns (consolidated rows)
+        </label>
+
+        <label title="setGridRenderer('by-rows');
+——————————————————
+Renders all cells over consolidated row backgrounds, if any. Unsuitable as a clipping alternative. Caveat: This renderer turned out to be the least performant of all (for unclear reasons -- possibly due to poor optimization).">
+            <input type="radio" name="renderer" onclick="setGridRenderer('by-rows')">
+            rows (consolidated)
+        </label>
+    </div>
+    <div class="radio-group">
+        Text truncation:
+        <label title="grid.properties.truncateTextWithEllipsis = undefined; // can be overridden at a higher level">
+            <input type="radio" name="truncate" onclick="grid.properties.truncateTextWithEllipsis = undefined">
+            none
+        </label>
+        <label title="grid.properties.truncateTextWithEllipsis = true; // can be overridden at a higher level">
+            <input type="radio" name="truncate" onclick="grid.properties.truncateTextWithEllipsis = true" checked>
+            with ellipsis (&hellip;)
+        </label>
+        <label title="grid.properties.truncateTextWithEllipsis = false; // can be overridden at a higher level">
+            <input type="radio" name="truncate" onclick="grid.properties.truncateTextWithEllipsis = false">
+            <em>before</em> partial char
+        </label>
+        <label title="grid.properties.truncateTextWithEllipsis = null; // can be overridden at a higher level">
+            <input type="radio" name="truncate" onclick="grid.properties.truncateTextWithEllipsis = null">
+            <em>after</em> partial char
+        </label>
+    </div>
+    <div class="radio-group">
+        Clip to:
+        <label title="grid.properties.columnClip = true">
+            <input type="radio" name="clipping" onclick="grid.properties.columnClip = true; // can be overridden at column level">
+            all columns
+        </label>
+        <label title="grid.properties.columnClip = null">
+            <input type="radio" name="clipping" onclick="grid.properties.columnClip = null; // can be overridden at column level">
+            last column only
+        </label>
+        <label title="grid.properties.columnClip = false">
+            <input type="radio" name="clipping" onclick="grid.properties.columnClip = false; // can be overridden at column level" checked>
+            none
+        </label>
+    </div>
+    <div class="radio-group">
+        Grid row properties:
+        <label title="Removes `rowStripes` array from grid.properties entirely.)">
+            <input type="radio" name="striped-rows" onclick="stripes(null)" checked>
+            none
+        </label>
+        <label title="Adds a `rowStripes` array to grid.properties that defines 3 white rows alternating with 3 light blue rows. (Row rects are NOT drawn for those first 3 row rects when and only when the grid background is also white.)">
+            <input type="radio" name="striped-rows" onclick="stripes({ backgroundColor: 'white' })">
+            3 white + 3 blue
+        </label>
+        <label title="Adds a `rowStripes` array to grid.properties that defines 3 grid background rows alternating with 3 light blue rows. (Row rects are NOT drawn for those first 3 undefined rows.)">
+            <input type="radio" name="striped-rows" onclick="stripes(undefined)">
+            3 undefined + 3 blue
+        </label>
+    </div>
+    <label title="Column properties defines a light blue background color BUT inherit's grid's `rowStripes` array.">
+        Headers:
+        <input type="checkbox" onclick="grid.behavior.subgrids = this.checked ? ['header','data'] : ['data']" checked>Columns
+        <label>
+            <input type="checkbox" onclick="grid.properties.showRowNumbers = this.checked; grid.behavior.changed()" checked>Rows
+        </label>
+    </label>
+    <label title="Column properties defines a light blue background color BUT inherit's grid's `rowStripes` array.">
+        <input type="checkbox" onclick="columnProps(this.checked, [2,3], columnColorUnderAlternateColors)">
+        Columns 2-3 <em>under</em> alternating rows
+    </label>
+    <label title="Column properties defines a light blue background color AND overrides `rowStripes` with an undefined.">
+        <input type="checkbox" onclick="columnProps(this.checked, [6,7], columnColorOverAlternateColors)">
+        Columns 6-7 <em>over</em> alternating rows
+    </label>
+    <label title="Column properties overrides grid's `rowStripes` with one of its own that defines 2 tan rows alternating with 2 beige rows.">
+        <input type="checkbox" onclick="columnProps(this.checked, [10,11], columnOwnAlternateColors)">
+        Columns 10-11 override row props
+    </label>
+    <div class="radio-group">
+        Striped columns:
+        <label title="altColumnProps.call(this, { backgroundColor: rgb(210, 180, 140) })">
+            <input type="radio" name="striped-columns" onclick="altColumnProps(true, { backgroundColor: 'rgb(210, 180, 140)' })">
+            tan
+        </label>
+        <label title="altColumnProps.call(this, { backgroundColor: rgba(210, 180, 140, .5) })">
+            <input type="radio" name="striped-columns" onclick="altColumnProps(true, { backgroundColor: 'rgba(210, 180, 140, .5)' })">
+            translucent tan
+        </label>
+        <label title="document.body.style.backgroundColor='beige'">
+            <input type="radio" name="striped-columns" onclick="altColumnProps(false, columnColorUnderAlternateColors)" checked>
+            none
+        </label>
+    </div>
+    <div class="radio-group">
+        Body color:
+        <label title="document.body.style.backgroundColor='white'">
+            <input type="radio" name="bodybg" onclick="document.body.style.backgroundColor='white'" checked>
+            white
+        </label>
+        <label title="document.body.style.backgroundColor='beige'">
+            <input type="radio" name="bodybg" onclick="document.body.style.backgroundColor='lime'">
+            lime
+        </label>
+    </div>
+    <div class="radio-group">
+        Grid color:
+        <label title="grid.properties.backgroundColor='white'">
+            <input type="radio" name="gridbg" onclick="setBackgroundColor('white')" checked>
+            white
+        </label>
+        <label title="grid.properties.backgroundColor='transparent'">
+            <input type="radio" name="gridbg" onclick="setBackgroundColor('transparent')">
+            transparent
+        </label>
+        <label title="grid.properties.backgroundColor='rgb(128,128,255)'">
+            <input type="radio" name="gridbg" onclick="setBackgroundColor('rgb(128,128,255)')">
+            blue
+        </label>
+        <label title="grid.properties.backgroundColor='rgba(128,128,255,.5)">
+            <input type="radio" name="gridbg" onclick="setBackgroundColor('rgba(128,128,255,.5)')">
+            translucent blue
+        </label>
+    </div>
+    <label>
+        <input type="checkbox" onclick="document.querySelector('#behind').style.visibility=this.checked?'visible':'hidden'">
+        Behind-the-grid content
+    </label>
+    <div class="radio-group">
+        Data rows:
+        <label title="grid.properties.backgroundColor='white'">
+            <input type="radio" name="datarows" onclick="grid.setData([]);" >
+            0
+        </label>
+        <label title="grid.properties.backgroundColor='transparent'">
+            <input type="radio" name="datarows" onclick="grid.setData(data);" checked>
+            <span id="row-count"></span>
+        </label>
+    </div>
+    <label>
+        Row height: <input type="range" min="15" max="75" value="34" oninput="nextElementSibling.innerHTML=grid.properties.defaultRowHeight=Number(this.value);grid.behavior.changed()"> (<span>34</span>)
+    </label>
+    <label>
+        Columns:   <input type="range" id="COLUMNS"   title="" min="1"  max="100" oninput="fixAll()"> (<span></span>) &nbsp;
+        Rows:      <input type="range" id="ROWS"      title="" min="10" max="9999" step="10" oninput="fixAll()"> (<span></span>) &nbsp;
+        Precision: <input type="range" id="PRECISION" title="Number of digits." min="1"  max="30" oninput="fixAll()"> (<span></span>) &nbsp;
+        Scale:     <input type="range" id="SCALE"     title="Number of digits to right of decimal point." min="0"  max="10" oninput="fixAll()"> (<span></span>) &nbsp;
+        <input type="button" value="Reset Data" onclick="init()">
+        <input type="button" value="Benchmark Data" onclick="benchmark()">
+    </label>
+</div>
+
+    <div id="behind"></div>
+
+    <script src="build/fin-hypergrid.js"></script>
+
+    <script>
+
+document.getElementById('version').innerText = fin.Hypergrid.prototype.version;
+
+var grid = new fin.Hypergrid();
+
+var COLUMNS = 12;
+var ROWS = 9999;
+var PRECISION = 10;
+var SCALE = 4;
+var MAGNITUDE, FACTOR;
+var CHANGES = 1;
+
+function fixRange(name, initialize) {
+    var el = document.getElementById(name);
+    if (initialize) {
+        el.value = window[name];
+    } else {
+        window[name] = Number(el.value);
+    }
+    el.nextElementSibling.innerHTML = el.value;
+}
+
+function fixAll(initialize) {
+    fixRange('COLUMNS', initialize);
+    fixRange('ROWS', initialize);
+    fixRange('PRECISION', initialize);
+    fixRange('SCALE', initialize);
+    MAGNITUDE = Math.pow(10, PRECISION - SCALE);
+    FACTOR = Math.pow(10, SCALE);
+}
+fixAll(true);
+
+var data;
+function init() {
+    data = Array(ROWS);
+    for (var j = 0; j < ROWS; ++j) {
+        var dataRow = {};
+        for (var i = 0; i < COLUMNS; ++i) {
+            name = i < 26
+                ? String.fromCharCode(65 + i)
+                : String.fromCharCode(64 + Math.floor(i / 26)) + String.fromCharCode(65 + i % 26);
+            dataRow[name] = random();
+        }
+        data[j] = dataRow;
+    }
+    if (grid.behavior) { grid.behavior.dataModel.schema = []; }
+    grid.setData(data);
+}
+init();
+
+function benchmark() {
+    COLUMNS = 50;
+    ROWS = 9999;
+    PRECISION = 5;
+    SCALE = 2;
+    fixAll(true);
+    init();
+}
+
+document.getElementById('row-count').innerHTML = data.length;
+
+grid.addProperties({
+    noDataMessage: 'Zero Rows!',
+    backgroundColor: 'white',
+    foregroundSelectionFont: '13px Tahoma, Geneva, sans-serif',
+    columnClip: false,
+    defaultRowHeight: 34,
+    editor: 'textfield',
+//    showRowNumbers: false,
+    rowHeaderColor: 'brown',
+    lineColor: 'brown',
+    renderFalsy: true,
+//    gridLinesH: false,
+//    gridLinesV: false,
+//    enableContinuousRepaint: true
+});
+
+var logBundlesAfterRender, rowBundles, columnBundles;
+grid.addEventListener('fin-grid-rendered', function(e) {
+    if (logBundlesAfterRender) {
+        logBundlesAfterRender = false;
+        var bundlesChanged;
+        if (columnBundles !== grid.renderer.columnBundles.length) {
+            columnBundles = grid.renderer.columnBundles.length;
+            bundlesChanged = true;
+        }
+        if (rowBundles !== grid.renderer.rowBundles.length) {
+            rowBundles = grid.renderer.rowBundles.length;
+            bundlesChanged = true;
+        }
+        if (bundlesChanged) {
+            console.log(
+                grid.renderer.columnBundles.length + ' column bundles + ' +
+                grid.renderer.rowBundles.length + ' row bundles.'
+            );
+        }
+    }
+});
+
+var alternatingThreeGreenRows = {
+        // When same as grid background (which default is white), next 3 lines do NOT generate a bundle.
+        // Alternatively, these lines could be `undefined` or `{...}` with no `backgroundColor` member to avoid generating bundles in any case (regardless of current background color).
+        rowStripes: [
+            undefined, // these three rows mutated by `rowProps` function
+            undefined, // these three rows mutated by `rowProps` function
+            undefined, // these three rows mutated by `rowProps` function
+            { color: '#111166', backgroundColor: '#e8e8ff' },
+            { color: '#111166', backgroundColor: '#e8e8ff' },
+            { color: '#111166', backgroundColor: '#e8e8ff' }
+        ]
+    },
+    columnColorUnderAlternateColors = {
+        backgroundColor: 'lightblue'
+    },
+    columnColorOverAlternateColors = {
+        backgroundColor: 'lightblue',
+        rowStripes: undefined
+    },
+    columnOwnAlternateColors = {
+        rowStripes: [
+            { backgroundColor: 'beige' },
+            { backgroundColor: 'beige' },
+            { backgroundColor: 'tan' },
+            { backgroundColor: 'tan' }
+        ]
+    };
+
+function setGridRenderer(rendererName) {
+    grid.properties.gridRenderer = rendererName;
+    logBundlesToConsole();
+}
+
+function rebundle() {
+    grid.renderer.resetAllGridRenderers();
+    logBundlesToConsole();
+}
+
+function logBundlesToConsole() {
+    logBundlesAfterRender = true;
+}
+
+function setBackgroundColor(backgroundColor) {
+    grid.properties.backgroundColor = backgroundColor;
+    rebundle();
+}
+
+function altColumnProps(checked, props) {
+    grid.renderer.visibleColumns.forEach(function(column, i) {
+        if (i & 1) {
+            columnProps(checked, [i, i], props);
+        }
+    }, this);
+    rebundle();
+}
+
+function columnProps(checked, columnIndexes, props) {
+    columnIndexes.forEach(function(columnIndex) {
+        if (checked) {
+            grid.setColumnProperties(columnIndex, props);
+        } else {
+            deleteProps(grid.getColumnProperties(columnIndex), columnColorOverAlternateColors);
+        }
+    });
+    if (!checked) {
+        grid.behavior.changed();
+    }
+    logBundlesToConsole();
+}
+
+function deleteProps(object, props) {
+    for (var key in props) {
+        if (props.hasOwnProperty(key)) {
+            delete object[key];
+        }
+    }
+}
+
+function stripes(stripes) {
+    if (stripes === null) {
+        deleteProps(grid.properties, alternatingThreeGreenRows); // remove `stripes` array from grid props
+    } else {
+        grid.addProperties(alternatingThreeGreenRows); // add `stripes` array to grid props
+        alternatingThreeGreenRows.rowStripes[0] =
+        alternatingThreeGreenRows.rowStripes[1] =
+        alternatingThreeGreenRows.rowStripes[2] = stripes; // change definition of first three rows
+    }
+    grid.renderer.resetAllGridRenderers();
+    logBundlesToConsole();
+}
+
+function random() {
+    return Math.floor(Math.random() * MAGNITUDE * FACTOR) / FACTOR;
+}
+
+var blastPaint, scheduledPaint, changeMax, sim, t1, t2, n = 0;
+function update(blast, enableContinuousRepaint) {
+    if (blast) {
+        stopScheduledPaint();
+        startBlastPaint();
+    } else {
+        grid.properties.enableContinuousRepaint = enableContinuousRepaint;
+        stopBlastPaint();
+        startScheduledPaint();
+    }
+}
+
+function startScheduledPaint() {
+    if (!scheduledPaint && sim) {
+        grid.canvas.restartPaintLoop();
+
+        grid.addEventListener('fin-tick', scheduledPaint = function() {
+            change();
+            grid.repaint();
+        })
+    }
+}
+
+function stopScheduledPaint() {
+    if (scheduledPaint) {
+        grid.removeEventListener('fin-tick', scheduledPaint);
+        scheduledPaint = undefined;
+    }
+}
+
+function startBlastPaint() {
+    if (!blastPaint) {
+        grid.canvas.stopPaintLoop();
+
+        blastPaint = setInterval(function() {
+            if (sim) {
+                change();
+            }
+            grid.canvas.paintNow();
+        }, 0);
+    }
+}
+
+function stopBlastPaint() {
+    if (blastPaint) {
+        clearInterval(blastPaint);
+        blastPaint = undefined;
+    }
+}
+
+function change() {
+    var rowNumberCells = grid.properties.showRowNumbers ? grid.renderer.visibleRows.length : 0,
+        dataCells = grid.renderer.visibleRows.length * grid.renderer.visibleColumns.length,
+        cells = grid.renderer.cellEventPool,
+        cellEvent, value;
+
+    if (changeMax !== dataCells) {
+        document.getElementById('changes').max = changeMax = dataCells;
+    }
+
+    for (var i = CHANGES; i; --i) {
+        do {
+            cellEvent = cells[rowNumberCells + Math.random() * dataCells | 0];
+        } while (cellEvent.isHeaderRow); // while a header
+
+        value = random();
+        cellEvent.value = value;
+
+        // background color
+        cellEvent.setCellProperty('backgroundColor', value < MAGNITUDE / 2 ? '#ffcccc' : '#ccffcc');
+    }
+/*
+     // getCell:
+     grid.behavior.dataModel.getCell = function(config, rendererName) {
+         if (config.isUserDataArea) {
+            config.backgroundColor = (config.value < MAGNITUDE / 2) ? '#ffcccc' : '#ccffcc';
+         }
+         return grid.cellRenderers.get(rendererName);
+     };
+ */
+    // Calculate FPS.
+    // Note: Not using grid.canvas.getCurrentFPS() because it only works when paint loop is running in continuous
+    // repaint mode, but we want to measure FPS whether paint loop is running or not, and in any mode.
+    t2 = (Date.now() / 1000 | 0) % 10;
+    n += 1;
+    if (t2 !== t1) {
+        t1 = t2;
+        document.getElementById('fps').innerHTML = '(FPS=' + n + ')';
+        n = 0;
+    }
+}
+
+function simulate(checked) {
+    var paintRadioButtons = document.querySelectorAll('[name=paint]'),
+        paintOnFlagSetRadioButton = paintRadioButtons[0],
+        paintBlastRadioButton = paintRadioButtons[2]
+        paintBlastLabel = paintBlastRadioButton.parentElement;
+
+    if (!checked && paintBlastRadioButton.checked) {
+        paintOnFlagSetRadioButton.checked = true;
+        paintOnFlagSetRadioButton.onclick();
+    }
+
+    paintBlastLabel.style.color = checked ? 'black' : 'lightgrey';
+    paintBlastRadioButton.disabled = !checked;
+
+    sim = checked;
+
+    document.getElementById('fps').innerHTML = '';
+
+    stopBlastPaint();
+    stopScheduledPaint();
+
+    Array.prototype.slice.call(paintRadioButtons).find(function(radioButton) {
+        if (radioButton.checked) {
+            radioButton.onclick();
+            return true;
+        }
+    });
+}
+
+    </script>
+</body>
+</html>

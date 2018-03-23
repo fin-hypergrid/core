@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Hypergrid Computed Columns Demo</title>
+        <meta http-equiv="Content-Type" content="text/html;charset=utf-8" >
+        <meta http-equiv="Cache-Control" content="must-revalidate" />
+        <link rel="icon" type="image/png" href="img/hypergrid-icon.png">
+        <link rel="stylesheet" href="css/computed-column.css">
+
+        <script src="build/fin-hypergrid.js"></script>
+
+        <script>
+            window.onload = function() {
+                var grid = window.grid = new fin.Hypergrid('div#example', {
+                    data: [
+                        { value: 3 },
+                        { value: 4 },
+                        { value: -4 },
+                        { value: 5 }
+                    ]
+                });
+
+                grid.behavior.schema.push({
+                    name: 'squared',
+                    calculator: square
+                });
+
+                // recreate to include new column
+                grid.behavior.createColumns();
+
+                // force type of new column to 'number' because current auto-detect does not know about calculated columns
+                grid.behavior.getColumn(1).type = 'number';
+
+                grid.repaint();
+
+                function square(dataRow, columnName) {
+                    return dataRow.value * dataRow.value;
+                }
+            };
+        </script>
+    </head>
+    <body>
+    <h3>Computed Column</h3>
+        <div id="example"></div>
+        <table>
+            <caption>Note the following differences between computed columns <i>vs.</i> computed cells:</caption>
+            <tr><th>Computed Column</th><th>Computed Cell</th></tr>
+            <tr>
+                <td>A single function reference in the <code>calculator</code> <em>column property</em> is used to compute the values for all the cells in the column.</td>
+                <td>Each computed cell has a calculator function <em>in place of</em> its value. The grid displays the value returned by the calculator.</code></td>
+            </tr>
+            <tr>
+                <td>There can also be a cell value, which the calculator can reference and operate on <em>in addition to</em> the other columns' value and any other variables in it's closure.</td>
+                <td>The cell value <em>is</em> a reference to a calculator function. There is no cell value <i>per se;</i> the calculator therefore can <em>only</em> operate on the values of the other columns' values and other variables in it's closure.</td>
+            </tr>
+        </table>
+    </body>
+</html>
