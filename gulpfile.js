@@ -1,20 +1,14 @@
 'use strict';
 
 var gulp        = require('gulp'),
-    manifest    = require('./package.json'),
     $$          = require('gulp-load-plugins')(),
-    browserify  = require('browserify'),
-    source      = require('vinyl-source-stream'),
-    buffer      = require('vinyl-buffer'),
     runSequence = require('run-sequence'),
     exec        = require('child_process').exec,
     path        = require('path');
 
 var srcDir      = './src/',
-    builderDir  = srcDir + 'builder/',
     testDir     = './test/',
-    jsFiles     = '**/*.js',
-    buildDir    = './build/';
+    jsFiles     = '**/*.js';
 
 //  //  //  //  //  //  //  //  //  //  //  //
 
@@ -22,14 +16,6 @@ gulp.task('lint', lint);
 gulp.task('test', test);
 gulp.task('doc', doc);
 gulp.task('images', swallowImages);
-gulp.task('browserify', bundleUp.bind(null,
-    manifest.name,
-    builderDir,
-    [
-        buildDir,
-        './' + manifest.version
-    ]
-));
 
 gulp.task('css-templates', function() {
     return templates('./css/*.css', 'css');
@@ -42,7 +28,6 @@ gulp.task('build', function(callback) {
         'images',
         'css-templates',
         'test',
-        'browserify',
         //'doc',
         callback
     );
@@ -66,33 +51,6 @@ function lint() {
 function test(cb) {
     return gulp.src(testDir + jsFiles)
         .pipe($$.mocha({reporter: 'spec'}));
-}
-
-function bundleUp(destName, srcDir, buildDirs) {
-    var options = {
-        entries: srcDir + 'index.js',
-        debug: true
-    };
-
-    function dest(dir) {
-        stream = stream.pipe(gulp.dest(dir));
-    }
-
-    var stream = browserify(options)
-        .bundle().on('error', $$.util.log)
-        .pipe(source(options.entries))
-        .pipe(buffer())
-        .pipe($$.rename(destName + '.js'));
-
-    buildDirs.forEach(dest);
-
-    stream
-        .pipe($$.rename(destName + '.min.js'))
-        .pipe($$.uglify().on('error', $$.util.log));
-
-    buildDirs.forEach(dest);
-
-    return stream;
 }
 
 function doc(cb) {

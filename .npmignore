@@ -3,7 +3,6 @@
 *.html
 ~*.*x
 
-/[0-9]*
 /demo
 /doc
 build
@@ -14,7 +13,6 @@ build
 /src/jsdoc
 /test
 
-/favicon.ico
 /gulpfile.js
 /*.sh
 /*.md
