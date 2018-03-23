@@ -48,7 +48,7 @@ var mixin = {
      * @see {@link dataModelAPI#event:data-prereindex data-prereindex}
      */
     fireSyntheticDataPrereindexEvent: function(event) {
-        this.selectedRowSourceIndexes = getUnderlyingIndexesOfSelectedRows.call(this);
+        saveSelectedRowsAndColumns.call(this);
         return dispatchEvent.call(this, 'fin-data-prereindex', event);
     },
 
@@ -58,12 +58,7 @@ var mixin = {
      * @see {@link dataModelAPI#event:data-postreindex data-postreindex}
      */
     fireSyntheticDataPostreindexEvent: function(event) {
-        if (this.selectedRowSourceIndexes) {
-            if (this.selectedRowSourceIndexes.length) {
-                reselectRowsByUnderlyingIndexes.call(this, this.selectedRowSourceIndexes);
-            }
-            delete this.selectedRowSourceIndexes;
-        }
+        reselectRowsAndColumns.call(this);
         return dispatchEvent.call(this, 'fin-data-postreindex', event) &&
             this.fireSyntheticDataShapeChangedEvent(event);
     },
@@ -94,59 +89,129 @@ handlersByEventString = {
 };
 
 
-/**
- * Save underlying data row indexes backing current grid row selections.
- * This call should be paired with a subsequent call to `reselectGridRowsBackedBySelectedDataRows`.
- * @private
- * @this {Behavior}
- */
-function getUnderlyingIndexesOfSelectedRows() {
-    var sourceIndexes = [],
-        dataModel = this.dataModel;
+function saveSelectedRowsAndColumns() {
+    saveSelectedDataRowIndexes.call(this);
+    saveSelectedColumnNames.call(this);
+}
 
-    if (this.properties.checkboxOnlyRowSelections) {
-        this.getSelectedRows().forEach(function(selectedRowIndex) {
-            sourceIndexes.push(dataModel.getRowIndex(selectedRowIndex));
-        });
-    }
-
-    return sourceIndexes;
+function reselectRowsAndColumns() {
+    this.selectionModel.reset();
+    reselectRowsByDataRowIndexes.call(this);
+    reselectColumnsByNames.call(this);
 }
 
 /**
- * Re-establish grid row selections based on underlying data row indexes saved by `getSelectedDataRowsBackingSelectedGridRows` which should be called first.
+ * Save underlying data row indexes backing current grid row selections in `grid.selectedDataRowIndexes`.
+ *
+ * This call should be paired with a subsequent call to `reselectRowsByUnderlyingIndexes`.
  * @private
- * @this {Behavior}
+ * @this {Hypergrid}
+ * @returns {number|undefined} Number of selected rows or `undefined` if `restoreRowSelections` is falsy.
+ * @memberOf dataModels.JSON~
  */
-function reselectRowsByUnderlyingIndexes(sourceIndexes) {
-    var i, r,
-        dataModel = this.dataModel,
-        rowCount = dataModel.getRowCount(),
-        selectedRowCount = sourceIndexes.length,
-        rowIndexes = [],
-        selectionModel = this.selectionModel;
+function saveSelectedDataRowIndexes() {
+    if (this.properties.restoreRowSelections) {
+        var dataModel = this.behavior.dataModel;
 
-    selectionModel.clearRowSelection();
+        this.selectedDataRowIndexes = this.getSelectedRows().map(function(selectedRowIndex) {
+            return dataModel.getRowIndex(selectedRowIndex);
+        });
 
-    if (this.properties.checkboxOnlyRowSelections) {
+        return this.selectedDataRowIndexes.length;
+    }
+}
+
+/**
+ * Re-establish grid row selections based on underlying data row indexes saved by `getSelectedDataRowIndexes` which should be called first.
+ *
+ * Note that not all previously selected rows will necessarily be available after a data transformation. Even if they appear to be available, if they are not from the same data set, restoring the selections may not make sense. When this is the case, the application should set the `restoreRowSelections` property to `false`.
+ * @private
+ * @this {Hypergrid}
+ * @returns {number|undefined} Number of rows reselected or `undefined` if there were no previously selected rows.
+ * @memberOf dataModels.JSON~
+ */
+function reselectRowsByDataRowIndexes() {
+    var dataRowIndexes = this.selectedDataRowIndexes;
+    if (dataRowIndexes) {
+        delete this.selectedDataRowIndexes;
+
+        var i, r,
+            dataModel = this.behavior.dataModel,
+            rowCount = this.getRowCount(),
+            selectedRowCount = dataRowIndexes.length,
+            gridRowIndexes = [],
+            selectionModel = this.selectionModel;
+
         for (r = 0; selectedRowCount && r < rowCount; ++r) {
-            i = sourceIndexes.indexOf(dataModel.getRowIndex(r));
+            i = dataRowIndexes.indexOf(dataModel.getRowIndex(r));
             if (i >= 0) {
-                rowIndexes.push(r);
-                delete sourceIndexes[i]; // might make indexOf increasingly faster as deleted elements are not enumerable
+                gridRowIndexes.push(r);
+                delete dataRowIndexes[i]; // might make indexOf increasingly faster as deleted elements are not enumerable
                 selectedRowCount--; // count down so we can bail early if all found
             }
         }
 
-        rowIndexes.forEach(function(rowIndex) {
-            selectionModel.selectRow(rowIndex);
+        gridRowIndexes.forEach(function(gridRowIndex) {
+            selectionModel.selectRow(gridRowIndex);
         });
-    }
 
-    return rowIndexes.length;
+        return gridRowIndexes.length;
+    }
 }
+
+/**
+ * Save data column names of currently column selections in `grid.selectedColumnNames`.
+ *
+ * This call should be paired with a subsequent call to `reselectColumnsByNames`.
+ * @private
+ * @this {Hypergrid}
+ * @param sourceColumnNames
+ * @returns {number|undefined} Number of selected columns or `undefined` if `restoreColumnSelections` is falsy.
+ * @memberOf dataModels.JSON~
+ */
+function saveSelectedColumnNames() {
+    if (this.properties.restoreColumnSelections) {
+        var behavior = this.behavior;
+
+        this.selectedColumnNames = this.getSelectedColumns().map(function(selectedColumnIndex) {
+            return behavior.getActiveColumn(selectedColumnIndex).name;
+        });
+
+        return this.selectedColumnNames.length;
+    }
+}
+
+/**
+ * Re-establish columns selections based on column names saved by `getSelectedColumnNames` which should be called first.
+ *
+ * Note that not all preveiously selected columns wil necessarily be available after a data transformation. Even if they appear to be available, if they are not from the same data set, restoring the selections may not make sense. When this is the case, the application should set the `restoreRowSelections` property to `false`.
+ * @private
+ * @this {Hypergrid}
+ * @param sourceColumnNames
+ * @returns {number|undefined} Number of rows reselected or `undefined` if there were no previously selected columns.
+ * @memberOf dataModels.JSON~
+ */
+function reselectColumnsByNames(sourceColumnNames) {
+    var selectedColumnNames = this.selectedColumnNames;
+    if (selectedColumnNames) {
+        delete this.selectedColumnNames;
+
+        var behavior = this.behavior,
+            selectionModel = this.selectionModel;
+
+        return selectedColumnNames.reduce(function(reselectedCount, columnName) {
+            var activeColumnIndex = behavior.getActiveColumnIndex(columnName);
+            if (activeColumnIndex) {
+                selectionModel.selectColumn(activeColumnIndex);
+                reselectedCount++;
+            }
+            return reselectedCount;
+        }, 0);
+    }
+}
+
 
 module.exports = {
     mixin: mixin,
-    handlers: handlersByEventString
+    handlers: handlersByEventString // for adding custom data event handlers
 };
