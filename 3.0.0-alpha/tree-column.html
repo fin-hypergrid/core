@@ -179,7 +179,7 @@
         };
 
 
-        var grid = new fin.Hypergrid({Behavior: window.fin.Hypergrid.behaviors.JSON});
+        var grid = new fin.Hypergrid({ Behavior: fin.Hypergrid.require('fin-hypergrid/src/behaviors/JSON') });
 
         grid.installPlugins([ComputeEngine]);
         //Passing the underlying data allows the grid to build Column Schema build

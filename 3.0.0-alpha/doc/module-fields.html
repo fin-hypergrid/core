@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Class: Base</title>
+    <title>JSDoc: Module: fields</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -20,7 +20,7 @@
 </nav>
 <div id="main">
 
-    <h1 class="page-title">Class: Base</h1>
+    <h1 class="page-title">Module: fields</h1>
 
     
 
@@ -31,11 +31,6 @@
 
 <header>
     
-        <h2>
-        Base
-        </h2>
-        
-            <div class="class-description"><p>This is an abstract base class available for all Hypergrid classes.</p></div>
         
     
 </header>
@@ -45,19 +40,41 @@
     
         
 
+        
     
-    <h2>Constructor</h2>
-    
-
-    <h4 class="name" id="Base"><span class="type-signature"></span>new Base<span class="signature">()</span><span class="type-signature"></span></h4>
+    </div>
 
     
 
+    
+
+    
+
+     
+
+    
+
+    
+
+    
+        <h3 class="subsection-title">Methods</h3>
+
+        
+            
+
+    
+
+    <h4 class="name" id=".decorate"><span class="type-signature">(static) </span>decorate<span class="signature">(schema, headerifierName<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {Array.&lt;{name:string, header:string}>}</span></h4>
+
+    
+    <p class="summary"><p>Decorate given schema based on <code>name</code> property of each element:</p>
+<ul>
+<li>Decorate <code>schema</code> (array object) with synonyms.</li>
+<li>_Iff <code>headerfierName</code> given: Decorate each element with <code>header</code> property (when undefined)</li>
+</ul></p>
+    
 
 
-<div class="description">
-    <p>Extend from this base class using <code>Base.extend</code> per example.</p>
-</div>
 
 
 
@@ -65,6 +82,98 @@
 
 
 
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>schema</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Array.&lt;{name:string}></span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>headerifierName</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last"><p>Name of string transformer to use to generate headers (from column names) for those columns without defined headers.</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
 
 
 
@@ -118,48 +227,198 @@
 
 
 
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    <p>Array object also decroated with synonyms for elements.</p>
+</div>
 
 
-    <h5>Example</h5>
-    
-    <pre class="prettyprint"><code>var prototype = { ... };
-var descendantClass = Base.extend(prototype};</code></pre>
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Array.&lt;{name:string, header:string}></span>
 
 
-
-    
-    </div>
-
-    
-
-    
-
-    
-
-     
-
-    
-
-    
+    </dd>
+</dl>
 
     
-        <h3 class="subsection-title">Methods</h3>
+
+
 
         
             
 
     
 
-    <h4 class="name" id="createApply"><span class="type-signature"></span>createApply<span class="signature">(Constructor, variableArgArray, &hellip;discreteArgs)</span><span class="type-signature"> &rarr; {object}</span></h4>
+    <h4 class="name" id=".getFieldNames"><span class="type-signature">(static) </span>getFieldNames<span class="signature">(hash)</span><span class="type-signature"> &rarr; {Array.&lt;string>}</span></h4>
 
     
-    <p class="summary"><p>Instantiate an object with discrete + variable args.</p></p>
+    <p class="summary"><p>Get keys of given hash with &quot;metakeys&quot; filtered out.</p></p>
     
 
 
 
 <div class="description">
-    <p>The discrete args are passed first, followed by the variable args.</p>
+    <p>Metakeys are keys beginning with a double-underscore.</p>
+<p>DO NOT REMOVE -- Not used in fin-hypergrid/core but has legacy exposure.</p>
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>hash</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">object</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    <p>Member names from <code>hash</code> that do <em>not</em> begin with double-underscore.</p>
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Array.&lt;string></span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id=".getSchema"><span class="type-signature">(static) </span>getSchema<span class="signature">(data<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {Array.&lt;{index:number, name:string, header:string}>}</span></h4>
+
+    
+    <p class="summary"><p>Returns a schema derived from given sample data row with &quot;metakeys&quot; filtered out.</p></p>
+    
+
+
+
+<div class="description">
+    <p>Metakeys are keys beginning with a double-underscore.</p>
+<p>DO NOT REMOVE -- Not used in fin-hypergrid/core but has legacy exposure.</p>
 </div>
 
 
@@ -197,13 +456,13 @@ var descendantClass = Base.extend(prototype};</code></pre>
 
         <tr>
             
-                <td class="name"><code>Constructor</code></td>
+                <td class="name"><code>data</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">function</span>
+<span class="param-type">Array.&lt;<a href="global.html#dataRowObject">dataRowObject</a>></span>
 
 
             
@@ -212,73 +471,11 @@ var descendantClass = Base.extend(prototype};</code></pre>
             
                 <td class="attributes">
                 
-
-                
-
-                
-                </td>
-            
-
-            
-
-            <td class="description last"></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>variableArgArray</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">Array</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
+                    &lt;optional><br>
                 
 
                 
 
-                
-                </td>
-            
-
-            
-
-            <td class="description last"></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>discreteArgs</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">*</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-
-                
-
-                
-                    &lt;repeatable><br>
                 
                 </td>
             
@@ -348,7 +545,7 @@ var descendantClass = Base.extend(prototype};</code></pre>
 
         
 <div class="param-desc">
-    <p>Object of type <code>Constructor</code> newly constructor using the arguments in <code>arrayOfArgs</code>.</p>
+    <p>Array object also decroated with synonyms for elements.</p>
 </div>
 
 
@@ -359,7 +556,7 @@ var descendantClass = Base.extend(prototype};</code></pre>
     </dt>
     <dd>
         
-<span class="param-type">object</span>
+<span class="param-type">Array.&lt;{index:number, name:string, header:string}></span>
 
 
     </dd>
@@ -374,17 +571,27 @@ var descendantClass = Base.extend(prototype};</code></pre>
 
     
 
-    <h4 class="name" id="mixIn"><span class="type-signature"></span>mixIn<span class="signature">(source)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id=".normalize"><span class="type-signature">(static) </span>normalize<span class="signature">(schema)</span><span class="type-signature"> &rarr; {Array.&lt;{index:number, name:string, header:string}>}</span></h4>
 
     
-    <p class="summary"><p>Mixes source members into calling context.</p></p>
+    <p class="summary"><p>Normalizes and returns given schema array.</p></p>
     
 
 
 
 <div class="description">
-    <p>Context is typically either an instance or the (shared) prototype of a &quot;class&quot; extended from <a href="Base.html"><code>Base</code></a> (see examples).</p>
-<p>Typically used by plug-ins.</p>
+    <p>For each &quot;column schema&quot; (element of schema array):</p>
+<ol>
+<li>Objectify column schemata<br>
+Ensures each column schema is an object with a <code>name</code> property.</li>
+<li>Index schema schemata<br>
+Adds an <code>index</code> property to each column schema element.</li>
+<li>Decorates schema<br>
+Decorates the schema array object itself with column names and column name synonyms. This is helpful for looking up column schema by column name rather than by index. To get the index of a column when you know the name:<pre class="prettyprint source lang-javascript"><code>var schema = dataModel.getSchema();
+var columnName = 'foo';
+var columnIndex = schema[columnName].index;</code></pre></li>
+<li>Adds missing headers.</li>
+</ol>
 </div>
 
 
@@ -420,13 +627,13 @@ var descendantClass = Base.extend(prototype};</code></pre>
 
         <tr>
             
-                <td class="name"><code>source</code></td>
+                <td class="name"><code>schema</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">object</span>
+<span class="param-type">Array.&lt;(string|Object.&lt;string, string>)></span>
 
 
             
@@ -436,144 +643,8 @@ var descendantClass = Base.extend(prototype};</code></pre>
 
             
 
-            <td class="description last"></td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-see">See:</dt>
-    <dd class="tag-see">
-        <ul>
-            <li><a href="https://joneit.github.io/overrider/module-overrider.htm#.mixIn">https://joneit.github.io/overrider/module-overrider.htm#.mixIn</a></li>
-        </ul>
-    </dd>
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    <h5>Examples</h5>
-    
-    <pre class="prettyprint"><code>// define instance members: myGrid.fix(), etc.
-myGrid.mixIn({ fix: function() {...}, ... });</code></pre>
-
-    <pre class="prettyprint"><code>// define prototype members: Hypergrid.prototype.fix(), etc.
-Hypergrid.prototype.mixIn({ fix: function() {...}, ... });</code></pre>
-
-
-
-        
-            
-
-    
-
-    <h4 class="name" id="unwrap"><span class="type-signature"></span>unwrap<span class="signature">(value)</span><span class="type-signature"> &rarr; {*}</span></h4>
-
-    
-
-
-
-<div class="description">
-    <p>Convenience function for getting the value when that value can be defined as a function that needs to be called to get the actual (primitive) value.</p>
-</div>
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>value</code></td>
-            
-
-            <td class="type">
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"></td>
+            <td class="description last"><p>This function is safe to call repeatedly.</p>
+<p>Called via <code>data-schema-changed</code> event by data model implementation of <code>setSchema</code>.</p></td>
         </tr>
 
     
@@ -643,7 +714,156 @@ Hypergrid.prototype.mixIn({ fix: function() {...}, ... });</code></pre>
     </dt>
     <dd>
         
-<span class="param-type">*</span>
+<span class="param-type">Array.&lt;{index:number, name:string, header:string}></span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id=".titleize"><span class="type-signature">(static) </span>titleize<span class="signature">(key)</span><span class="type-signature"> &rarr; {string}</span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>Used by <a href="module-fields.html#.getSchema"><code>getSchema</code></a>.
+Override as needed for different titleization flavor.</p>
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>key</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    <p>Title version of key.</p>
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">string</span>
 
 
     </dd>
