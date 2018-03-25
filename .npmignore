@@ -1,10 +1,11 @@
 .*
 *.css
 *.html
+~*.*x
 
-/[0-9]*
 /demo
 /doc
+build
 /html/*.html
 /images/**
 !/images/images.js
@@ -12,7 +13,7 @@
 /src/jsdoc
 /test
 
-/favicon.ico
+/package-lock.json
 /gulpfile.js
 /*.sh
 /*.md

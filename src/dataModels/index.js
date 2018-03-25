@@ -1,46 +1,21 @@
 'use strict';
 
-/**
- * @namespace
- */
-var dataModels = {
-    DataModel: require('./DataModel'),
-    JSON: require('./JSON'),
-    HeaderSubgrid: require('./HeaderSubgrid')
-};
+var Registry = require('../lib/Registry');
 
-// add and get are non-enumerable
-Object.defineProperties(dataModels, {
-    /**
-     * @function
-     * @memberOf dataModels
-     * @summary Register a data model by name.
-     */
-    add: {
-        value: function(name, Constructor) {
-            this[name] = Constructor;
-        }
-    },
-    /**
-     * @function
-     * @memberOf dataModels
-     * @summary Lookup a registered data model by name.
-     */
-    get: {
-        value: function(name) {
-            return this[name];
-        }
-    },
-    /**
-     * @type {string[]}
-     * @memberOf dataModels
-     * @summary Array of names of registered data models.
-     */
-    keys: {
-        get: function() {
-            return Object.keys(this);
-        }
+/**
+ * @classdesc Registry of cell editor constructors.
+ * @param {object} options
+ * @constructor
+ */
+var DataModels = Registry.extend('DataModels', {
+
+    BaseClass: require('datasaur-base'),
+
+    initialize: function() {
+        // preregister the standard cell editors
+        this.add(require('./HeaderSubgrid'));
     }
+
 });
 
-module.exports = dataModels;
+module.exports = new DataModels;

@@ -3,7 +3,8 @@
 var Scrollbar = require('./modules').Scrollbar;
 
 /**
- * Additions to `Hypergrid.prototype` for scrollbar support.
+ * @summary Scrollbar support.
+ * @desc Hypergrid/index.js mixes this module into its prototype.
  * @mixin
  */
 exports.mixin = {
@@ -147,7 +148,8 @@ exports.mixin = {
         var self = this;
         y = Math.min(this.sbVScroller.range.max, Math.max(0, Math.round(y)));
         if (y !== this.vScrollValue) {
-            this.behavior._setScrollPositionY(y);
+            this.behavior.setScrollPositionY(y);
+            this.behavior.changed();
             var oldY = this.vScrollValue;
             this.vScrollValue = y;
             this.scrollValueChangedNotification();
@@ -175,14 +177,15 @@ exports.mixin = {
         var self = this;
         x = Math.min(this.sbHScroller.range.max, Math.max(0, Math.round(x)));
         if (x !== this.hScrollValue) {
-            this.behavior._setScrollPositionX(x);
+            this.behavior.setScrollPositionX(x);
+            this.behavior.changed();
             var oldX = this.hScrollValue;
             this.hScrollValue = x;
             this.scrollValueChangedNotification();
             setTimeout(function() {
                 //self.sbHRangeAdapter.subjectChanged();
                 self.fireScrollEvent('fin-scroll-x', oldX, x);
-                //self.synchronizeScrollingBoundries(); // todo: Commented off to prevent the grid from bouncing back, but there may be repurcussions...
+                //self.synchronizeScrollingBoundries(); // todo: Commented off to prevent the grid from bouncing back, but there may be repercussions...
             });
         }
     },

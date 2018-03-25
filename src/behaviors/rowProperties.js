@@ -1,5 +1,9 @@
 'use strict';
 
+/**
+ * Behavior.js mixes this module into its prototype.
+ * @mixin
+ */
 exports.mixin = {
     /**
      * @summary The total height of the "fixed rows."
@@ -69,6 +73,7 @@ exports.mixin = {
         if (metadata) {
             metadata.__ROW = Object.create(this.rowPropertiesPrototype);
             this.addRowProperties(yOrCellEvent, properties, dataModel, metadata.__ROW);
+            this.stateChanged();
         }
     },
 

@@ -1,10 +1,11 @@
 {
   "name": "fin-hypergrid",
-  "version": "2.1.6",
+  "version": "3.0.0",
   "description": "Canvas-based high-performance grid",
+  "main": "src/Hypergrid",
   "repository": {
     "type": "git",
-    "url": "git://github.com/openfin/fin-hypergrid.git"
+    "url": "git://github.com/fin-hypergrid/core.git"
   },
   "author": "SWirts, JEiten, DJones, NMichaud",
   "license": "MIT",
@@ -15,10 +16,9 @@
     "grid"
   ],
   "dependencies": {
-    "chai": "^3.5.0",
+    "datasaur-base": "github:fin-hypergrid/datasaur-base#3.0.0",
+    "datasaur-local": "github:fin-hypergrid/datasaur-local#3.0.0",
     "extend-me": "^2.7.0",
-    "fin-hypergrid-data-source-base": "^0.4.10",
-    "fin-hypergrid-event-logger": "^1.0.3",
     "finbars": "1.5.2",
     "inject-stylesheet-template": "^1.0.1",
     "mustache": "^2.3.0",
@@ -26,34 +26,18 @@
     "overrider": "^0",
     "rectangular": "1.0.1",
     "sparse-boolean-array": "1.0.1",
-    "synonomous": "^1.0.1"
+    "synonomous": "^2.1.1"
   },
   "devDependencies": {
-    "browser-sync": "^2.10.0",
-    "browserify": "^15.1.0",
-    "css-injector": "^1.1.0",
     "gulp": "^3.9.0",
     "gulp-concat": "^2.6.0",
     "gulp-each": "^0.1.1",
-    "gulp-eslint": "^4.0.0",
-    "gulp-exclude-gitignore": "^1.0.0",
-    "gulp-footer": "^1.0.5",
+    "gulp-eslint": "^4.0.2",
+    "gulp-footer": "^1.1.1",
     "gulp-header": "^1.8.2",
     "gulp-imagine-64": "^1.0.1",
     "gulp-load-plugins": "^1.1.0",
-    "gulp-mirror": "^0.4.0",
     "gulp-mocha": "^2.2.0",
-    "gulp-rename": "^1.2.2",
-    "gulp-replace": "^0.5.4",
-    "gulp-uglify": "^3.0.0",
-    "gulp-util": "^3.0.7",
-    "gutil": "^1.6.4",
-    "header": "^0.1.1",
-    "multipipe": "^0.2.1",
-    "multiple": "^0.2.1",
-    "run-sequence": "^1.1.4",
-    "through2": "^2.0.0",
-    "vinyl-buffer": "^1.0.1",
-    "vinyl-source-stream": "^2.0.0"
+    "run-sequence": "^1.1.4"
   }
 }
