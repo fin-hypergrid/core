@@ -22,8 +22,8 @@ module.exports = {
 
     /** @implements dataModelAPI#getRow */
     getRow: function(y) {
-        this.dataRowProxy.$y$ = y;
-        return this.dataRowProxy;
+        this.$rowProxy$.$y$ = y;
+        return this.$rowProxy$;
     },
 
     /** @implements dataModelAPI#getData */

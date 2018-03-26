@@ -10,6 +10,8 @@ var HypergridError = require('../../lib/error');
 var warned = {};
 
 
+function silent() {}
+
 /**
  * @private
  * @this {Local}
@@ -17,17 +19,23 @@ var warned = {};
  */
 function addPolyfills(dataModel) {
     if (!dataModel.install) {
-        dataModel.install = function(api, fallback) {
-            if (fallback && !Array.isArray(api)) {
-                api = api || this;
-                Object.keys(api).filter(function(key) {
-                    return typeof api[key] === 'function';
-                }).forEach(function(key) {
-                    if (!this[key]) {
-                        this[key] = api[key];
-                    }
-                }, this);
+        dataModel.install = function(api) {
+            if (!api) {
+                return;
             }
+
+            var isArray = Array.isArray(api),
+                keys = isArray ? api : Object.keys(api).filter(function(key) {
+                    return typeof api[key] === 'function' &&
+                        key !== 'constructor' &&
+                        key !== 'initialize';
+                });
+
+            keys.forEach(function(key) {
+                if (!this[key]) {
+                    this[key] = isArray ? silent : api[key];
+                }
+            }, this);
         };
     }
 }

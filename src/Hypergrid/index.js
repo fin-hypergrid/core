@@ -1298,6 +1298,7 @@ var Hypergrid = Base.extend('Hypergrid', {
 
     /**
      * @memberOf Hypergrid#
+
      * @desc Note that "viewable rows" includes any partially viewable rows.
      * @returns {number} The number of viewable rows.
      */

@@ -116,12 +116,16 @@ Object.setPrototypeOf(DataModel.prototype, DataSourceBase.prototype);
  * `DataSourceBase` can be found in the [`datasaur-base`] module.
  */
 
-/** @typdef {object} columnSchema
+/** @typedef {object} columnSchema
  * @property {string} name
  * @property {string} [header=name]
  * @property {number} index
  * @property {string} [type]
  * @property {string} [calculator]
+ */
+
+/** @typedef {columnSchema|string} rawColumnSchema
+ * Column schema may be expressed as a string primitive on input to {@link dataModelAPI#setData setData}.
  */
 
 /** @typedef {object} dataRowObject
@@ -140,8 +144,9 @@ Object.setPrototypeOf(DataModel.prototype, DataSourceBase.prototype);
  */
 
 /** @event dataModelAPI#data-schema-changed
- * @desc The data models should trigger this event on a schema change, typically from setSchema, or wherever schema is initialized. Hypergrid responds by enriching the schema object — before triggering a grid event using the same event string, which applications can listen for using {@link Hypergrid#addEventListener grid.addEventListener('fin-data-schema-changed', myHandlerFunction)}.
- * @see {@link module:schema.decorate decorate}
+ * @desc The data models should trigger this event on a schema change, typically from setSchema, or wherever schema is initialized. Hypergrid responds by normalizing and decorating the schema object (and recreating the grid's column objects) — before triggering a grid event using the same event string, which applications can listen for using {@link Hypergrid#addEventListener grid.addEventListener('fin-data-schema-changed', myHandlerFunction)}.
+ * @see {@link module:fields.normalize normalize}
+ * @see {@link module:fields.decorate decorate}
  */
 
 /** @event dataModelAPI#data-changed
@@ -258,11 +263,11 @@ Object.setPrototypeOf(DataModel.prototype, DataSourceBase.prototype);
 /**
  * @method dataModelAPI#install
  * @summary Install methods into data model.
- * @desc Injects default implementations of the methods named in the 1st param (`api`) into the data model's prototype that are no-ops. This allows _ad hoc_ calls to unimplemented functions to fail silently.
+ * @desc Installs implementations of the named methods named into the data model's prototype.
+ * This allows _ad hoc_ calls to unimplemented functions to fail silently.
+ * When `api` is array, injects null (no-op) functions; else injects value of `api` property.
  *
  * When the data model is _stacked_ (_i.e.,_ a linked list of _data transformers,_ linked one to the next with a `next` property, ending with a _data source_ (with no `next` property), these default implementations will forward a call made on an upper layer to the nearest lower layer with an actual implementation.
- *
- * When the 2nd param (`injectFallbacks`) is truthy _and_ `api` is a hash, assigns the contained fallback method implementations to the final (data source) layer.
  *
  * @param {object|string[]} [api=this] - Collection of methods or a list of method names.
  *
@@ -273,8 +278,6 @@ Object.setPrototypeOf(DataModel.prototype, DataSourceBase.prototype);
  * * Keys named `initialize` or `constructor`
  * * Keys not named in `api['!!keys']` if defined (_i.e.,_ a whitelist)
  * * Keys named in `api['!keys']` if defined (_i.e.,_ a blacklist)
- *
- * @param {boolean} [injectFallbacks=false] - Installs the method. (Otherwise, just installs the bubbler.)
  */
 
 /**
@@ -405,7 +408,7 @@ Object.setPrototypeOf(DataModel.prototype, DataSourceBase.prototype);
  * @desc Blah.
  * #### Parameters:
  * @param {dataRowObject[]} data - An array of congruent raw data objects.
- * @param {columnSchema[]} - Ordered array of column schema.
+ * @param {rawColumnSchema[]} - Ordered array of column schema.
  */
 
 /**

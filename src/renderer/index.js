@@ -1079,9 +1079,7 @@ var Renderer = Base.extend('Renderer', {
             // * mutate cell renderer choice (instance of which is returned)
             var cellRenderer = cellEvent.subgrid.getCell(config, config.renderer);
 
-            behavior.cellPropertiesPrePaintNotification(config);
-
-            config.formatValue = grid.getFormatter(format || config.format);
+            config.formatValue = grid.getFormatter(format);
 
             // Following supports partial render
             config.snapshot = cellEvent.snapshot;

@@ -43,22 +43,52 @@ var Local = Behavior.extend('Local', {
     createColumns: function() {
         this.super.createColumns.call(this);
 
-        // columnEnum deprecated
-        // empty the enum without recreating it
-        var columnEnum = this._columnEnum;
-        Object.keys(columnEnum).forEach(function(propName) {
-            delete columnEnum[propName];
-        });
-
         this.schema.forEach(function(columnSchema, index) {
-            // make sure the schema is decorated in case it was set by app and not decorated by data-schema-changed event
-            if (typeof columnSchema === 'string') {
-                this.schema[index] = columnSchema = { name: columnSchema };
-            }
-            columnSchema.index = index;
-
             this.addColumn(columnSchema);
         }, this);
+
+        this.columnEnumSynchronize();
+    },
+
+    /**
+     * @summary Build the `$rowProxy$` lazy getter collection based on current `schema`.
+     *
+     * @desc The `$rowProxy$` lazy getter collection is returned by the `getRow` fallback.
+     *
+     * `$rowProxy$` collection is a dataRow-like object (a hash of column values keyed by column name)
+     * for the particular row whose index is in the `$y$` property.
+     *
+     * The row index can be conveniently set with a call to `fallbacks.getRow()`,
+     * which sets the row index and returns the accessor itself.
+     *
+     * `$y$` is a "hidden" property, non-enumerable it won't show up in `Object.keys(...)`.
+     *
+     * This fallback implementation is "lazy": The enumerable members are all getters that invoke `getValue` and setters that invoke `setValue`.
+     *
+     * This function should be called each time a new schema is set.
+     */
+    createDataRowProxy: function() {
+        var dataModel = this.dataModel,
+            dataRowProxy = {};
+
+        Object.defineProperty(dataRowProxy, '$y$', {
+            enumerable: false, // not a real data field
+            writable: true // set later on calls to fallbacks.getRow(y) to y
+        });
+
+        this.schema.forEach(function(columnSchema, columnIndex) {
+            Object.defineProperty(dataRowProxy, columnSchema.name, {
+                enumerable: true, // is a real data field
+                get: function() {
+                    return dataModel.getValue(columnIndex, this.$y$);
+                },
+                set: function(value) {
+                    return dataModel.setValue(columnIndex, this.$y$, value);
+                }
+            });
+        });
+
+        dataModel.$rowProxy$ = dataRowProxy;
     },
 
     /**
@@ -239,6 +269,6 @@ var Local = Behavior.extend('Local', {
 
 });
 
-Object.defineProperties(Local.prototype, require('../columnEnum').descriptors); // columnEnum deprecated
+Local.prototype.mixIn(require('../columnEnum').mixin);
 
 module.exports = Local;

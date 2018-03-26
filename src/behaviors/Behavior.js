@@ -6,7 +6,7 @@ var Base = require('../Base');
 var Column = require('./Column');
 var cellEventFactory = require('../lib/cellEventFactory');
 var featureRegistry = require('../features');
-var Synonomous = require('synonomous');
+var ArrayDecorator = require('synonomous');
 var assignOrDelete = require('../lib/misc').assignOrDelete;
 
 
@@ -48,8 +48,7 @@ var Behavior = Base.extend('Behavior', {
          */
         this.grid = grid;
 
-        this.synonomous = new Synonomous;
-        this._columnEnum = {}; // columnEnum deprecated
+        this.arrayDecorator = new ArrayDecorator;
 
         this.initializeFeatureChain();
 
@@ -298,18 +297,13 @@ var Behavior = Base.extend('Behavior', {
 
     addColumn: function(options) {
         var column = this.newColumn(options),
-            synonyms = this.synonomous.getSynonyms(column.name);
+            synonyms = this.arrayDecorator.getSynonyms(column.name);
 
         this.columns.push(column);
-        this.synonomous.decorate(this.columns, synonyms, column);
+        this.arrayDecorator.decorateObject(this.columns, synonyms, column);
 
         this.allColumns.push(column);
-        this.synonomous.decorate(this.allColumns, synonyms, column);
-
-        // columnEnum deprecated: avoid recreating the `_columnEnum` object to keep refs valid; just empty it
-        this.synonomous.decorate(this._columnEnum, synonyms, column);
-        synonyms = this.synonomous.getSynonyms(column.name, ['toAllCaps']);
-        this.synonomous.decorate(this._columnEnum, synonyms, column);
+        this.arrayDecorator.decorateObject(this.allColumns, synonyms, column);
 
         return column;
     },
@@ -317,6 +311,10 @@ var Behavior = Base.extend('Behavior', {
     createColumns: function() {
         this.clearColumns();
         // concrete implementation here
+    },
+
+    createDataRowProxy: function() {
+        // concrete implementation here if behavior doesn't implement its own getRow()
     },
 
     getColumnWidth: function(x) {
@@ -461,7 +459,7 @@ var Behavior = Base.extend('Behavior', {
                 columns.push(allColumns[index]);
             });
 
-            this.synonomous.decorateList(columns);
+            this.arrayDecorator.decorateArray(columns);
         }
     },
 
@@ -1021,35 +1019,8 @@ var Behavior = Base.extend('Behavior', {
      * @desc this function is a hook and is called just before the painting of a cell occurs
      * @param {Point} cell
      */
-    cellPropertiesPrePaintNotification: function(cell) {
-
-    },
-
-    /**
-     * @memberOf Behavior#
-     * @desc this function is a hook and is called just before the painting of a fixed row cell occurs
-     * @param {Point} cell
-     */
-    cellFixedRowPrePaintNotification: function(cell) {
-
-    },
-
-    /**
-     * @memberOf Behavior#
-     * @desc this function is a hook and is called just before the painting of a fixed column cell occurs
-     * @param {Point} cell
-     */
-    cellFixedColumnPrePaintNotification: function(cell) {
-
-    },
-
-    /**
-     * @memberOf Behavior#
-     * @desc this function is a hook and is called just before the painting of a top left cell occurs
-     * @param {Point} cell
-     */
-    cellTopLeftPrePaintNotification: function(cell) {
-
+    set cellPropertiesPrePaintNotification(cell) {
+        throw new HypergridError('cellPropertiesPrePaintNotification has been deprecated as of v3.0.0. Code to inspect or mutate the render config object should be moved to the getCell hook.')
     },
 
     /**

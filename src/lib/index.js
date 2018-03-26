@@ -11,12 +11,6 @@ module.exports = {
 
 var warned;
 
-Object.defineProperty(module.exports, 'fields', {
-    get: function() {
-        throw new Error('The `Hypergrid.lib.fields` module has been retired as of v3.0.0 and incorporated into schema enrichment (triggered by the new `data-schema-changed` data event), which is influenced by the new `headerify` grid property.');
-    }
-});
-
 Object.defineProperty(module.exports, 'DataSourceOrigin', {
     get: function() {
         if (!warned) {

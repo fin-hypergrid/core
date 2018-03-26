@@ -1,7 +1,7 @@
 'use strict';
 
 var dispatchEvent = require('../events.js').dispatchEvent;
-var schema = require('./schema');
+var fields = require('../../lib/fields');
 
 var handlersByEventString;
 
@@ -17,7 +17,10 @@ var mixin = {
      * @see {@link dataModelAPI#event:data-schema-changed data-schema-changed}
      */
     fireSyntheticDataSchemaChangedEvent: function(event) {
-        schema.decorate.call(this, event && event.schema);
+        var schema = this.behavior.dataModel.getSchema();
+        fields.normalize(schema, this.properties.headerify);
+        fields.decorate(schema);
+        this.behavior.createDataRowProxy();
         this.behavior.createColumns();
         return dispatchEvent.call(this, 'fin-data-schema-changed', event);
     },
