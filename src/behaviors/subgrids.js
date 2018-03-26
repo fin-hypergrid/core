@@ -1,6 +1,6 @@
 'use strict';
 
-var dataModels = require('../../dataModels');
+var dataModels = require('../dataModels/index');
 
 /** @typedef subgridConstructorRef
  * @summary Type definition.
@@ -108,7 +108,7 @@ exports.mixin = {
     /**
      * @summary Gets the number of "header rows".
      * @desc Defined as the sum of all rows in all subgrids before the (first) data subgrid.
-     * @memberOf behaviors.JSON.prototype
+     * @memberOf Local.prototype
      */
     getHeaderRowCount: function() {
         var result = 0;
@@ -126,7 +126,7 @@ exports.mixin = {
     /**
      * @summary Gets the number of "footer rows".
      * @desc Defined as the sum of all rows in all subgrids after the (last) data subgrid.
-     * @memberOf behaviors.JSON.prototype
+     * @memberOf Local.prototype
      */
     getFooterRowCount: function() {
         var gotData;
@@ -143,7 +143,7 @@ exports.mixin = {
     /**
      * @summary Gets the total number of logical rows.
      * @desc Defined as the sum of all rows in all subgrids.
-     * @memberOf behaviors.JSON.prototype
+     * @memberOf Local.prototype
      */
     getLogicalRowCount: function() {
         return this.subgrids.reduce(function(rows, subgrid) {

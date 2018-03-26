@@ -1,5 +1,9 @@
 'use strict';
 
+/**
+ * Behavior.js mixes this module into its prototype.
+ * @mixin
+ */
 exports.mixin = {
     /**
      * @summary The total height of the "fixed rows."

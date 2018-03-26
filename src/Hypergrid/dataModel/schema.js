@@ -1,13 +1,13 @@
 'use strict';
 
 /**
- * @module dataModel/schema
+ * @module schema
  */
 
 var headerifiers = require('../../lib/headerifiers');
 
 /**
- * @function module:dataModel/schema.enrich
+ * @function module:schema.decorate
  * @summary Called via `data-schema-changed` event by data model implementation of `setSchema` when implemented, otherwise by `getSchema`, whenever the schema changes.
  *
  * Enriches schema. For each "column schema" (element of schema array):
@@ -30,7 +30,7 @@ var headerifiers = require('../../lib/headerifiers');
  *
  * @this {Hypergrid}
  */
-exports.enrich = function(schema) {
+exports.decorate = function(schema) {
     var dataModel = this.behavior.dataModel;
 
     schema = schema || dataModel.getSchema();

@@ -13,6 +13,7 @@ build
 /src/jsdoc
 /test
 
+/package-lock.json
 /gulpfile.js
 /*.sh
 /*.md

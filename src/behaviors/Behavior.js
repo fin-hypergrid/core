@@ -3,7 +3,6 @@
 var Point = require('rectangular').Point;
 
 var Base = require('../Base');
-var dataModel = require('./dataModel');
 var Column = require('./Column');
 var cellEventFactory = require('../lib/cellEventFactory');
 var featureRegistry = require('../features');
@@ -26,7 +25,6 @@ var noExportProperties = [
  * @mixes cellProperties.behaviorMixin
  * @mixes rowProperties.mixin
  * @mixes subgrids.mixin
- * @mixes dataModel.mixin
  * @constructor
  * @desc A controller for the data model.
  * > This constructor (actually `initialize`) will be called upon instantiation of this class or of any class that extends from this class. See {@link https://github.com/joneit/extend-me|extend-me} for more info.
@@ -51,6 +49,7 @@ var Behavior = Base.extend('Behavior', {
         this.grid = grid;
 
         this.synonomous = new Synonomous;
+        this._columnEnum = {}; // columnEnum deprecated
 
         this.initializeFeatureChain();
 
@@ -146,20 +145,40 @@ var Behavior = Base.extend('Behavior', {
     },
 
     /**
-     * @abstract
+     * @memberOf Local#
+     * @description Set the header labels.
+     * @param {string[]|object} headers - The header labels. One of:
+     * * _If an array:_ Must contain all headers in column order.
+     * * _If a hash:_ May contain any headers, keyed by field name, in any order.
+     */
+    setHeaders: function(headers) {
+        if (headers instanceof Array) {
+            // Reset all headers
+            var allColumns = this.allColumns;
+            headers.forEach(function(header, index) {
+                allColumns[index].header = header; // setter updates header in both column and data source objects
+            });
+        } else if (typeof headers === 'object') {
+            // Adjust just the headers in the hash
+            this.allColumns.forEach(function(column) {
+                if (headers[column.name]) {
+                    column.header = headers[column.name];
+                }
+            });
+        }
+    },
+
+    /**
      * @summary Set grid data.
-     * @desc Exits without doing anything if no data (`dataRows` undefined or omitted and `options.data` undefined).
+     * @desc Fails silently if `dataRows` and `options.data` are both undefined.
      *
      * @param {function|object[]} [dataRows=options.data] - Array of uniform data row objects or function returning same.
      *
      * @param {object} [options] - _(Promoted to first argument position when `dataRows` omitted.)_
      *
-     * @param {function|object[]} [options.data] - Passed to behavior constructor. May be:
-     * * An array of congruent raw data objects
-     * * A function returning same
-     * * Omit for non-local datasources
+     * @param {function|object[]} [options.data] - The data when `dataRows` undefined.
      *
-     * @param {function|menuItem[]} [options.schema] - Passed to behavior constructor. May be:
+     * @param {function|menuItem[]} [options.schema] - May be:
      * * A schema array
      * * A function returning same. Called at filter reset time with behavior as context.
      * * Omit to allow the data model to generate a basic schema from its data.
@@ -169,6 +188,39 @@ var Behavior = Base.extend('Behavior', {
      * @memberOf Behavior#
      */
     setData: function(dataRows, options) {
+        if (!(Array.isArray(dataRows) || typeof dataRows === 'function')) {
+            options = dataRows;
+            dataRows = options && options.data;
+        }
+
+        dataRows = this.unwrap(dataRows);
+
+        if (dataRows === undefined) {
+            return;
+        }
+
+        if (!Array.isArray(dataRows)) {
+            throw 'Expected data to be an array (of data row objects).';
+        }
+
+        options = options || {};
+
+        var schema = this.unwrap(options.schema);
+
+        // Inform interested data models of data.
+        this.subgrids.forEach(function(dataModel) {
+            dataModel.setData(dataRows, schema);
+        });
+
+        if (this.grid.cellEditor) {
+            this.grid.cellEditor.cancelEditing();
+        }
+
+        if (options.apply || options.apply === undefined) { // default is `true`
+            this.reindex();
+        }
+
+        this.grid.allowEvents(this.getRowCount());
     },
 
     get renderedColumnCount() {
@@ -246,21 +298,25 @@ var Behavior = Base.extend('Behavior', {
 
     addColumn: function(options) {
         var column = this.newColumn(options),
-            columns = this.columns,
-            allColumns = this.allColumns;
+            synonyms = this.synonomous.getSynonyms(column.name);
 
-        columns.push(column);
-        this.synonomous.decorateList(columns.length - 1, columns);
+        this.columns.push(column);
+        this.synonomous.decorate(this.columns, synonyms, column);
 
-        allColumns.push(column);
-        this.synonomous.decorateList(allColumns.length - 1, allColumns);
+        this.allColumns.push(column);
+        this.synonomous.decorate(this.allColumns, synonyms, column);
+
+        // columnEnum deprecated: avoid recreating the `_columnEnum` object to keep refs valid; just empty it
+        this.synonomous.decorate(this._columnEnum, synonyms, column);
+        synonyms = this.synonomous.getSynonyms(column.name, ['toAllCaps']);
+        this.synonomous.decorate(this._columnEnum, synonyms, column);
 
         return column;
     },
 
     createColumns: function() {
         this.clearColumns();
-        //concrete implementation here
+        // concrete implementation here
     },
 
     getColumnWidth: function(x) {
@@ -277,6 +333,13 @@ var Behavior = Base.extend('Behavior', {
         var column = columnOrIndex >= -2 ? this.getActiveColumn(columnOrIndex) : columnOrIndex;
         column.setWidth(width);
         this.stateChanged();
+    },
+
+    /**
+     * @memberOf Behavior#
+     */
+    reindex: function() {
+        this.dataModel.reindex();
     },
 
     /**
@@ -381,7 +444,7 @@ var Behavior = Base.extend('Behavior', {
             var columns = this.columns,
                 allColumns = this.allColumns;
 
-            // avoid recreating the array to keep refs valid; just empty it (including name dictionary)
+            // avoid recreating the `columns` array object to keep refs valid; just empty it
             columns.length = 0;
             var tc = this.treeColumnIndex.toString(), rc = this.rowColumnIndex.toString();
             Object.keys(columns).forEach(function(key) {
@@ -532,51 +595,6 @@ var Behavior = Base.extend('Behavior', {
     },
 
     /**
-     * @param {CellEvent|number} xOrCellEvent - Grid column coordinate.
-     * @param {number} [y] - Grid row coordinate. Omit if `xOrCellEvent` is a CellEvent.
-     * @param {dataModelAPI} [dataModel] - For use only when `xOrCellEvent` is _not_ a `CellEvent`: Provide a subgrid. If given, x and y are interpreted as data cell coordinates (unadjusted for scrolling). Does not default to the data subgrid, although you can provide it explicitly (`this.subgrids.lookup.data`).
-     * @memberOf Behavior#
-     */
-    getValue: function(xOrCellEvent, y, dataModel) {
-        if (typeof xOrCellEvent !== 'object') {
-            var x = xOrCellEvent;
-            xOrCellEvent = new this.CellEvent;
-            if (dataModel) {
-                xOrCellEvent.resetDataXY(x, y, dataModel);
-            } else {
-                xOrCellEvent.resetGridCY(x, y);
-            }
-        }
-        return xOrCellEvent.value;
-    },
-
-    /**
-     * @memberOf Behavior#
-     * @desc update the data at point x, y with value
-     * @return The data.
-     * @param {CellEvent|number} xOrCellEvent - Grid column coordinate.
-     * @param {number} [y] - Grid row coordinate. Omit if `xOrCellEvent` is a CellEvent.
-     * @param {Object} value - The value to use. _When `y` omitted, promoted to 2nd arg._
-     * @param {dataModelAPI} [dataModel] - For use only when `xOrCellEvent` is _not_ a `CellEvent`: Provide a subgrid. If given, x and y are interpreted as data cell coordinates (unadjusted for scrolling). Does not default to the data subgrid, although you can provide it explicitly (`this.subgrids.lookup.data`).
-     * @return {boolean} Consumed.
-     */
-    setValue: function(xOrCellEvent, y, value, dataModel) {
-        if (typeof xOrCellEvent === 'object') {
-            value = y;
-        } else {
-            var x = xOrCellEvent;
-            xOrCellEvent = new this.CellEvent;
-            if (dataModel) {
-                xOrCellEvent.resetDataXY(x, y, dataModel);
-            } else {
-                xOrCellEvent.resetGridCY(x, y);
-            }
-        }
-        xOrCellEvent.value = value;
-    },
-
-    /**
-
      * @memberOf Behavior#
      * @return {number} The width of the fixed column area in the hypergrid.
      */
@@ -825,17 +843,20 @@ var Behavior = Base.extend('Behavior', {
      * @memberOf Behavior#
      */
     clearAllCellProperties: function(x) {
-        if (x !== undefined) {
+        var X;
+
+        if (x === undefined) {
+            x = 0;
+            X = this.columns.length;
+        } else {
+            X = x + 1;
+        }
+
+        for (; x < X; x++) {
             var column = this.getColumn(x);
             if (column) {
                 column.clearAllCellProperties();
             }
-        } else if (this.subgrids) {
-            this.subgrids.forEach(function(dataModel) {
-                for (var i = dataModel.getRowCount(); i--;) {
-                    dataModel.setRowMetadata(i);
-                }
-            });
         }
     },
 
@@ -1131,6 +1152,10 @@ var Behavior = Base.extend('Behavior', {
     getSelections: function() {
         return this.grid.selectionModel.getSelections();
     },
+
+    getIndexedData: function() {
+        return this.deprecated('getIndexedData()', 'getData()', '3.0.0');
+    }
 });
 
 
@@ -1196,10 +1221,9 @@ Behavior.prototype.applyAnalytics = Behavior.prototype.reindex;
 
 
 // mix-ins
-Behavior.prototype.mixIn(dataModel.mixin);
 Behavior.prototype.mixIn(require('./rowProperties').mixin);
 Behavior.prototype.mixIn(require('./cellProperties').behaviorMixin);
-Behavior.prototype.mixIn(require('./dataModel/subgrids').mixin);
+Behavior.prototype.mixIn(require('./subgrids').mixin);
 
 
 module.exports = Behavior;

@@ -141,7 +141,7 @@ Object.setPrototypeOf(DataModel.prototype, DataSourceBase.prototype);
 
 /** @event dataModelAPI#data-schema-changed
  * @desc The data models should trigger this event on a schema change, typically from setSchema, or wherever schema is initialized. Hypergrid responds by enriching the schema object — before triggering a grid event using the same event string, which applications can listen for using {@link Hypergrid#addEventListener grid.addEventListener('fin-data-schema-changed', myHandlerFunction)}.
- * @see {@link module:dataModel/schema.enrich enrich}
+ * @see {@link module:schema.decorate decorate}
  */
 
 /** @event dataModelAPI#data-changed
@@ -219,7 +219,7 @@ Object.setPrototypeOf(DataModel.prototype, DataSourceBase.prototype);
  *
  * Custom data models are not required to implement them if they don't need them.
  *
- * If implemented, Hypergrid makes a single call to `setMetadataStore` when data model is reset (see {@link Behavior#resetDataModel}) with no arguments. Therefore this method needs to expect a no-arg overload and handle it appropriately.
+ * If implemented, Hypergrid makes a single call to `setMetadataStore` when data model is reset (see {@link Local#resetDataModel}) with no arguments. Therefore this method needs to expect a no-arg overload and handle it appropriately.
  *
  * Hypergrid never calls `getMetadataStore`.
  * #### Parameters:
@@ -250,7 +250,7 @@ Object.setPrototypeOf(DataModel.prototype, DataSourceBase.prototype);
  *
  * Custom data models are not required to implement them if they don't need them.
  *
- * Hypergrid never calls `getMetadataStore` itself. If implemented, Hypergrid does make a single call to `setMetadataStore` when data model is reset (see {@link Behavior#resetDataModel}) with no arguments.
+ * Hypergrid never calls `getMetadataStore` itself. If implemented, Hypergrid does make a single call to `setMetadataStore` when data model is reset (see {@link Local#resetDataModel}) with no arguments.
  *
  * @returns Metadata store object.
  */
@@ -347,7 +347,7 @@ Object.setPrototypeOf(DataModel.prototype, DataSourceBase.prototype);
  * @method dataModelAPI#getSchema
  * @desc Get list of columns. The order of the columns in the list defines the column indexes.
  *
- * On initial call and again whenever the schema changes, the data model must dispatch the `data-schema-changed` event, which tells Hypergrid to {@link module:dataModel/schema.enrich enrich} the schema and recreate the column objects.
+ * On initial call and again whenever the schema changes, the data model must dispatch the `data-schema-changed` event, which tells Hypergrid to {@link module:schema.decorate decorate} the schema and recreate the column objects.
  * @returns {columnSchema[]}
  */
 
@@ -355,11 +355,11 @@ Object.setPrototypeOf(DataModel.prototype, DataSourceBase.prototype);
  * @method dataModelAPI#setSchema
  * @desc Define column indexes. May include `header`, `type`, and `calculator` properties for each column.
  *
- * When the schema changes, the data model should dispatch the `data-schema-changed` event, which tells Hypergrid to {@link module:dataModel/schema.enrich enrich} the schema and recreate the column objects.
+ * When the schema changes, the data model should dispatch the `data-schema-changed` event, which tells Hypergrid to {@link module:schema.decorate decorate} the schema and recreate the column objects.
  *
  * It is not necessary to call on every data update when you expect to reuse the existing schema.
  * #### Parameters:
- * @param {Array.<columnSchema|string>} [newSchema] - String elements are immediately converted (by `enrich`) to columnSchema objects.
+ * @param {Array.<columnSchema|string>} [newSchema] - String elements are immediately converted (by {@link module:schema.decorate decorate}) to columnSchema objects.
  */
 
 /**

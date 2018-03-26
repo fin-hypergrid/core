@@ -49,7 +49,7 @@ module.exports = {
     },
 
     setData: function(data) {
-        // fail silently because JSON.js::setData currently calls this for every subgrid
+        // fail silently because Local.js::setData currently calls this for every subgrid
     },
 
     setValue: function(x, y, value) {

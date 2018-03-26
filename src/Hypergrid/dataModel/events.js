@@ -17,7 +17,8 @@ var mixin = {
      * @see {@link dataModelAPI#event:data-schema-changed data-schema-changed}
      */
     fireSyntheticDataSchemaChangedEvent: function(event) {
-        schema.enrich.call(this, event && event.schema);
+        schema.decorate.call(this, event && event.schema);
+        this.behavior.createColumns();
         return dispatchEvent.call(this, 'fin-data-schema-changed', event);
     },
 

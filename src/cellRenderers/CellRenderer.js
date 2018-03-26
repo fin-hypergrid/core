@@ -77,7 +77,7 @@
  * The renderer has available to it the `.formatValue()` function for formatting the value. The function comes from the localizer named in the `.format` property. If there is no localizer with that name, the function defaults to the `string` localizer's formatter (which simply invokes the value's `toString()` method).
  *
  * Typically a Local primitive value, values can be any type, including objects and arrays. The specified cell renderer is expected to know how to determine the value's type and render it.
-*/
+ */
 
 var Base = require('../Base');
 

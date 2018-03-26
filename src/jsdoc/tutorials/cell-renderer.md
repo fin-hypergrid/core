@@ -25,7 +25,7 @@ The default value for this property (applied at the grid level) is `'SimpleCell'
 
 ### Text _vs._ non-text cell renderers
 
-Grid data is presented to Hypergrid by the application layer. This will typically have come from a serialized JSON object, but the precise means of transport is up to the developer. After parsing the serialized data, and perhaps instancing some objects, the cell data may take on any form. It is the job of a cell renderer to display this data.
+Grid data is presented to Hypergrid by the application layer. This will typically have come from a serialized Local object, but the precise means of transport is up to the developer. After parsing the serialized data, and perhaps instancing some objects, the cell data may take on any form. It is the job of a cell renderer to display this data.
  
 #### Raw data
 The default cell renderer renders data as text using the `toString()` method that all JavaScript objects support.
