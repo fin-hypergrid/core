@@ -9,6 +9,7 @@ build
 /html/*.html
 /images/**
 !/images/images.js
+!/images/index.js
 /jsdoc-template-hypergrid
 /src/jsdoc
 /test

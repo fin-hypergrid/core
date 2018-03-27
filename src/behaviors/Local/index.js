@@ -43,7 +43,7 @@ var Local = Behavior.extend('Local', {
     createColumns: function() {
         this.super.createColumns.call(this);
 
-        this.schema.forEach(function(columnSchema, index) {
+        this.schema.forEach(function(columnSchema) {
             this.addColumn(columnSchema);
         }, this);
 
@@ -142,13 +142,17 @@ var Local = Behavior.extend('Local', {
     },
 
     /**
+     * Decorate data model object.
+     * @see {@link module:decorators.injectPolyfills injectPolyfills}
+     * @see {@link module:decorators.injectCode injectCode}
+     * @see {@link module:decorators.injectDefaulthooks injectDefaulthooks}
      * @param {dataModelAPI} newDataModel
      * @param {dataModelAPI} [options.metadata] - Passed to {@link dataModelAPI#setMetadataStore setMetadataStore}.
      */
     decorateDataModel: function(newDataModel, options) {
-        decorators.addPolyfills(newDataModel);
-        decorators.addFallbacks(newDataModel, this.grid);
-        decorators.addDefaultHooks(newDataModel);
+        decorators.injectPolyfills(newDataModel);
+        decorators.injectCode(newDataModel, this.grid);
+        decorators.injectDefaulthooks(newDataModel);
 
         newDataModel.setMetadataStore(options && options.metadata);
 

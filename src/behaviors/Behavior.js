@@ -5,6 +5,7 @@ var Point = require('rectangular').Point;
 var Base = require('../Base');
 var Column = require('./Column');
 var cellEventFactory = require('../lib/cellEventFactory');
+var fields = require('../lib/fields');
 var featureRegistry = require('../features');
 var ArrayDecorator = require('synonomous');
 var assignOrDelete = require('../lib/misc').assignOrDelete;
@@ -309,7 +310,15 @@ var Behavior = Base.extend('Behavior', {
     },
 
     createColumns: function() {
+        var schema = this.dataModel.getSchema();
+
+        fields.normalize(schema, this.grid.properties.headerify);
+        fields.decorate(schema);
+
+        this.createDataRowProxy();
+
         this.clearColumns();
+
         // concrete implementation here
     },
 
@@ -526,10 +535,8 @@ var Behavior = Base.extend('Behavior', {
         }
 
         var newColumns = columnIndexes
-            // Look up columns using provided indexes
-            .map(function(index) { return sourceColumnList[index]; })
-            // Remove any undefined columns
-            .filter(function(column) { return column; });
+            .map(function(index) { return sourceColumnList[index]; }) // Look up columns using provided indexes
+            .filter(function(column) { return column; }); // Remove any undefined columns
 
         // Default insertion point is end (i.e., before (last+1)th element)
         if (typeof referenceIndex !== 'number') {

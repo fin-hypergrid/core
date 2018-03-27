@@ -137,7 +137,7 @@ Object.setPrototypeOf(DataModel.prototype, DataSourceBase.prototype);
 
 /**
  * @method dataModelAPI#dispatchEvent
- * @desc This method must be injected by Hypergrid; it should not be overridden.
+ * @desc This method if it exists will be overridden by Hypergrid if and only if data model does not support `addListener`.
  * #### Parameters:
  * @param {string} eventName - Event string (name).
  * @param {object} [eventDetail={}] - Optional event detail data.
@@ -263,13 +263,32 @@ Object.setPrototypeOf(DataModel.prototype, DataSourceBase.prototype);
 /**
  * @method dataModelAPI#install
  * @summary Install methods into data model.
- * @desc Installs implementations of the named methods named into the data model's prototype.
- * This allows _ad hoc_ calls to unimplemented functions to fail silently.
- * When `api` is array, injects null (no-op) functions; else injects value of `api` property.
+ * @desc Installs _catchers functions_ or _fallback methods_ into the data model when no native implementation exists, thus ensuring the methods have implementations for Hypergrid to call.
  *
- * When the data model is _stacked_ (_i.e.,_ a linked list of _data transformers,_ linked one to the next with a `next` property, ending with a _data source_ (with no `next` property), these default implementations will forward a call made on an upper layer to the nearest lower layer with an actual implementation.
+ * ### Catcher functions
+ * Catcher functions catch calls made by Hypergrid to otherwise unimplemented functions so such calls fail silently rather than throw an error.
+ * * When `api` is array: `install` injects catcher functions named for each string in the array.
+ * * When `api` is an object: `install` injects catcher functions named for each key in the object. (Keys with non-function values are excluded.)
  *
- * @param {object|string[]} [api=this] - Collection of methods or a list of method names.
+ * Keys `constructor` and `initialize` are always excluded. In addition, the `install` method defined in `datasaur-base` will also exclude keys missing from whitelist (`api['!!keys']`) or included in blacklist (`api['!key']`).
+ *
+ * The type of _catcher function_ depends on the data model:
+ * * Flat data model: Catcher functions are simple no-ops that fail silently.
+ * * Stacked data model: Catcher functions forward calls down the stack to the first native implementation found. When no native implementation is found, the call then fails silently.
+ *
+ * (A stacked data model consists of a list of _data transformers,_ linked one to the next with a `next` property, and ending with a _data source_ with an undefined `next`. The [`datasaur-base`](https://github.com/fin-hypergrid/datasaur-base) base class supports stacked data models.)
+ *
+ * ### Fallbacks methods
+ * Instead of failing silently, Hypergrid can instead install fallback methods for missing implementations:
+ *
+ * When `options.inject` is truthy (and `api` is an object), `install` injects `api`'s fallback methods into the data model instead of simple catchers when no native implementation already exists (however see `options.force` below).
+ *
+ * For a stacked data model, the target for the injection is the bottom instance in the stack (the data source instance); and the forwarding mechanism is also installed so the call will find the fallback there.
+ *
+ * ### Forced installation
+ * When `options.force` is truthy, the fallback methods are always installed regardless of whether or not a native implementation exists; _i.e.,_ the fallbacks override the native implementations.
+ *
+ * @param {object|string[]} api - Collection of methods or a list of method names.
  *
  * The following keys are however ignored:
  * * _When `api` is a hash:_
@@ -278,6 +297,10 @@ Object.setPrototypeOf(DataModel.prototype, DataSourceBase.prototype);
  * * Keys named `initialize` or `constructor`
  * * Keys not named in `api['!!keys']` if defined (_i.e.,_ a whitelist)
  * * Keys named in `api['!keys']` if defined (_i.e.,_ a blacklist)
+ *
+ * @param {object} options
+ * @param {boolean} [options.inject] - Injects `api` object's fallback methods for missing data model implementations. (Otherwise, just installs catchers based on the keys.)
+ * @param {boolean} [options.force] - If `options.inject` also true, injects `api` object's fallback methods, even if data model already has an implementation.
  */
 
 /**
