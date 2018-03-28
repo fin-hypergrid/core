@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Module: localization</title>
+    <title>JSDoc: Module: decorators</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -20,7 +20,7 @@
 </nav>
 <div id="main">
 
-    <h1 class="page-title">Module: localization</h1>
+    <h1 class="page-title">Module: decorators</h1>
 
     
 
@@ -49,22 +49,6 @@
     
 
     
-        <h3 class="subsection-title">Classes</h3>
-
-        <dl>
-            <dt><a href="module-localization-DateFormatter.html">DateFormatter</a></dt>
-            <dd></dd>
-        
-            <dt><a href="module-localization-Formatter.html">Formatter</a></dt>
-            <dd></dd>
-        
-            <dt><a href="module-localization-Localization.html">Localization</a></dt>
-            <dd></dd>
-        
-            <dt><a href="module-localization-NumberFormatter.html">NumberFormatter</a></dt>
-            <dd><p>Create a number localizer.</p></dd>
-        </dl>
-    
 
      
 
@@ -72,6 +56,472 @@
 
     
 
+    
+        <h3 class="subsection-title">Methods</h3>
+
+        
+            
+
+    
+
+    <h4 class="name" id=".dispatchEvent"><span class="type-signature">(static) </span>dispatchEvent<span class="signature">(eventName, eventDetail)</span><span class="type-signature"></span></h4>
+
+    
+    <p class="summary"><p>Hypergrid's <code>data-</code> event handler.</p></p>
+    
+
+
+
+<div class="description">
+    <p><code>dispatchEvent</code> may be called by the data model to communicate back to Hypergrid. Hypergrid itself never calls <code>dispatchEvent</code> on the data model.</p>
+<p>This handler:</p>
+<ol>
+<li>Checks the event string to make sure it conforms to the expected syntax (must start with <code>data-</code> and include only lowercase letters and hyphens).</li>
+<li>Dispatches a DOM event to the <code>&lt;canvas&gt;</code> element with the same event name prefixed with <code>fin-canvas-</code>.</li>
+</ol>
+<p>The data model's <code>dispatchEvent</code> method is bound to the grid by <code>injectCode</code>. A curried version of this function, bound to the grid instance, is either:
+Added to the data model via its <code>addListener</code> method, if it has one; or
+Force-injected into the data model, overriding any native implementation. (A native implementation may exist simply to &quot;catch&quot; calls that might be made before the data model is attached to Hypergrid.)</p>
+</div>
+
+
+
+
+
+
+
+    <h5>This:</h5>
+    <ul><li>{<a href="Hypergrid.html">Hypergrid</a>}</li></ul>
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>eventName</code></td>
+            
+
+            <td class="type">
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>eventDetail</code></td>
+            
+
+            <td class="type">
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id=".injectCode"><span class="type-signature">(static) </span>injectCode<span class="signature">(dataModel, grid)</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>Injects code into data model:</p>
+<ul>
+<li>Inject fallback methods into data model when not implemented by data model.</li>
+<li>Binds the data model's <code>dispatchEvent</code> method to the grid instance:<ol>
+<li>If <code>dataModel.addListener</code> is already implemented:<br><ul>
+<li>Calls it event handler bound to this grid that handles all <code>data-</code> events.</li>
+<li><code>dataModel.dispatchEvent</code> is presumed to be implemented as well.</li>
+</ul>
+</li>
+<li>If <code>dataModel.addListener</code> is not implemented:<br><ul>
+<li>Inject same event handler as above into <code>dataModel.dispatchEvent</code>.</li>
+</ul>
+</li>
+</ol>
+</li>
+</ul>
+</div>
+
+
+
+
+
+
+
+    <h5>This:</h5>
+    <ul><li>{<a href="Local.html">Local</a>}</li></ul>
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>dataModel</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="dataModelAPI.html">dataModelAPI</a></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>grid</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="Hypergrid.html">Hypergrid</a></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id=".injectPolyfills"><span class="type-signature">(static) </span>injectPolyfills<span class="signature">(dataModel)</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>Injects missing utility functions into the data model.</p>
+<p>Typically, data models are extended from <code>datasaur-base</code> which supplies the utility functions. However, extending from <code>datasaur-base</code> is not a requirement and for those data models that do not, the necessary utility functions are injected here.</p>
+<p>The only utility function so injected at this time is <code>install</code>, which is used by:</p>
+<ul>
+<li><a href="module-decorators.html#.injectCode"><code>injectCode</code></a> to:<ul>
+<li>Inject fallbacks for missing non-essential data model methods</li>
+<li>Bind the data model's <code>dispatchEvent</code> method to the grid instance</li>
+</ul>
+</li>
+<li><a href="module-decorators.html#.injectCode"><code>injectCode</code></a> to:<ul>
+<li>Inject a default for the <code>getCell</code> hook</li>
+<li>Inject a default for the <code>getCellEditorAt</code> hook</li>
+</ul>
+</li>
+</ul>
+</div>
+
+
+
+
+
+
+
+    <h5>This:</h5>
+    <ul><li>{<a href="Local.html">Local</a>}</li></ul>
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>dataModel</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="dataModelAPI.html">dataModelAPI</a></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
     
 
     
