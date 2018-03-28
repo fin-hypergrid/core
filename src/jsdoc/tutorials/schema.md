@@ -16,11 +16,11 @@ var schema = [ 'item', 'price', ... ];
 
 List all the columns you want the filter to be aware of. The order of this list can be arbitrary. (Unlike the behavior.columns array, the filter's column schema's order does not need to match the data source's fields array. This is because the filter accesses columns only by name, not index.)
 
-Even simpler solution. If you don't have a schema prepared, even simpler might be to just use the data source's fields array. This is a bit of a chicken-or-egg problem because the data source doesn't exist yet (because the behavior doesn't exist yet (because the grid doesn't exist yet...)). An easy way to work around this is to set the schema to a callback function (called with behavior as "this" context):
+Even simpler solution. If you don't have a schema prepared, just use the data source's fields array. This is a bit of a chicken-or-egg problem because the data source doesn't exist yet (because the behavior doesn't exist yet (because the grid doesn't exist yet...)). An easy way to work around this is to set the schema to a callback function (which is called with behavior as "this" context):
 
 ```javascript
 var schema = function() {
-    return this.dataModel.getFields();
+    return this.dataModel.schema.map(function(columnSchema) { return columnSchema.name; });
 }
 ```
 

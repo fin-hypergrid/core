@@ -2,23 +2,27 @@
 
 'use strict';
 
-var mustache = require('mustache');
-
 var Base = require('../Base');
 var effects = require('../lib/DOM/effects');
 var Localization = require('../lib/Localization');
 
 /**
  * @constructor
+ * @desc Displays a cell editor and handles cell editor interactions.
+ *
+ * > This constructor (actually `initialize`) will be called upon instantiation of this class or of any class that extends from this class. See {@link https://github.com/joneit/extend-me|extend-me} for more info.
+ *
+ * Instances of `CellEditor` are used to render an HTML element on top of the grid exactly within the bound of a cell for purposes of editing the cell value.
+ *
+ * Extend this base class to implement your own cell editor.
+ *
+ * @param grid
+ * @param {CellEditor#renderConfig} options - Properties listed below + arbitrary mustache "variables" for merging into template.
+ * @param {Point} options.editPoint - Deprecated; use `options.gridCell`.
+ * @param {string} [options.format] - Name of a localizer with which to override prototype's `localizer` property.
  */
 var CellEditor = Base.extend('CellEditor', {
 
-    /**
-     * @param grid
-     * @param {CellEvent} options - Properties listed below + arbitrary mustache "variables" for merging into template.
-     * @param {Point} options.editPoint - Deprecated; use `options.gridCell`.
-     * @param {string} [options.format] - Name of a localizer with which to override prototype's `localizer` property.
-     */
     initialize: function(grid, options) {
         // Mix in all enumerable properties for mustache use, typically `column` and `format`.
         for (var key in options) {
@@ -43,15 +47,17 @@ var CellEditor = Base.extend('CellEditor', {
 
         this.locale = grid.localization.locale; // for template's `lang` attribute
 
-        // override native localizer with localizer named in format if defined (from instantiation options)
-        if (options.format) {
-            this.localizer = this.grid.localization.get(options.format);
+        // Only override cell editor's default 'null' localizer if the custom localizer lookup succeeds.
+        // Failure is when it returns the default ('string') localizer when 'string' is not what was requested.
+        var localizer = this.grid.localization.get(options.format); // try to get named localizer
+        if (!(localizer === Localization.prototype.string || options.format === 'string')) {
+            this.localizer = localizer;
         }
 
         this.initialValue = value;
 
         var container = document.createElement('DIV');
-        container.innerHTML = mustache.render(this.template, this);
+        container.innerHTML = this.grid.modules.templater.render(this.template, this);
 
         /**
          * This object's input control, one of:
@@ -131,6 +137,7 @@ var CellEditor = Base.extend('CellEditor', {
                 // Editing successfully stopped
                 // -> send the event down the feature chain
                 var finEvent = grid.canvas.newEvent(e, 'fin-editor-keydown', {
+                    grid: grid,
                     alt: e.altKey,
                     ctrl: e.ctrlKey,
                     char: keyChar,
@@ -187,9 +194,6 @@ var CellEditor = Base.extend('CellEditor', {
             this.checkEditorPositionFlag = true;
             this.checkEditor();
         }
-    },
-    beginEditAt: function(Constructor, name) {
-        return this.deprecated('beginEditAt(point)', 'beginEditing()', '1.0.6');
     },
 
     /**
@@ -461,9 +465,6 @@ var CellEditor = Base.extend('CellEditor', {
 
 function nullPattern() {}
 function px(n) { return n + 'px'; }
-
-
-CellEditor.abstract = true; // don't instantiate directly
 
 
 module.exports = CellEditor;

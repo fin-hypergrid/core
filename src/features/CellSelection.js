@@ -10,7 +10,7 @@ var CellSelection = Feature.extend('CellSelection', {
 
     /**
      * The pixel location of the mouse pointer during a drag operation.
-     * @type {window.fin.rectangular.Point}
+     * @type {Point}
      * @memberOf CellSelection.prototype
      */
     currentDrag: null,

@@ -1,9 +1,5 @@
 'use strict';
 
-var FIELD = 'columnProperties.field is deprecated as of v1.1.0 in favor of columnProperties.name. (Will be removed in a future release.)',
-    COLUMN_NAME = 'columnProperties.columnName is deprecated as of v1.1.0 in favor of columnProperties.name. (Will be removed in a future release.)',
-    COLUMN_ONLY_PROPERTY = 'Attempt to set column-only property on a non-column properties object.';
-
 /**
  * @this {Column}
  * @returns {object}
@@ -30,14 +26,12 @@ function createColumnProperties() {
 
         field: { // read-only (no setter)
             get: function() {
-                if (FIELD) { console.warn(FIELD); FIELD = undefined; }
                 return column.name;
             }
         },
 
         columnName: { // read-only (no setter)
             get: function() {
-                if (COLUMN_NAME) { console.warn(COLUMN_NAME); COLUMN_NAME = undefined; }
                 return column.name;
             }
         },
@@ -48,7 +42,7 @@ function createColumnProperties() {
             },
             set: function(header) {
                 if (this !== column.properties) {
-                    throw new column.HypergridError(COLUMN_ONLY_PROPERTY);
+                    tableState.header = header; // throws an error
                 }
                 column.header = header;
             }
@@ -60,7 +54,7 @@ function createColumnProperties() {
             },
             set: function(type) {
                 if (this !== column.properties) {
-                    throw new column.HypergridError(COLUMN_ONLY_PROPERTY);
+                    tableState.type = type; // throws an error
                 }
                 column.type = type;
             }
@@ -72,7 +66,7 @@ function createColumnProperties() {
             },
             set: function(calculator) {
                 if (this !== column.properties) {
-                    throw new column.HypergridError(COLUMN_ONLY_PROPERTY);
+                    tableState.calculator = calculator; // throws an error
                 }
                 column.calculator = calculator;
             }
@@ -335,13 +329,23 @@ createColumnProperties.filterDescriptors = {
             this.filterRenderer = value;
         }
     },
+    editor: {
+        configurable: true,
+        enumerable: true,
+        get: function() {
+            return this.filterEditor;
+        },
+        set: function(value) {
+            this.filterEditor = value;
+        }
+    },
     rightIcon: {
         configurable: true,
         enumerable: true,
         get: function() {
             var result;
             if (this.filterable) {
-                result = this.value.length ? 'filter-on' : 'filter-off';
+                result = this.filter ? 'filter-on' : 'filter-off';
             }
             return result;
         },
@@ -443,4 +447,10 @@ createColumnProperties.columnHeaderDescriptors = {
     rightIcon: { writable: true, value: undefined},
 };
 
-exports.createColumnProperties = createColumnProperties;
+/**
+ * Column.js mixes this module into its prototype.
+ * @mixin
+ */
+exports.mixin = {
+    createColumnProperties: createColumnProperties
+};

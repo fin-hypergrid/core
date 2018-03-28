@@ -4,9 +4,11 @@
 
 var _ = require('object-iterators');
 
-var Behavior = require('../behaviors/Behavior');
-
-module.exports = {
+/**
+ * Hypergrid/index.js mixes this module into its prototype.
+ * @mixin
+ */
+var mixin = {
 
     /**
      * @summary Add an event listener to me.
@@ -185,8 +187,16 @@ module.exports = {
     },
 
     fireSyntheticButtonPressedEvent: function(event) {
-        if (this.isViewableButton(event.dataCell.x, event.gridCell.y)) {
-            return dispatchEvent.call(this, 'fin-button-pressed', {}, event);
+        var subrects = this.isViewableButton(event.dataCell.x, event.gridCell.y);
+        if (subrects) {
+            var subrow = subrects.findIndex(function(bounds) {
+                var mouse = event.primitiveEvent.detail.mouse;
+                return bounds.y <= mouse.y && mouse.y < bounds.y + bounds.height;
+            });
+            if (subrow >= 0) {
+                event.subrow = subrow;
+                return dispatchEvent.call(this, 'fin-button-pressed', {}, event);
+            }
         }
     },
 
@@ -258,12 +268,6 @@ module.exports = {
     fireSyntheticDoubleClickEvent: function(cellEvent) {
         if (!this.abortEditing()) { return; }
 
-        if (this.behavior.cellDoubleClicked !== Behavior.prototype.cellDoubleClicked) {
-            this.deprecated('fin-double-click', 'behavior.cellDoubleClicked(gridCell, cellEvent) has been deprecated as of v1.2.6 in favor of handling in a \'fin-double-click\' event (event.detail.gridCell, event.primitiveEvent) and will be removed in a future release.');
-        }
-        // to deprecate, remove above warning + following line + abstract implementation in Behavior.js
-        this.behavior.cellDoubleClicked(cellEvent.gridCell, cellEvent);
-
         return dispatchEvent.call(this, 'fin-double-click', {}, cellEvent);
     },
 
@@ -332,14 +336,14 @@ module.exports = {
     },
 
     delegateCanvasEvents: function() {
-        var self = this;
+        var grid = this;
 
         function handleMouseEvent(e, cb) {
-            if (self.getLogicalRowCount() === 0) {
+            if (grid.getLogicalRowCount() === 0) {
                 return;
             }
 
-            var c = self.getGridCellFromMousePoint(e.detail.mouse),
+            var c = grid.getGridCellFromMousePoint(e.detail.mouse),
                 primitiveEvent,
                 decoratedEvent;
 
@@ -359,17 +363,17 @@ module.exports = {
                         writable: true
                     }
                 );
-                cb.call(self, decoratedEvent);
+                cb.call(grid, decoratedEvent);
             }
         }
 
         this.addInternalEventListener('fin-canvas-resized', function(e) {
-            self.resized();
-            self.fireSyntheticGridResizedEvent(e);
+            grid.resized();
+            grid.fireSyntheticGridResizedEvent(e);
         });
 
         this.addInternalEventListener('fin-canvas-mousemove', function(e) {
-            if (self.properties.readOnly) {
+            if (grid.properties.readOnly) {
                 return;
             }
             handleMouseEvent(e, function(mouseEvent) {
@@ -379,10 +383,10 @@ module.exports = {
         });
 
         this.addInternalEventListener('fin-canvas-mousedown', function(e) {
-            if (self.properties.readOnly) {
+            if (grid.properties.readOnly) {
                 return;
             }
-            if (!self.abortEditing()) {
+            if (!grid.abortEditing()) {
                 event.stopPropagation();
                 return;
             }
@@ -397,7 +401,7 @@ module.exports = {
         });
 
         this.addInternalEventListener('fin-canvas-click', function(e) {
-            if (self.properties.readOnly) {
+            if (grid.properties.readOnly) {
                 return;
             }
             handleMouseEvent(e, function(mouseEvent) {
@@ -408,20 +412,20 @@ module.exports = {
         });
 
         this.addInternalEventListener('fin-canvas-mouseup', function(e) {
-            if (self.properties.readOnly) {
+            if (grid.properties.readOnly) {
                 return;
             }
-            self.dragging = false;
-            if (self.isScrollingNow()) {
-                self.setScrollingNow(false);
+            grid.dragging = false;
+            if (grid.isScrollingNow()) {
+                grid.setScrollingNow(false);
             }
-            if (self.columnDragAutoScrolling) {
-                self.columnDragAutoScrolling = false;
+            if (grid.columnDragAutoScrolling) {
+                grid.columnDragAutoScrolling = false;
             }
             handleMouseEvent(e, function(mouseEvent) {
                 this.delegateMouseUp(mouseEvent);
-                if (self.mouseDownState) {
-                    self.fireSyntheticButtonPressedEvent(self.mouseDownState);
+                if (grid.mouseDownState) {
+                    grid.fireSyntheticButtonPressedEvent(grid.mouseDownState);
                 }
                 this.mouseDownState = null;
                 this.fireSyntheticMouseUpEvent(mouseEvent);
@@ -429,7 +433,7 @@ module.exports = {
         });
 
         this.addInternalEventListener('fin-canvas-dblclick', function(e) {
-            if (self.properties.readOnly) {
+            if (grid.properties.readOnly) {
                 return;
             }
             handleMouseEvent(e, function(mouseEvent) {
@@ -439,50 +443,50 @@ module.exports = {
         });
 
         this.addInternalEventListener('fin-canvas-drag', function(e) {
-            if (self.properties.readOnly) {
+            if (grid.properties.readOnly) {
                 return;
             }
-            self.dragging = true;
-            handleMouseEvent(e, self.delegateMouseDrag);
+            grid.dragging = true;
+            handleMouseEvent(e, grid.delegateMouseDrag);
         });
 
         this.addInternalEventListener('fin-canvas-keydown', function(e) {
-            if (self.properties.readOnly) {
+            if (grid.properties.readOnly) {
                 return;
             }
-            self.fireSyntheticKeydownEvent(e);
-            self.delegateKeyDown(e);
+            grid.fireSyntheticKeydownEvent(e);
+            grid.delegateKeyDown(e);
         });
 
         this.addInternalEventListener('fin-canvas-keyup', function(e) {
-            if (self.properties.readOnly) {
+            if (grid.properties.readOnly) {
                 return;
             }
-            self.fireSyntheticKeyupEvent(e);
-            self.delegateKeyUp(e);
+            grid.fireSyntheticKeyupEvent(e);
+            grid.delegateKeyUp(e);
         });
 
         this.addInternalEventListener('fin-canvas-wheelmoved', function(e) {
-            handleMouseEvent(e, self.delegateWheelMoved);
+            handleMouseEvent(e, grid.delegateWheelMoved);
         });
 
         this.addInternalEventListener('fin-canvas-mouseout', function(e) {
-            if (self.properties.readOnly) {
+            if (grid.properties.readOnly) {
                 return;
             }
-            handleMouseEvent(e, self.delegateMouseExit);
+            handleMouseEvent(e, grid.delegateMouseExit);
         });
 
         this.addInternalEventListener('fin-canvas-context-menu', function(e) {
             handleMouseEvent(e, function(mouseEvent){
-                self.delegateContextMenu(mouseEvent);
-                self.fireSyntheticContextMenuEvent(mouseEvent);
+                grid.delegateContextMenu(mouseEvent);
+                grid.fireSyntheticContextMenuEvent(mouseEvent);
             });
         });
 
         //Register a listener for the copy event so we can copy our selected region to the pastebuffer if conditions are right.
         document.body.addEventListener('copy', function(evt) {
-            self.checkClipboardCopy(evt);
+            grid.checkClipboardCopy(evt);
         });
     },
 
@@ -597,7 +601,7 @@ var details = [
 ];
 
 /**
- *
+ * @this {Hypergrid}
  * @param {string} eventName
  * @param {boolean} [cancelable=false]
  * @param {object} event
@@ -606,6 +610,10 @@ var details = [
  */
 function dispatchEvent(eventName, cancelable, event, primitiveEvent) {
     var detail, result;
+
+    if (!this.canvas) {
+        return;
+    }
 
     if (typeof cancelable !== 'boolean') {
         primitiveEvent = event; // propmote primitiveEvent to 3rd position
@@ -646,7 +654,10 @@ function dispatchEvent(eventName, cancelable, event, primitiveEvent) {
 
     result = this.canvas.dispatchEvent(new CustomEvent(eventName, event));
 
-    if (cancelable) {
-        return result;
-    }
+    return !cancelable || result;
 }
+
+module.exports = {
+    mixin: mixin,
+    dispatchEvent: dispatchEvent
+};

@@ -3,16 +3,12 @@
 var CellRenderer = require('./CellRenderer');
 
 /**
+ * Renders a slider button.
+ * Currently however the user cannot interact with it.
  * @constructor
  * @extends CellRenderer
  */
 var Slider = CellRenderer.extend('Slider', {
-
-    /**
-     * @desc Emerson's paint function for a slider button. currently the user cannot interact with it
-     * @implements paintFunction
-     * @memberOf Slider.prototype
-     */
     paint: function(gc, config) {
         var x = config.bounds.x,
             y = config.bounds.y,

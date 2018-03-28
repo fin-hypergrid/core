@@ -1,29 +1,101 @@
 'use strict';
 
-var Base = require('../Base');
-
-/** @typedef paintFunction
- * @type {function}
- * @this {CellEditor}
- * @param {CanvasRenderingContext2D} gc
- * @param {object} config
- * @param {Rectangle} config.bounds - The clipping rect of the cell to be rendered.
- * @param {number} config.x - the "translated" index into the `behavior.allColumns` array
- * @param {number} config.normalizedY - the vertical grid coordinate normalized to first data row
- * @param {number} config.untranslatedX - the horizontal grid coordinate measured from first data column
- * @param {number} config.y - the vertical grid coordinate measured from top header row
+/** @typedef {object} CellRenderer#renderConfig
+ *
+ * This is the renderer config object, which is:
+ * 1. First passed to a {@link dataModelAPI#getCell getCell} method implementation, which may override (most of) its values before returning.
+ * 2. Then passed to the specified cell renderers' {@link CellRenderer#paint paint} function for rendering.
+ *
+ * #### Standard Properties
+ *
+ * On each and every render of every cell in view, this a fresh instance of an object created from a {@link CellEvent} object, which in turn descends from {@link module:defaults}. It therefore has all the standard properties defined in both objects (see).
+ *
+ * #### Additional Properties
+ *
+ * Properties marked _read-only_ below may in fact be writable, but should be considered **off limits** to overriding. Do not attempt to change these properties inside a {@link dataModelAPI#getCell getCell} method override.
+ *
+ * @property {boolean} config.allRowsSelected
+ *
+ * @property {BoundingRect} config.bounds - Bounding rect of the cell or subcell to be rendered.
+ *
+ * @property {object} buttonCells - _For cell renderer use only. Not available in `getCell` override._  (Button renderers register themselves in this object so the click handler can know whether or not to fire the 'fin-button-pressed' event.)
+ *
+ * @property {dataCellCoords} config.dataCell - _Read-only._ Data coordinates of the cell.
+ *
+ * @property {dataRowObject} config.dataRow - Access to other column values in the same row.
+ *
+ * @property {function} config.formatValue - _For cell renderer use only. Not available in `getCell` override._ The cell's value formatter function (based on the formatter name in `config.format`, as possibly mutated by `getCell`).
+ *
+ * @property {gridCellCoords} config.gridCell - _Read-only._ Grid coordinates of the cell.
+ *
+ * @property {} config.halign - The cell's horizontal alignment property, as interpreted by it's cell renderer.
+ *
+ * @property {boolean} config.isCellHovered -
+ *
+ * @property {boolean} config.isCellSelected -
+ *
+ * @property {boolean} config.isColumnHovered -
+ *
+ * @property {boolean} config.isColumnSelected -
+ *
+ * @property {boolean} config.isDataColumn -
+ *
+ * @property {boolean} config.isDataRow -
+ *
+ * @property {boolean} config.isFilterRow -
+ *
+ * @property {boolean} config.isHandleColumn -
+ *
+ * @property {boolean} config.isHeaderRow -
+ *
+ * @property {boolean} config.isInCurrentSelectionRectangle -
+ *
+ * @property {boolean} config.isRowHovered -
+ *
+ * @property {boolean} config.isRowSelected -
+ *
+ * @property {boolean} config.isSelected -
+ *
+ * @property {boolean} config.isTreeColumn -
+ *
+ * @property {boolean} config.isUserDataArea -
+ *
+ * @property {number} config.minWidth - _For cell renderer use only. Not available in `getCell` override._ The Cell renderer returns the pixel width of the rendered contents in this property.
+ *
+ * @property {boolean} config.mouseDown - The last mousedown event occured over this cell and the mouse is still down. Note, however, that the mouse may no longer be hovering over this cell when it has been dragged away.
+ *
+ * @property {} [config.prefillColor] - _For cell renderer use only. Do not mutate in `getCell` override._ (This is the color already painted behind the cell to be rendered. If the cell's specified background color is the same, renderer may (and should!) skip painting it. If `undefined`, this is a "partial render" and cell renderers that support partial rendering can use `config.snapshot` to determine whether or not to rerender the cell.)
+ *
+ * @property {object} [config.snapshot] - _For cell renderer use only. Not available in `getCell` override._ Supports _partial render._ In support of the {@link Renderer#paintCellsAsNeeded by-cells} "partial" grid renderer, cell renderers can save the essential render parameters in this property so that on subsequent calls, when the parameters are the same, cell renderers can skip the actual rendering. Only when the parameters have changed is the cell rendered and this property reset (with the new parameters). This object would typically include at the very least the (formatted) `value`, plus additional properties as needed to fully describe the appearance of the render, such as color, _etc._ This property is undefined the first time a cell is rendered by the `by-cells` grid renderer. See also the {@link dataModelAPI#configObject}'s `prefillColor` property.
+ *
+ * @property config.value - Value to be rendered.
+ *
+ * The renderer has available to it the `.formatValue()` function for formatting the value. The function comes from the localizer named in the `.format` property. If there is no localizer with that name, the function defaults to the `string` localizer's formatter (which simply invokes the value's `toString()` method).
+ *
+ * Typically a Local primitive value, values can be any type, including objects and arrays. The specified cell renderer is expected to know how to determine the value's type and render it.
  */
 
+var Base = require('../Base');
+
 /** @constructor
- * @desc Instances of `CellRenderer` are used to render the 2D graphics context within the bound of a cell. Extend this base class to implement your own cell renderer
+ * @desc Instances of `CellRenderer` are used to render the 2D graphics context within the bound of a cell.
  *
+ * Extend this base class to implement your own cell renderer.
  *
- * See also {@tutorial cell-renderer}.
+ * @tutorial cell-renderer
  */
 var CellRenderer = Base.extend('CellRenderer', {
     /**
      * @desc An empty implementation of a cell renderer, see [the null object pattern](http://c2.com/cgi/wiki?NullObject).
-     * @implements paintFunction
+     *
+     * @this {CellEditor}
+     *
+     * @param {CanvasRenderingContext2D} gc
+     *
+     * @param {CellRenderer#renderConfig} config
+     *
+     * @returns {number} Preferred pixel width of content. The content may or may not be rendered at that width depending on whether or not `config.bounds` was respected and whether or not the grid renderer is using clipping. (Clipping is generally not used due to poor performance.)
+     *
      * @memberOf CellRenderer.prototype
      */
     paint: function(gc, config) {},
@@ -68,7 +140,5 @@ var CellRenderer = Base.extend('CellRenderer', {
         gc.closePath();
     }
 });
-
-CellRenderer.abstract = true; // don't instantiate directly
 
 module.exports = CellRenderer;
