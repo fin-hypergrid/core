@@ -331,7 +331,7 @@ Column.prototype = {
                 }
             }),
 
-            cellEditor = this.dataModel.getCellEditorAt(columnIndex, rowIndex, editorName, options);
+            cellEditor = cellEvent.subgrid.getCellEditorAt(columnIndex, rowIndex, editorName, options);
 
         if (cellEditor && !cellEditor.grid) {
             // cell editor returned but not fully instantiated (aborted by falsy return from fireRequestCellEdit)
