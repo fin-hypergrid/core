@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Mixin: mixin</title>
+    <title>JSDoc: Module: dynamicProperties</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -20,7 +20,7 @@
 </nav>
 <div id="main">
 
-    <h1 class="page-title">Mixin: mixin</h1>
+    <h1 class="page-title">Module: dynamicProperties</h1>
 
     
 
@@ -31,9 +31,8 @@
 
 <header>
     
-        <h2>
-        mixin
-        </h2>
+        
+            
         
     
 </header>
@@ -42,10 +41,28 @@
     <div class="container-overview">
     
         
-            <div class="description"><p>Column.js mixes this module into its prototype.</p></div>
+            <div class="description"><p>Dynamic grid properties can make use of a <em>backing store.</em>
+This backing store is created in the same layer (the grid properties layer) by <a href="Hypergrid.html#clearState"><code>clearState</code></a> and backs grid-only properties. We currently do not create one for descendant objects, such as column and cell properties objects.
+The members of the backing store have the same names as the dynamic properties that utilize them.
+They are initialized by <a href="Hypergrid.html#clearState"><code>clearState</code></a> to the default values from <a href="module-defaults.html"><code>defaults</code></a> object members, (also) of the same name.</p>
+<p>Note that dynamic properties must enumerable to be visible to <a href="Hypergrid.html#saveState"><code>Hypergrid#saveState</code></a>.</p></div>
         
 
         
+            
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 <dl class="details">
@@ -84,6 +101,20 @@
 </dl>
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
         
     
     </div>
@@ -99,41 +130,19 @@
     
 
     
-
-    
-
-    
-
-    
-</article>
-
-</section>
-
-
-
-
-
-
-
-<section>
-
-<header>
-    
-        <h2>
-        mixin
-        </h2>
-        
-    
-</header>
-
-<article>
-    <div class="container-overview">
-    
-        
-            <div class="description"><p>Hypergrid/index.js mixes this module into its prototype.</p></div>
-        
+        <h3 class="subsection-title">Members</h3>
 
         
+            
+<h4 class="name" id=".cells"><span class="type-signature">(static) </span>cells<span class="type-signature"></span></h4>
+
+
+
+
+
+
+
+
 
 
 <dl class="details">
@@ -172,56 +181,21 @@
 </dl>
 
 
-        
-    
-    </div>
-
-    
-
-    
-
-    
-
-     
-
-    
-
-    
-
-    
-
-    
-
-    
-</article>
-
-</section>
 
 
 
-
-
-
-
-<section>
-
-<header>
-    
-        <h2>
-        mixin
-        </h2>
-        
-    
-</header>
-
-<article>
-    <div class="container-overview">
-    
-        
-            <div class="description"><p>Behavior.js mixes this module into its prototype.</p></div>
-        
 
         
+            
+<h4 class="name" id=".columnIndexes"><span class="type-signature">(static) </span>columnIndexes<span class="type-signature"></span></h4>
+
+
+
+
+
+
+
+
 
 
 <dl class="details">
@@ -260,56 +234,21 @@
 </dl>
 
 
-        
-    
-    </div>
-
-    
-
-    
-
-    
-
-     
-
-    
-
-    
-
-    
-
-    
-
-    
-</article>
-
-</section>
 
 
 
-
-
-
-
-<section>
-
-<header>
-    
-        <h2>
-        mixin
-        </h2>
-        
-    
-</header>
-
-<article>
-    <div class="container-overview">
-    
-        
-            <div class="description"><p>Hypergrid/index.js mixes this module into its prototype.</p></div>
-        
 
         
+            
+<h4 class="name" id=".columnNames"><span class="type-signature">(static) </span>columnNames<span class="type-signature"></span></h4>
+
+
+
+
+
+
+
+
 
 
 <dl class="details">
@@ -348,56 +287,21 @@
 </dl>
 
 
-        
-    
-    </div>
-
-    
-
-    
-
-    
-
-     
-
-    
-
-    
-
-    
-
-    
-
-    
-</article>
-
-</section>
 
 
 
-
-
-
-
-<section>
-
-<header>
-    
-        <h2>
-        mixin
-        </h2>
-        
-    
-</header>
-
-<article>
-    <div class="container-overview">
-    
-        
-            <div class="description"><p>Hypergrid/index.js mixes this module into its prototype.</p></div>
-        
 
         
+            
+<h4 class="name" id=".columnProperties"><span class="type-signature">(static) </span>columnProperties<span class="type-signature"></span></h4>
+
+
+
+
+
+
+
+
 
 
 <dl class="details">
@@ -436,56 +340,21 @@
 </dl>
 
 
-        
-    
-    </div>
-
-    
-
-    
-
-    
-
-     
-
-    
-
-    
-
-    
-
-    
-
-    
-</article>
-
-</section>
 
 
 
-
-
-
-
-<section>
-
-<header>
-    
-        <h2>
-        mixin
-        </h2>
-        
-    
-</header>
-
-<article>
-    <div class="container-overview">
-    
-        
-            <div class="description"><p>Behavior.js mixes this module into its prototype.</p></div>
-        
 
         
+            
+<h4 class="name" id=".columns"><span class="type-signature">(static) </span>columns<span class="type-signature"></span></h4>
+
+
+
+
+
+
+
+
 
 
 <dl class="details">
@@ -524,56 +393,21 @@
 </dl>
 
 
-        
-    
-    </div>
-
-    
-
-    
-
-    
-
-     
-
-    
-
-    
-
-    
-
-    
-
-    
-</article>
-
-</section>
 
 
 
-
-
-
-
-<section>
-
-<header>
-    
-        <h2>
-        mixin
-        </h2>
-        
-    
-</header>
-
-<article>
-    <div class="container-overview">
-    
-        
-            <div class="description"><p>Hypergrid/index.js mixes this module into its prototype.</p></div>
-        
 
         
+            
+<h4 class="name" id=".features"><span class="type-signature">(static) </span>features<span class="type-signature"></span></h4>
+
+
+
+
+
+
+
+
 
 
 <dl class="details">
@@ -612,9 +446,24 @@
 </dl>
 
 
+
+
+
+
         
-    
-    </div>
+            
+<h4 class="name" id=".gridRenderer"><span class="type-signature">(static) </span>gridRenderer<span class="type-signature"></span></h4>
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
 
     
 
@@ -622,10 +471,361 @@
 
     
 
-     
+    
 
     
 
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+        
+            
+<h4 class="name" id=".rowHeaderCheckboxes"><span class="type-signature">(static) </span>rowHeaderCheckboxes<span class="type-signature"></span></h4>
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+        
+            
+<h4 class="name" id=".rowHeaderNumbers"><span class="type-signature">(static) </span>rowHeaderNumbers<span class="type-signature"></span></h4>
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+        
+            
+<h4 class="name" id=".rows"><span class="type-signature">(static) </span>rows<span class="type-signature"></span></h4>
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+        
+            
+<h4 class="name" id=".showRowNumbers"><span class="type-signature">(static) </span>showRowNumbers<span class="type-signature"></span></h4>
+
+
+
+
+<div class="description">
+    <p>Legacy property; now points to both <code>rowHeaderFeatures</code> props.</p>
+</div>
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+        
+            
+<h4 class="name" id=".subgrids"><span class="type-signature">(static) </span>subgrids<span class="type-signature"></span></h4>
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+        
+            
+<h4 class="name" id=".theme"><span class="type-signature">(static) </span>theme<span class="type-signature"></span></h4>
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+        
     
 
     

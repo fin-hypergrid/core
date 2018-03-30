@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Class: Base</title>
+    <title>JSDoc: Namespace: dataModelEventHandlers</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -20,7 +20,7 @@
 </nav>
 <div id="main">
 
-    <h1 class="page-title">Class: Base</h1>
+    <h1 class="page-title">Namespace: dataModelEventHandlers</h1>
 
     
 
@@ -32,10 +32,8 @@
 <header>
     
         <h2>
-        Base
+        dataModelEventHandlers
         </h2>
-        
-            <div class="class-description"><p>This is an abstract base class available for all Hypergrid classes.</p></div>
         
     
 </header>
@@ -44,31 +42,32 @@
     <div class="container-overview">
     
         
+            <div class="description"><p>These handlers are called by <code>dataModel.dispatchEvent</code>.</p>
+<p>They perform some Hypergrid housekeeping chores before (and possibly after) optionally re-emiting the event as a standard
+Hypergrid event (to the <code>&lt;canvas&gt;</code> element).</p>
+<p>All the built-in data model events re-emit their events (all non-cancelable).</p>
+<h4>Coding patterns</h4><p>These handlers should return a boolean if they re-emit the event as a grid event themselves, when they have chores to perform post-re-emission. If they don't, they should return <code>undefined</code> which signals the caller (<code>dataModel.dispatchEvent</code>) to re-emit it as a grid event as a final step for the handler.</p>
+<p>Given the above, there are four typical coding patterns for these handlers:</p>
+<ol>
+<li>Perform chores with no event re-emission:<pre class="prettyprint source"><code>Chores();
+return true; // (or any defined value) signals caller not to re-emit the event</code></pre></li>
+<li>First perform chores; then re-emit the event as a grid event:<pre class="prettyprint source"><code>Chores();
+return undefined; // (or omit) signals caller to re-emit the event for us</code></pre></li>
+<li>First perform some pre-re-emit chores (optional); then re-emit the event as a <em>non-cancelable</em> grid event; then perform remaining chores:<pre class="prettyprint source"><code>optionalPreReemitChores();
+dispatchGridEvent.call(this, event.type, event); // non-cancelable
+remainingChores();
+return true; // signals caller that we've already re-emitted the event and it was not canceled</code></pre></li>
+<li>First perform some pre-re-emit chores (optional); then re-emit the event as a <em>cancelable</em> grid event; then perform remaining chores conditionally <a href="https://en.wikipedia.org/wiki/If_and_only_if">iff</a> not canceled (<em>important:</em> note the <code>true</code> in the following):<pre class="prettyprint source"><code>optionalPreReemitChores();
+if (dispatchGridEvent.call(this, event.type, true, event)) { // `true` here means cancelable
+ conditionalChores();
+ return true; // signals caller that we've already re-emitted the event (which was not canceled)
+} else {
+ return false; // signals caller that we've already re-emitted the event (which was canceled)
+}</code></pre></li>
+</ol></div>
+        
 
-    
-    <h2>Constructor</h2>
-    
-
-    <h4 class="name" id="Base"><span class="type-signature"></span>new Base<span class="signature">()</span><span class="type-signature"></span></h4>
-
-    
-
-
-
-<div class="description">
-    <p>Extend from this base class using <code>Base.extend</code> per example.</p>
-</div>
-
-
-
-
-
-
-
-
-
-
-
+        
 
 
 <dl class="details">
@@ -107,26 +106,7 @@
 </dl>
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-    <h5>Example</h5>
-    
-    <pre class="prettyprint"><code>var prototype = { ... };
-var descendantClass = Base.extend(prototype};</code></pre>
-
-
-
+        
     
     </div>
 
@@ -150,241 +130,14 @@ var descendantClass = Base.extend(prototype};</code></pre>
 
     
 
-    <h4 class="name" id="createApply"><span class="type-signature"></span>createApply<span class="signature">(Constructor, variableArgArray, &hellip;discreteArgs)</span><span class="type-signature"> &rarr; {object}</span></h4>
+    <h4 class="name" id=".%22fin-hypergrid-data-changed%22"><span class="type-signature">(static) </span>"fin-hypergrid-data-changed"<span class="signature">(event)</span><span class="type-signature"> &rarr; {undefined|boolean}</span></h4>
 
-    
-    <p class="summary"><p>Instantiate an object with discrete + variable args.</p></p>
     
 
 
 
 <div class="description">
-    <p>The discrete args are passed first, followed by the variable args.</p>
-</div>
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-        <th>Attributes</th>
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>Constructor</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">function</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-
-                
-
-                
-                </td>
-            
-
-            
-
-            <td class="description last"></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>variableArgArray</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">Array</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-
-                
-
-                
-                </td>
-            
-
-            
-
-            <td class="description last"></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>discreteArgs</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">*</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-
-                
-
-                
-                    &lt;repeatable><br>
-                
-                </td>
-            
-
-            
-
-            <td class="description last"></td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-<h5>Returns:</h5>
-
-        
-<div class="param-desc">
-    <p>Object of type <code>Constructor</code> newly constructor using the arguments in <code>arrayOfArgs</code>.</p>
-</div>
-
-
-
-<dl>
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
-<span class="param-type">object</span>
-
-
-    </dd>
-</dl>
-
-    
-
-
-
-        
-            
-
-    
-
-    <h4 class="name" id="mixIn"><span class="type-signature"></span>mixIn<span class="signature">(source)</span><span class="type-signature"></span></h4>
-
-    
-    <p class="summary"><p>Mixes source members into calling context.</p></p>
-    
-
-
-
-<div class="description">
-    <p>Context is typically either an instance or the (shared) prototype of a &quot;class&quot; extended from <a href="Base.html"><code>Base</code></a> (see examples).</p>
-<p>Typically used by plug-ins.</p>
+    <p><em>See the data model API page for event semantics (link below).</em></p>
 </div>
 
 
@@ -420,13 +173,13 @@ var descendantClass = Base.extend(prototype};</code></pre>
 
         <tr>
             
-                <td class="name"><code>source</code></td>
+                <td class="name"><code>event</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">object</span>
+<span class="param-type"><a href="global.html#NormalizedDataModelEvent">NormalizedDataModelEvent</a></span>
 
 
             
@@ -482,7 +235,7 @@ var descendantClass = Base.extend(prototype};</code></pre>
     <dt class="tag-see">See:</dt>
     <dd class="tag-see">
         <ul>
-            <li><a href="https://joneit.github.io/overrider/module-overrider.htm#.mixIn">https://joneit.github.io/overrider/module-overrider.htm#.mixIn</a></li>
+            <li><a href="dataModelAPI.html#event:fin-hypergrid-data-changed"><code>dataModelAPI#event:fin-hypergrid-data-changed</code></a></li>
         </ul>
     </dd>
     
@@ -502,15 +255,31 @@ var descendantClass = Base.extend(prototype};</code></pre>
 
 
 
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    <p>Result of re-emitted event or <code>undefined</code> if event not re-emitted.</p>
+</div>
 
 
-    <h5>Examples</h5>
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">undefined</span>
+|
+
+<span class="param-type">boolean</span>
+
+
+    </dd>
+</dl>
+
     
-    <pre class="prettyprint"><code>// define instance members: myGrid.fix(), etc.
-myGrid.mixIn({ fix: function() {...}, ... });</code></pre>
-
-    <pre class="prettyprint"><code>// define prototype members: Hypergrid.prototype.fix(), etc.
-Hypergrid.prototype.mixIn({ fix: function() {...}, ... });</code></pre>
 
 
 
@@ -519,14 +288,14 @@ Hypergrid.prototype.mixIn({ fix: function() {...}, ... });</code></pre>
 
     
 
-    <h4 class="name" id="unwrap"><span class="type-signature"></span>unwrap<span class="signature">(value)</span><span class="type-signature"> &rarr; {*}</span></h4>
+    <h4 class="name" id=".%22fin-hypergrid-data-postreindex%22"><span class="type-signature">(static) </span>"fin-hypergrid-data-postreindex"<span class="signature">(event)</span><span class="type-signature"> &rarr; {undefined|boolean}</span></h4>
 
     
 
 
 
 <div class="description">
-    <p>Convenience function for getting the value when that value can be defined as a function that needs to be called to get the actual (primitive) value.</p>
+    <p><em>See the data model API page for event semantics (link below).</em></p>
 </div>
 
 
@@ -562,10 +331,15 @@ Hypergrid.prototype.mixIn({ fix: function() {...}, ... });</code></pre>
 
         <tr>
             
-                <td class="name"><code>value</code></td>
+                <td class="name"><code>event</code></td>
             
 
             <td class="type">
+            
+                
+<span class="param-type">Object</span>
+
+
             
             </td>
 
@@ -616,6 +390,13 @@ Hypergrid.prototype.mixIn({ fix: function() {...}, ... });</code></pre>
     
 
     
+    <dt class="tag-see">See:</dt>
+    <dd class="tag-see">
+        <ul>
+            <li><a href="dataModelAPI.html#event:fin-hypergrid-data-postreindex"><code>dataModelAPI#event:fin-hypergrid-data-postreindex</code></a></li>
+        </ul>
+    </dd>
+    
 
     
 </dl>
@@ -635,6 +416,10 @@ Hypergrid.prototype.mixIn({ fix: function() {...}, ... });</code></pre>
 <h5>Returns:</h5>
 
         
+<div class="param-desc">
+    <p>Result of re-emitted event or <code>undefined</code> if event not re-emitted.</p>
+</div>
+
 
 
 <dl>
@@ -643,7 +428,484 @@ Hypergrid.prototype.mixIn({ fix: function() {...}, ... });</code></pre>
     </dt>
     <dd>
         
-<span class="param-type">*</span>
+<span class="param-type">undefined</span>
+|
+
+<span class="param-type">boolean</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id=".%22fin-hypergrid-data-prereindex%22"><span class="type-signature">(static) </span>"fin-hypergrid-data-prereindex"<span class="signature">(event)</span><span class="type-signature"> &rarr; {undefined|boolean}</span></h4>
+
+    
+
+
+
+<div class="description">
+    <p><em>See the data model API page for event semantics (link below).</em></p>
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>event</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="global.html#NormalizedDataModelEvent">NormalizedDataModelEvent</a></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-see">See:</dt>
+    <dd class="tag-see">
+        <ul>
+            <li><a href="dataModelAPI.html#event:fin-hypergrid-data-prereindex"><code>dataModelAPI#event:fin-hypergrid-data-prereindex</code></a></li>
+        </ul>
+    </dd>
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    <p>Result of re-emitted event or <code>undefined</code> if event not re-emitted.</p>
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">undefined</span>
+|
+
+<span class="param-type">boolean</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id=".%22fin-hypergrid-data-shape-changed%22"><span class="type-signature">(static) </span>"fin-hypergrid-data-shape-changed"<span class="signature">(event)</span><span class="type-signature"> &rarr; {undefined|boolean}</span></h4>
+
+    
+
+
+
+<div class="description">
+    <p><em>See the data model API page for event semantics (link below).</em></p>
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>event</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="global.html#NormalizedDataModelEvent">NormalizedDataModelEvent</a></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-see">See:</dt>
+    <dd class="tag-see">
+        <ul>
+            <li><a href="dataModelAPI.html#event:fin-hypergrid-data-shape-changed"><code>dataModelAPI#event:fin-hypergrid-data-shape-changed</code></a></li>
+        </ul>
+    </dd>
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    <p>Result of re-emitted event or <code>undefined</code> if event not re-emitted.</p>
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">undefined</span>
+|
+
+<span class="param-type">boolean</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id=".%22fin-hypergrid-schema-changed%22"><span class="type-signature">(static) </span>"fin-hypergrid-schema-changed"<span class="signature">(event)</span><span class="type-signature"> &rarr; {undefined|boolean}</span></h4>
+
+    
+
+
+
+<div class="description">
+    <p><em>See the data model API page for event semantics (link below).</em></p>
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>event</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="global.html#NormalizedDataModelEvent">NormalizedDataModelEvent</a></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-see">See:</dt>
+    <dd class="tag-see">
+        <ul>
+            <li><a href="dataModelAPI.html#event:fin-hypergrid-schema-changed"><code>dataModelAPI#event:fin-hypergrid-schema-changed</code></a></li>
+        </ul>
+    </dd>
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    <p>Result of re-emitted event or <code>undefined</code> if event not re-emitted.</p>
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">undefined</span>
+|
+
+<span class="param-type">boolean</span>
 
 
     </dd>

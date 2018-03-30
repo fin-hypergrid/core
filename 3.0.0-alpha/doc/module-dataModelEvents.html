@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Module: dynamicPropertyDescriptors</title>
+    <title>JSDoc: Module: dataModelEvents</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -20,7 +20,7 @@
 </nav>
 <div id="main">
 
-    <h1 class="page-title">Module: dynamicPropertyDescriptors</h1>
+    <h1 class="page-title">Module: dataModelEvents</h1>
 
     
 
@@ -32,8 +32,6 @@
 <header>
     
         
-            
-        
     
 </header>
 
@@ -41,79 +39,6 @@
     <div class="container-overview">
     
         
-            <div class="description"><p>Dynamic grid properties can make use of a <em>backing store.</em>
-This backing store is created in the same layer (the grid properties layer) by <a href="Hypergrid.html#clearState"><code>clearState</code></a> and backs grid-only properties. We currently do not create one for descendant objects, such as column and cell properties objects.
-The members of the backing store have the same names as the dynamic properties that utilize them.
-They are initialized by <a href="Hypergrid.html#clearState"><code>clearState</code></a> to the default values from <a href="module-defaults.html"><code>defaults</code></a> object members, (also) of the same name.</p>
-<p>Note that dynamic properties must enumerable to be visible to <a href="Hypergrid.html#saveState"><code>Hypergrid#saveState</code></a>.</p></div>
-        
-
-        
-            
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
         
     
@@ -130,11 +55,23 @@ They are initialized by <a href="Hypergrid.html#clearState"><code>clearState</co
     
 
     
-        <h3 class="subsection-title">Members</h3>
+
+    
+        <h3 class="subsection-title">Methods</h3>
 
         
             
-<h4 class="name" id=".cells"><span class="type-signature">(static) </span>cells<span class="type-signature"></span></h4>
+
+    
+
+    <h4 class="name" id=".%22fin-hypergrid-data-changed%22"><span class="type-signature">(static) </span>"fin-hypergrid-data-changed"<span class="signature">()</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+
+
 
 
 
@@ -176,6 +113,13 @@ They are initialized by <a href="Hypergrid.html#clearState"><code>clearState</co
     
 
     
+    <dt class="tag-see">See:</dt>
+    <dd class="tag-see">
+        <ul>
+            <li><a href="dataModelAPI.html#event:fin-hypergrid-data-changed"><code>dataModelAPI#event:fin-hypergrid-data-changed</code></a></li>
+        </ul>
+    </dd>
+    
 
     
 </dl>
@@ -185,9 +129,29 @@ They are initialized by <a href="Hypergrid.html#clearState"><code>clearState</co
 
 
 
+
+
+
+
+
+
+
+
+
+
         
             
-<h4 class="name" id=".columnIndexes"><span class="type-signature">(static) </span>columnIndexes<span class="type-signature"></span></h4>
+
+    
+
+    <h4 class="name" id=".%22fin-hypergrid-data-postreindex%22"><span class="type-signature">(static) </span>"fin-hypergrid-data-postreindex"<span class="signature">()</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+
+
 
 
 
@@ -229,6 +193,13 @@ They are initialized by <a href="Hypergrid.html#clearState"><code>clearState</co
     
 
     
+    <dt class="tag-see">See:</dt>
+    <dd class="tag-see">
+        <ul>
+            <li><a href="dataModelAPI.html#event:fin-hypergrid-data-postreindex"><code>dataModelAPI#event:fin-hypergrid-data-postreindex</code></a></li>
+        </ul>
+    </dd>
+    
 
     
 </dl>
@@ -238,9 +209,29 @@ They are initialized by <a href="Hypergrid.html#clearState"><code>clearState</co
 
 
 
+
+
+
+
+
+
+
+
+
+
         
             
-<h4 class="name" id=".columnNames"><span class="type-signature">(static) </span>columnNames<span class="type-signature"></span></h4>
+
+    
+
+    <h4 class="name" id=".%22fin-hypergrid-data-prereindex%22"><span class="type-signature">(static) </span>"fin-hypergrid-data-prereindex"<span class="signature">()</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+
+
 
 
 
@@ -282,6 +273,13 @@ They are initialized by <a href="Hypergrid.html#clearState"><code>clearState</co
     
 
     
+    <dt class="tag-see">See:</dt>
+    <dd class="tag-see">
+        <ul>
+            <li><a href="dataModelAPI.html#event:fin-hypergrid-data-prereindex"><code>dataModelAPI#event:fin-hypergrid-data-prereindex</code></a></li>
+        </ul>
+    </dd>
+    
 
     
 </dl>
@@ -291,9 +289,29 @@ They are initialized by <a href="Hypergrid.html#clearState"><code>clearState</co
 
 
 
+
+
+
+
+
+
+
+
+
+
         
             
-<h4 class="name" id=".columnProperties"><span class="type-signature">(static) </span>columnProperties<span class="type-signature"></span></h4>
+
+    
+
+    <h4 class="name" id=".%22fin-hypergrid-data-shape-changed%22"><span class="type-signature">(static) </span>"fin-hypergrid-data-shape-changed"<span class="signature">()</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+
+
 
 
 
@@ -335,6 +353,13 @@ They are initialized by <a href="Hypergrid.html#clearState"><code>clearState</co
     
 
     
+    <dt class="tag-see">See:</dt>
+    <dd class="tag-see">
+        <ul>
+            <li><a href="dataModelAPI.html#event:fin-hypergrid-data-shape-changed"><code>dataModelAPI#event:fin-hypergrid-data-shape-changed</code></a></li>
+        </ul>
+    </dd>
+    
 
     
 </dl>
@@ -344,9 +369,29 @@ They are initialized by <a href="Hypergrid.html#clearState"><code>clearState</co
 
 
 
+
+
+
+
+
+
+
+
+
+
         
             
-<h4 class="name" id=".columns"><span class="type-signature">(static) </span>columns<span class="type-signature"></span></h4>
+
+    
+
+    <h4 class="name" id=".%22fin-hypergrid-schema-changed%22"><span class="type-signature">(static) </span>"fin-hypergrid-schema-changed"<span class="signature">()</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+
+
 
 
 
@@ -388,58 +433,12 @@ They are initialized by <a href="Hypergrid.html#clearState"><code>clearState</co
     
 
     
-
-    
-</dl>
-
-
-
-
-
-
-        
-            
-<h4 class="name" id=".features"><span class="type-signature">(static) </span>features<span class="type-signature"></span></h4>
-
-
-
-
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
+    <dt class="tag-see">See:</dt>
+    <dd class="tag-see">
+        <ul>
+            <li><a href="dataModelAPI.html#event:fin-hypergrid-schema-changed"><code>dataModelAPI#event:fin-hypergrid-schema-changed</code></a></li>
+        </ul>
+    </dd>
     
 
     
@@ -450,53 +449,10 @@ They are initialized by <a href="Hypergrid.html#clearState"><code>clearState</co
 
 
 
-        
-            
-<h4 class="name" id=".gridRenderer"><span class="type-signature">(static) </span>gridRenderer<span class="type-signature"></span></h4>
 
 
 
 
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
 
 
 
@@ -505,172 +461,28 @@ They are initialized by <a href="Hypergrid.html#clearState"><code>clearState</co
 
         
             
-<h4 class="name" id=".rowHeaderCheckboxes"><span class="type-signature">(static) </span>rowHeaderCheckboxes<span class="type-signature"></span></h4>
-
-
-
-
-
-
-
-
-
-
-<dl class="details">
 
     
 
-    
+    <h4 class="name" id=".dispatchDataModelEvent"><span class="type-signature">(static) </span>dispatchDataModelEvent<span class="signature">(event)</span><span class="type-signature"></span></h4>
 
     
-
+    <p class="summary"><p>Hypergrid's data model event handler.</p></p>
     
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-        
-            
-<h4 class="name" id=".rowHeaderNumbers"><span class="type-signature">(static) </span>rowHeaderNumbers<span class="type-signature"></span></h4>
-
-
-
-
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-        
-            
-<h4 class="name" id=".rows"><span class="type-signature">(static) </span>rows<span class="type-signature"></span></h4>
-
-
-
-
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-        
-            
-<h4 class="name" id=".showRowNumbers"><span class="type-signature">(static) </span>showRowNumbers<span class="type-signature"></span></h4>
-
 
 
 
 <div class="description">
-    <p>Legacy property; now points to both <code>rowHeaderFeatures</code> props.</p>
+    <p>This <code>dispatchEvent</code> function is handed to the data model to issue callbacks to the grid.</p>
+<p>This handler:</p>
+<ol>
+<li>Checks the event string to make sure it conforms to the expected syntax (must start with <code>fin-hypergrid-data-</code> or <code>fin-hypergrid-schema-</code> and include only lowercase letters and hyphens).</li>
+<li>Calls a function with that name in <code>dataModelEventHandlers</code>.</li>
+<li>Re-emits the event as a DOM event to the <code>&lt;canvas&gt;</code> element.</li>
+</ol>
+<p>The data model's <code>dispatchEvent</code> method is bound to the grid by <code>injectCode</code>. A curried version of this function, bound to the grid instance, is either:
+Added to the data model via its <code>addListener</code> method, if it has one; or
+Force-injected into the data model, overriding any native implementation. (A native implementation may exist simply to &quot;catch&quot; calls that might be made before the data model is attached to Hypergrid.)</p>
 </div>
 
 
@@ -679,106 +491,122 @@ They are initialized by <a href="Hypergrid.html#clearState"><code>clearState</co
 
 
 
-<dl class="details">
+    <h5>This:</h5>
+    <ul><li>{<a href="Hypergrid.html">Hypergrid</a>}</li></ul>
 
+
+
+    <h5>Parameters:</h5>
     
 
-    
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
 
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
+        <th>Type</th>
 
         
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
             
-<h4 class="name" id=".subgrids"><span class="type-signature">(static) </span>subgrids<span class="type-signature"></span></h4>
-
-
-
-
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-        
+                <td class="name"><code>event</code></td>
             
-<h4 class="name" id=".theme"><span class="type-signature">(static) </span>theme<span class="type-signature"></span></h4>
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+|
+
+<span class="param-type">object</span>
 
 
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">
+                <h6>Properties</h6>
+                
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>type</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
 
 
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last"><p>Must be defined when <code>event</code> is an object.</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+            </td>
+        </tr>
+
+    
+    </tbody>
+</table>
 
 
 
@@ -825,9 +653,17 @@ They are initialized by <a href="Hypergrid.html#clearState"><code>clearState</co
 
 
 
-        
-    
 
+
+
+
+
+
+
+
+
+
+        
     
 
     
