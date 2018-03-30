@@ -5,7 +5,7 @@
 var overrider = require('overrider');
 
 var toFunction = require('../lib/toFunction');
-var assignOrDelete = require('../lib/misc').assignOrDelete;
+var assignOrDelete = require('../lib/assignOrDelete');
 var HypergridError = require('../lib/error');
 var images = require('../../images');
 

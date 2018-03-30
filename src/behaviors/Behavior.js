@@ -8,7 +8,8 @@ var cellEventFactory = require('../lib/cellEventFactory');
 var fields = require('../lib/fields');
 var featureRegistry = require('../features');
 var ArrayDecorator = require('synonomous');
-var assignOrDelete = require('../lib/misc').assignOrDelete;
+var assignOrDelete = require('../lib/assignOrDelete');
+var dispatchGridEvent = require('../lib/dispatchGridEvent');
 
 
 var noExportProperties = [
@@ -48,8 +49,6 @@ var Behavior = Base.extend('Behavior', {
          * @memberOf Behavior#
          */
         this.grid = grid;
-
-        this.arrayDecorator = new ArrayDecorator;
 
         this.initializeFeatureChain();
 
@@ -298,28 +297,36 @@ var Behavior = Base.extend('Behavior', {
 
     addColumn: function(options) {
         var column = this.newColumn(options),
-            synonyms = this.arrayDecorator.getSynonyms(column.name);
+            arrayDecorator = new ArrayDecorator,
+            synonyms = arrayDecorator.getSynonyms(column.name);
 
         this.columns.push(column);
-        this.arrayDecorator.decorateObject(this.columns, synonyms, column);
+        arrayDecorator.decorateObject(this.columns, synonyms, column);
 
         this.allColumns.push(column);
-        this.arrayDecorator.decorateObject(this.allColumns, synonyms, column);
+        arrayDecorator.decorateObject(this.allColumns, synonyms, column);
 
         return column;
     },
 
-    createColumns: function() {
+    createColumns: function(realImplementation) {
         var schema = this.dataModel.getSchema();
 
-        fields.normalize(schema, this.grid.properties.headerify);
-        fields.decorate(schema);
+        fields.normalizeSchema(schema);
+        fields.decorateSchema(schema);
+        fields.decorateColumnSchema(schema, this.grid.properties.headerify);
 
         this.createDataRowProxy();
 
         this.clearColumns();
 
-        // concrete implementation here
+        if (realImplementation) {
+            realImplementation.call(this);
+        }
+
+        this.changed();
+
+        dispatchGridEvent.call(this.grid, 'fin-hypergrid-columns-created');
     },
 
     createDataRowProxy: function() {
@@ -449,7 +456,8 @@ var Behavior = Base.extend('Behavior', {
     setColumnOrder: function(columnIndexes) {
         if (Array.isArray(columnIndexes)){
             var columns = this.columns,
-                allColumns = this.allColumns;
+                allColumns = this.allColumns,
+                arrayDecorator = new ArrayDecorator;
 
             // avoid recreating the `columns` array object to keep refs valid; just empty it
             columns.length = 0;
@@ -468,7 +476,7 @@ var Behavior = Base.extend('Behavior', {
                 columns.push(allColumns[index]);
             });
 
-            this.arrayDecorator.decorateArray(columns);
+            arrayDecorator.decorateArray(columns);
         }
     },
 
@@ -1027,7 +1035,7 @@ var Behavior = Base.extend('Behavior', {
      * @param {Point} cell
      */
     set cellPropertiesPrePaintNotification(cell) {
-        throw new HypergridError('cellPropertiesPrePaintNotification has been deprecated as of v3.0.0. Code to inspect or mutate the render config object should be moved to the getCell hook.')
+        throw new this.HypergridError('cellPropertiesPrePaintNotification has been deprecated as of v3.0.0. Code to inspect or mutate the render config object should be moved to the getCell hook.');
     },
 
     /**

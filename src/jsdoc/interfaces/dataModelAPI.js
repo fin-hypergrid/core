@@ -137,36 +137,57 @@ Object.setPrototypeOf(DataModel.prototype, DataSourceBase.prototype);
 
 /**
  * @method dataModelAPI#dispatchEvent
- * @desc This method if it exists will be overridden by Hypergrid if and only if data model does not support `addListener`.
+ * @desc This method is injected by Hypergrid when data model does not support `addListener`.
  * #### Parameters:
  * @param {string} eventName - Event string (name).
  * @param {object} [eventDetail={}] - Optional event detail data.
  */
 
-/** @event dataModelAPI#data-schema-changed
- * @desc The data models should trigger this event on a schema change, typically from setSchema, or wherever schema is initialized. Hypergrid responds by normalizing and decorating the schema object (and recreating the grid's column objects) — before triggering a grid event using the same event string, which applications can listen for using {@link Hypergrid#addEventListener grid.addEventListener('fin-data-schema-changed', myHandlerFunction)}.
- * @see {@link module:fields.normalize normalize}
- * @see {@link module:fields.decorate decorate}
+/** @event dataModelAPI#fin-hypergrid-schema-changed
+ * @desc The data models should trigger this event on a schema change, typically from setSchema, or wherever schema is initialized. Hypergrid responds by normalizing and decorating the schema object and recreating the grid's column objects — before triggering a grid event using the same event string, which applications can listen for using {@link Hypergrid#addEventListener addEventListener}:
+ * ```js
+ * grid.addEventListener('fin-hypergrid-schema-changed', myHandlerFunction);
+ * ```
+ * This event is not cancelable.
+ * @see {@link module:fields.normalizeSchema normalizeSchema}
+ * @see {@link module:fields.decorateSchema decorateSchema}
+ * @see {@link module:fields.decorateColumnSchema decorateColumnSchema}
  */
 
-/** @event dataModelAPI#data-changed
+/** @event dataModelAPI#fin-hypergrid-data-changed
  * @desc The data model should trigger this event when it changes the data on its own.
- * Hypergrid responds by calling {@link Hypergrid#repaint grid.repaint()} — before triggering a grid event using the same event string, which applications can listen for using {@link Hypergrid#addEventListener grid.addEventListener('fin-data-changed', myHandlerFunction)}.
+ * Hypergrid responds by calling {@link Hypergrid#repaint grid.repaint()} — before triggering a grid event using the same event string, which applications can listen for using {@link Hypergrid#addEventListener addEventListener}:
+ * ```js
+ * grid.addEventListener('fin-hypergrid-data-changed', myHandlerFunction);
+ * ```
+ * This event is not cancelable.
  */
 
-/** @event dataModelAPI#data-shape-changed
+/** @event dataModelAPI#fin-hypergrid-data-shape-changed
  * @desc The data model should trigger this event when it changes the data rows (count, order, _etc._) on its own.
- * Hypergrid responds by calling {@link Hypergrid#behaviorChanged grid.behaviorChanged()} — before triggering a grid event using the same event string, which applications can listen for using {@link Hypergrid#addEventListener addEventListener('fin-data-shape-changed', myHandlerFunction)}.
+ * Hypergrid responds by calling {@link Hypergrid#behaviorChanged grid.behaviorChanged()} — before triggering a grid event using the same event string, which applications can listen for using {@link Hypergrid#addEventListener addEventListener}:
+ * ```js
+ * grid.addEventListener('fin-hypergrid-data-shape-changed', myHandlerFunction);
+ * ``
+ * This event is not cancelable.
  */
 
-/** @event dataModelAPI#data-prereindex
+/** @event dataModelAPI#fin-hypergrid-data-prereindex
  * @desc The data models should trigger this event immediately before data model remaps the rows.
- * Hypergrid responds by saving the underlying row indices of currently selected rows — before triggering a grid event using the same event string, which applications can listen for using {@link Hypergrid#addEventListener addEventListener('fin-data-prereindex', myHandlerFunction)}.
+ * Hypergrid responds by saving the underlying row indices of currently selected rows — before triggering a grid event using the same event string, which applications can listen for using {@link Hypergrid#addEventListener addEventListener}:
+ * ```js
+ * grid.addEventListener('fin-hypergrid-data-prereindex', myHandlerFunction);
+ * ```
+ * This event is not cancelable.
  */
 
-/** @event dataModelAPI#data-postreindex
+/** @event dataModelAPI#fin-hypergrid-data-postreindex
  * @desc The data models should trigger this event immediately after data model remaps the rows.
- * Hypergrid responds by reselecting the remaining rows matching the indices previously saved in the `data-prereindex` event, and then calling {@link Hypergrid#behaviorShapeChanged grid.behaviorShapeChanged()} — before triggering a grid event using the same event string, which applications can listen for using {@link Hypergrid#addEventListener addEventListener('fin-data-postreindex', myHandlerFunction)}.
+ * Hypergrid responds by reselecting the remaining rows matching the indices previously saved in the `data-prereindex` event, and then calling {@link Hypergrid#behaviorShapeChanged grid.behaviorShapeChanged()} — before triggering a grid event using the same event string, which applications can listen for using {@link Hypergrid#addEventListener addEventListener}:
+ * ```js
+ * grid.addEventListener('fin-hypergrid-data-postreindex', myHandlerFunction);
+ * ```
+ * This event is not cancelable.
  */
 
 /**

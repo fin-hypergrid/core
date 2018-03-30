@@ -1,22 +1,18 @@
 'use strict';
 
-module.exports = {
+var mixIn = require('overrider').mixIn;
+
+var lib = {
+    assignOrDelete: require('./assignOrDelete'),
     cellEventFactory: require('./cellEventFactory'),
-    dynamicPropertyDescriptors: require('./dynamicProperties'),
+    dynamicProperties: require('./dynamicProperties'),
+    dispatchGridEvent: require('./dispatchGridEvent'),
     fields: require('./fields'),
     graphics: require('./graphics'),
     Canvas: require('./Canvas'),
     InclusiveRectangle: require('./InclusiveRectangle')
 };
 
-var warned;
+mixIn.call(lib, require('./deprecations'));
 
-Object.defineProperty(module.exports, 'DataSourceOrigin', {
-    get: function() {
-        if (!warned) {
-            console.warn('The `DataSourceOrigin` module has been retired as of v3.0.0. The new default data model, `datasaur-local`, will be returned instead. Note, however, that it may be removed from the build in a future release. Developers are advised and encouraged to provide their own data model going forward. For example: `new Hypergrid({ DataSource: require(\'datasaur-local\') })`; or provide a live data model instance in the `dataSource` (small "d") option.');
-            warned = true;
-        }
-        return require('datasaur-local');
-    }
-});
+module.exports = lib;

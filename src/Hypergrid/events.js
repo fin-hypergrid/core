@@ -2,7 +2,7 @@
 
 'use strict';
 
-var _ = require('object-iterators');
+var dispatchGridEvent = require('../lib/dispatchGridEvent');
 
 /**
  * @summary Grid event support.
@@ -11,7 +11,7 @@ var _ = require('object-iterators');
  * All members are documented on the {@link Hypergrid} page.
  * @mixin events.mixin
  */
-var mixin = {
+exports.mixin = {
 
     /**
      * @summary Add an event listener to me.
@@ -86,8 +86,8 @@ var mixin = {
      * @memberOf Hypergrid#
      */
     removeAllEventListeners: function(internal) {
-        _(this.listeners).each(function(listenerList, key) {
-            listenerList.slice().forEach(function(info) {
+        Object.keys(this.listeners).forEach(function(key) {
+            this.listeners[key].slice().forEach(function(info) {
                 if (internal || !info.internal) {
                     this.removeEventListener(key, info.listener);
                 }
@@ -115,14 +115,14 @@ var mixin = {
      * @param {string[]} keys
      */
     fireSyntheticColumnSortEvent: function(c, keys) {
-        return dispatchEvent.call(this, 'fin-column-sort', {
+        return dispatchGridEvent.call(this, 'fin-column-sort', {
             column: c,
             keys: keys
         });
     },
 
     fireSyntheticEditorKeyUpEvent: function(inputControl, keyEvent) {
-        return dispatchEvent.call(this, 'fin-editor-keyup', {
+        return dispatchGridEvent.call(this, 'fin-editor-keyup', {
             input: inputControl,
             keyEvent: keyEvent,
             char: this.canvas.getKeyChar(keyEvent),
@@ -131,7 +131,7 @@ var mixin = {
     },
 
     fireSyntheticEditorKeyDownEvent: function(inputControl, keyEvent) {
-        return dispatchEvent.call(this, 'fin-editor-keydown', {
+        return dispatchGridEvent.call(this, 'fin-editor-keydown', {
             input: inputControl,
             keyEvent: keyEvent,
             char: this.canvas.getKeyChar(keyEvent),
@@ -140,7 +140,7 @@ var mixin = {
     },
 
     fireSyntheticEditorKeyPressEvent: function(inputControl, keyEvent) {
-        return dispatchEvent.call(this, 'fin-editor-keypress', {
+        return dispatchGridEvent.call(this, 'fin-editor-keypress', {
             input: inputControl,
             keyEvent: keyEvent,
             char: this.canvas.getKeyChar(keyEvent),
@@ -149,7 +149,7 @@ var mixin = {
     },
 
     fireSyntheticEditorDataChangeEvent: function(inputControl, oldValue, newValue) {
-        return dispatchEvent.call(this, 'fin-editor-data-change', true, {
+        return dispatchGridEvent.call(this, 'fin-editor-data-change', true, {
             input: inputControl,
             oldValue: oldValue,
             newValue: newValue
@@ -165,11 +165,11 @@ var mixin = {
      * @desc Synthesize and fire a `fin-row-selection-changed` event.
      */
     fireSyntheticRowSelectionChangedEvent: function() {
-        return dispatchEvent.call(this, 'fin-row-selection-changed', this.selectionDetailGetters);
+        return dispatchGridEvent.call(this, 'fin-row-selection-changed', this.selectionDetailGetters);
     },
 
     fireSyntheticColumnSelectionChangedEvent: function() {
-        return dispatchEvent.call(this, 'fin-column-selection-changed', this.selectionDetailGetters);
+        return dispatchGridEvent.call(this, 'fin-column-selection-changed', this.selectionDetailGetters);
     },
 
     /**
@@ -179,21 +179,21 @@ var mixin = {
      */
     fireSyntheticContextMenuEvent: function(event) {
         Object.defineProperties(event, this.selectionDetailGetterDescriptors);
-        return dispatchEvent.call(this, 'fin-context-menu', {}, event);
+        return dispatchGridEvent.call(this, 'fin-context-menu', {}, event);
     },
 
     fireSyntheticMouseUpEvent: function(event) {
         Object.defineProperties(event, this.selectionDetailGetterDescriptors);
-        return dispatchEvent.call(this, 'fin-mouseup', {}, event);
+        return dispatchGridEvent.call(this, 'fin-mouseup', {}, event);
     },
 
     fireSyntheticMouseDownEvent: function(event) {
         Object.defineProperties(event, this.selectionDetailGetterDescriptors);
-        return dispatchEvent.call(this, 'fin-mousedown', {}, event);
+        return dispatchGridEvent.call(this, 'fin-mousedown', {}, event);
     },
 
     fireSyntheticMouseMoveEvent: function(event) {
-        return dispatchEvent.call(this, 'fin-mousemove', {}, event);
+        return dispatchGridEvent.call(this, 'fin-mousemove', {}, event);
     },
 
     fireSyntheticButtonPressedEvent: function(event) {
@@ -203,7 +203,7 @@ var mixin = {
                     subheight = event.bounds.height / event.value.subrows;
                 event.subrow = Math.floor(y / subheight);
             }
-            return dispatchEvent.call(this, 'fin-button-pressed', {}, event);
+            return dispatchGridEvent.call(this, 'fin-button-pressed', {}, event);
         }
     },
 
@@ -212,7 +212,7 @@ var mixin = {
      * @desc Synthesize and fire a `fin-column-drag-start` event.
      */
     fireSyntheticOnColumnsChangedEvent: function() {
-        return dispatchEvent.call(this, 'fin-column-changed-event', {});
+        return dispatchGridEvent.call(this, 'fin-column-changed-event', {});
     },
 
     /**
@@ -221,7 +221,7 @@ var mixin = {
      * @param {keyEvent} event - The canvas event.
      */
     fireSyntheticKeydownEvent: function(keyEvent) {
-        return dispatchEvent.call(this, 'fin-keydown', keyEvent.detail);
+        return dispatchGridEvent.call(this, 'fin-keydown', keyEvent.detail);
     },
 
     /**
@@ -230,11 +230,11 @@ var mixin = {
      * @param {keyEvent} event - The canvas event.
      */
     fireSyntheticKeyupEvent: function(keyEvent) {
-        return dispatchEvent.call(this, 'fin-keyup', keyEvent.detail);
+        return dispatchGridEvent.call(this, 'fin-keyup', keyEvent.detail);
     },
 
     fireSyntheticFilterAppliedEvent: function() {
-        return dispatchEvent.call(this, 'fin-filter-applied', {});
+        return dispatchGridEvent.call(this, 'fin-filter-applied', {});
     },
 
     /**
@@ -244,7 +244,7 @@ var mixin = {
      * @param {MouseEvent} event - The system mouse event.
      */
     fireSyntheticOnCellEnterEvent: function(cellEvent) {
-        return dispatchEvent.call(this, 'fin-cell-enter', cellEvent);
+        return dispatchGridEvent.call(this, 'fin-cell-enter', cellEvent);
     },
 
     /**
@@ -254,7 +254,7 @@ var mixin = {
      * @param {MouseEvent} event - The system mouse event.
      */
     fireSyntheticOnCellExitEvent: function(cellEvent) {
-        return dispatchEvent.call(this, 'fin-cell-exit', cellEvent);
+        return dispatchGridEvent.call(this, 'fin-cell-exit', cellEvent);
     },
 
     /**
@@ -264,7 +264,7 @@ var mixin = {
      * @param {MouseEvent} event - The system mouse event.
      */
     fireSyntheticClickEvent: function(cellEvent) {
-        return dispatchEvent.call(this, 'fin-click', {}, cellEvent);
+        return dispatchGridEvent.call(this, 'fin-click', {}, cellEvent);
     },
 
     /**
@@ -275,7 +275,7 @@ var mixin = {
     fireSyntheticDoubleClickEvent: function(cellEvent) {
         if (!this.abortEditing()) { return; }
 
-        return dispatchEvent.call(this, 'fin-double-click', {}, cellEvent);
+        return dispatchGridEvent.call(this, 'fin-double-click', {}, cellEvent);
     },
 
     /**
@@ -283,15 +283,15 @@ var mixin = {
      * @desc Synthesize and fire a rendered event.
      */
     fireSyntheticGridRenderedEvent: function() {
-       return dispatchEvent.call(this, 'fin-grid-rendered', { source: this });
+       return dispatchGridEvent.call(this, 'fin-grid-rendered', { source: this });
     },
 
     fireSyntheticTickEvent: function() {
-        return dispatchEvent.call(this, 'fin-tick', { source: this });
+        return dispatchGridEvent.call(this, 'fin-tick', { source: this });
     },
 
     fireSyntheticGridResizedEvent: function(e) {
-        return dispatchEvent.call(this, 'fin-grid-resized', e);
+        return dispatchGridEvent.call(this, 'fin-grid-resized', e);
     },
 
     /**
@@ -302,14 +302,14 @@ var mixin = {
      * @param {number} newValue - The new scroll value.
      */
     fireScrollEvent: function(eventName, oldValue, newValue) {
-        return dispatchEvent.call(this, eventName, {
+        return dispatchGridEvent.call(this, eventName, {
             oldValue: oldValue,
             value: newValue
         });
     },
 
     fireRequestCellEdit: function(cellEvent, value) {
-        return dispatchEvent.call(this, 'fin-request-cell-edit', true, { value: value }, cellEvent);
+        return dispatchGridEvent.call(this, 'fin-request-cell-edit', true, { value: value }, cellEvent);
     },
 
     /**
@@ -320,7 +320,7 @@ var mixin = {
      * @returns {boolean} Proceed (don't cancel).
      */
     fireBeforeCellEdit: function(cellEvent, oldValue, newValue, control) {
-        return dispatchEvent.call(this, 'fin-before-cell-edit', true, {
+        return dispatchGridEvent.call(this, 'fin-before-cell-edit', true, {
             oldValue: oldValue,
             newValue: newValue,
             input: control
@@ -335,7 +335,7 @@ var mixin = {
      * @param {Object} newValue - The new value.
      */
     fireAfterCellEdit: function(cellEvent, oldValue, newValue, control) {
-        return dispatchEvent.call(this, 'fin-after-cell-edit', {
+        return dispatchGridEvent.call(this, 'fin-after-cell-edit', {
             newValue: newValue,
             oldValue: oldValue,
             input: control
@@ -394,7 +394,7 @@ var mixin = {
                 return;
             }
             if (!grid.abortEditing()) {
-                event.stopPropagation();
+                e.stopPropagation();
                 return;
             }
 
@@ -608,73 +608,3 @@ var mixin = {
 function isMousePointInClickRect(e) {
     return !e.clickRect || e.clickRect.contains(e.mousePoint);
 }
-
-var details = [
-    'gridCell',
-    'dataCell',
-    'mousePoint',
-    'keys',
-    'row'
-];
-
-/**
- * @this {Hypergrid}
- * @param {string} eventName
- * @param {boolean} [cancelable=false]
- * @param {object} event
- * @param {CellEvent|MouseEvent|KeyboardEvent|object} [primitiveEvent]
- * @returns {undefined|boolean}
- */
-function dispatchEvent(eventName, cancelable, event, primitiveEvent) {
-    var detail, result;
-
-    if (!this.canvas) {
-        return;
-    }
-
-    if (typeof cancelable !== 'boolean') {
-        primitiveEvent = event; // propmote primitiveEvent to 3rd position
-        event = cancelable; // promote event to 2nd position
-        cancelable = false; // default when omitted
-    }
-
-    if (!event.detail) {
-        event = { detail: event };
-    }
-
-    detail = event.detail;
-
-    if (!detail.grid) { // CellEvent objects already have a (read-only) `grid` prop
-        detail.grid = this;
-    }
-
-    detail.time = Date.now();
-
-    if (primitiveEvent) {
-        if (!detail.primitiveEvent) {
-            detail.primitiveEvent = primitiveEvent;
-        }
-        details.forEach(function(key) {
-            if (key in primitiveEvent && !(key in detail)) {
-                detail[key] = primitiveEvent[key];
-            }
-        });
-        if ('dataRow' in primitiveEvent) {
-            // reference (without invoking) cellEvent's `dataRow` getter when available
-            Object.defineProperty(detail, 'row', { get: function() { return primitiveEvent.dataRow; } });
-        }
-    }
-
-    if (cancelable) {
-        event.cancelable = true;
-    }
-
-    result = this.canvas.dispatchEvent(new CustomEvent(eventName, event));
-
-    return !cancelable || result;
-}
-
-module.exports = {
-    mixin: mixin,
-    dispatchEvent: dispatchEvent
-};

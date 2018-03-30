@@ -972,7 +972,6 @@ var Renderer = Base.extend('Renderer', {
     _paintCell: function(gc, cellEvent, prefillColor) {
         var grid = this.grid,
             selectionModel = grid.selectionModel,
-            behavior = grid.behavior,
 
             isHandleColumn = cellEvent.isHandleColumn,
             isTreeColumn = cellEvent.isTreeColumn,

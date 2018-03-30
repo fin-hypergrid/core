@@ -1,6 +1,10 @@
-/* globals CustomEvent */
-
 'use strict';
+
+
+/**
+ * @typedef {object} NormalizedDataModelEvent
+ * @property {string} type - Event string.
+ */
 
 /**
  * @module decorators
@@ -8,7 +12,8 @@
 
 var hooks = require('./hooks');
 var fallbacks = require('./fallbacks');
-var HypergridError = require('../../lib/error');
+var dataModelEventHandlers = require('./events');
+var dispatchGridEvent = require('../../lib/dispatchGridEvent');
 
 
 var warned = {};
@@ -78,7 +83,7 @@ function injectCode(dataModel, grid) {
 
     dataModel.install(fallbacks, options);
 
-    var handler = dispatchEvent.bind(grid);
+    var handler = dispatchDataModelEvent.bind(grid);
 
     // There are two eventing models data models can use:
     if (dataModel.addListener) {
@@ -91,56 +96,96 @@ function injectCode(dataModel, grid) {
     }
 }
 
-var REGEX_DATA_EVENT_STRING = /^data(-[a-z]+)+$/;
+
+var REGEX_DATA_EVENT_STRING = /^fin-hypergrid-(data|schema)(-[a-z]+)+$/;
 
 /**
- * @summary Hypergrid's `data-` event handler.
- * @desc `dispatchEvent` may be called by the data model to communicate back to Hypergrid. Hypergrid itself never calls `dispatchEvent` on the data model.
+ * @summary Hypergrid data model event handler.
+ * @desc This function is not called by Hypergrid.
+ * Rather, it is handed to the data model (by {@link module:decorators.injectCode injectCode} as `dispatchEvent`) to issue callbacks to the grid.
  *
  * This handler:
- * 1. Checks the event string to make sure it conforms to the expected syntax (must start with `data-` and include only lowercase letters and hyphens).
- * 2. Dispatches a DOM event to the `<canvas>` element with the same event name prefixed with `fin-canvas-`.
+ * 1. Checks the event string to make sure it conforms to the expected syntax:
+ *    * Starts with `fin-hypergrid-data-` or `fin-hypergrid-schema-`
+ *    * Includes only lowercase letters and hyphens
+ * 2. Calls a handler in the {@link dataModelEventHandlers} namespace of the same name as the event string.
+ * 3. Re-emits the event as a DOM event to the `<canvas>` element (unless the handler has already done so).
  *
- * The data model's `dispatchEvent` method is bound to the grid by {@link module:decorator.injectCode injectCode}. A curried version of this function, bound to the grid instance, is either:
- * Added to the data model via its `addListener` method, if it has one; or
- * Force-injected into the data model, overriding any native implementation. (A native implementation may exist simply to "catch" calls that might be made before the data model is attached to Hypergrid.)
+ * The data model's `dispatchEvent` method is bound to the grid by {@link module:decorators.injectCode injectCode}.
+ * A curried version of this function, bound to the grid instance, is either:
+ * * Added to the data model via its `addListener` method, if it has one; or
+ * * Force-injected into the data model, overriding any native implementation. (A native implementation may exist simply to "catch" calls that might be made before the data model is attached to Hypergrid.)
  *
  * @this {Hypergrid}
- * @param eventName
- * @param eventDetail
- * @memberOf module:decorators
+ * @param {string|NormalizedDataModelEvent} event
+ * @memberOf module:decorators~
  */
-function dispatchEvent(eventName, eventDetail) {
-    if (!REGEX_DATA_EVENT_STRING.test(eventName)) {
-        throw new HypergridError('Expected data event string to match ' + REGEX_DATA_EVENT_STRING + '.');
+function dispatchDataModelEvent(event) {
+    var type;
+
+    switch (typeof event) {
+        case 'string':
+            type = event;
+            event = { type: type };
+            break;
+        case 'object':
+            if ('type' in event) {
+                type = event.type;
+                break;
+            }
+        // fall through
+        default:
+            throw new TypeError('Expected data model event to be: (string | {type:string})');
     }
-    this.canvas.dispatchEvent(new CustomEvent('fin-canvas-' + eventName, eventDetail));
+
+    if (!REGEX_DATA_EVENT_STRING.test(type)) {
+        throw new TypeError('Expected data model event type "' + type + ' to match ' + REGEX_DATA_EVENT_STRING + '.');
+    }
+
+    var nativeHandler = dataModelEventHandlers[event.type];
+    if (nativeHandler) {
+        var dispatched = nativeHandler.call(this, event);
+    }
+
+    return dispatched !== undefined ? dispatched : dispatchGridEvent.call(this, event.type, event);
 }
 
 /**
- * @private
+ * @summary Add deprecation warnings for deprecated legacy data model properties.
+ * @desc This method may be removed in a future version whence all deprecations are removed.
  * @this {Local}
+ * @memberOf module:decorators
  */
 function addDeprecationWarnings() {
     var grid = this.grid;
 
-    Object.defineProperty(this.dataModel, 'grid', {
-        configurable: true,
-        enumerable: false,
-        get: function() {
-            if (!warned.grid) {
-                console.warn('`this.grid` (dataModel.grid) property has been deprecated as of v3.0.0 and will definitely be removed in a future release. Data models should have no direct knowledge of or access to the grid. (If your data model needs to call grid methods, add a data event to your grid with grid.addDataEventListener(\'data-my-event\', myHandler) and trigger it from your data model with this.dispatchEvent(\'data-my-event\'). If you need access to the grid object from within a `getCell` or `getCellEditAt` override, define `grid` and the override in a closure.)');
-                warned.grid = true;
-            }
-            return grid;
-        }
-    });
+    Object.defineProperties(this.dataModel, {
 
-    if (this.dataModel.dataSource) {
-        if (!warned.dataSource) {
-            console.warn('As of Hypergrid 3.0.0, the external data model is now `grid.behavior.dataModel`. Formerly, it was `grid.behavior.dataModel.dataSource`. Data model authors are strongly advised to avoid implementing a `.dataSource` property inside their data model to reduce the confusion that would result if a legacy application were to try to reference the data model via `.dataModel.dataSource` and get something unexpected instead of an error.)');
+        grid: {
+            configurable: true,
+            enumerable: false,
+            get: function() {
+                if (!warned.grid) {
+                    console.warn('dataModel.grid has been deprecated as of v3.0.0. (Will be removed in a future release.) Data models should have no direct knowledge of or access to the grid. (If your data model needs to call grid methods, add a data event to your grid with `grid.addEventListener(\'fin-hypergrid-data-my-event\', myHandler)` and trigger it from your data model with `this.dispatchEvent(\'fin-hypergrid-data-my-event\')` or `this.dispatchEvent({ type: \'fin-hypergrid-data-my-event\' })`. If you need access to the grid object from within a `getCell` or `getCellEditAt` override, define `grid` in the same closure as the override.)');
+                    warned.grid = true;
+                }
+                return grid;
+            }
+        },
+
+        dataSource: {
+            configurable: true,
+            enumerable: false,
+            get: function() {
+                if (!warned.dataSource) {
+                    console.warn('dataModel.dataSource has been deprecated as of 3.0.0 in favor of `dataModel`. (Will be removed in a future release.) The _external_ data model, formerly `grid.behavior.dataModel.dataSource`, is now `grid.behavior.dataModel`.');
+                    warned.dataSource = true;
+                }
+                return this.dataModel;
+            }
         }
-    }
+
+    });
 }
 
 // for app layer access to drill down chars, provide friendlier keys than data model normally supports in `drillDownCharMap`.
@@ -151,8 +196,8 @@ var friendlierDrillDownMapKeys = {
 };
 
 /**
- * @private
  * @this {Local}
+ * @memberOf module:decorators
  */
 function addFriendlierDrillDownMapKeys() {
     var charMap = this.dataModel.drillDownCharMap;
@@ -172,9 +217,9 @@ function addFriendlierDrillDownMapKeys() {
 }
 
 /**
- * @private
  * @param {dataModelAPI} dataModel
  * @this {Local}
+ * @memberOf module:decorators
  */
 function injectDefaulthooks(dataModel) {
     if (!dataModel.getCell) {

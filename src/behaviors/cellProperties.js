@@ -1,6 +1,6 @@
 'use strict';
 
-var assignOrDelete = require('../lib/misc').assignOrDelete;
+var assignOrDelete = require('../lib/assignOrDelete');
 
 
 /**

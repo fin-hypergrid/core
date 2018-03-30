@@ -1,6 +1,10 @@
 'use strict';
 
+// `columnEnum` et al, have been deprecated as of 3.0.0 in favor of accessing column schema
+// through .schema, .columns, and .allColumns, all of which now sport self-referential dictionaries.
 // To finally remove, delete this file and all lines using `_columnEnum`
+
+var ArrayDecorator = require('synonomous');
 
 var warned = {};
 
@@ -18,17 +22,15 @@ exports.mixin = {
     columnEnumSynchronize: function() {
         var columnEnum = this._columnEnum || (this._columnEnum = {}),
             allColumns = this.allColumns,
-            length = allColumns.length;
+            arrayDecorator = new ArrayDecorator({ transformations: ['verbatim', 'toCamelCase', 'toAllCaps'] }),
+            dict = arrayDecorator.decorateArray(allColumns.slice());
 
-        Object.keys(allColumns).filter(function(key) {
-            var index = Number(key);
-            return isNaN(index) || index >= length;
-        }).forEach(function(key) {
-            columnEnum[key] = allColumns[key].index;
-        });
+        dict.length = 0;
+        Object.assign(columnEnum, dict);
 
+        // clean up
         Object.keys(columnEnum).forEach(function(key) {
-            if (!(key in allColumns)) {
+            if (!(key in dict)) {
                 delete columnEnum[key];
             }
         });

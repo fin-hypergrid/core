@@ -2,11 +2,10 @@
 
 var Behavior = require('../Behavior');
 
-/** @name DataSource
- * @memberOf Behavior#
+/** @memberOf Local~
  * @default require('datasaur-local')
- * @summary Default data source.
- * @desc If defined, will be used as a default data source for newly instantiated `Hypergrid` objects without `DataSource` or `dataSource` options specified. Scheduled for removal in next version (v4).
+ * @summary Default data model.
+ * @desc The default data model for newly instantiated `Hypergrid` objects without `DataModel` or `dataModel` options specified. Scheduled for eventual deprecation at which point one of the options will be required.
  */
 var DefaultDataModel = require('datasaur-local');
 
@@ -31,7 +30,7 @@ var Local = Behavior.extend('Local', {
      * @see {@link https://fin-hypergrid.github.io/doc/dataModelAPI.html#getSchema|getSchema}
      * @see {@link https://fin-hypergrid.github.io/doc/dataModelAPI.html#setSchema|setSchema}
      * @type {Array}
-     * @memberOf Behavior#
+     * @memberOf Local#
      */
     get schema() {
         return this.dataModel.getSchema();
@@ -40,14 +39,10 @@ var Local = Behavior.extend('Local', {
         this.dataModel.setSchema(newSchema);
     },
 
+    dataModelEventHandlers: require('./events').dataModelEventHandlers, // for adding additional event handlers
+
     createColumns: function() {
-        this.super.createColumns.call(this);
-
-        this.schema.forEach(function(columnSchema) {
-            this.addColumn(columnSchema);
-        }, this);
-
-        this.columnEnumSynchronize();
+        this.super.createColumns.call(this, createColumns);
     },
 
     /**
@@ -97,7 +92,7 @@ var Local = Behavior.extend('Local', {
      * @param {dataModelAPI} [options.dataModel] - A fully instantiated data model object.
      * @param {function} [options.DataModel=require('datasaur-local')] - Data model will be instantiated from this constructor unless `options.dataModel` was given.
      * @returns {boolean} `true` if the data model has changed.
-     * @memberOf Behavior#
+     * @memberOf Local#
      */
     getNewDataModel: function(options) {
         var newDataModel;
@@ -163,7 +158,7 @@ var Local = Behavior.extend('Local', {
      * @summary Map of drill down characters used by the data model.
      * @see {@link https://fin-hypergrid.github.io/doc/dataModelAPI.html#charMap|charMap}
      * @type {{OPEN:string, CLOSE:string, INDENT:string}}
-     * @memberOf Behavior#
+     * @memberOf Local#
      */
     get charMap() {
         return this.dataModel.drillDownCharMap;
@@ -173,7 +168,7 @@ var Local = Behavior.extend('Local', {
      * @param {CellEvent|number} xOrCellEvent - Grid column coordinate.
      * @param {number} [y] - Grid row coordinate. Omit if `xOrCellEvent` is a CellEvent.
      * @param {dataModelAPI} [dataModel] - For use only when `xOrCellEvent` is _not_ a `CellEvent`: Provide a subgrid. If given, x and y are interpreted as data cell coordinates (unadjusted for scrolling). Does not default to the data subgrid, although you can provide it explicitly (`this.subgrids.lookup.data`).
-     * @memberOf Behavior#
+     * @memberOf Local#
      */
     getValue: function(xOrCellEvent, y, dataModel) {
         if (typeof xOrCellEvent !== 'object') {
@@ -189,7 +184,7 @@ var Local = Behavior.extend('Local', {
     },
 
     /**
-     * @memberOf Behavior#
+     * @memberOf Local#
      * @desc update the data at point x, y with value
      * @return The data.
      * @param {CellEvent|number} xOrCellEvent - Grid column coordinate.
@@ -216,7 +211,7 @@ var Local = Behavior.extend('Local', {
     /**
      * @summary Calls `apply()` on the data model.
      * @see {@link https://fin-hypergrid.github.io/doc/dataModelAPI.html#reindex|reindex}
-     * @memberOf Behavior#
+     * @memberOf Local#
      */
     reindex: function() {
         this.dataModel.apply();
@@ -225,7 +220,7 @@ var Local = Behavior.extend('Local', {
     /**
      * @summary Gets the number of rows in the data subgrid.
      * @see {@link https://fin-hypergrid.github.io/doc/dataModelAPI.html#getRowCount|getRowCount}
-     * @memberOf Behavior#
+     * @memberOf Local#
      */
     getRowCount: function() {
         return this.dataModel.getRowCount();
@@ -234,7 +229,7 @@ var Local = Behavior.extend('Local', {
     /**
      * Retrieve a data row from the data model.
      * @see {@link https://fin-hypergrid.github.io/doc/dataModelAPI.html#getRow|getRow}
-     * @memberOf Behavior#
+     * @memberOf Local#
      * @return {dataRowObject} The data row object at y index.
      * @param {number} y - the row index of interest
      */
@@ -247,7 +242,7 @@ var Local = Behavior.extend('Local', {
      * > Use with caution!
      * @see {@link https://fin-hypergrid.github.io/doc/dataModelAPI.html#getData|getData}
      * @return {dataRowObject[]}
-     * @memberOf Behavior#
+     * @memberOf Local#
      */
     getData: function() {
         return this.dataModel.getData();
@@ -260,7 +255,7 @@ var Local = Behavior.extend('Local', {
      * @see {@link https://fin-hypergrid.github.io/doc/dataModelAPI.html#click|click}
      * @param {CellEvent} event
      * @returns {boolean} If click was in a drill down column and click on this row was "consumed" by the data model (_i.e., caused it's state to change).
-     * @memberOf Behavior#
+     * @memberOf Local#
      */
     cellClicked: function(event) {
         return this.dataModel.isDrillDown(event.dataCell.x) &&
@@ -272,6 +267,17 @@ var Local = Behavior.extend('Local', {
     }
 
 });
+
+/**
+ * @this {Local}
+ */
+function createColumns() {
+    this.schema.forEach(function(columnSchema) {
+        this.addColumn(columnSchema);
+    }, this);
+
+    this.columnEnumSynchronize();
+}
 
 Local.prototype.mixIn(require('../columnEnum').mixin);
 

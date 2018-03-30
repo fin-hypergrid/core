@@ -1050,7 +1050,6 @@ var Hypergrid = Base.extend('Hypergrid', {
             this.canvas = canvas;
 
             this.delegateCanvasEvents();
-            this.delegateDataEvents();
         }
     },
 
@@ -1730,7 +1729,7 @@ function paintLoopRunning() {
 
 
 /**
- * Creates an instance variable backer for use by the getters and setters described in {@link dynamicPropertyDescriptors}.
+ * Creates an instance variable backer for use by the getters and setters described in {@link dynamicProperties}.
  * @constructor
  * @memberOf Hypergrid~
  * @private
@@ -1858,7 +1857,6 @@ Hypergrid.mixIn(require('./themes').sharedMixin);
 
 Hypergrid.prototype.mixIn(require('./themes').mixin);
 Hypergrid.prototype.mixIn(require('./events').mixin);
-Hypergrid.prototype.mixIn(require('./dataModel/events').mixin);
 Hypergrid.prototype.mixIn(require('./selection').mixin);
 Hypergrid.prototype.mixIn(require('./scrolling').mixin);
 

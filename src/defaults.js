@@ -500,11 +500,10 @@ var defaults = {
     renderFalsy: false,
 
     /**
-     * The name of a registered headerify function.
+     * The name of a transformer function defined in require('synonomous/transformers').
      *
-     * If the named headerify function is defined, it is applied to the schema:
-     * 1. Whenever the schema changes
-     * 2. For each column that does not already have an explicitly defined header
+     * If the named headerify function is defined, whenever the schema array changes, it is applied each element
+     * (column schema) for each column that does not already have an explicitly defined `header` property.
      *
      * When this property does not name a defined headerify function, undefined column headers default to their column names.
      *
@@ -513,7 +512,7 @@ var defaults = {
      * @type {string}
      * @memberOf module:defaults
      */
-    headerify: 'titleize',
+    headerify: 'toTitle',
 
     /**
      * Enable rendering of horizontal grid lines.
@@ -528,7 +527,7 @@ var defaults = {
      * @type {number}
      * @default
      * @memberOf module:defaults
-     * @see {@link module:dynamicPropertyDescriptors.lineWidth}
+     * @see {@link module:dynamicProperties.lineWidth}
      */
     gridLinesHWidth: 1,
 
@@ -537,7 +536,7 @@ var defaults = {
      * @type {string}
      * @default
      * @memberOf module:defaults
-     * @see {@link module:dynamicPropertyDescriptors.lineColor}
+     * @see {@link module:dynamicProperties.lineColor}
      */
     gridLinesHColor: 'rgb(199, 199, 199)',
 
@@ -554,7 +553,7 @@ var defaults = {
      * @type {number}
      * @default
      * @memberOf module:defaults
-     * @see {@link module:dynamicPropertyDescriptors.lineWidth}
+     * @see {@link module:dynamicProperties.lineWidth}
      */
     gridLinesVWidth: 1,
 
@@ -563,7 +562,7 @@ var defaults = {
      * @type {string}
      * @default
      * @memberOf module:defaults
-     * @see {@link module:dynamicPropertyDescriptors.lineColor}
+     * @see {@link module:dynamicProperties.lineColor}
      */
     gridLinesVColor: 'rgb(199, 199, 199)',
 
@@ -888,7 +887,7 @@ var defaults = {
      * @default
      * @type {boolean}
      * @memberOf module:defaults
-     * @see {@link module:dynamicPropertyDescriptors.showRowNumbers}
+     * @see {@link module:dynamicProperties.showRowNumbers}
      */
     rowHeaderNumbers: true,
 
@@ -896,7 +895,7 @@ var defaults = {
      * @default
      * @type {boolean}
      * @memberOf module:defaults
-     * @see {@link module:dynamicPropertyDescriptors.showRowNumbers}
+     * @see {@link module:dynamicProperties.showRowNumbers}
      */
     rowHeaderCheckboxes: true,
 
@@ -1542,7 +1541,7 @@ function exec(vf) {
     return vf;
 }
 
-// Add non-enumerable "utility" props so they will be available wherever props are available.
+// Add "utility" props so they will be available wherever props are available but make them non-enumerable because they are not real props.
 Object.defineProperties(defaults, {
     mixIn: { value: require('overrider').mixIn },
     delete: { value: deleteProp },

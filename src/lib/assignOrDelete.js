@@ -9,7 +9,7 @@
  * @param {object} dest
  * @param {object} src - Defined values set the corresponding key in `dest`. `undefined` values delete the key from `dest`.
  */
-exports.assignOrDelete = function(dest, src) {
+module.exports = function(dest, src) {
     Object.keys(src).forEach(function(key) {
         var descriptor = Object.getOwnPropertyDescriptor(dest, key),
             value = src[key];

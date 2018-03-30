@@ -1,90 +1,106 @@
 'use strict';
 
-var dispatchEvent = require('../events.js').dispatchEvent;
-
-var handlersByEventString;
+var dispatchGridEvent = require('../../lib/dispatchGridEvent.js');
 
 /**
- * Hypergrid/index.js mixes this module into its prototype.
- * @mixin
+ * @namespace dataModelEventHandlers
+ * @desc These handlers are called by {@link module:decorators.dispatchDataModelEvent dataModel.dispatchEvent}.
+ *
+ * They perform some Hypergrid housekeeping chores before (and possibly after) optionally re-emiting the event as a standard
+ * Hypergrid event (to the `<canvas>` element).
+ *
+ * All the built-in data model events re-emit their events (all non-cancelable).
+ *
+ * #### Coding patterns
+ * These handlers should return a boolean if they re-emit the event as a grid event themselves, when they have chores to perform post-re-emission. If they don't, they should return `undefined` which signals the caller (`dataModel.dispatchEvent`) to re-emit it as a grid event as a final step for the handler.
+ *
+ * Given the above, there are four typical coding patterns for these handlers:
+ * 1. Perform chores with no event re-emission:
+ * ```
+ * Chores();
+ * return true; // (or any defined value) signals caller not to re-emit the event
+ * ```
+ * 2. First perform chores; then re-emit the event as a grid event:
+ * ```
+ * Chores();
+ * return undefined; // (or omit) signals caller to re-emit the event for us
+ * ```
+ * 3. First perform some pre-re-emit chores (optional); then re-emit the event as a _non-cancelable_ grid event; then perform remaining chores:
+ * ```
+ * optionalPreReemitChores();
+ * dispatchGridEvent.call(this, event.type, event); // non-cancelable
+ * remainingChores();
+ * return true; // signals caller that we've already re-emitted the event and it was not canceled
+ * ```
+ * 3. First perform some pre-re-emit chores (optional); then re-emit the event as a _cancelable_ grid event; then perform remaining chores conditionally [iff](https://en.wikipedia.org/wiki/If_and_only_if) not canceled (_important:_ note the `true` in the following):
+ * ```
+ * optionalPreReemitChores();
+ * if (dispatchGridEvent.call(this, event.type, true, event)) { // `true` here means cancelable
+ *     conditionalChores();
+ *     return true; // signals caller that we've already re-emitted the event (which was not canceled)
+ * } else {
+ *     return false; // signals caller that we've already re-emitted the event (which was canceled)
+ * }
+ * ```
  */
-var mixin = {
-
+module.exports = {
     /**
-     * @memberOf Hypergrid#
-     * @desc Synthesize and fire a `fin-data-schema-changed` event.
-     * @see {@link dataModelAPI#event:data-schema-changed data-schema-changed}
+     * _See the data model API page for event semantics (link below)._
+     * @param {NormalizedDataModelEvent} event
+     * @returns {undefined|boolean} Result of re-emitted event or `undefined` if event not re-emitted.
+     * @see {@link dataModelAPI#event:fin-hypergrid-schema-changed}
+     * @memberOf dataModelEventHandlers
      */
-    fireSyntheticDataSchemaChangedEvent: function(event) {
+    'fin-hypergrid-schema-changed': function(event) {
+        dispatchGridEvent.call(this, event.type, event);
         this.behavior.createColumns();
-        this.behaviorChanged();
-        return dispatchEvent.call(this, 'fin-data-schema-changed', event);
+        return true;
     },
 
     /**
-     * @memberOf Hypergrid#
-     * @desc Synthesize and fire a `fin-data-changed` event.
-     * @see {@link dataModelAPI#event:data-changed data-changed}
+     * _See the data model API page for event semantics (link below)._
+     * @param {NormalizedDataModelEvent} event
+     * @returns {undefined|boolean} Result of re-emitted event or `undefined` if event not re-emitted.
+     * @see {@link dataModelAPI#event:fin-hypergrid-data-changed}
+     * @memberOf dataModelEventHandlers
      */
-    fireSyntheticDataChangedEvent: function(event) {
+    'fin-hypergrid-data-changed': function(event) {
         this.repaint();
-        return dispatchEvent.call(this, 'fin-data-changed', event);
     },
 
     /**
-     * @memberOf Hypergrid#
-     * @desc Synthesize and fire a `fin-data-shape-changed` event.
-     * @see {@link dataModelAPI#event:data-shape-changed data-shape-changed}
+     * _See the data model API page for event semantics (link below)._
+     * @param {NormalizedDataModelEvent} event
+     * @returns {undefined|boolean} Result of re-emitted event or `undefined` if event not re-emitted.
+     * @see {@link dataModelAPI#event:fin-hypergrid-data-shape-changed}
+     * @memberOf dataModelEventHandlers
      */
-    fireSyntheticDataShapeChangedEvent: function(event) {
+    'fin-hypergrid-data-shape-changed': function(event) {
         this.behaviorShapeChanged();
-        return dispatchEvent.call(this, 'fin-data-shape-changed', event);
     },
 
     /**
-     * @memberOf Hypergrid#
-     * @desc Synthesize and fire a `fin-data-preindex` event.
-     * @see {@link dataModelAPI#event:data-prereindex data-prereindex}
+     * _See the data model API page for event semantics (link below)._
+     * @param {NormalizedDataModelEvent} event
+     * @returns {undefined|boolean} Result of re-emitted event or `undefined` if event not re-emitted.
+     * @see {@link dataModelAPI#event:fin-hypergrid-data-prereindex}
+     * @memberOf dataModelEventHandlers
      */
-    fireSyntheticDataPrereindexEvent: function(event) {
+    'fin-hypergrid-data-prereindex': function(event) {
         saveSelectedRowsAndColumns.call(this);
-        return dispatchEvent.call(this, 'fin-data-prereindex', event);
     },
 
     /**
-     * @memberOf Hypergrid#
-     * @desc Synthesize and fire a `fin-data-postindex` event.
-     * @see {@link dataModelAPI#event:data-postreindex data-postreindex}
+     * _See the data model API page for event semantics (link below)._
+     * @param {{type}} event
+     * @returns {undefined|boolean} Result of re-emitted event or `undefined` if event not re-emitted.
+     * @see {@link dataModelAPI#event:fin-hypergrid-data-postreindex}
+     * @memberOf dataModelEventHandlers
      */
-    fireSyntheticDataPostreindexEvent: function(event) {
+    'fin-hypergrid-data-postreindex': function(event) {
         reselectRowsAndColumns.call(this);
-        return dispatchEvent.call(this, 'fin-data-postreindex', event) &&
-            this.fireSyntheticDataShapeChangedEvent(event);
-    },
-
-    delegateDataEvents: function() {
-        Object.keys(handlersByEventString).forEach(function(eventString) {
-            this.addDataEventListener(eventString, handlersByEventString[eventString]);
-        }, this);
-    },
-
-    addDataEventListener: function(eventString, handler) {
-        var grid = this;
-
-        grid.addInternalEventListener('fin-canvas-' + eventString, function(event) {
-            handler.call(grid, event || {});
-        });
+        this.behaviorShapeChanged();
     }
-
-};
-
-
-handlersByEventString = {
-    'data-schema-changed': mixin.fireSyntheticDataSchemaChangedEvent,
-    'data-changed': mixin.fireSyntheticDataChangedEvent,
-    'data-shape-changed': mixin.fireSyntheticDataShapeChangedEvent,
-    'data-prereindex': mixin.fireSyntheticDataPrereindexEvent,
-    'data-postreindex': mixin.fireSyntheticDataPostreindexEvent
 };
 
 
@@ -106,7 +122,6 @@ function reselectRowsAndColumns() {
  * @private
  * @this {Hypergrid}
  * @returns {number|undefined} Number of selected rows or `undefined` if `restoreRowSelections` is falsy.
- * @memberOf dataModels.JSON~
  */
 function saveSelectedDataRowIndexes() {
     if (this.properties.restoreRowSelections) {
@@ -127,7 +142,6 @@ function saveSelectedDataRowIndexes() {
  * @private
  * @this {Hypergrid}
  * @returns {number|undefined} Number of rows reselected or `undefined` if there were no previously selected rows.
- * @memberOf dataModels.JSON~
  */
 function reselectRowsByDataRowIndexes() {
     var dataRowIndexes = this.selectedDataRowIndexes;
@@ -166,7 +180,6 @@ function reselectRowsByDataRowIndexes() {
  * @this {Hypergrid}
  * @param sourceColumnNames
  * @returns {number|undefined} Number of selected columns or `undefined` if `restoreColumnSelections` is falsy.
- * @memberOf dataModels.JSON~
  */
 function saveSelectedColumnNames() {
     if (this.properties.restoreColumnSelections) {
@@ -188,7 +201,6 @@ function saveSelectedColumnNames() {
  * @this {Hypergrid}
  * @param sourceColumnNames
  * @returns {number|undefined} Number of rows reselected or `undefined` if there were no previously selected columns.
- * @memberOf dataModels.JSON~
  */
 function reselectColumnsByNames(sourceColumnNames) {
     var selectedColumnNames = this.selectedColumnNames;
@@ -208,9 +220,3 @@ function reselectColumnsByNames(sourceColumnNames) {
         }, 0);
     }
 }
-
-
-module.exports = {
-    mixin: mixin,
-    handlers: handlersByEventString // for adding custom data event handlers
-};
