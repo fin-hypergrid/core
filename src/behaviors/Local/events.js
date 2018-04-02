@@ -6,13 +6,15 @@ var dispatchGridEvent = require('../../lib/dispatchGridEvent.js');
  * @namespace dataModelEventHandlers
  * @desc These handlers are called by {@link module:decorators.dispatchDataModelEvent dataModel.dispatchEvent}.
  *
+ * (Hypergrid registers itself with the data model by calling `dataModel.addListener`. Both `addListener` and `dispatchEvent` are optional API. If the data model lacks `addListener`, Hypergrid inserts a bound version of `dispatchEvent` directly into the data model.)
+ *
  * They perform some Hypergrid housekeeping chores before (and possibly after) optionally re-emiting the event as a standard
  * Hypergrid event (to the `<canvas>` element).
  *
  * All the built-in data model events re-emit their events (all non-cancelable).
  *
  * #### Coding patterns
- * These handlers should return a boolean if they re-emit the event as a grid event themselves, when they have chores to perform post-re-emission. If they don't, they should return `undefined` which signals the caller (`dataModel.dispatchEvent`) to re-emit it as a grid event as a final step for the handler.
+ * These handlers should return a boolean if they re-emit the event as a grid event themselves (via `dispatchGridEvent`), when they have chores to perform post-re-emission. If they don't, they should return `undefined` which signals the caller (`dataModel.dispatchEvent`) to re-emit it as a grid event as a final step for the handler.
  *
  * Given the above, there are four typical coding patterns for these handlers:
  * 1. Perform chores with no event re-emission:

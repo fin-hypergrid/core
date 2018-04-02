@@ -34,6 +34,8 @@ module.exports = function(eventName, cancelable, event, primitiveEvent) {
 
     if (!event) {
         event = {};
+    } else if (event instanceof CustomEvent) {
+        event = Object({}, event);
     }
 
     if (!event.type) {

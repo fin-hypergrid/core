@@ -3,56 +3,88 @@
  * @summary Hypergrid 3 data model API.
  * @desc Hypergrid 3 data models have a minimal _required interface,_ as outlined below.
  *
- * #### Standard interface
+ * ### TL;DR
+ * The minimum interface is an object with three methods, `getRowCount()`, `getSchema()`, and `getValue(x, y)`.
  *
- * TL;DR — The only mandatory requirement is to implement the three methods, `getRowCount()`, `getSchema()`, and `getValue(x, y)`.
+ * ### Interface
+ * Data model interface requirements fall into the following categories
+ * * Required API methods
+ * * Optional API methods with default implementations
+ * * Optional API without default implementations
+ * * Proposed API
+ * * Utility methods
+ * * Error object
  *
- * Method | Required | Optional | Injected | Notes
- * --- | :-: | :-: | :-: | ---
- * {@link dataModelAPI#addRow addRow(dataRow, y)} | | `•` | | Proposed interface.
- * {@link dataModelAPI#apply apply()} | | | `•` | No-op implementation.
- * {@link dataModelAPI#click click()} | | | `•` | No-op implementation that returns `false`.
- * {@link dataModelAPI#delRow delRow(y, dataRow)} | | `•` | | Proposed interface.
- * {@link dataModelAPI#getCell getCell(config, rendererName)} | | | `•` | Overridable.
- * {@link dataModelAPI#getCellEditorAt getCellEditorAt(columnIndex, rowIndex, editorName, cellEvent)} | | | `•` | Overridable.
- * {@link dataModelAPI#getColumnCount getColumnCount()} | | | `•` |
- * {@link dataModelAPI#getData getData(metaDataFieldName)} | | | `•` |
- * {@link dataModelAPI#getMetadataStore getMetadataStore()} | | | `•` |
- * {@link dataModelAPI#getRowIndex getRowIndex(y)} | | | `•` |
- * {@link dataModelAPI#getRow getRow(y)} | | | `•` |
- * {@link dataModelAPI#getRowMetadata getRowMetadata(y, newRowMetadata)} | | | `•` |
- * {@link dataModelAPI#getRowCount getRowCount()} | `•` | | |
- * {@link dataModelAPI#getSchema getSchema()} | `•` | | |
- * {@link dataModelAPI#getValue getValue(x, y)} | `•` | | |
- * {@link dataModelAPI#isDrillDown isDrillDown()} | | | `•` | No-op implementation that returns `false`.
- * {@link dataModelAPI#setMetadataStore setMetadataStore()} | | | `•` |
- * {@link dataModelAPI#setRow setRow(y, dataRow)} | | `•` | | Proposed interface.
- * {@link dataModelAPI#setRowMetadata setRowMetadata(y, newRowMetadata)} | | | `•` |
- * {@link dataModelAPI#setSchema setSchema(newSchema)} | | `•` | | Only called when the application calls it directly (`dataModel.setSchema()`) or indirectly by invoking Hypergrid's `behavior.schema` setter.
- * {@link dataModelAPI#setValue setValue(x, y, value)} | | `•` | | Only called on attempt to close a cell editor. Note that cells are editable by default; set the {@link module:defaults.editable editable} property to `false` to make cell(s) non-editable (_i.e.,_ read-only) so this method will never be called.
+ * #### Required API methods
  *
- * Definitions:
- * * Implementation **Required** — The method is required to be implemented by all data models.
- * * Fallback **Injected** — When not supported by the data model, Hypergrid injects a functional implementation. _**Caution:**_ These implementations may or may not be appropriate for your application. Check the code!
- * * Implementation **Optional** — Required only if the application intends to call it, either directly on the data model, or through a Hypergrid proxy method; or autonomously by Hypergrid itself when certain features are activated.
- * * **No-op implementation** — Fails silently when called.
- * * **Overridable** — Called by Hypergrid; not intended to ever be called by the data model itself. The injected default is subject to being overridden by the application. Although a custom data model could in theory supply these, doing so would be very rare.
- * * **Proposed interface** — These specifications are theoretical. Hypergrid never calls any of these methods. They are being put forward here just so that data models might aim for some level of interoperability. Implement at your own discretion, based on your application's specific needs.
+ * These methods are required to be implemented by all data models:
+ *
+ * _Click the links for API details:_
+ * * {@link dataModelAPI#getRowCount getRowCount()}
+ * * {@link dataModelAPI#getSchema getSchema()}
+ * * {@link dataModelAPI#getValue getValue(x, y)}
+ *
+ * #### Optional API methods with default implementations
+ *
+ * The following API methods are optional. When the data model an application is using does not implement these natively, the applicaiton can implement them in a subclass of that data model.
+ *
+ * Failing this, Hypergrid injects "fallbacks" (default implementations) into the data model for all missing methods. Some of these merely fail silently, but most do something useful (though not necessarily smart or efficient).
+ *
+ * Another option for the application is to override these injected default implementations at run-time by assigning new definitions. This is functionally equivalent to subclassing the data model (as recommended above). That approach, however, can sometimes feel a bit heavy when, for example, the need is to override just a single method (such as `getCell`).
+ *
+ * _Click the links for API details:_
+ * * {@link dataModelAPI#apply apply()} — Fails silently.
+ * * {@link dataModelAPI#click click()} — Fails silently.
+ * * {@link dataModelAPI#getCell getCell(config, rendererName)} — Overridable.
+ * * {@link dataModelAPI#getCellEditorAt getCellEditorAt(columnIndex, rowIndex, editorName, cellEvent)} — Overridable.
+ * * {@link dataModelAPI#getColumnCount getColumnCount()}
+ * * {@link dataModelAPI#getData getData(metaDataFieldName)}
+ * * {@link dataModelAPI#getMetadataStore getMetadataStore()}
+ * * {@link dataModelAPI#getRowIndex getRowIndex(y)}
+ * * {@link dataModelAPI#getRow getRow(y)}
+ * * {@link dataModelAPI#getRowMetadata getRowMetadata(y, newRowMetadata)}
+ * * {@link dataModelAPI#isDrillDown isDrillDown()} — Fails silently.
+ * * {@link dataModelAPI#setMetadataStore setMetadataStore()}
+ * * {@link dataModelAPI#setRowMetadata setRowMetadata(y, newRowMetadata)}
+ *
+ * `getCell` and `getCellEditorAt` require some special explanation: These are hooks called by Hypergrid at cell render time and cell edit time, respectively. The concerns of these methods have much less to do with the data model than they have to do with application logic. Nevertheless, they are historically situated on the data model, and are called with the data model as their execution context. They may be implemented on a data model, but this is rare and they are more typically overridden at run-time — which is why they are annotated above as "overridable" (although all methods are technically overridable).
+ *
+ * #### Optional API without default implementations
+ *
+ * The following API methods are optional. Hypergrid does _not_ inject fallbacks for these. If your application wants to call these directly, you must implement them. Note in the following the circumstances under which Hypergrid will call them:
+ *
+ * _Click the links for API details:_
+ * * {@link dataModelAPI#setData setData(newData)}<br>
+ *     Called by Hypergrid when the application specifies the `data` option.*
+ * * {@link dataModelAPI#setSchema setSchema(newSchema)}<br>
+ *     Called by Hypergrid when the application specifies the `schema` option.* (Invoking the `behavior.schema` setter also calls `setSchema`.)
+ * * {@link dataModelAPI#setValue setValue(x, y, value)}<br>
+ *     Called by Hypergrid when the user edits a cell. To prevent Hypergrid from calling this method, make all cells non-editable ({@link module:defaults.editable grid.properties.editable = false}).
+ *
+ * _\* These options are accepted by the `Hypergrid()` constructor, `grid.setData()`, and `behavior.setData()`._
+ *
+ * #### Proposed API
+ *
+ * _Click the links for proposed API details:_
+ * * {@link dataModelAPI#addRow addRow(y=Infinity, dataRow)}
+ * * {@link dataModelAPI#delRow delRow(y, rowCount=1)}
+ * * {@link dataModelAPI#setRow setRow(y, dataRow=null)}
  *
  * #### Utility methods
  *
- * Hypergrid only references the following when implemented (as they are in `DataSourceBase`).
- *
- * * {@link dataModelAPI#install install(api, injectFallbacks)}
+ * * {@link dataModelAPI#install install(api, options)}
+ * * {@link dataModelAPI#addListener addListener(fn)}
+ * * {@link dataModelAPI#removeListener removeListener(fn)}
+ * * {@link dataModelAPI#dispatchEvent dispatchEvent(event)}
  * * {@link dataModelAPI#drillDownCharMap drillDownCharMap}
  *
- * #### `Error` implementation
+ * #### `Error` object
  *
- * Hypergrid never uses this but data models should always do so when they need to throw an error:
+ * The following subclass of `Error` is available to data models when they need to throw an error:
  *
- * * {@link dataModelAPI#DataSourceError DataSourceError(message)}
+ * * {@link dataModelAPI#DataModelError DataModelError(message)}
  *
- * This helps identify the error as coming from the data model and not from Hypergrid (which always uses its own `HypergridError`) or the application.
+ * This helps identify the error as coming from the data model and not from Hypergrid (which uses its own `HypergridError`) or the application.
  *
  * #### Data events
  *
@@ -99,21 +131,32 @@ var data = [
  *
  * #### Data model base class
  *
- * Although not a requirement, data models are more typically class instances, typically extending from `DataSourceBase` (_i.e.,_ have as its prototype the prototype of `DataSourceBase`).
+ * Although not a requirement, data models are more typically class instances, typically _extending_ from {@link https://github.com/fin-hypergrid/datasaur-base `datasaur-base`}. (The term "extending" refers to JavaScript prototypal inheritance, meaning that `datasaur-base` can be found at the end of the data model's prototype chain — typically the data model's prototype's prototype, although there could be additional prototypes inbetween.).
+ *
+ * Subclassing `datasaur-base` (also _not a requirement_) provides the following:
+ * * Supports _flat_ or _concatenated_ (aka _stacked_) data model structures
+ * * Implements utility methods (see below)
+ * * Implements {@link dataModelAPI#DataModelError DataModelError} (subclass of {@link https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Error `Error`})
+ *
+ * If your data model does not subclass `datasaur-base` and…
+ * * …does not implement `install`:
+ *    * Hypergrid injects a rudimentary `install` method
+ * * …does not implement `addListener`:
+ *    * Hypergrid injects a `dispatchEvent` method bound to the grid instance
  *
  * There are many ways to "extend" a class do this. For instance, to "extend" the above example:
 ```javascript
-Object.setPrototypeOf(dataModel, DataSourceBase.prototype);
+Object.setPrototypeOf(dataModel, DatasaurBase.prototype);
 ```
  * Or, for a hypothetical `DataModel` constructor:
 ```javascript
-Object.setPrototypeOf(DataModel.prototype, DataSourceBase.prototype);
+Object.setPrototypeOf(DataModel.prototype, DatasaurBase.prototype);
 ```
- * But the usual practice is to use `DataSourceBase.extend`. For example, `DataSourcelLocal`, the default data model that comes with Hypergrid, [does this](https://github.com/fin-hypergrid/datasaur-local/blob/master/index.js#L27). `DataSourceBase` supports "stacked" data models (with multi-stage data transformations). It also includes an implementation of the `install` utility method.
+ * But the usual practice is to use `DatasaurBase.extend`. For example, `DataSourcelLocal`, the default data model that comes with Hypergrid, [does this](https://github.com/fin-hypergrid/datasaur-local/blob/master/index.js#L24). `DatasaurBase` supports "stacked" data models (with multi-stage data transformations). It also includes an implementation of the `install` utility method.
  *
- * But again, extending from `DataSourceBase` is not a requirement, just so long as the data model conforms to the interface. And for that reason, a rudimentary version of `install` is injected into custom data models when they lack an implementation of their own.
+ * Because extending from `DatasaurBase` is not a requirement (just so long as the data model implements the required interface), a rudimentary version of `install` is injected into custom data models when they lack an implementation of their own.
  *
- * `DataSourceBase` can be found in the [`datasaur-base`] module.
+ * `DatasaurBase` can be found in the [`datasaur-base`] module.
  */
 
 /** @typedef {object} columnSchema
@@ -135,12 +178,63 @@ Object.setPrototypeOf(DataModel.prototype, DataSourceBase.prototype);
  * All row objects should be congruent, meaning that each data row should have the same property keys.
  */
 
+/** @typedef {object} DataModelEvent
+ * Besides `type`, your event object can contain other event details.
+ *
+ * After calling the internal handler found in [src/behaviors/Local/events.js](https://github.com/fin-hypergrid/core/tree/master/src/behaviors/Local/events.js) matching the event name, Hypergrid then creates a {@link https://developer.mozilla.org/en-US/docs/Web/API/CustomEvent `CustomEvent`} with the same name, sets its `detail` property to this object, and dispatches to the `<canvas>` element — to be picked up by any listeners previously attached with {@link Hypergrid#addEventListener}.
+ * @param {object} event
+ * @param {string} event.type - Event string (name).
+ */
+
+/** @typedef {function} DataModelListener
+ * @this {Hypergrid}
+ * @param {DataModelEvent} event
+ */
+
+/**
+ * @method dataModelAPI#addListener
+ * @desc _IMPLEMENTATION OF THIS METHOD IS OPTIONAL._
+ * If your data model does not implement this method, {@link Local#resetDataModel} adds the default implementation from [polyfills.js](https://github.com/fin-hypergrid/core/tree/master/src/behaviors/Local/polyfills.js). If your data model does implement it, it should also implement the sister methods {@link dataModelAPI#dispatchEvent dispatchEvent}, {@link dataModelAPI#removeListener removeListener}, and {@link dataModelAPI#removeAllListeners removeAllListeners}, because they all work together and you don't want to mix native implementations with polyfills.
+ *
+ * Hypergrid calls this method subscribe to data model events. The data model calls its own implementation of `dispatchEvent` to publish events to subscribers.
+ *
+ * Both the `addListener` polyfill as well as `datasaur-base`'s implementation service multiple listeners for the use case of multiple grid instances all using the same data model instance. To support this use case, your data model should service multiple listeners as well. (Doing so also lets the application add its own listener(s) to the data model.)
+ *
+ * @param {DataModelListener} handler - A reference to a function bound to a grid instance. The function is called whenever the data model calls its {@link dataModelAPI#dispatchEvent} method. The handler thus receives all data model events (in `event.type).
+ */
+
+/**
+ * @method dataModelAPI#removeListener
+ * @desc _IMPLEMENTATION OF THIS METHOD IS OPTIONAL._
+ * If your data model does not implement this method, {@link Local#resetDataModel} adds the default implementation from [polyfills.js](https://github.com/fin-hypergrid/core/tree/master/src/behaviors/Local/polyfills.js). If your data model does implement it, it should also implement the sister methods {@link dataModelAPI#addListener addListener}, {@link dataModelAPI#dispatchEvent dispatchEvent}, and {@link dataModelAPI#removeAllListeners removeAllListeners}, because they all work together and you don't want to mix native implementations with polyfills.
+ *
+ * Detaches the data model from a particular grid instance.
+ *
+ * This method is called by {@link Hypergrid#desctruct} to clean up memory.
+ * Note: `destruct` is not called automatically by Hypergrid; applications must call it explicitly when disposing of a grid.
+ *
+ * @param {DataModelListener} handler - A reference to the handler originally provided to {@link dataModelAPI#addListener}.
+ */
+
+/**
+ * @method dataModelAPI#removeAllListeners
+ * @desc _IMPLEMENTATION OF THIS METHOD IS OPTIONAL._
+ * If your data model does not implement this method, {@link Local#resetDataModel} adds the default implementation from [polyfills.js](https://github.com/fin-hypergrid/core/tree/master/src/behaviors/Local/polyfills.js). If your data model does implement it, it should also implement the sister methods {@link dataModelAPI#addListener addListener}, {@link dataModelAPI#dispatchEvent dispatchEvent}, and {@link dataModelAPI#removeListener removeListener}, because they all work together and you don't want to mix native implementations with polyfills.
+ *
+ * Removes all data model event handlers, detaching the data model from all grid instances.
+ *
+ * This method is not called by Hypergrid but might be useful to applications for resetting a data model instance.
+ */
+
 /**
  * @method dataModelAPI#dispatchEvent
- * @desc This method is injected by Hypergrid when data model does not support `addListener`.
+ * @desc _IMPLEMENTATION OF THIS METHOD IS OPTIONAL._
+ * If your data model does not implement this method, {@link Local#resetDataModel} adds the default implementation from [polyfills.js](https://github.com/fin-hypergrid/core/tree/master/src/behaviors/Local/polyfills.js). If your data model does implement it, it should also implement the sister methods {@link dataModelAPI#addListener addListener}, {@link dataModelAPI#removeListener removeListener}, and {@link dataModelAPI#removeAllListeners removeAllListeners}, because they all work together and you don't want to mix native implementations with polyfills.
+ *
+ * If `addListener` is not implemented, Hypergrid falls back to a simpler approach, injecting its own implementation of `dispatchEvent`, bound to the grid instance, into the data model. If the data model already has such an implementation, the assumption is that it was injected by another grid instance using the same data model. The newly injected implementation will call the original injected implementation, thus creating a chain. This is an inferior approach because grids cannot easily unsubscribe themselves. Applications can remove all subscribers in the chain by deleting the implementation of `dispatchEvent` (the end of the chain) from the data model.
+ *
  * #### Parameters:
- * @param {string} eventName - Event string (name).
- * @param {object} [eventDetail={}] - Optional event detail data.
+ * @param {DataModelEvent} event
  */
 
 /** @event dataModelAPI#fin-hypergrid-schema-changed
@@ -197,7 +291,9 @@ Object.setPrototypeOf(DataModel.prototype, DataSourceBase.prototype);
 
 /**
  * @method dataModelAPI#getRow
- * @desc Get a row of data.
+ * @desc _IMPLEMENTATION OF THIS METHOD IS OPTIONAL._
+ *
+ * Get a row of data.
  *
  * The injected default implementation is an object of lazy getters.
  * #### Parameters:
@@ -207,9 +303,9 @@ Object.setPrototypeOf(DataModel.prototype, DataSourceBase.prototype);
 
 /**
  * @method dataModelAPI#setRow
- * @desc Update or blank row in place.
+ * @desc _IMPLEMENTATION OF THIS METHOD IS OPTIONAL._
  *
- * _Note parameter order is the reverse of `addRow`._
+ * Update or blank a row in place, without deleting the row (and without affecting succeeding rows' indexes).
  * #### Parameters:
  * @param {number} y
  * @param {object} [dataRow] - if omitted or otherwise falsy, row renders as blank
@@ -217,7 +313,9 @@ Object.setPrototypeOf(DataModel.prototype, DataSourceBase.prototype);
 
 /**
  * @method dataModelAPI#apply
- * @desc Transforms the data. All the rows are subject to change, including the row count.
+ * @desc _IMPLEMENTATION OF THIS METHOD IS OPTIONAL._
+ *
+ * Transforms the data. All the rows are subject to change, including the row count.
  */
 
 /**
@@ -228,7 +326,9 @@ Object.setPrototypeOf(DataModel.prototype, DataSourceBase.prototype);
 
 /**
  * @method dataModelAPI#setRowMetadata
- * @desc Set the row's metadata object, which is a hash of cell properties objects, for those cells that have property overrides, keyed by column name; plus a row properties object with key `__ROW` when there are row properties.
+ * @desc _IMPLEMENTATION OF THIS METHOD IS OPTIONAL._
+ *
+ * Set the row's metadata object, which is a hash of cell properties objects, for those cells that have property overrides, keyed by column name; plus a row properties object with key `__ROW` when there are row properties.
  *
  * The default implementations of `getRowMetadata` and `setRowMetadata` store the metadata in an in-memory table. If this is not appropriate, override these methods to store the meta somewhere else (_e.g.,_ with the data in a hidden column, in another database table, in local storage, _etc._).
  *
@@ -239,9 +339,11 @@ Object.setPrototypeOf(DataModel.prototype, DataSourceBase.prototype);
 
 /**
  * @method dataModelAPI#setMetadataStore
- * @desc Set the metadata store. The precise type of this object is implementation-dependent, so not defined here.
+ * @desc _IMPLEMENTATION OF THIS METHOD IS OPTIONAL._
  *
- * `DataSourceBase` supplies fallback implementations of this method as well as {@link dataModelAPI#getMetadataStore} which merely set and get `this.metadata` in support of {@link dataModelAPI#setRowMetadata} and {@link dataModelAPI#getRowMetadata}.
+ * Set the metadata store. The precise type of this object is implementation-dependent, so not defined here.
+ *
+ * `datasaur-base` supplies fallback implementations of this method as well as {@link dataModelAPI#getMetadataStore} which merely set and get `this.metadata` in support of {@link dataModelAPI#setRowMetadata} and {@link dataModelAPI#getRowMetadata}.
  *
  * Custom data models are not required to implement them if they don't need them.
  *
@@ -254,7 +356,9 @@ Object.setPrototypeOf(DataModel.prototype, DataSourceBase.prototype);
 
 /**
  * @method dataModelAPI#getRowMetadata
- * @desc Get the row's metadata object, which is a hash of cell properties objects, for those cells that have property overrides, keyed by column name; plus a row properties object with key `__ROW` when there are row properties.
+ * @desc _IMPLEMENTATION OF THIS METHOD IS OPTIONAL._
+ *
+ * Get the row's metadata object, which is a hash of cell properties objects, for those cells that have property overrides, keyed by column name; plus a row properties object with key `__ROW` when there are row properties.
  *
  * The default implementations of `getRowMetadata` and `setRowMetadata` store the metadata in an in-memory table. If this is not appropriate, override these methods to store the meta somewhere else (_e.g.,_ with the data in a hidden column, in another database table, in local storage, _etc._).
  *
@@ -270,9 +374,11 @@ Object.setPrototypeOf(DataModel.prototype, DataSourceBase.prototype);
 
 /**
  * @method dataModelAPI#getMetadataStore
- * @desc Get the metadata store. The precise type of this object is implementation-dependent so not defined here.
+ * @desc _IMPLEMENTATION OF THIS METHOD IS OPTIONAL._
  *
- * `DataSourceBase` supplies fallback implementations of this method as well as {@link dataModelAPI#setMetadataStore} which merely get and set `this.metadata` in support of {@link dataModelAPI#getRowMetadata} and {@link dataModelAPI#setRowMetadata}.
+ * Get the metadata store. The precise type of this object is implementation-dependent so not defined here.
+ *
+ * `datasaur-base` supplies fallback implementations of this method as well as {@link dataModelAPI#setMetadataStore} which merely get and set `this.metadata` in support of {@link dataModelAPI#getRowMetadata} and {@link dataModelAPI#setRowMetadata}.
  *
  * Custom data models are not required to implement them if they don't need them.
  *
@@ -284,7 +390,8 @@ Object.setPrototypeOf(DataModel.prototype, DataSourceBase.prototype);
 /**
  * @method dataModelAPI#install
  * @summary Install methods into data model.
- * @desc Installs _catchers functions_ or _fallback methods_ into the data model when no native implementation exists, thus ensuring the methods have implementations for Hypergrid to call.
+ * @desc _IMPLEMENTATION OF THIS METHOD IS OPTIONAL._
+ * If your data model does not implement this method, {@link Local#resetDataModel} adds the default implementation from [polyfills.js](https://github.com/fin-hypergrid/core/tree/master/src/behaviors/Local/polyfills.js) and then uses it to install the other polyfills and fallbacks when no native implementations exist, thus ensuring there are implementations for Hypergrid to call.
  *
  * ### Catcher functions
  * Catcher functions catch calls made by Hypergrid to otherwise unimplemented functions so such calls fail silently rather than throw an error.
@@ -296,8 +403,6 @@ Object.setPrototypeOf(DataModel.prototype, DataSourceBase.prototype);
  * The type of _catcher function_ depends on the data model:
  * * Flat data model: Catcher functions are simple no-ops that fail silently.
  * * Stacked data model: Catcher functions forward calls down the stack to the first native implementation found. When no native implementation is found, the call then fails silently.
- *
- * (A stacked data model consists of a list of _data transformers,_ linked one to the next with a `next` property, and ending with a _data source_ with an undefined `next`. The [`datasaur-base`](https://github.com/fin-hypergrid/datasaur-base) base class supports stacked data models.)
  *
  * ### Fallbacks methods
  * Instead of failing silently, Hypergrid can instead install fallback methods for missing implementations:
@@ -325,7 +430,7 @@ Object.setPrototypeOf(DataModel.prototype, DataSourceBase.prototype);
  */
 
 /**
- * @method dataModelAPI#DataSourceError
+ * @method dataModelAPI#DataModelError
  * @desc A direct descendent of `Error`.
  * @returns {dataRowObject[]}
  */
@@ -341,7 +446,9 @@ Object.setPrototypeOf(DataModel.prototype, DataSourceBase.prototype);
 /**
  * @method dataModelAPI#click
  * @summary Mouse was clicked on a grid row.
- * @desc The data model may respond to clicks by adding/removing/decorating data rows (_e.g.,_ a drill-down).
+ * @desc _IMPLEMENTATION OF THIS METHOD IS OPTIONAL._
+ *
+ * The data model may respond to clicks by adding/removing/decorating data rows (_e.g.,_ a drill-down).
  * If it does so, the click is considered to be "consumed."
  * When a click is consumed, data models should publish 'data-changed' to the grid; or 'data-prereindex' and 'data-postreindex', which in turn triggers a 'data-changed' event. Hypergrid takes appropriate actions on receipt of 'data-*' events before synthesizing and firing 'fin-data-*' events.
  * #### Parameters:
@@ -351,7 +458,9 @@ Object.setPrototypeOf(DataModel.prototype, DataSourceBase.prototype);
 
 /**
  * @method dataModelAPI#isTree
- * @desc Synonym for {@link dataModelAPI#isDrillDown isDrillDown}.
+ * @desc _IMPLEMENTATION OF THIS METHOD IS OPTIONAL._
+ *
+ * Synonym for {@link dataModelAPI#isDrillDown isDrillDown}.
  * #### Parameters:
  * @param {number} y - Data row index.
  * @returns {boolean} The row has a drill down control.
@@ -359,7 +468,9 @@ Object.setPrototypeOf(DataModel.prototype, DataSourceBase.prototype);
 
 /**
  * @method dataModelAPI#isDrillDown
- * @desc Called by Hypergrid's CellClick feature whenever user clicks on the grid.
+ * @desc _IMPLEMENTATION OF THIS METHOD IS OPTIONAL._
+ *
+ * Called by Hypergrid's CellClick feature whenever user clicks on the grid.
  * #### Parameters:
  * @param {number} y - Data row index.
  * @returns {boolean} The row has a drill down control.
@@ -367,7 +478,9 @@ Object.setPrototypeOf(DataModel.prototype, DataSourceBase.prototype);
 
 /**
  * @method dataModelAPI#getRowIndex
- * @desc Only called by Hypergrid when it receives the `data-prereindex` or `data-postreindex` events.
+ * @desc _IMPLEMENTATION OF THIS METHOD IS OPTIONAL._
+ *
+ * Only called by Hypergrid when it receives the `data-prereindex` or `data-postreindex` events.
  * These events are typically triggered before and after data model remaps the rows (in its `apply` method).
  * #### Parameters:
  * @param {number} y - Transformed data row index.
@@ -376,7 +489,9 @@ Object.setPrototypeOf(DataModel.prototype, DataSourceBase.prototype);
 
 /**
  * @method dataModelAPI#getDataIndex
- * @desc Synonym for getRowIndex.
+ * @desc _IMPLEMENTATION OF THIS METHOD IS OPTIONAL._
+ *
+ * Synonym for getRowIndex.
  * #### Parameters:
  * @param {number} y - Transformed data row index.
  * @returns {number} Untransformed data row index.
@@ -384,7 +499,9 @@ Object.setPrototypeOf(DataModel.prototype, DataSourceBase.prototype);
 
 /**
  * @method dataModelAPI#getData
- * @desc All grid data.
+ * @desc _IMPLEMENTATION OF THIS METHOD IS OPTIONAL._
+ *
+ * All grid data.
  * #### Parameters:
  * @param {string} [metadataFieldName] - If provided, the output will include the row metadata object in a "hidden" field with this name.
  * @returns {dataRowObject[]} All the grid's data rows.
@@ -400,7 +517,9 @@ Object.setPrototypeOf(DataModel.prototype, DataSourceBase.prototype);
 
 /**
  * @method dataModelAPI#setSchema
- * @desc Define column indexes. May include `header`, `type`, and `calculator` properties for each column.
+ * @desc _IMPLEMENTATION OF THIS METHOD IS OPTIONAL._
+ *
+ * Define column indexes. May include `header`, `type`, and `calculator` properties for each column.
  *
  * When the schema changes, the data model should dispatch the `data-schema-changed` event, which tells Hypergrid to {@link module:schema.decorate decorate} the schema and recreate the column objects.
  *
@@ -411,17 +530,19 @@ Object.setPrototypeOf(DataModel.prototype, DataSourceBase.prototype);
 
 /**
  * @method dataModelAPI#addRow
- * @desc Insert or append a new row.
+ * @desc _IMPLEMENTATION OF THIS METHOD IS OPTIONAL._
  *
- * _Note parameter order is the reverse of `setRow`._
+ * Insert or append a new row.
  * #### Parameters:
- * @param {object} dataRow
  * @param {number} [y=Infinity] - The index of the new row. If `y` >= row count, row is appended to end; otherwise row is inserted at `y` and row indexes of all remaining rows are incremented.
+ * @param {object} dataRow
  */
 
 /**
  * @method dataModelAPI#delRow
- * @desc Rows are removed entirely and no longer render.
+ * @desc _IMPLEMENTATION OF THIS METHOD IS OPTIONAL._
+ *
+ * Rows are removed entirely and no longer render.
  * Indexes of all remaining rows are decreased by `rowCount`.
  * #### Parameters:
  * @param {number} y
@@ -440,7 +561,9 @@ Object.setPrototypeOf(DataModel.prototype, DataSourceBase.prototype);
 
 /**
  * @method dataModelAPI#setValue
- * @desc Set a cell's value given its column & row indexes and a new value.
+ * @desc _IMPLEMENTATION OF THIS METHOD IS OPTIONAL._
+ *
+ * Set a cell's value given its column & row indexes and a new value.
  * #### Parameters:
  * @param {number} columnIndex
  * @param {number} rowIndex
@@ -449,7 +572,9 @@ Object.setPrototypeOf(DataModel.prototype, DataSourceBase.prototype);
 
 /**
  * @method dataModelAPI#setData
- * @desc Blah.
+ * @desc _IMPLEMENTATION OF THIS METHOD IS OPTIONAL._
+ *
+ * Blah.
  * #### Parameters:
  * @param {dataRowObject[]} data - An array of congruent raw data objects.
  * @param {rawColumnSchema[]} - Ordered array of column schema.
@@ -458,9 +583,8 @@ Object.setPrototypeOf(DataModel.prototype, DataSourceBase.prototype);
 /**
  * @method dataModelAPI#getCell
  * @summary Renderer configuration interceptor.
- * @desc #### IMPLEMENTATION: Optional
- *
- * If your data model does not supply a custom `getCell` method, {@link Behavior#reset} adds the default implementation ({@link module:dataModel.getCell}).
+ * @desc _IMPLEMENTATION OF THIS METHOD IS OPTIONAL._
+ * If your data model does not implement this method, {@link Local#resetDataModel} adds the default implementation ({@link module:hooks.getCell}).
  *
  * #### Description
  *
@@ -489,9 +613,8 @@ Object.setPrototypeOf(DataModel.prototype, DataSourceBase.prototype);
 /**
  * @method dataModelAPI#getCellEditorAt
  * @summary Instantiate a new cell editor.
- * @desc #### IMPLEMENTATION: Optional
- *
- * If your data model does not supply a custom `getCellEditorAt` method, {@link Behavior#reset} adds the default implementation ({@link module:dataModel.getCellEditorAt}).
+ * @desc _IMPLEMENTATION OF THIS METHOD IS OPTIONAL._
+ * If your data model does not implement this method, {@link Local#resetDataModel} adds the default implementation ({@link module:hooks.getCellEditorAt}).
  *
  * #### Description
  *

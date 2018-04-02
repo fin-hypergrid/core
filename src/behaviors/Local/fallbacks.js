@@ -56,6 +56,10 @@ module.exports = {
         console.warn('dataModel.setValue(' + x + ', ' + y + ', "' + value + '") called but no implementation. Data not saved.');
     },
 
+    setSchema: function(schema) {
+        console.warn('dataModel.setSchema(schema) called but no implementation. Schema not updated.');
+    },
+
     /** @implements dataModelAPI#getRowIndex */
     getRowIndex: function(y) {
         return y;

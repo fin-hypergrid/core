@@ -194,10 +194,17 @@ var Hypergrid = Base.extend('Hypergrid', {
 
     /**
      * Be a responsible citizen and call this function on instance disposal!
+     * @memberOf Hypergrid#
      */
-    terminate: function() {
+    destruct: function() {
         document.removeEventListener('mousedown', this.mouseCatcher);
+        this.behavior.dataModel.removeListener(this.behavior.boundDispatchEvent);
+        this.removeAllEventListeners(true);
         this.canvas.stop();
+
+        var div = this.div;
+        while (div.hasChildNodes()) { div.removeChild(div.firstChild); }
+
         Hypergrid.grids.splice(Hypergrid.grids.indexOf(this), 1);
     },
 
@@ -1663,7 +1670,7 @@ var Hypergrid = Base.extend('Hypergrid', {
     /**
      * Clears all cell properties of given column or of all columns.
      * @param {number} [x] - Omit for all columns.
-     * @memberOf Behavior#
+     * @memberOf Hypergrid#
      */
     clearAllCellProperties: function(x) {
         this.behavior.clearAllCellProperties(x);

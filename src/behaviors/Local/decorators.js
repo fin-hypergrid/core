@@ -12,14 +12,11 @@
 
 var hooks = require('./hooks');
 var fallbacks = require('./fallbacks');
-var dataModelEventHandlers = require('./events');
-var dispatchGridEvent = require('../../lib/dispatchGridEvent');
+var polyfills = require('./polyfills');
 
 
 var warned = {};
 
-
-function silent() {}
 
 /**
  * Injects missing utility functions into the data model.
@@ -30,7 +27,7 @@ function silent() {}
  * * {@link module:decorators.injectCode injectCode} to:
  *    * Inject fallbacks for missing non-essential data model methods
  *    * Bind the data model's `dispatchEvent` method to the grid instance
- * * {@link module:decorators.injectCode injectCode} to:
+ * * {@link module:decorators.injectDefaulthooks injectDefaulthooks} to:
  *    * Inject a default for the `getCell` hook
  *    * Inject a default for the `getCellEditorAt` hook
  *
@@ -39,115 +36,21 @@ function silent() {}
  * @memberOf module:decorators
  */
 function injectPolyfills(dataModel) {
-    if (!dataModel.install) {
-        dataModel.install = function(api) {
-            if (!api) {
-                return;
-            }
-
-            var isArray = Array.isArray(api),
-                keys = isArray ? api : Object.keys(api).filter(function(key) {
-                    return typeof api[key] === 'function' &&
-                        key !== 'constructor' &&
-                        key !== 'initialize';
-                });
-
-            keys.forEach(function(key) {
-                if (!this[key]) {
-                    this[key] = isArray ? silent : api[key];
-                }
-            }, this);
-        };
-    }
+    Object.keys(polyfills).forEach(function(key) {
+        if (!dataModel[key]) {
+            dataModel[key] = polyfills[key];
+        }
+    });
 }
 
 /**
- * Injects code into data model:
- * * Inject fallback methods into data model when not implemented by data model.
- * * Binds the data model's `dispatchEvent` method to the grid instance:
- *    1. If `dataModel.addListener` is already implemented:<br>
- *       * Calls it event handler bound to this grid that handles all `data-` events.
- *       * `dataModel.dispatchEvent` is presumed to be implemented as well.
- *    2. If `dataModel.addListener` is not implemented:<br>
- *       * Inject same event handler as above into `dataModel.dispatchEvent`.
- *
+ * Inject fallback methods into data model when not implemented by data model.
  * @this {Local}
  * @param {dataModelAPI} dataModel
- * @param {Hypergrid} grid
  * @memberOf module:decorators
  */
-function injectCode(dataModel, grid) {
-    var options = {
-        inject: true
-    };
-
-    dataModel.install(fallbacks, options);
-
-    var handler = dispatchDataModelEvent.bind(grid);
-
-    // There are two eventing models data models can use:
-    if (dataModel.addListener) {
-        // Choice #1: `addListener` eventing model: If implemented, register our bound dispatcher with it.
-        dataModel.addListener(handler);
-    } else {
-        // Choice #2: Inject our bound dispatcher directly into data model
-        options.force = true;
-        dataModel.install({ dispatchEvent: handler }, options);
-    }
-}
-
-
-var REGEX_DATA_EVENT_STRING = /^fin-hypergrid-(data|schema)(-[a-z]+)+$/;
-
-/**
- * @summary Hypergrid data model event handler.
- * @desc This function is not called by Hypergrid.
- * Rather, it is handed to the data model (by {@link module:decorators.injectCode injectCode} as `dispatchEvent`) to issue callbacks to the grid.
- *
- * This handler:
- * 1. Checks the event string to make sure it conforms to the expected syntax:
- *    * Starts with `fin-hypergrid-data-` or `fin-hypergrid-schema-`
- *    * Includes only lowercase letters and hyphens
- * 2. Calls a handler in the {@link dataModelEventHandlers} namespace of the same name as the event string.
- * 3. Re-emits the event as a DOM event to the `<canvas>` element (unless the handler has already done so).
- *
- * The data model's `dispatchEvent` method is bound to the grid by {@link module:decorators.injectCode injectCode}.
- * A curried version of this function, bound to the grid instance, is either:
- * * Added to the data model via its `addListener` method, if it has one; or
- * * Force-injected into the data model, overriding any native implementation. (A native implementation may exist simply to "catch" calls that might be made before the data model is attached to Hypergrid.)
- *
- * @this {Hypergrid}
- * @param {string|NormalizedDataModelEvent} event
- * @memberOf module:decorators~
- */
-function dispatchDataModelEvent(event) {
-    var type;
-
-    switch (typeof event) {
-        case 'string':
-            type = event;
-            event = { type: type };
-            break;
-        case 'object':
-            if ('type' in event) {
-                type = event.type;
-                break;
-            }
-        // fall through
-        default:
-            throw new TypeError('Expected data model event to be: (string | {type:string})');
-    }
-
-    if (!REGEX_DATA_EVENT_STRING.test(type)) {
-        throw new TypeError('Expected data model event type "' + type + ' to match ' + REGEX_DATA_EVENT_STRING + '.');
-    }
-
-    var nativeHandler = dataModelEventHandlers[event.type];
-    if (nativeHandler) {
-        var dispatched = nativeHandler.call(this, event);
-    }
-
-    return dispatched !== undefined ? dispatched : dispatchGridEvent.call(this, event.type, event);
+function injectCode(dataModel) {
+    dataModel.install(fallbacks, { inject: true });
 }
 
 /**

@@ -10,6 +10,7 @@ var Behavior = require('../Behavior');
 var DefaultDataModel = require('datasaur-local');
 
 var decorators = require('./decorators');
+var dispatchDataModelEvent = require('./dispatchDataModelEvent');
 
 
 /**
@@ -137,19 +138,23 @@ var Local = Behavior.extend('Local', {
     },
 
     /**
-     * Decorate data model object.
+     * Decorate data model object, initialize its metadata store, and subscribe to its events.
      * @see {@link module:decorators.injectPolyfills injectPolyfills}
      * @see {@link module:decorators.injectCode injectCode}
      * @see {@link module:decorators.injectDefaulthooks injectDefaulthooks}
      * @param {dataModelAPI} newDataModel
      * @param {dataModelAPI} [options.metadata] - Passed to {@link dataModelAPI#setMetadataStore setMetadataStore}.
+     * @memberOf Local#
      */
     decorateDataModel: function(newDataModel, options) {
         decorators.injectPolyfills(newDataModel);
-        decorators.injectCode(newDataModel, this.grid);
+        decorators.injectCode(newDataModel);
         decorators.injectDefaulthooks(newDataModel);
 
         newDataModel.setMetadataStore(options && options.metadata);
+
+        this.boundDispatchEvent = this.boundDispatchEvent || dispatchDataModelEvent.bind(this.grid);
+        newDataModel.addListener(this.boundDispatchEvent);
 
         return newDataModel;
     },

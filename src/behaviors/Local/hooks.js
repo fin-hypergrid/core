@@ -1,10 +1,14 @@
 'use strict';
 
+/**
+ * @module hooks
+ */
+
 
 /**
- * Custom implementations should return with a call to the default implementation:
+ * Custom implementations can return with a call to the default implementation:
  * ```js
- * var getCell = require('fin-hypergrid/src/behaviors/dataModel').getCell;
+ * var getCell = require('fin-hypergrid/src/behaviors/dataModel/hooks').getCell;
  * function myCustomGetCell(config, rendererName) {
  *     // custom logic here that mutates config and/or renderName
  *     return getCell(config, rendererName);
@@ -17,8 +21,13 @@
  *     return config.grid.cellRenderers.get(rendererName);
  * }
  * ```
- * @implements {dataModelAPI#getCell}
- * @memberOf module:dataModel
+ * To set the default implementation for all new grid instances, override this function in place:
+ * ```js
+ * var hooks = require('fin-hypergrid/src/behaviors/dataModel/hooks');
+ * hooks.getCell = myCustomDefaultGetCell;
+ * ```
+ * @this {dataModelAPI}
+ * @memberOf module:hooks
  */
 exports.getCell = function(config, rendererName) {
     return config.grid.cellRenderers.get(rendererName);
@@ -26,9 +35,9 @@ exports.getCell = function(config, rendererName) {
 
 
 /**
- * Custom implementations should return with a call to the default implementation:
+ * Custom implementations can return with a call to the default implementation:
  * ```js
- * var getCellEditorAt = require('fin-hypergrid/src/behaviors/dataModel').getCellEditorAt;
+ * var getCellEditorAt = require('fin-hypergrid/src/behaviors/dataModel/hooks').getCellEditorAt;
  * function myCustomGetCellEditorAt(columnIndex, rowIndex, editorName, cellEvent) {
  *     // custom logic here, may mutate config and/or renderName
  *     return getCellEditorAt(columnIndex, rowIndex, editorName, cellEvent);
@@ -41,8 +50,13 @@ exports.getCell = function(config, rendererName) {
  *     return cellEvent.grid.cellEditors.create(editorName, cellEvent);
  * }
  * ```
- * @implements {dataModelAPI#getCellEditorAt}
- * @memberOf module:dataModel
+ * To set the default implementation for all new grid instances, override this function in place:
+ * ```js
+ * var hooks = require('fin-hypergrid/src/behaviors/dataModel/hooks');
+ * hooks.getCellEditorAt = myCustomDefaultGetCellEditorAt;
+ * ```
+ * @this {dataModelAPI}
+ * @memberOf module:hooks
  */
 exports.getCellEditorAt = function(columnIndex, rowIndex, editorName, cellEvent) {
     return cellEvent.grid.cellEditors.create(editorName, cellEvent);
