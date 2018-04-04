@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Class: NumberFormatter</title>
+    <title>JSDoc: Module: hooks</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -20,7 +20,7 @@
 </nav>
 <div id="main">
 
-    <h1 class="page-title">Class: NumberFormatter</h1>
+    <h1 class="page-title">Module: hooks</h1>
 
     
 
@@ -31,11 +31,6 @@
 
 <header>
     
-        <h2>
-            <span class="ancestors"><a href="module-localization.html">localization</a>~</span>
-        
-        NumberFormatter
-        </h2>
         
     
 </header>
@@ -45,18 +40,49 @@
     
         
 
+        
+    
+    </div>
+
     
 
-    <h4 class="name" id="NumberFormatter"><span class="type-signature"></span>new NumberFormatter<span class="signature">(defaultLocale, locale<span class="signature-attributes">opt</span>, options<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span></h4>
+    
 
     
-    <p class="summary"><p>Create a number localizer.</p></p>
+
+     
+
+    
+
+    
+
+    
+        <h3 class="subsection-title">Methods</h3>
+
+        
+            
+
+    
+
+    <h4 class="name" id=".exports.getCell"><span class="type-signature">(static) </span>exports.getCell<span class="signature">()</span><span class="type-signature"></span></h4>
+
     
 
 
 
 <div class="description">
-    <p>Create an object conforming to <a href="localizerInterface.html"><code>localizerInterface</code></a> for numbers, using <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/NumberFormat">Intl.NumberFormat</a>.</p>
+    <p>Custom implementations can return with a call to the default implementation:</p>
+<pre class="prettyprint source lang-js"><code>var getCell = require('fin-hypergrid/src/behaviors/dataModel/hooks').getCell;
+function myCustomGetCell(config, rendererName) {
+    // custom logic here that mutates config and/or renderName
+    return getCell(config, rendererName);
+}</code></pre><p>Alternatively, copy in the default implementation body (a one-liner):</p>
+<pre class="prettyprint source lang-js"><code>function myCustomGetCell(config, rendererName) {
+    // custom logic here that mutates config and/or renderName
+    return config.grid.cellRenderers.get(rendererName);
+}</code></pre><p>To set the default implementation for all new grid instances, override this function in place:</p>
+<pre class="prettyprint source lang-js"><code>var hooks = require('fin-hypergrid/src/behaviors/dataModel/hooks');
+hooks.getCell = myCustomDefaultGetCell;</code></pre>
 </div>
 
 
@@ -65,186 +91,9 @@
 
 
 
+    <h5>This:</h5>
+    <ul><li>{<a href="DataModel.html">DataModel</a>}</li></ul>
 
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-        <th>Attributes</th>
-        
-
-        
-        <th>Default</th>
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>defaultLocale</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-
-                
-
-                
-                </td>
-            
-
-            
-                <td class="default">
-                
-                </td>
-            
-
-            <td class="description last"></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>locale</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
-
-            
-                <td class="default">
-                
-                    defaultLocale
-                
-                </td>
-            
-
-            <td class="description last"><p>Passed to the <code>https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/NumberFormat</code> constructor.</p></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>options</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">object</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
-
-            
-                <td class="default">
-                
-                </td>
-            
-
-            <td class="description last"><p>Passed to the <code>Intl.NumberFormat</code> constructor.</p></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>options.acceptStandardDigits</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">boolean</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
-
-            
-                <td class="default">
-                
-                    false
-                
-                </td>
-            
-
-            <td class="description last"><p>Accept standard digits and decimal point interchangeably with localized digits and decimal point. (This option is interpreted here; it is not used by <code>Intl.NumberFormat</code>.)</p></td>
-        </tr>
-
-    
-    </tbody>
-</table>
 
 
 
@@ -264,13 +113,6 @@
     
 
     
-    <dt class="implements">Implements:</dt>
-    <dd class="implements"><ul>
-        
-            <li><a href="localizerInterface.html">localizerInterface</a></li>
-        
-    </ul></dd>
-    
 
     
 
@@ -286,13 +128,6 @@
 
     
 
-    
-    <dt class="tag-tutorial">Tutorials:</dt>
-    <dd class="tag-tutorial">
-        <ul>
-            <li><a href="tutorial-localization_.html">Localizers (formatters and deformatters)</a></li>
-        </ul>
-    </dd>
     
 
     
@@ -315,32 +150,98 @@
 
 
 
-    
-    </div>
+        
+            
 
     
-        <h3 class="subsection-title">Extends</h3>
+
+    <h4 class="name" id=".exports.getCellEditorAt"><span class="type-signature">(static) </span>exports.getCellEditorAt<span class="signature">()</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>Custom implementations can return with a call to the default implementation:</p>
+<pre class="prettyprint source lang-js"><code>var getCellEditorAt = require('fin-hypergrid/src/behaviors/dataModel/hooks').getCellEditorAt;
+function myCustomGetCellEditorAt(columnIndex, rowIndex, editorName, cellEvent) {
+    // custom logic here, may mutate config and/or renderName
+    return getCellEditorAt(columnIndex, rowIndex, editorName, cellEvent);
+}</code></pre><p>Alternatively, copy in the default implementation body (a one-liner):</p>
+<pre class="prettyprint source lang-js"><code>function myCustomGetCellEditorAt(columnIndex, rowIndex, editorName, cellEvent) {
+    // custom logic here, may mutate editorName
+    return cellEvent.grid.cellEditors.create(editorName, cellEvent);
+}</code></pre><p>To set the default implementation for all new grid instances, override this function in place:</p>
+<pre class="prettyprint source lang-js"><code>var hooks = require('fin-hypergrid/src/behaviors/dataModel/hooks');
+hooks.getCellEditorAt = myCustomDefaultGetCellEditorAt;</code></pre>
+</div>
+
+
+
+
+
+
+
+    <h5>This:</h5>
+    <ul><li>{<a href="DataModel.html">DataModel</a>}</li></ul>
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
         
-
-
-    <ul>
-        <li>Formatter</li>
-    </ul>
-
-
-    
-
-    
-
-    
-
-     
-
-    
-
-    
-
     
 
     
