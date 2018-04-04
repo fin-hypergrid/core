@@ -4,9 +4,8 @@
 
 var overrider = require('overrider');
 
-var deprecated = require('../lib/deprecated');
 var toFunction = require('../lib/toFunction');
-var assignOrDelete = require('../lib/misc').assignOrDelete;
+var assignOrDelete = require('../lib/assignOrDelete');
 var HypergridError = require('../lib/error');
 var images = require('../../images');
 
@@ -15,7 +14,6 @@ var warned = {};
 
 
 /** @summary Create a new `Column` object.
- * @see {@link module:Cell} is mixed into Column.prototype.
  * @mixes cellProperties.columnMixin
  * @mixes columnProperties.mixin
  * @constructor
@@ -122,15 +120,10 @@ function Column(behavior, columnSchema) {
 Column.prototype = {
     constructor: Column.prototype.constructor,
     $$CLASS_NAME: 'Column',
-    deprecated: deprecated,
 
     HypergridError: HypergridError,
 
     mixIn: overrider.mixIn,
-
-    set: function(options) {
-        return this.deprecated('set(options)', 'setProperties(options)', '1.2.0', arguments);
-    },
 
     /**
      * @summary Get or set the text of the column's header.
@@ -143,7 +136,6 @@ Column.prototype = {
      */
     set header(header) {
         this.schema.header = header;
-        this.dataModel.prop(null, this.index, 'header', header);
         this.behavior.grid.repaint();
     },
     get header() {
@@ -152,9 +144,7 @@ Column.prototype = {
 
     /**
      * @summary Get or set the computed column's calculator function.
-     * @desc Setting the value here updates the calculator in both:
-     * * the `calculator` array in the underlying data source; and
-     * * the filter.
+     * @desc Setting the value here updates the calculator in the data model schema.
      *
      * The results of the new calculations will appear in the column cells on the next repaint.
      * @type {string}
@@ -163,7 +153,7 @@ Column.prototype = {
         calculator = resolveCalculator.call(this, calculator);
         if (calculator !== this.schema.calculator) {
             this.schema.calculator = calculator;
-            this.behavior.grid.reindex(); // deferred reindex as there may be several of these calls at instantiation
+            this.behavior.grid.reindex();
         }
     },
     get calculator() {
@@ -179,24 +169,18 @@ Column.prototype = {
      */
     set type(type) {
         this.schema.type = type;
-        //TODO: This is calling reindex for every column during grid init. Maybe defer all reindex calls until after an grid 'ready' event
-        this.dataModel.prop(null, this.index, 'type', type);
         this.behavior.reindex();
     },
     get type() {
         return this.schema.type;
     },
 
-    getUnfilteredValue: function(y) {
-        return this.deprecated('getUnfilteredValue(y)', null, '1.2.0', arguments, 'No longer supported');
+    getValue: function(y, dataModel) {
+        return this.dataModel.getValue(this.index, y, dataModel);
     },
 
-    getValue: function(y) {
-        return this.dataModel.getValue(this.index, y);
-    },
-
-    setValue: function(y, value) {
-        return this.dataModel.setValue(this.index, y, value);
+    setValue: function(y, value, dataModel) {
+        return this.dataModel.setValue(this.index, y, value, dataModel);
     },
 
     getWidth: function() {
@@ -309,10 +293,6 @@ Column.prototype = {
         assignOrDelete(this._properties, properties);
     },
 
-    getProperties: function() {
-        return this.deprecated('getProperties()', 'properties', '1.2.0');
-    },
-
     /** This method is provided because some grid renderer optimizations require that the grid renderer be informed when column colors change. Due to performance concerns, they cannot take the time to figure it out for themselves. Along the same lines, making the property a getter/setter (in columnProperties.js), though doable, might present performance concerns as this property is possibly the most accessed of all column properties.
      * @param color
      */
@@ -320,19 +300,6 @@ Column.prototype = {
         if (this.properties.backgroundColor !== color) {
             this.properties.backgroundColor = color;
             this.behavior.grid.renderer.rebundleGridRenderers();
-        }
-    },
-
-    /**
-     * @param {object} properties
-     * @param {boolean} [preserve=false]
-     */
-    setProperties: function(properties, preserve) {
-        if (!preserve) {
-            this.deprecated('setProperties', 'setProperties(properties) has been deprecated in favor of properties (setter) as of v1.2.0. (Will be removed in a future version.) This advice only pertains to usages of setProperties when called with a single parameter. When called with a truthy second parameter, use the new addProperties(properties) call instead.');
-            this.properties = properties;
-        } else {
-            this.deprecated('setPropertiesPreserve', 'setProperties(properties, preserve)', 'addProperties(properties)', '1.2.0', arguments, 'This warning pertains to setProperties only when preserve is truthy. When preserve is faulty, use the new properties setter.');
         }
     },
 
@@ -348,19 +315,23 @@ Column.prototype = {
      */
     getCellEditorAt: function(cellEvent) {
         var columnIndex = this.index,
+
             rowIndex = cellEvent.gridCell.y,
+
             editorName = cellEvent.properties.editor,
+
             options = Object.create(cellEvent, {
                 format: {
                     // `options.format` is a copy of the cell's `format` property which is:
                     // 1. Subject to adjustment by the `getCellEditorAt` override.
-                    // 2. Then used by the cell editor to reference the predefined localizer.
+                    // 2. Then used by the cell editor to reference the registered localizer (defaults to 'string' localizer)
                     writable: true,
                     enumerable: true, // so cell editor will copy it to self
                     value: cellEvent.properties.format
                 }
             }),
-            cellEditor = this.dataModel.getCellEditorAt(columnIndex, rowIndex, editorName, options);
+
+            cellEditor = cellEvent.subgrid.getCellEditorAt(columnIndex, rowIndex, editorName, options);
 
         if (cellEditor && !cellEditor.grid) {
             // cell editor returned but not fully instantiated (aborted by falsy return from fireRequestCellEdit)
@@ -432,7 +403,7 @@ function resolveCalculator(calculator) {
     return calculators[key];
 }
 
-Column.prototype.mixIn(require('./cellProperties'));
-Column.prototype.mixIn(require('./columnProperties'));
+Column.prototype.mixIn(require('./cellProperties').mixin);
+Column.prototype.mixIn(require('./columnProperties').mixin);
 
 module.exports = Column;

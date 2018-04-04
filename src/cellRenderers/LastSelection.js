@@ -4,15 +4,10 @@ var CellRenderer = require('./CellRenderer');
 
 /**
  * @constructor
+ * @desc A rendering of the last Selection Model
  * @extends CellRenderer
  */
 var LastSelection = CellRenderer.extend('LastSelection', {
-
-    /**
-     * @desc A rendering of the last Selection Model
-     * @implements paintFunction
-     * @memberOf LastSelection.prototype
-     */
     paint: function(gc, config) {
         var visOverlay = gc.alpha(config.selectionRegionOverlayColor) > 0,
             visOutline = gc.alpha(config.selectionRegionOutlineColor) > 0;

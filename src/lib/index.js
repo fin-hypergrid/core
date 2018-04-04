@@ -1,10 +1,17 @@
 'use strict';
 
-module.exports = {
+var mixIn = require('overrider').mixIn;
+
+var lib = {
+    assignOrDelete: require('./assignOrDelete'),
     cellEventFactory: require('./cellEventFactory'),
-    DataSourceOrigin: require('./DataSourceOrigin'),
-    dynamicPropertyDescriptors: require('./dynamicProperties'),
+    dynamicProperties: require('./dynamicProperties'),
+    dispatchGridEvent: require('./dispatchGridEvent'),
+    fields: require('./fields'),
     graphics: require('./graphics'),
-    Canvas: require('./Canvas'),
-    fields: require('./fields')
+    Canvas: require('./Canvas')
 };
+
+mixIn.call(lib, require('./deprecations'));
+
+module.exports = lib;

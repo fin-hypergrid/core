@@ -1,15 +1,12 @@
-/* eslint-env bro wser */
-
 'use strict';
 
-var assignOrDelete = require('../lib/misc').assignOrDelete;
-
+var assignOrDelete = require('../lib/assignOrDelete');
 
 /**
  * Column.js mixes this module into its prototype.
- * @module
+ * @mixin
  */
-var cell = {
+exports.mixin = {
 
     /**
      * @summary Get the properties object for cell.
@@ -17,6 +14,7 @@ var cell = {
      *
      * If you are seeking a single specific property, consider calling {@link Column#getCellProperty} instead (which calls this method).
      * @param {number} rowIndex - Data row coordinate.
+     * @param {DataModel} [dataModel=this.dataModel]
      * @return {object} The properties of the cell at x,y in the grid.
      * @memberOf Column#
      */
@@ -27,6 +25,7 @@ var cell = {
     /**
      * @param {number} rowIndex - Data row coordinate.
      * @param {object|undefined} properties - Hash of cell properties. If `undefined`, this call is a no-op.
+     * @param {DataModel} [dataModel=this.dataModel]
      * @returns {*}
      * @memberOf Column#
      */
@@ -39,6 +38,7 @@ var cell = {
     /**
      * @param {number} rowIndex - Data row coordinate.
      * @param {object|undefined} properties - Hash of cell properties. If `undefined`, this call is a no-op.
+     * @param {DataModel} [dataModel=this.dataModel]
      * @returns {object} Cell's own properties object, which will be created by this call if it did not already exist.
      * @memberOf Column#
      */
@@ -50,7 +50,7 @@ var cell = {
 
     /**
      * @summary Get the cell's own properties object.
-     * @desc Due to memory constraints, we don't create a cell options properties object for every cell.
+     * @desc Due to memory constraints, we don't create a cell properties object for every cell.
      *
      * If the cell has its own properties object, it:
      * * was created by a previous call to `setCellProperties` or `setCellProperty`
@@ -61,23 +61,34 @@ var cell = {
      *
      * Call this method only when you need to know if the the cell has its own properties object; otherwise call {@link Column#getCellProperties|getCellProperties}.
      * @param {number} rowIndex - Data row coordinate.
-     * @returns {null|object} The "own" properties of the cell at x,y in the grid. If the cell does not own a properties object, returns `undefined`.
+     * @param {DataModel} [dataModel=this.dataModel]
+     * @returns {null|object} The "own" properties of the cell at x,y in the grid. If the cell does not own a properties object, returns `null`.
      * @memberOf Column#
      */
     getCellOwnProperties: function(rowIndex, dataModel) {
-        var rowData;
+        var metadata;
         return (
             // this.index >= 0 && // no cell props on row handle cells
-            (rowData = (dataModel || this.dataModel).getRow(rowIndex)) && // no cell props on non-existent rows
-            rowData.__META && rowData.__META[this.name] ||
+            (metadata = (dataModel || this.dataModel).getRowMetadata(rowIndex)) && // no cell props on non-existent rows
+            metadata && metadata[this.name] ||
             null // null means not previously created
         );
     },
 
+    /**
+     * Delete cell's own properties object.
+     * @param {number} rowIndex - Data row coordinate.
+     * @param {DataModel} [dataModel=this.dataModel]
+     * @memberOf Column#
+     */
     deleteCellOwnProperties: function(rowIndex, dataModel) {
-        var rowData = (dataModel || this.dataModel).getRow(rowIndex);
-        if (rowData.__META) {
-            delete rowData.__META[this.name];
+        dataModel = dataModel || this.dataModel;
+        var metadata = dataModel.getRowMetadata(rowIndex);
+        if (metadata) {
+            delete metadata[this.name];
+            if (Object.keys(metadata).length === 0) {
+                dataModel.setRowMetadata(rowIndex);
+            }
         }
     },
 
@@ -86,6 +97,7 @@ var cell = {
      * @desc If there is no cell properties object, defers to column properties object.
      * @param {number} rowIndex - Data row coordinate.
      * @param {string} key
+     * @param {DataModel} [dataModel=this.dataModel]
      * @return {object} The specified property for the cell at x,y in the grid.
      * @memberOf Column#
      */
@@ -97,7 +109,8 @@ var cell = {
      * @param {number} rowIndex - Data row coordinate.
      * @param {string} key
      * @param value
-     * @returns {object}
+     * @param {DataModel} [dataModel=this.dataModel]
+     * @returns {object} Cell's own properties object, which will be created by this call if it did not already exist.
      * @memberOf Column#
      */
     setCellProperty: function(rowIndex, key, value, dataModel) {
@@ -106,6 +119,13 @@ var cell = {
         return cellProps;
     },
 
+    /**
+     * @summary Delete a cell own property.
+     * @summary If the property is not an own property, it is not deleted.
+     * @param {number} rowIndex - Data row coordinate.
+     * @param {string} key
+     * @param {DataModel} [dataModel=this.dataModel]
+     */
     deleteCellProperty: function(rowIndex, key, dataModel) {
         var cellProps = this.getCellOwnProperties(rowIndex, dataModel);
         if (cellProps) {
@@ -113,28 +133,24 @@ var cell = {
         }
     },
 
+    /**
+     * Clear all cell properties from all cells in this column.
+     * @memberOf Column#
+     */
     clearAllCellProperties: function() {
-        var key = this.name;
         this.behavior.subgrids.forEach(function(dataModel) {
-            for (var i = dataModel.getRowCount(); i--;) {
-                var rowData = dataModel.getRow(i),
-                    meta = rowData.__META;
-                if (meta) {
-                    if (Object.keys(meta).length === 1) {
-                        delete rowData.__META;
-                    }
-                    if (meta) {
-                        delete meta[key];
-                    }
-                }
+            for (var y = dataModel.getRowCount(); y--;) {
+                this.deleteCellOwnProperties(y, dataModel);
             }
-        });
+        }, this);
     }
 };
 
 /**
+ * @todo: Theoretically setData should call this method to ensure each cell's persisted properties object is properly recreated with prototype set to its column's properties object.
  * @this {Column}
  * @param {number} rowIndex - Data row coordinate.
+     * @param {DataModel} [dataModel=this.dataModel]
  * @returns {object}
  * @private
  */
@@ -143,27 +159,24 @@ function getCellPropertiesObject(rowIndex, dataModel) {
 }
 
 /**
- * @todo: For v8 optimization, consider setting the new `__META` object to a "regularly shaped object" (i.e., with all the columns) instead of simply to `{}`. Considerations include how many of these objects are there, how often are they referenced, etc.
- * @todo: We need a function to reset the prototypes of pre-existing __META members to their respective column properties objects.
  * @this {Column}
  * @param {number} rowIndex - Data row coordinate.
+     * @param {DataModel} [dataModel=this.dataModel]
  * @returns {object}
  * @private
  */
 function newCellPropertiesObject(rowIndex, dataModel) {
-    var metadata = (dataModel || this.dataModel).getRowMetadata(rowIndex, {}),
+    var metadata = (dataModel || this.dataModel).getRowMetadata(rowIndex, null),
         props = this.properties;
 
     switch (this._index) {
         case this.behavior.treeColumnIndex:
-            props = this.properties.treeHeader;
+            props = props.treeHeader;
             break;
         case this.behavior.rowColumnIndex:
-            props = this.properties.rowHeader;
+            props = props.rowHeader;
             break;
     }
 
     return (metadata[this.name] = Object.create(props));
 }
-
-module.exports = cell;

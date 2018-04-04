@@ -1,15 +1,6 @@
 'use strict';
 
-var deprecated = require('./deprecated');
-var WritablePoint = require('./WritablePoint');
-
-var writableDescriptor = { writable: true };
-var eumerableDescriptor = { writable: true, enumerable: true };
-
-// The nullSubgrid is for CellEvents representing clicks below last row.
-// var nullSubgrid = {};
-
-factory.cellEventProperties = Object.defineProperties({}, {
+var cellEventProperties = Object.defineProperties({}, { // all props non-enumerable
     /**
      * The raw value of the cell, unformatted.
      * @memberOf CellEvent#
@@ -142,9 +133,9 @@ factory.cellEventProperties = Object.defineProperties({}, {
         this._bounds = undefined;
 
         // partial render support
-        this.snapshot = undefined;
+        this.snapshot = [];
         this.minWidth = undefined;
-        this.disabled = undefined;
+        // this.disabled = undefined;
 
         this.visibleColumn = visibleColumn;
         this.visibleRow = visibleRow;
@@ -201,7 +192,7 @@ factory.cellEventProperties = Object.defineProperties({}, {
      * @desc If the requested cell is not be visible (due to being scrolled out of view), the instance is not reset.
      * @param {number} dataX - Horizontal data cell coordinate.
      * @param {number} dataY - Vertical data cell coordinate.
-     * @param {dataModelAPI} [subgrid=this.behavior.subgrids.data]
+     * @param {DataModel} [subgrid=this.behavior.subgrids.data]
      * @returns {boolean} Visibility.
      * @method
      * @memberOf CellEvent#
@@ -220,7 +211,7 @@ factory.cellEventProperties = Object.defineProperties({}, {
      * @desc If the requested cell is not be visible (due to being scrolled out of view or outside the bounds of the rendered grid), the instance is not reset.
      * @param {number} gridX - Horizontal grid cell coordinate (adjusted for horizontal scrolling after fixed columns).
      * @param {number} dataY - Vertical data cell coordinate.
-     * @param {dataModelAPI} [subgrid=this.behavior.subgrids.data]
+     * @param {DataModel} [subgrid=this.behavior.dataModel]
      * @param {boolean} [useAllCells] - Search in all rows and columns instead of only rendered ones.
      * @returns {boolean} Visibility.
      * @method
@@ -238,7 +229,7 @@ factory.cellEventProperties = Object.defineProperties({}, {
                 columnIndex: gridX
             };
             vr = {
-                subgrid: subgrid || this.behavior.subgrids.lookup.data,
+                subgrid: subgrid || this.behavior.dataModel,
                 rowIndex: dataY
             };
             visible = true;
@@ -447,22 +438,37 @@ factory.cellEventProperties = Object.defineProperties({}, {
      */
     isBottomTotalsCell:   { get: function() { return this.isBottomTotalsRow && this.isDataColumn; } },
 
-    $$CLASS_NAME: { value: 'CellEvent' },
-    deprecated: { value: deprecated },
-
-    isGridRow: { get: function() {
-        this.deprecated('isGridRow', '.isGridRow is deprecated as of v1.2.10 in favor of .isDataRow. (Will be removed in a future release.)');
-        return this.isDataRow;
-    } },
-    isGridColumn: { get: function() {
-        this.deprecated('isGridColumn', '.isGridColumn is deprecated as of v1.2.10 in favor of .isDataColumn. (Will be removed in a future release.)');
-        return this.isDataColumn;
-    } },
-    isGridCell: { get: function() {
-        this.deprecated('isGridCell', '.isGridCell is deprecated as of v1.2.10 in favor of .isDataCell. (Will be removed in a future release.)');
-        return this.isDataCell;
-    } },
+    $$CLASS_NAME: { value: 'CellEvent' }
 });
+
+var Point = require('rectangular').Point;
+
+/**
+ * Variation of `rectangular.Point` but with writable `x` and `y`
+ * @constructor
+ */
+function WritablePoint(x, y) {
+    // skip x and y initialization here for performance
+    // because typically reset after instantiation
+}
+
+WritablePoint.prototype = Point.prototype;
+
+
+var writableDescriptor = { writable: true };
+var eumerableDescriptor = { writable: true, enumerable: true };
+
+/** @typedef {WritablePoint} dataCellCoords
+ * @property {number} x - The data model's column index, unaffected by column scrolling; _i.e.,_
+ * an index suitable for dereferencing the column object to which the cell belongs via {@link Behavior#getColumn}.
+ * @property {number} y - The data model's row index, adjusted for data row scrolling after fixed rows.
+ */
+
+/** @typedef {WritablePoint} gridCellCoords
+ * @property {number} x - The active column index, adjusted for column scrolling after fixed columns; _i.e.,_
+ * an index suitable for dereferencing the column object to which the cell belongs via {@link Behavior#getActiveColumn}.
+ * @property {number} y - The vertical grid coordinate, unaffected by subgrid, row scrolling, and fixed rows.
+ */
 
 /**
  * @name cellEventFactory
@@ -491,7 +497,7 @@ function factory(grid) {
      *
      * @desc All own enumerable properties are mixed into cell editor:
      * * Includes `this.column` defined by constructor (as enumerable).
-     * * Excludes `this.gridCell`, `this.dataCell`, `this.visibleRow.subgrid` defined by constructor (as non-enumerable).
+     * * Excludes all other properties defined by constructor and prototype, all of which are non-enumerable.
      * * Any additional (enumerable) members mixed in by application's `getCellEditorAt` override.
      *
      * Including the params calls {@link CellEvent#resetGridCY resetGridCY(gridX, gridY)}.
@@ -523,17 +529,14 @@ function factory(grid) {
 
             /**
              * @name subgrid
-             * @type {dataModelAPI}
+             * @type {DataModel}
              * @memberOf CellEvent#
              */
             subgrid: writableDescriptor,
 
             /**
              * @name gridCell
-             * @property {number} x - The active column index, adjusted for column scrolling after fixed columns; _i.e.,_
-             * an index suitable for dereferencing the column object to which the cell belongs via {@link Behavior#getActiveColumn}.
-             * @property {number} y - The vertical grid coordinate, unaffected by subgrid, row scrolling, and fixed rows.
-             * @type {WritablePoint}
+             * @type {gridCellCoords}
              * @memberOf CellEvent#
              */
             gridCell: {
@@ -542,10 +545,7 @@ function factory(grid) {
 
             /**
              * @name dataCell
-             * @property {number} x - The data model's column index, unaffected by column scrolling; _i.e.,_
-             * an index suitable for dereferencing the column object to which the cell belongs via {@link Behavior#getColumn}.
-             * @property {number} y - The data model's row index, adjusted for data row scrolling after fixed rows.
-             * @type {WritablePoint}
+             * @type {dataCellCoords}
              * @memberOf CellEvent#
              */
             dataCell: {
@@ -555,7 +555,7 @@ function factory(grid) {
             /**
              * A reference to the cell's {@link Column} object.
              *
-             * Enumerable so it will be copied to cell event on CellEvent.prototype.initialize.
+             * This property is enumerable so that it will be copied to cell editor on {@link CellEditor} instantiation.
              * @name column
              * @type {Column}
              * @memberOf CellEvent#
@@ -578,7 +578,7 @@ function factory(grid) {
         }
     }
 
-    CellEvent.prototype = Object.create(factory.cellEventProperties, {
+    CellEvent.prototype = Object.create(cellEventProperties, {
         constructor: { value: CellEvent },
         grid: { value: grid },
         renderer: { value: grid.renderer },
