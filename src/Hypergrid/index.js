@@ -62,11 +62,11 @@ var EDGE_STYLES = ['top', 'bottom', 'left', 'right'],
  * @param {string|Element} [container] - CSS selector or Element. If omitted (and `options.container` also omitted), Hypergrid first looks for an _empty_ element with an ID of `hypergrid`. If not found, it will create a new element. In either case, the container element has the class name `hypergrid-container` added to its class name list. Finally, if the there is more than one such element with that class name, the element's ID attribute is set to `hypergrid` + _n_ where n is an ordinal one less than the number of such elements.
  * @param {object} [options] - If `options.data` provided, passed to {@link Hypergrid#setData setData}; else if `options.Behavior` provided, passed to {@link Hypergrid#setBehavior setBehavior}.
  * @param {function} [options.Behavior=Local] - _Per {@link Behavior#setData}._
- * @param {dataModelAPI} [options.dataModel] - _Passed to behavior {@link Behavior constructor}._
+ * @param {DataModel} [options.dataModel] - _Passed to behavior {@link Behavior constructor}._
  * @param {function} [options.DataModel=require('datasaur-local')] - _Passed to behavior {@link Behavior constructor}._
  * @param {function|object[]} [options.data] - _Passed to behavior {@link Behavior constructor}._
  * @param {function|menuItem[]} [options.schema] - _Passed to behavior {@link Behavior constructor}._
- * @param {dataModelAPI} [options.metadata] - _Passed to behavior {@link Behavior constructor}._
+ * @param {object} [options.metadata] - _Passed to behavior {@link Behavior constructor}._
  * @param {subgridSpec[]} [options.subgrids=this.properties.subgrids] - _Per {@link Behavior#setData}._
  * @param {pluginSpec|pluginSpec[]} [options.plugins]
  * @param {object} [options.state]
@@ -795,9 +795,9 @@ var Hypergrid = Base.extend('Hypergrid', {
      * * `setData` when not called explicitly before then
      * @param {object} [options] - _Per {@link Behavior#setData}._
      * @param {Behavior} [options.Behavior=Local] - The behavior (model) can be either a constructor or an instance.
-     * @param {dataModelAPI} [options.dataModel] - A fully instantiated data model object.
+     * @param {DataModel} [options.dataModel] - A fully instantiated data model object.
      * @param {function} [options.DataModel=require('datasaur-local')] - Data model will be instantiated from this constructor unless `options.dataModel` was given.
-     * @param {dataModelAPI} [options.metadata] - Value to be passed to setMetadataStore if the data model has changed.
+     * @param {object} [options.metadata] - Value to be passed to `setMetadataStore` if the data model has changed.
      * @param {dataRowObject[]} [options.data] - _Per {@link Behavior#setData}._
      * @param {function|menuItem[]} [options.schema] - _Per {@link Behavior#setData}.
      */
@@ -832,24 +832,19 @@ var Hypergrid = Base.extend('Hypergrid', {
 
     /**
      * @memberOf Hypergrid#
-     * @summary Get data value at given cell.
-     * @param {number} x - The horizontal coordinate.
-     * @param {number} y - The vertical coordinate.
+     * @see {@link Behavior#getValue}
      */
-    getValue: function(x, y) {
-        return this.behavior.getValue.apply(this.behavior, arguments); // must use .apply (see this.behavior.getValue)
+    getValue: function(x, y, dataModel) {
+        return this.behavior.getValue(x, y, dataModel);
     },
 
     /**
      * @memberOf Hypergrid#
-     * @summary Set a data value of a given cell.
-     * @param {number} x - The horizontal coordinate.
-     * @param {number} y - The vertical coordinate.
-     * @param {*} value - New cell value.
+     * @see {@link Behavior#setValue}
      */
-    setValue: function(x, y, value) {
-        this.behavior.setValue.apply(this.behavior, arguments); // must use .apply (see this.behavior.setValue)
-    },
+    setValue: function(x, y, value, dataModel) {
+        this.behavior.setValue(x, y, value, dataModel);
+     },
 
     /**
      * @memberOf Hypergrid#
@@ -860,9 +855,9 @@ var Hypergrid = Base.extend('Hypergrid', {
      * * A function returning same.
      * @param {object} [options] - _(See also {@link Behavior#setData} for additional options.)_
      * @param {Behavior} [options.Behavior=Local] - The behavior (model) can be either a constructor or an instance.
-     * @param {dataModelAPI} [options.dataModel] - _Passed to behavior {@link Behavior constructor} (when `options.Behavior` given)._
+     * @param {DataModel} [options.dataModel] - _Passed to behavior {@link Behavior constructor} (when `options.Behavior` given)._
      * @param {function} [options.DataModel=require('datasaur-local')] - _Passed to behavior {@link Behavior constructor} (when `options.Behavior` given)._
-     * @param {dataModelAPI} [options.metadata] - _Passed to behavior {@link Behavior constructor} (when `options.Behavior` given)._
+     * @param {object} [options.metadata] - _Passed to behavior {@link Behavior constructor} (when `options.Behavior` given)._
      * @param {dataRowObject[]} [options.data] - _Passed to behavior {@link Behavior constructor} (when `options.Behavior` given)._
      * @param {function|menuItem[]} [options.schema] - _Passed to behavior {@link Behavior constructor} (when `options.Behavior` given)._
      */

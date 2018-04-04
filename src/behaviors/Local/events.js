@@ -50,7 +50,7 @@ module.exports = {
      * _See the data model API page for event semantics (link below)._
      * @param {NormalizedDataModelEvent} event
      * @returns {undefined|boolean} Result of re-emitted event or `undefined` if event not re-emitted.
-     * @see {@link dataModelAPI#event:fin-hypergrid-schema-changed}
+     * @see {@link DataModel#event:fin-hypergrid-schema-changed}
      * @memberOf dataModelEventHandlers
      */
     'fin-hypergrid-schema-changed': function(event) {
@@ -63,7 +63,7 @@ module.exports = {
      * _See the data model API page for event semantics (link below)._
      * @param {NormalizedDataModelEvent} event
      * @returns {undefined|boolean} Result of re-emitted event or `undefined` if event not re-emitted.
-     * @see {@link dataModelAPI#event:fin-hypergrid-data-changed}
+     * @see {@link DataModel#event:fin-hypergrid-data-changed}
      * @memberOf dataModelEventHandlers
      */
     'fin-hypergrid-data-changed': function(event) {
@@ -74,7 +74,7 @@ module.exports = {
      * _See the data model API page for event semantics (link below)._
      * @param {NormalizedDataModelEvent} event
      * @returns {undefined|boolean} Result of re-emitted event or `undefined` if event not re-emitted.
-     * @see {@link dataModelAPI#event:fin-hypergrid-data-shape-changed}
+     * @see {@link DataModel#event:fin-hypergrid-data-shape-changed}
      * @memberOf dataModelEventHandlers
      */
     'fin-hypergrid-data-shape-changed': function(event) {
@@ -85,7 +85,7 @@ module.exports = {
      * _See the data model API page for event semantics (link below)._
      * @param {NormalizedDataModelEvent} event
      * @returns {undefined|boolean} Result of re-emitted event or `undefined` if event not re-emitted.
-     * @see {@link dataModelAPI#event:fin-hypergrid-data-prereindex}
+     * @see {@link DataModel#event:fin-hypergrid-data-prereindex}
      * @memberOf dataModelEventHandlers
      */
     'fin-hypergrid-data-prereindex': function(event) {
@@ -96,7 +96,7 @@ module.exports = {
      * _See the data model API page for event semantics (link below)._
      * @param {{type}} event
      * @returns {undefined|boolean} Result of re-emitted event or `undefined` if event not re-emitted.
-     * @see {@link dataModelAPI#event:fin-hypergrid-data-postreindex}
+     * @see {@link DataModel#event:fin-hypergrid-data-postreindex}
      * @memberOf dataModelEventHandlers
      */
     'fin-hypergrid-data-postreindex': function(event) {

@@ -14,7 +14,7 @@ var dispatchDataModelEvent = require('./dispatchDataModelEvent');
 
 
 /**
- * This class mimics the {@link dataModelAPI}.
+ * This class mimics the {@link DataModel}.
  * > This constructor (actually {@link Local#initialize}) will be called upon instantiation of this class or of any class that extends from this class. See {@link https://github.com/joneit/extend-me|extend-me} for more info.
  * @constructor
  * @extends Behavior
@@ -28,8 +28,8 @@ var Local = Behavior.extend('Local', {
     /**
      * @summary Convenience getter/setter.
      * @desc Calls the data model's `getSchema`/`setSchema` methods.
-     * @see {@link https://fin-hypergrid.github.io/doc/dataModelAPI.html#getSchema|getSchema}
-     * @see {@link https://fin-hypergrid.github.io/doc/dataModelAPI.html#setSchema|setSchema}
+     * @see {@link https://fin-hypergrid.github.io/doc/DataModel.html#getSchema|getSchema}
+     * @see {@link https://fin-hypergrid.github.io/doc/DataModel.html#setSchema|setSchema}
      * @type {Array}
      * @memberOf Local#
      */
@@ -90,7 +90,7 @@ var Local = Behavior.extend('Local', {
     /**
      * Create a new data model
      * @param {object} [options]
-     * @param {dataModelAPI} [options.dataModel] - A fully instantiated data model object.
+     * @param {DataModel} [options.dataModel] - A fully instantiated data model object.
      * @param {function} [options.DataModel=require('datasaur-local')] - Data model will be instantiated from this constructor unless `options.dataModel` was given.
      * @returns {boolean} `true` if the data model has changed.
      * @memberOf Local#
@@ -118,9 +118,9 @@ var Local = Behavior.extend('Local', {
      * Called from {@link Behavior#reset}.
      * @this {Behavior}
      * @param {object} [options]
-     * @param {dataModelAPI} [options.dataModel] - A fully instantiated data model object.
+     * @param {DataModel} [options.dataModel] - A fully instantiated data model object.
      * @param {function} [options.DataModel=require('datasaur-local')] - Data model will be instantiated from this constructor unless `options.dataModel` was given.
-     * @param {dataModelAPI} [options.metadata] - Passed to {@link dataModelAPI#setMetadataStore setMetadataStore}.
+     * @param {DataModel} [options.metadata] - Passed to {@link DataModel#setMetadataStore setMetadataStore}.
      * @returns {boolean} `true` if the data model has changed.
      * @memberOf Local#
      */
@@ -142,8 +142,8 @@ var Local = Behavior.extend('Local', {
      * @see {@link module:decorators.injectPolyfills injectPolyfills}
      * @see {@link module:decorators.injectCode injectCode}
      * @see {@link module:decorators.injectDefaulthooks injectDefaulthooks}
-     * @param {dataModelAPI} newDataModel
-     * @param {dataModelAPI} [options.metadata] - Passed to {@link dataModelAPI#setMetadataStore setMetadataStore}.
+     * @param {DataModel} newDataModel
+     * @param {DataModel} [options.metadata] - Passed to {@link DataModel#setMetadataStore setMetadataStore}.
      * @memberOf Local#
      */
     decorateDataModel: function(newDataModel, options) {
@@ -161,7 +161,7 @@ var Local = Behavior.extend('Local', {
 
     /**
      * @summary Map of drill down characters used by the data model.
-     * @see {@link https://fin-hypergrid.github.io/doc/dataModelAPI.html#charMap|charMap}
+     * @see {@link https://fin-hypergrid.github.io/doc/DataModel.html#charMap|charMap}
      * @type {{OPEN:string, CLOSE:string, INDENT:string}}
      * @memberOf Local#
      */
@@ -170,94 +170,10 @@ var Local = Behavior.extend('Local', {
     },
 
     /**
-     * @param {CellEvent|number} xOrCellEvent - Grid column coordinate.
-     * @param {number} [y] - Grid row coordinate. Omit if `xOrCellEvent` is a CellEvent.
-     * @param {dataModelAPI} [dataModel] - For use only when `xOrCellEvent` is _not_ a `CellEvent`: Provide a subgrid. If given, x and y are interpreted as data cell coordinates (unadjusted for scrolling). Does not default to the data subgrid, although you can provide it explicitly (`this.subgrids.lookup.data`).
-     * @memberOf Local#
-     */
-    getValue: function(xOrCellEvent, y, dataModel) {
-        if (typeof xOrCellEvent !== 'object') {
-            var x = xOrCellEvent;
-            xOrCellEvent = new this.CellEvent;
-            if (dataModel) {
-                xOrCellEvent.resetDataXY(x, y, dataModel);
-            } else {
-                xOrCellEvent.resetGridCY(x, y);
-            }
-        }
-        return xOrCellEvent.value;
-    },
-
-    /**
-     * @memberOf Local#
-     * @desc update the data at point x, y with value
-     * @return The data.
-     * @param {CellEvent|number} xOrCellEvent - Grid column coordinate.
-     * @param {number} [y] - Grid row coordinate. Omit if `xOrCellEvent` is a CellEvent.
-     * @param {Object} value - The value to use. _When `y` omitted, promoted to 2nd arg._
-     * @param {dataModelAPI} [dataModel] - For use only when `xOrCellEvent` is _not_ a `CellEvent`: Provide a subgrid. If given, x and y are interpreted as data cell coordinates (unadjusted for scrolling). Does not default to the data subgrid, although you can provide it explicitly (`this.subgrids.lookup.data`).
-     * @return {boolean} Consumed.
-     */
-    setValue: function(xOrCellEvent, y, value, dataModel) {
-        if (typeof xOrCellEvent === 'object') {
-            value = y;
-        } else {
-            var x = xOrCellEvent;
-            xOrCellEvent = new this.CellEvent;
-            if (dataModel) {
-                xOrCellEvent.resetDataXY(x, y, dataModel);
-            } else {
-                xOrCellEvent.resetGridCY(x, y);
-            }
-        }
-        xOrCellEvent.value = value;
-    },
-
-    /**
-     * @summary Calls `apply()` on the data model.
-     * @see {@link https://fin-hypergrid.github.io/doc/dataModelAPI.html#reindex|reindex}
-     * @memberOf Local#
-     */
-    reindex: function() {
-        this.dataModel.apply();
-    },
-
-    /**
-     * @summary Gets the number of rows in the data subgrid.
-     * @see {@link https://fin-hypergrid.github.io/doc/dataModelAPI.html#getRowCount|getRowCount}
-     * @memberOf Local#
-     */
-    getRowCount: function() {
-        return this.dataModel.getRowCount();
-    },
-
-    /**
-     * Retrieve a data row from the data model.
-     * @see {@link https://fin-hypergrid.github.io/doc/dataModelAPI.html#getRow|getRow}
-     * @memberOf Local#
-     * @return {dataRowObject} The data row object at y index.
-     * @param {number} y - the row index of interest
-     */
-    getRow: function(y) {
-        return this.dataModel.getRow(y);
-    },
-
-    /**
-     * Retrieve all data rows from the data model.
-     * > Use with caution!
-     * @see {@link https://fin-hypergrid.github.io/doc/dataModelAPI.html#getData|getData}
-     * @return {dataRowObject[]}
-     * @memberOf Local#
-     */
-    getData: function() {
-        return this.dataModel.getData();
-    },
-
-    /**
      * @summary Calls `click` on the data model if column is a tree column.
      * @desc Sends clicked cell's coordinates to the data model.
-     * @see {@link https://fin-hypergrid.github.io/doc/dataModelAPI.html#isDrillDown|isDrillDown}
-     * @see {@link https://fin-hypergrid.github.io/doc/dataModelAPI.html#click|click}
+     * @see {@link https://fin-hypergrid.github.io/doc/DataModel.html#isDrillDown|isDrillDown}
+     * @see {@link https://fin-hypergrid.github.io/doc/DataModel.html#click|click}
      * @param {CellEvent} event
      * @returns {boolean} If click was in a drill down column and click on this row was "consumed" by the data model (_i.e., caused it's state to change).
      * @memberOf Local#

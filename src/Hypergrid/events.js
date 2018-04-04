@@ -113,6 +113,8 @@ exports.mixin = {
      * @memberOf Hypergrid#
      * @param {number} c - grid column index.
      * @param {string[]} keys
+     * @desc Synthesize and fire a `fin-column-sort` event.
+     * @returns {boolean} Proceed; event was not [canceled](https://developer.mozilla.org/docs/Web/API/EventTarget/dispatchEvent#Return_Value `EventTarget.dispatchEvent`).
      */
     fireSyntheticColumnSortEvent: function(c, keys) {
         return dispatchGridEvent.call(this, 'fin-column-sort', {
@@ -121,6 +123,11 @@ exports.mixin = {
         });
     },
 
+    /**
+     * @memberOf Hypergrid#
+     * @desc Synthesize and fire a `fin-editor-keyup` event.
+     * @returns {boolean} Proceed; event was not [canceled](https://developer.mozilla.org/docs/Web/API/EventTarget/dispatchEvent#Return_Value `EventTarget.dispatchEvent`).
+     */
     fireSyntheticEditorKeyUpEvent: function(inputControl, keyEvent) {
         return dispatchGridEvent.call(this, 'fin-editor-keyup', {
             input: inputControl,
@@ -130,6 +137,11 @@ exports.mixin = {
         });
     },
 
+    /**
+     * @memberOf Hypergrid#
+     * @desc Synthesize and fire a `fin-editor-keydown` event.
+     * @returns {boolean} Proceed; event was not [canceled](https://developer.mozilla.org/docs/Web/API/EventTarget/dispatchEvent#Return_Value `EventTarget.dispatchEvent`).
+     */
     fireSyntheticEditorKeyDownEvent: function(inputControl, keyEvent) {
         return dispatchGridEvent.call(this, 'fin-editor-keydown', {
             input: inputControl,
@@ -139,6 +151,11 @@ exports.mixin = {
         });
     },
 
+    /**
+     * @memberOf Hypergrid#
+     * @desc Synthesize and fire a `fin-editor-keypress` event.
+     * @returns {boolean} Proceed; event was not [canceled](https://developer.mozilla.org/docs/Web/API/EventTarget/dispatchEvent#Return_Value `EventTarget.dispatchEvent`).
+     */
     fireSyntheticEditorKeyPressEvent: function(inputControl, keyEvent) {
         return dispatchGridEvent.call(this, 'fin-editor-keypress', {
             input: inputControl,
@@ -148,6 +165,13 @@ exports.mixin = {
         });
     },
 
+    /**
+     * @memberOf Hypergrid#
+     * @desc Synthesize and fire a `fin-editor-data-change` event.
+     *
+     * This event is cancelable.
+     * @returns {boolean} Proceed; event was not [canceled](https://developer.mozilla.org/docs/Web/API/EventTarget/dispatchEvent#Return_Value `EventTarget.dispatchEvent`).
+     */
     fireSyntheticEditorDataChangeEvent: function(inputControl, oldValue, newValue) {
         return dispatchGridEvent.call(this, 'fin-editor-data-change', true, {
             input: inputControl,
@@ -163,11 +187,17 @@ exports.mixin = {
     /**
      * @memberOf Hypergrid#
      * @desc Synthesize and fire a `fin-row-selection-changed` event.
+     * @returns {boolean} Proceed; event was not [canceled](https://developer.mozilla.org/docs/Web/API/EventTarget/dispatchEvent#Return_Value `EventTarget.dispatchEvent`).
      */
     fireSyntheticRowSelectionChangedEvent: function() {
         return dispatchGridEvent.call(this, 'fin-row-selection-changed', this.selectionDetailGetters);
     },
 
+    /**
+     * @memberOf Hypergrid#
+     * @desc Synthesize and fire a `fin-column-selection-changed` event.
+     * @returns {boolean} Proceed; event was not [canceled](https://developer.mozilla.org/docs/Web/API/EventTarget/dispatchEvent#Return_Value `EventTarget.dispatchEvent`).
+     */
     fireSyntheticColumnSelectionChangedEvent: function() {
         return dispatchGridEvent.call(this, 'fin-column-selection-changed', this.selectionDetailGetters);
     },
@@ -176,26 +206,47 @@ exports.mixin = {
      * @memberOf Hypergrid#
      * @desc Synthesize and fire a `fin-context-menu` event
      * @param {keyEvent} event - The canvas event.
+     * @returns {boolean} Proceed; event was not [canceled](https://developer.mozilla.org/docs/Web/API/EventTarget/dispatchEvent#Return_Value `EventTarget.dispatchEvent`).
      */
     fireSyntheticContextMenuEvent: function(event) {
         Object.defineProperties(event, this.selectionDetailGetterDescriptors);
         return dispatchGridEvent.call(this, 'fin-context-menu', {}, event);
     },
 
+    /**
+     * @memberOf Hypergrid#
+     * @desc Synthesize and fire a `fin-mouseup` event.
+     * @returns {boolean} Proceed; event was not [canceled](https://developer.mozilla.org/docs/Web/API/EventTarget/dispatchEvent#Return_Value `EventTarget.dispatchEvent`).
+     */
     fireSyntheticMouseUpEvent: function(event) {
         Object.defineProperties(event, this.selectionDetailGetterDescriptors);
         return dispatchGridEvent.call(this, 'fin-mouseup', {}, event);
     },
 
+    /**
+     * @memberOf Hypergrid#
+     * @desc Synthesize and fire a `fin-mousedown` event.
+     * @returns {boolean} Proceed; event was not [canceled](https://developer.mozilla.org/docs/Web/API/EventTarget/dispatchEvent#Return_Value `EventTarget.dispatchEvent`).
+     */
     fireSyntheticMouseDownEvent: function(event) {
         Object.defineProperties(event, this.selectionDetailGetterDescriptors);
         return dispatchGridEvent.call(this, 'fin-mousedown', {}, event);
     },
 
+    /**
+     * @memberOf Hypergrid#
+     * @desc Synthesize and fire a `fin-mousemove` event.
+     * @returns {boolean} Proceed; event was not [canceled](https://developer.mozilla.org/docs/Web/API/EventTarget/dispatchEvent#Return_Value `EventTarget.dispatchEvent`).
+     */
     fireSyntheticMouseMoveEvent: function(event) {
         return dispatchGridEvent.call(this, 'fin-mousemove', {}, event);
     },
 
+    /**
+     * @memberOf Hypergrid#
+     * @desc Synthesize and fire a `fin-button-pressed` event.
+     * @returns {boolean} Proceed; event was not [canceled](https://developer.mozilla.org/docs/Web/API/EventTarget/dispatchEvent#Return_Value `EventTarget.dispatchEvent`).
+     */
     fireSyntheticButtonPressedEvent: function(event) {
         if (event.properties.renderer === 'button') {
             if (event.value && event.value.subrows) {
@@ -210,6 +261,7 @@ exports.mixin = {
     /**
      * @memberOf Hypergrid#
      * @desc Synthesize and fire a `fin-column-drag-start` event.
+     * @returns {boolean} Proceed; event was not [canceled](https://developer.mozilla.org/docs/Web/API/EventTarget/dispatchEvent#Return_Value `EventTarget.dispatchEvent`).
      */
     fireSyntheticOnColumnsChangedEvent: function() {
         return dispatchGridEvent.call(this, 'fin-column-changed-event', {});
@@ -219,6 +271,7 @@ exports.mixin = {
      * @memberOf Hypergrid#
      * @desc Synthesize and fire a `fin-keydown` event.
      * @param {keyEvent} event - The canvas event.
+     * @returns {boolean} Proceed; event was not [canceled](https://developer.mozilla.org/docs/Web/API/EventTarget/dispatchEvent#Return_Value `EventTarget.dispatchEvent`).
      */
     fireSyntheticKeydownEvent: function(keyEvent) {
         return dispatchGridEvent.call(this, 'fin-keydown', keyEvent.detail);
@@ -228,11 +281,17 @@ exports.mixin = {
      * @memberOf Hypergrid#
      * @desc Synthesize and fire a `fin-keyup` event.
      * @param {keyEvent} event - The canvas event.
+     * @returns {boolean} Proceed; event was not [canceled](https://developer.mozilla.org/docs/Web/API/EventTarget/dispatchEvent#Return_Value `EventTarget.dispatchEvent`).
      */
     fireSyntheticKeyupEvent: function(keyEvent) {
         return dispatchGridEvent.call(this, 'fin-keyup', keyEvent.detail);
     },
 
+    /**
+     * @memberOf Hypergrid#
+     * @desc Synthesize and fire a fin-filter-applied event.
+     * @returns {boolean} Proceed; event was not [canceled](https://developer.mozilla.org/docs/Web/API/EventTarget/dispatchEvent#Return_Value `EventTarget.dispatchEvent`).
+     */
     fireSyntheticFilterAppliedEvent: function() {
         return dispatchGridEvent.call(this, 'fin-filter-applied', {});
     },
@@ -242,6 +301,7 @@ exports.mixin = {
      * @desc Synthesize and fire a `fin-cell-enter` event
      * @param {Point} cell - The pixel location of the cell in which the click event occurred.
      * @param {MouseEvent} event - The system mouse event.
+     * @returns {boolean} Proceed; event was not [canceled](https://developer.mozilla.org/docs/Web/API/EventTarget/dispatchEvent#Return_Value `EventTarget.dispatchEvent`).
      */
     fireSyntheticOnCellEnterEvent: function(cellEvent) {
         return dispatchGridEvent.call(this, 'fin-cell-enter', cellEvent);
@@ -252,6 +312,7 @@ exports.mixin = {
      * @desc Synthesize and fire a `fin-cell-exit` event.
      * @param {Point} cell - The pixel location of the cell in which the click event occured.
      * @param {MouseEvent} event - The system mouse event.
+     * @returns {boolean} Proceed; event was not [canceled](https://developer.mozilla.org/docs/Web/API/EventTarget/dispatchEvent#Return_Value `EventTarget.dispatchEvent`).
      */
     fireSyntheticOnCellExitEvent: function(cellEvent) {
         return dispatchGridEvent.call(this, 'fin-cell-exit', cellEvent);
@@ -262,6 +323,7 @@ exports.mixin = {
      * @desc Synthesize and fire a `fin-cell-click` event.
      * @param {Point} cell - The pixel location of the cell in which the click event occured.
      * @param {MouseEvent} event - The system mouse event.
+     * @returns {boolean} Proceed; event was not [canceled](https://developer.mozilla.org/docs/Web/API/EventTarget/dispatchEvent#Return_Value `EventTarget.dispatchEvent`).
      */
     fireSyntheticClickEvent: function(cellEvent) {
         return dispatchGridEvent.call(this, 'fin-click', {}, cellEvent);
@@ -271,6 +333,7 @@ exports.mixin = {
      * @memberOf Hypergrid#
      * @desc Synthesize and fire a `fin-double-click` event.
      * @param {MouseEvent} event - The system mouse event.
+     * @returns {boolean} Proceed; event was not [canceled](https://developer.mozilla.org/docs/Web/API/EventTarget/dispatchEvent#Return_Value `EventTarget.dispatchEvent`).
      */
     fireSyntheticDoubleClickEvent: function(cellEvent) {
         if (!this.abortEditing()) { return; }
@@ -280,16 +343,27 @@ exports.mixin = {
 
     /**
      * @memberOf Hypergrid#
-     * @desc Synthesize and fire a rendered event.
+     * @desc Synthesize and fire a fin-grid-rendered event.
+     * @returns {boolean} Proceed; event was not [canceled](https://developer.mozilla.org/docs/Web/API/EventTarget/dispatchEvent#Return_Value `EventTarget.dispatchEvent`).
      */
     fireSyntheticGridRenderedEvent: function() {
        return dispatchGridEvent.call(this, 'fin-grid-rendered', { source: this });
     },
 
+    /**
+     * @memberOf Hypergrid#
+     * @desc Synthesize and fire a fin-tick event.
+     * @returns {boolean} Proceed; event was not [canceled](https://developer.mozilla.org/docs/Web/API/EventTarget/dispatchEvent#Return_Value `EventTarget.dispatchEvent`).
+     */
     fireSyntheticTickEvent: function() {
         return dispatchGridEvent.call(this, 'fin-tick', { source: this });
     },
 
+    /**
+     * @memberOf Hypergrid#
+     * @desc Synthesize and fire a fin-grid-resized event.
+     * @returns {boolean} Proceed; event was not [canceled](https://developer.mozilla.org/docs/Web/API/EventTarget/dispatchEvent#Return_Value `EventTarget.dispatchEvent`).
+     */
     fireSyntheticGridResizedEvent: function(e) {
         return dispatchGridEvent.call(this, 'fin-grid-resized', e);
     },
@@ -300,6 +374,7 @@ exports.mixin = {
      * @param {string} type - Should be either `fin-scroll-x` or `fin-scroll-y`.
      * @param {number} oldValue - The old scroll value.
      * @param {number} newValue - The new scroll value.
+     * @returns {boolean} Proceed; event was not [canceled](https://developer.mozilla.org/docs/Web/API/EventTarget/dispatchEvent#Return_Value `EventTarget.dispatchEvent`).
      */
     fireScrollEvent: function(eventName, oldValue, newValue) {
         return dispatchGridEvent.call(this, eventName, {
@@ -308,6 +383,15 @@ exports.mixin = {
         });
     },
 
+    /**
+     * @memberOf Hypergrid#
+     * @desc Synthesize and fire a fin-request-cell-edit event.
+     *
+     * This event is cancelable.
+     * @param {CellEvent} cellEvent
+     * @param {*} value
+     * @returns {boolean} Proceed; event was not [canceled](https://developer.mozilla.org/docs/Web/API/EventTarget/dispatchEvent#Return_Value `EventTarget.dispatchEvent`).
+     */
     fireRequestCellEdit: function(cellEvent, value) {
         return dispatchGridEvent.call(this, 'fin-request-cell-edit', true, { value: value }, cellEvent);
     },
@@ -315,9 +399,11 @@ exports.mixin = {
     /**
      * @memberOf Hypergrid#
      * @desc Synthesize and fire a fin-before-cell-edit event.
+     *
+     * This event is cancelable.
      * @param {Point} cell - The x,y coordinates.
      * @param {Object} value - The current value.
-     * @returns {boolean} Proceed (don't cancel).
+     * @returns {boolean} Proceed; event was not [canceled](https://developer.mozilla.org/docs/Web/API/EventTarget/dispatchEvent#Return_Value `EventTarget.dispatchEvent`).
      */
     fireBeforeCellEdit: function(cellEvent, oldValue, newValue, control) {
         return dispatchGridEvent.call(this, 'fin-before-cell-edit', true, {
@@ -333,6 +419,7 @@ exports.mixin = {
      * @param {Point} cell - The x,y coordinates.
      * @param {Object} oldValue - The old value.
      * @param {Object} newValue - The new value.
+     * @returns {boolean} Proceed; event was not [canceled](https://developer.mozilla.org/docs/Web/API/EventTarget/dispatchEvent#Return_Value `EventTarget.dispatchEvent`).
      */
     fireAfterCellEdit: function(cellEvent, oldValue, newValue, control) {
         return dispatchGridEvent.call(this, 'fin-after-cell-edit', {

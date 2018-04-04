@@ -32,7 +32,7 @@ var warned = {};
  *    * Inject a default for the `getCellEditorAt` hook
  *
  * @this {Local}
- * @param {dataModelAPI} dataModel
+ * @param {DataModel} dataModel
  * @memberOf module:decorators
  */
 function injectPolyfills(dataModel) {
@@ -46,7 +46,7 @@ function injectPolyfills(dataModel) {
 /**
  * Inject fallback methods into data model when not implemented by data model.
  * @this {Local}
- * @param {dataModelAPI} dataModel
+ * @param {DataModel} dataModel
  * @memberOf module:decorators
  */
 function injectCode(dataModel) {
@@ -120,7 +120,7 @@ function addFriendlierDrillDownMapKeys() {
 }
 
 /**
- * @param {dataModelAPI} dataModel
+ * @param {DataModel} dataModel
  * @this {Local}
  * @memberOf module:decorators
  */

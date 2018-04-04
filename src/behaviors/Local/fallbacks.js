@@ -6,27 +6,27 @@
  * @desc {@link Behavior#resetDataModel resetDataModel()} inserts each of these catcher methods into the new data model when not otherwise implemented, which allows Hypergrid to indiscriminately call these otherwise missing methods on the data model without fear of the call failing.
  */
 module.exports = {
-    /** @implements dataModelAPI#apply */
+    /** @implements DataModel#apply */
     apply: function() {},
 
-    /** @implements dataModelAPI#isDrillDown */
+    /** @implements DataModel#isDrillDown */
     isDrillDown: function() { return false; },
 
-    /** @implements dataModelAPI#click */
+    /** @implements DataModel#click */
     click: function() { return false; },
 
-    /** @implements dataModelAPI#getColumnCount */
+    /** @implements DataModel#getColumnCount */
     getColumnCount: function() {
         return this.getSchema().length;
     },
 
-    /** @implements dataModelAPI#getRow */
+    /** @implements DataModel#getRow */
     getRow: function(y) {
         this.$rowProxy$.$y$ = y;
         return this.$rowProxy$;
     },
 
-    /** @implements dataModelAPI#getData */
+    /** @implements DataModel#getData */
     getData: function(metadataFieldName) {
         var y, Y = this.getRowCount(),
             row, rows = new Array(Y),
@@ -60,22 +60,22 @@ module.exports = {
         console.warn('dataModel.setSchema(schema) called but no implementation. Schema not updated.');
     },
 
-    /** @implements dataModelAPI#getRowIndex */
+    /** @implements DataModel#getRowIndex */
     getRowIndex: function(y) {
         return y;
     },
 
-    /** @implements dataModelAPI#getRowMetadata */
+    /** @implements DataModel#getRowMetadata */
     getRowMetadata: function(y, prototype) {
         return this.metadata[y] || prototype !== undefined && (this.metadata[y] = Object.create(prototype));
     },
 
-    /** @implements dataModelAPI#getMetadataStore */
+    /** @implements DataModel#getMetadataStore */
     getMetadataStore: function() {
         return this.metadata;
     },
 
-    /** @implements dataModelAPI#setRowMetadata */
+    /** @implements DataModel#setRowMetadata */
     setRowMetadata: function(y, metadata) {
         if (metadata) {
             this.metadata[y] = metadata;
@@ -85,7 +85,7 @@ module.exports = {
         return metadata;
     },
 
-    /** @implements dataModelAPI#setMetadataStore */
+    /** @implements DataModel#setMetadataStore */
     setMetadataStore: function(newMetadataStore) {
         this.metadata = newMetadataStore || [];
     }

@@ -3,7 +3,7 @@
 /** @typedef {object} CellRenderer#renderConfig
  *
  * This is the renderer config object, which is:
- * 1. First passed to a {@link dataModelAPI#getCell getCell} method implementation, which may override (most of) its values before returning.
+ * 1. First passed to a {@link DataModel#getCell getCell} method implementation, which may override (most of) its values before returning.
  * 2. Then passed to the specified cell renderers' {@link CellRenderer#paint paint} function for rendering.
  *
  * #### Standard Properties

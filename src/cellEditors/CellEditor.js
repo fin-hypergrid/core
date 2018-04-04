@@ -31,7 +31,7 @@ var CellEditor = Base.extend('CellEditor', {
 
         this.event = options;
 
-        var value = grid.behavior.getValue(this.event);
+        var value = this.event.value;
         if (value instanceof Array) {
             value = value[1]; //it's a nested object
         }
@@ -368,7 +368,7 @@ var CellEditor = Base.extend('CellEditor', {
         );
 
         if (save) {
-            this.grid.behavior.setValue(this.event, value);
+            this.event.value = value;
             this.grid.fireAfterCellEdit(this.event.gridCell, this.initialValue, value, this);
         }
 

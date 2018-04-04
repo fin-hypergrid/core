@@ -3,7 +3,7 @@
 var DataSourceBase = require('datasaur-base');
 
 /**
- * @implements dataModelAPI
+ * @implements DataModel
  * @param {Hypergrid} grid
  * @param {object} [options]
  * @param {string} [options.name]

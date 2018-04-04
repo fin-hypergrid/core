@@ -43,7 +43,7 @@ exports.mixin = {
      *
      * @param {subgridSpec[]} subgridSpecs
      *
-     * @type {dataModelAPI[]}
+     * @type {DataModel[]}
      *
      * @memberOf Behavior#
      */
@@ -68,7 +68,7 @@ exports.mixin = {
      * @summary Maps a `subgridSpec` to a data model.
      * @desc The spec may describe either an existing data model, or a constructor for a new data model.
      * @param {subgridSpec} spec
-     * @returns {dataModelAPI} A data model.
+     * @returns {DataModel} A data model.
      * @memberOf Behavior#
      */
     createSubgrid: function(spec, args) {

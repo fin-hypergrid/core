@@ -175,12 +175,12 @@ Column.prototype = {
         return this.schema.type;
     },
 
-    getValue: function(y) {
-        return this.dataModel.getValue(this.index, y);
+    getValue: function(y, dataModel) {
+        return this.dataModel.getValue(this.index, y, dataModel);
     },
 
-    setValue: function(y, value) {
-        return this.dataModel.setValue(this.index, y, value);
+    setValue: function(y, value, dataModel) {
+        return this.dataModel.setValue(this.index, y, value, dataModel);
     },
 
     getWidth: function() {
@@ -403,7 +403,7 @@ function resolveCalculator(calculator) {
     return calculators[key];
 }
 
-Column.prototype.mixIn(require('./cellProperties').columnMixin);
+Column.prototype.mixIn(require('./cellProperties').mixin);
 Column.prototype.mixIn(require('./columnProperties').mixin);
 
 module.exports = Column;

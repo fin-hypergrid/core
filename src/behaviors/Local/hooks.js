@@ -26,7 +26,7 @@
  * var hooks = require('fin-hypergrid/src/behaviors/dataModel/hooks');
  * hooks.getCell = myCustomDefaultGetCell;
  * ```
- * @this {dataModelAPI}
+ * @this {DataModel}
  * @memberOf module:hooks
  */
 exports.getCell = function(config, rendererName) {
@@ -55,7 +55,7 @@ exports.getCell = function(config, rendererName) {
  * var hooks = require('fin-hypergrid/src/behaviors/dataModel/hooks');
  * hooks.getCellEditorAt = myCustomDefaultGetCellEditorAt;
  * ```
- * @this {dataModelAPI}
+ * @this {DataModel}
  * @memberOf module:hooks
  */
 exports.getCellEditorAt = function(columnIndex, rowIndex, editorName, cellEvent) {

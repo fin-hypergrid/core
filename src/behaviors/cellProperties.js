@@ -2,140 +2,11 @@
 
 var assignOrDelete = require('../lib/assignOrDelete');
 
-
-/**
- * Behavior.js mixes this module into its prototype.
- * @mixin
- */
-exports.behaviorMixin = {
-    /**
-     * @summary Get the cell's own properties object.
-     * @desc May be undefined because cells only have their own properties object when at lest one own property has been set.
-     * @param {CellEvent|number} xOrCellEvent - Data x coordinate.
-     * @param {number} [y] - Grid row coordinate. _Omit when `xOrCellEvent` is a `CellEvent`._
-     * @param {dataModelAPI} [dataModel=this.subgrids.lookup.data] - For use only when `xOrCellEvent` is _not_ a `CellEvent`: Provide a subgrid.
-     * @returns {undefined|object} The "own" properties of the cell at x,y in the grid. If the cell does not own a properties object, returns `undefined`.
-     * @memberOf Behavior#
-     */
-    getCellOwnProperties: function(xOrCellEvent, y, dataModel) {
-        if (arguments.length === 1) {
-            // xOrCellEvent is cellEvent
-            return xOrCellEvent.column.getCellOwnProperties(xOrCellEvent.dataCell.y, xOrCellEvent.subgrid);
-        } else {
-            // xOrCellEvent is x
-            return this.getColumn(xOrCellEvent).getCellOwnProperties(y, dataModel);
-        }
-    },
-
-    /**
-     * @summary Get the properties object for cell.
-     * @desc This is the cell's own properties object if found else the column object.
-     *
-     * If you are seeking a single specific property, consider calling {@link Behavior#getCellProperty} instead.
-     * @param {CellEvent|number} xOrCellEvent - Data x coordinate.
-     * @param {number} [y] - Grid row coordinate. _Omit when `xOrCellEvent` is a `CellEvent`._
-     * @param {dataModelAPI} [dataModel=this.subgrids.lookup.data] - For use only when `xOrCellEvent` is _not_ a `CellEvent`: Provide a subgrid.
-     * @return {object} The properties of the cell at x,y in the grid.
-     * @memberOf Behavior#
-     */
-    getCellProperties: function(xOrCellEvent, y, dataModel) {
-        if (arguments.length === 1) {
-            // xOrCellEvent is cellEvent
-            return xOrCellEvent.properties;
-        } else {
-            // xOrCellEvent is x
-            return this.getColumn(xOrCellEvent).getCellProperties(y, dataModel);
-        }
-    },
-
-    /**
-     * @summary Return a specific cell property.
-     * @desc If there is no cell properties object, defers to column properties object.
-     * @param {CellEvent|number} xOrCellEvent - Data x coordinate.
-     * @param {number} [y] - Grid row coordinate._ Omit when `xOrCellEvent` is a `CellEvent`._
-     * @param {string} key - Name of property to get. _When `y` omitted, this param promoted to 2nd arg._
-     * @param {dataModelAPI} [dataModel=this.subgrids.lookup.data] - For use only when `xOrCellEvent` is _not_ a `CellEvent`: Provide a subgrid.
-     * @return {object} The specified property for the cell at x,y in the grid.
-     * @memberOf Behavior#
-     */
-    getCellProperty: function(xOrCellEvent, y, key, dataModel) {
-        if (typeof xOrCellEvent === 'object') {
-            key = y;
-            return xOrCellEvent.properties[key];
-        } else {
-            return this.getColumn(xOrCellEvent).getCellProperty(y, key, dataModel);
-        }
-    },
-
-    /**
-     * @memberOf Behavior#
-     * @desc update the data at point x, y with value
-     * @param {CellEvent|number} xOrCellEvent - Data x coordinate.
-     * @param {number} [y] - Grid row coordinate. _Omit when `xOrCellEvent` is a `CellEvent`._
-     * @param {Object} properties - Hash of cell properties. _When `y` omitted, this param promoted to 2nd arg._
-     * @param {dataModelAPI} [dataModel=this.subgrids.lookup.data] - For use only when `xOrCellEvent` is _not_ a `CellEvent`: Provide a subgrid.
-     */
-    setCellProperties: function(xOrCellEvent, y, properties, dataModel) {
-        if (typeof xOrCellEvent === 'object') {
-            properties = y;
-            return xOrCellEvent.column.setCellProperties(xOrCellEvent.dataCell.y, properties, xOrCellEvent.subgrid);
-        } else {
-            return this.getColumn(xOrCellEvent).setCellProperties(y, properties, dataModel);
-        }
-    },
-
-    /**
-     * @memberOf Behavior#
-     * @desc update the data at point x, y with value
-     * @param {CellEvent|number} xOrCellEvent - Data x coordinate.
-     * @param {number} [y] - Grid row coordinate. _Omit when `xOrCellEvent` is a `CellEvent`._
-     * @param {Object} properties - Hash of cell properties. _When `y` omitted, this param promoted to 2nd arg._
-     * @param {dataModelAPI} [dataModel=this.subgrids.lookup.data] - For use only when `xOrCellEvent` is _not_ a `CellEvent`: Provide a subgrid.
-     */
-    addCellProperties: function(xOrCellEvent, y, properties, dataModel) {
-        if (typeof xOrCellEvent === 'object') {
-            properties = y;
-            return xOrCellEvent.column.addCellProperties(xOrCellEvent.dataCell.y, properties, xOrCellEvent.subgrid); // y omitted so y here is actually properties
-        } else {
-            return this.getColumn(xOrCellEvent).addCellProperties(y, properties, dataModel);
-        }
-    },
-
-    /**
-     * @summary Set a specific cell property.
-     * @desc If there is no cell properties object, defers to column properties object.
-     *
-     * NOTE: For performance reasons, renderer's cell event objects cache their respective cell properties objects. This method accepts a `CellEvent` overload. Whenever possible, use the `CellEvent` from the renderer's cell event pool. Doing so will reset the cell properties object cache.
-     *
-     * If you use some other `CellEvent`, the renderer's `CellEvent` properties cache will not be automatically reset until the whole cell event pool is reset on the next call to {@link Renderer#computeCellBoundaries}. If necessary, you can "manually" reset it by calling {@link Renderer#resetCellPropertiesCache|resetCellPropertiesCache(yourCellEvent)} which searches the cell event pool for one with matching coordinates and resets the cache.
-     *
-     * The raw coordinates overload calls the `resetCellPropertiesCache(x, y)` overload for you.
-     * @param {CellEvent|number} xOrCellEvent - `CellEvent` or data x coordinate.
-     * @param {number} [y] - Grid row coordinate. _Omit when `xOrCellEvent` is a `CellEvent`._
-     * @param {string} key - Name of property to get. _When `y` omitted, this param promoted to 2nd arg._
-     * @param value
-     * @param {dataModelAPI} [dataModel=this.subgrids.lookup.data] - For use only when `xOrCellEvent` is _not_ a `CellEvent`: Provide a subgrid.
-     * @memberOf Behavior#
-     */
-    setCellProperty: function(xOrCellEvent, y, key, value, dataModel) {
-        var cellOwnProperties;
-        if (typeof xOrCellEvent === 'object') {
-            value = key;
-            key = y;
-            cellOwnProperties = xOrCellEvent.setCellProperty(key, value);
-        } else {
-            cellOwnProperties = this.getColumn(xOrCellEvent).setCellProperty(y, key, value, dataModel);
-            this.grid.renderer.resetCellPropertiesCache(xOrCellEvent, y, dataModel);
-        }
-        return cellOwnProperties;
-    }
-};
-
 /**
  * Column.js mixes this module into its prototype.
  * @mixin
  */
-exports.columnMixin = {
+exports.mixin = {
 
     /**
      * @summary Get the properties object for cell.
@@ -143,6 +14,7 @@ exports.columnMixin = {
      *
      * If you are seeking a single specific property, consider calling {@link Column#getCellProperty} instead (which calls this method).
      * @param {number} rowIndex - Data row coordinate.
+     * @param {DataModel} [dataModel=this.dataModel]
      * @return {object} The properties of the cell at x,y in the grid.
      * @memberOf Column#
      */
@@ -153,6 +25,7 @@ exports.columnMixin = {
     /**
      * @param {number} rowIndex - Data row coordinate.
      * @param {object|undefined} properties - Hash of cell properties. If `undefined`, this call is a no-op.
+     * @param {DataModel} [dataModel=this.dataModel]
      * @returns {*} New cell properties object, based on column properties object, with `properties` copied to it.
      * @memberOf Column#
      */
@@ -165,6 +38,7 @@ exports.columnMixin = {
     /**
      * @param {number} rowIndex - Data row coordinate.
      * @param {object|undefined} properties - Hash of cell properties. If `undefined`, this call is a no-op.
+     * @param {DataModel} [dataModel=this.dataModel]
      * @returns {object} Cell's own properties object, which will be created by this call if it did not already exist.
      * @memberOf Column#
      */
@@ -187,6 +61,7 @@ exports.columnMixin = {
      *
      * Call this method only when you need to know if the the cell has its own properties object; otherwise call {@link Column#getCellProperties|getCellProperties}.
      * @param {number} rowIndex - Data row coordinate.
+     * @param {DataModel} [dataModel=this.dataModel]
      * @returns {null|object} The "own" properties of the cell at x,y in the grid. If the cell does not own a properties object, returns `null`.
      * @memberOf Column#
      */
@@ -200,6 +75,12 @@ exports.columnMixin = {
         );
     },
 
+    /**
+     * Delete cell's own properties object.
+     * @param {number} rowIndex - Data row coordinate.
+     * @param {DataModel} [dataModel=this.dataModel]
+     * @memberOf Column#
+     */
     deleteCellOwnProperties: function(rowIndex, dataModel) {
         dataModel = dataModel || this.dataModel;
         var metadata = dataModel.getRowMetadata(rowIndex);
@@ -216,6 +97,7 @@ exports.columnMixin = {
      * @desc If there is no cell properties object, defers to column properties object.
      * @param {number} rowIndex - Data row coordinate.
      * @param {string} key
+     * @param {DataModel} [dataModel=this.dataModel]
      * @return {object} The specified property for the cell at x,y in the grid.
      * @memberOf Column#
      */
@@ -227,6 +109,7 @@ exports.columnMixin = {
      * @param {number} rowIndex - Data row coordinate.
      * @param {string} key
      * @param value
+     * @param {DataModel} [dataModel=this.dataModel]
      * @returns {object} Cell's own properties object, which will be created by this call if it did not already exist.
      * @memberOf Column#
      */
@@ -236,6 +119,13 @@ exports.columnMixin = {
         return cellProps;
     },
 
+    /**
+     * @summary Delete a cell own property.
+     * @summary If the property is not an own property, it is not deleted.
+     * @param {number} rowIndex - Data row coordinate.
+     * @param {string} key
+     * @param {DataModel} [dataModel=this.dataModel]
+     */
     deleteCellProperty: function(rowIndex, key, dataModel) {
         var cellProps = this.getCellOwnProperties(rowIndex, dataModel);
         if (cellProps) {
@@ -260,6 +150,7 @@ exports.columnMixin = {
  * @todo: Theoretically setData should call this method to ensure each cell's persisted properties object is properly recreated with prototype set to its column's properties object.
  * @this {Column}
  * @param {number} rowIndex - Data row coordinate.
+     * @param {DataModel} [dataModel=this.dataModel]
  * @returns {object}
  * @private
  */
@@ -270,6 +161,7 @@ function getCellPropertiesObject(rowIndex, dataModel) {
 /**
  * @this {Column}
  * @param {number} rowIndex - Data row coordinate.
+     * @param {DataModel} [dataModel=this.dataModel]
  * @returns {object}
  * @private
  */

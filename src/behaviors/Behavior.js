@@ -32,7 +32,7 @@ var noExportProperties = [
  * > This constructor (actually `initialize`) will be called upon instantiation of this class or of any class that extends from this class. See {@link https://github.com/joneit/extend-me|extend-me} for more info.
  * @param {Hypergrid} grid
  * @param {object} [options] - _(Passed to {@link Behavior#reset reset})._
- * @param {dataModelAPI} [options.dataModel] - _Per {@link Behavior#reset reset}._
+ * @param {DataModel} [options.dataModel] - _Per {@link Behavior#reset reset}._
  * @param {object} [options.metadata] - _Per {@link Behavior#reset reset}._
  * @param {function} [options.DataModel=require('datasaur-local')] - _Per {@link Behavior#reset reset}._
  * @param {function|object[]} [options.data] - _Per {@link Behavior#setData setData}._
@@ -1208,7 +1208,8 @@ Behavior.prototype.applyAnalytics = Behavior.prototype.reindex;
 
 // mix-ins
 Behavior.prototype.mixIn(require('./rowProperties').mixin);
-Behavior.prototype.mixIn(require('./cellProperties').behaviorMixin);
+Behavior.prototype.mixIn(require('./gridCellProperties').mixin);
+Behavior.prototype.mixIn(require('./dataModel').mixin);
 Behavior.prototype.mixIn(require('./subgrids').mixin);
 
 

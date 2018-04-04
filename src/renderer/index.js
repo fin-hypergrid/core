@@ -72,7 +72,7 @@ var paintCellsFunctions = [];
 /** @typedef {object} visibleRowArray
  * @property {number} index - A back reference to the element's array index in {@link Renderer#visibleRows}.
  * @property {number} rowIndex - Local vertical row coordinate within the subgrid to which the row belongs, adjusted for scrolling.
- * @property {dataModelAPI} subgrid - A reference to the subgrid to which the row belongs.
+ * @property {DataModel} subgrid - A reference to the subgrid to which the row belongs.
  * @property {number} top - Pixel coordinate of the top edge of this row, rounded to nearest integer.
  * @property {number} bottom - Pixel coordinate of the bottom edge of this row, rounded to nearest integer.
  * @property {number} height - Height of this row in pixels, rounded to nearest integer.
@@ -524,7 +524,7 @@ var Renderer = Base.extend('Renderer', {
      * @memberOf Renderer.prototype
      * @summary Determines visibility of a row.
      * @param {number} rowIndex - The data row index.
-     * @param {dataModelAPI} [subgrid=this.behavior.subgrids.data]
+     * @param {DataModel} [subgrid=this.behavior.subgrids.data]
      * @returns {boolean} The given row is visible.
      */
     isDataRowVisible: function(rowIndex, subgrid) {
@@ -537,11 +537,11 @@ var Renderer = Base.extend('Renderer', {
      * @memberOf Renderer.prototype
      * @summary Find a visible row object.
      * @param {number} rowIndex - The data row index within the given subgrid.
-     * @param {dataModelAPI} [subgrid=this.behavior.subgrids.data]
+     * @param {DataModel} [subgrid=this.behavior.subgrids.data]
      * @returns {object|undefined} The given row if visible or `undefined` if not.
      */
     getVisibleDataRow: function(rowIndex, subgrid) {
-        subgrid = subgrid || this.grid.behavior.subgrids.lookup.data;
+        subgrid = subgrid || this.grid.behavior.dataModel;
         return this.visibleRows.find(function(vr) {
             return vr.subgrid === subgrid && vr.rowIndex === rowIndex;
         });
@@ -1123,7 +1123,7 @@ var Renderer = Base.extend('Renderer', {
     /**
      * @param {number|CellEvent} colIndexOrCellEvent - This is the "data" x coordinate.
      * @param {number} [rowIndex] - This is the "data" y coordinate. Omit if `colIndexOrCellEvent` is a `CellEvent`.
-     * @param {dataModelAPI} [dataModel=this.grid.behavior.dataModel] Omit if `colIndexOrCellEvent` is a `CellEvent`.
+     * @param {DataModel} [dataModel=this.grid.behavior.dataModel] Omit if `colIndexOrCellEvent` is a `CellEvent`.
      * @returns {CellEvent} The matching `CellEvent` object from the renderer's pool. Returns `undefined` if the requested cell is not currently visible (due to being scrolled out of view).
      */
     findCell: function(colIndexOrCellEvent, rowIndex, dataModel) {
@@ -1161,7 +1161,7 @@ var Renderer = Base.extend('Renderer', {
      * Resets the cell properties cache in the matching `CellEvent` object from the renderer's pool. This will insure that a new cell properties object will be known to the renderer. (Normally, the cache is not reset until the pool is updated by the next call to {@link Renderer#computeCellBounds}).
      * @param {number|CellEvent} xOrCellEvent
      * @param {number} [y]
-     * @param {dataModelAPI} [dataModel=this.grid.behavior.dataModel]
+     * @param {DataModel} [dataModel=this.grid.behavior.dataModel]
      * @returns {CellEvent} The matching `CellEvent` object.
      */
     resetCellPropertiesCache: function(xOrCellEvent, y, dataModel) {

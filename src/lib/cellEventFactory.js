@@ -192,7 +192,7 @@ var cellEventProperties = Object.defineProperties({}, { // all props non-enumera
      * @desc If the requested cell is not be visible (due to being scrolled out of view), the instance is not reset.
      * @param {number} dataX - Horizontal data cell coordinate.
      * @param {number} dataY - Vertical data cell coordinate.
-     * @param {dataModelAPI} [subgrid=this.behavior.subgrids.data]
+     * @param {DataModel} [subgrid=this.behavior.subgrids.data]
      * @returns {boolean} Visibility.
      * @method
      * @memberOf CellEvent#
@@ -211,7 +211,7 @@ var cellEventProperties = Object.defineProperties({}, { // all props non-enumera
      * @desc If the requested cell is not be visible (due to being scrolled out of view or outside the bounds of the rendered grid), the instance is not reset.
      * @param {number} gridX - Horizontal grid cell coordinate (adjusted for horizontal scrolling after fixed columns).
      * @param {number} dataY - Vertical data cell coordinate.
-     * @param {dataModelAPI} [subgrid=this.behavior.subgrids.data]
+     * @param {DataModel} [subgrid=this.behavior.dataModel]
      * @param {boolean} [useAllCells] - Search in all rows and columns instead of only rendered ones.
      * @returns {boolean} Visibility.
      * @method
@@ -229,7 +229,7 @@ var cellEventProperties = Object.defineProperties({}, { // all props non-enumera
                 columnIndex: gridX
             };
             vr = {
-                subgrid: subgrid || this.behavior.subgrids.lookup.data,
+                subgrid: subgrid || this.behavior.dataModel,
                 rowIndex: dataY
             };
             visible = true;
@@ -529,7 +529,7 @@ function factory(grid) {
 
             /**
              * @name subgrid
-             * @type {dataModelAPI}
+             * @type {DataModel}
              * @memberOf CellEvent#
              */
             subgrid: writableDescriptor,
