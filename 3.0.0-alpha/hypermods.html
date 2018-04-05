@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>fin-hypergrid Demo</title>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" >
+    <meta http-equiv="Cache-Control" content="must-revalidate" />
+    <link rel="icon" type="image/png" href="img/hypergrid-icon.png">
+    <script src="https://fin-hypergrid.github.io/core/3.0.0-alpha/build/fin-hypergrid.js"></script>
+    <script src="https://fin-hypergrid.github.io/event-logger/1.0.4/build/fin-hypergrid-event-logger.hypermod.js"></script>
+    <script src="hypermod/celleditors.hypermod.js"></script>
+    <script src="hypermod/cellrenderers.hypermod.js"></script>
+    <script src="hypermod/dashboard.hypermod.js"></script>
+    <script src="hypermod/events.hypermod.js"></script>
+    <script src="hypermod/formatters.hypermod.js"></script>
+    <script src="hypermod/setState.hypermod.js"></script>
+    <script src="hypermod/widedata.hypermod.js"></script>
+    <script src="hypermod/Demo.hypermod.js"></script>
+    <script>
+        window.onload = function() {
+            window.demo = new fin.Hypergrid.modules.Demo;
+        };
+    </script>
+    <link rel="stylesheet" href="css/demo.css">
+</head>
+<body>
+    <h1 style="margin:.5em; color:lightgrey">Hypergrid <span id="version"></span> dev testbench</h1>
+
+    <div id="tabs">
+        <div id="tab-dashboard">Dashboard</div>
+        <div id="tab-fps">FPS = ??</div>
+        <div id="tab-grow-shrink">Grow</div>
+    </div>
+
+    <div id="dashboard">
+        <div id="buttons"></div>
+        <div id="ctrl-groups"></div>
+    </div>
+
+    <!-- recommended height: multiple of default row height, plus horizontal scroll bar height -->
+    <div id="hypergrid-example" style="margin-top:12px; margin-left:30px; height:404px"></div>
+
+</body>
+</html>

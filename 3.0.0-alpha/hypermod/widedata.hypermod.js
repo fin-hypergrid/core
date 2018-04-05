@@ -1,3 +1,4 @@
+(function(require, module, exports, Hypergrid) {
 'use strict';
 
 var numRows = 10000;
@@ -172,3 +173,6 @@ for (var i = 0; i < numRows/2; i++) {
 exports.states = states;
 exports.firstNames = firstNames;
 exports.lastNames = lastNames;
+})(fin.Hypergrid.require, fin.Hypergrid.modules, fin.Hypergrid.modules.exports = {}, fin.Hypergrid);
+fin.Hypergrid.modules.widedata = fin.Hypergrid.modules.exports;
+delete fin.Hypergrid.modules.exports;
