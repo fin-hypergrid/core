@@ -15,7 +15,7 @@ var propClassEnum = {
 };
 var propClassLayersMap = {
     DEFAULT: [propClassEnum.COLUMNS, propClassEnum.STRIPES, propClassEnum.ROWS, propClassEnum.CELLS],
-    NO_ROWS: [propClassEnum.CELLS]
+    NO_ROWS: [propClassEnum.COLUMNS, propClassEnum.CELLS]
 };
 
 /**
