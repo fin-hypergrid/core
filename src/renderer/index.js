@@ -959,9 +959,8 @@ var Renderer = Base.extend('Renderer', {
             config.halign = 'left';
         } else if (isDataRow) {
             isSelected = isCellSelected || isRowSelected || isColumnSelected;
-            format = config.format;
         } else {
-            format = cellEvent.subgrid.format || config.format; // subgrid format can override column format
+            format = cellEvent.subgrid.format; // subgrid format can override column format
             if (isFilterRow) {
                 isSelected = false;
             } else if (isColumnSelected) {
@@ -1027,7 +1026,7 @@ var Renderer = Base.extend('Renderer', {
         //allow the renderer to identify itself if it's a button
         config.buttonCells = this.buttonCells;
 
-        config.formatValue = grid.getFormatter(format);
+        config.formatValue = grid.getFormatter(format || config.format);
 
         // Following supports partial render>
         config.snapshot = cellEvent.snapshot;
