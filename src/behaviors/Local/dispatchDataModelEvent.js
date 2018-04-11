@@ -42,11 +42,11 @@ module.exports = function(event) {
             }
         // fall through
         default:
-            throw new TypeError('Expected data model event to be: (string | {type:string})');
+            throw new this.HypergridError('Expected data model event to be: (string | {type:string})');
     }
 
     if (!REGEX_DATA_EVENT_STRING.test(type)) {
-        throw new TypeError('Expected data model event type "' + type + ' to match ' + REGEX_DATA_EVENT_STRING + '.');
+        throw new this.HypergridError('Expected data model event type "' + type + '" to match ' + REGEX_DATA_EVENT_STRING + '.');
     }
 
     var nativeHandler = dataModelEventHandlers[event.type];

@@ -1705,8 +1705,8 @@ var Hypergrid = Base.extend('Hypergrid', {
         return this.behavior.getLogicalRowCount();
     },
 
-    hasTreeColumn: function(columnIndex) {
-        return this.behavior.hasTreeColumn(columnIndex);
+    hasTreeColumn: function() {
+        return this.behavior.hasTreeColumn();
     },
     lookupFeature: function(key) {
         return this.behavior.lookupFeature(key);

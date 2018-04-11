@@ -55,7 +55,7 @@ function Column(behavior, columnSchema) {
                 return columnSchema.name === name;
             });
             if (index < 0) {
-                throw new ReferenceError('Column named "' + name + '" not found in schema.');
+                throw new this.HypergridError('Column named "' + name + '" not found in schema.');
             }
             columnSchema = {
                 name: name,
@@ -73,7 +73,7 @@ function Column(behavior, columnSchema) {
                     return columnSchema.name === name;
                 });
                 if (index < 0) {
-                    throw new ReferenceError('Column named "' + name + '" not found in schema.');
+                    throw new this.HypergridError('Column named "' + name + '" not found in schema.');
                 }
                 columnSchema.index = index;
             }
@@ -112,7 +112,7 @@ function Column(behavior, columnSchema) {
 
         default:
             if (columnSchema.index < 0) {
-                throw new RangeError('New column index ' + columnSchema.index + ' out of range.');
+                throw new this.HypergridError('New column index ' + columnSchema.index + ' out of range.');
             }
     }
 }

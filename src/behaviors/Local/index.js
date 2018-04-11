@@ -172,19 +172,17 @@ var Local = Behavior.extend('Local', {
     /**
      * @summary Calls `click` on the data model if column is a tree column.
      * @desc Sends clicked cell's coordinates to the data model.
-     * @see {@link https://fin-hypergrid.github.io/doc/DataModel.html#isDrillDown|isDrillDown}
      * @see {@link https://fin-hypergrid.github.io/doc/DataModel.html#click|click}
      * @param {CellEvent} event
-     * @returns {boolean} If click was in a drill down column and click on this row was "consumed" by the data model (_i.e., caused it's state to change).
+     * @returns {boolean} If click was "consumed" by the data model (_i.e., caused it's state to change).
      * @memberOf Local#
      */
     cellClicked: function(event) {
-        return this.dataModel.isDrillDown(event.dataCell.x) &&
-            this.dataModel.click(event.dataCell.y);
+        return this.dataModel.click(event.dataCell.y, event.dataCell.x);
     },
 
-    hasTreeColumn: function(columnIndex) {
-        return this.grid.properties.showTreeColumn && this.dataModel.isDrillDown(columnIndex);
+    hasTreeColumn: function() {
+        return this.grid.properties.showTreeColumn && this.dataModel.isDrillDown(this.treeColumnIndex);
     }
 
 });

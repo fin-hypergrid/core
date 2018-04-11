@@ -297,9 +297,19 @@
  *
  * The data model may respond to clicks by adding/removing/decorating data rows (_e.g.,_ a drill-down).
  * If it does so, the click is considered to be "consumed."
- * When a click is consumed, data models should publish 'data-changed' to the grid; or 'data-prereindex' and 'data-postreindex', which in turn triggers a 'data-changed' event. Hypergrid takes appropriate actions on receipt of 'data-*' events before synthesizing and firing 'fin-data-*' events.
+ * When a click is consumed, data models should:
+ * * Dispatch the event to the grid, one of:
+ *    * 'fin-hypergrid-data-changed'; or
+ *    * Both of:
+ *       * 'fin-hypergrid-data-prereindex' before transorming the data
+ *       * 'fin-hypergrid-data-postreindex' after transforming the data (which in turn triggers a 'fin-hypergrid-data-changed' event)
+ *
+ * Hypergrid takes appropriate internal actions on receipt of such events and dispatches them to the grid's `<canvas>` element for application listeners benefit.
+ *
+ * > Note the order of this method's parameters. The row index comes first, which differs from other methods like `getValue`. This is for backwards compatibility; originally row index was the only one parameter. Implementations may choose to ignore column index (essentially responding to a click anywhere on the row) or may discriminate clicks by column as well.
  * #### Parameters:
- * @param {CellEvent} event
+ * @param {number} rowIndex
+ * @param {number} columnIndex
  * @returns {boolean} - Click was consumed by the data model.
  */
 

@@ -454,8 +454,9 @@ var defaults = {
 
     /**
      * @summary Name of image to appear at right of cell.
-     * Must be a key from {@link module:images|images}.
-     * @desc Used by {@link SimpleCell} cell renderer.
+     * @desc Must be a key from {@link module:images|images}.
+     *
+     * Used by {@link SimpleCell} cell renderer.
      * @see {@link module:defaults.centerIcon|centerIcon}
      * @see {@link module:defaults.rightIcon|rightIcon}
      * @see {@link module:defaults.iconPadding|iconPadding}
@@ -467,8 +468,9 @@ var defaults = {
 
     /**
      * @summary Name of image to appear at right of cell.
-     * Must be a key from {@link module:images|images}.
-     * @desc Used by {@link SimpleCell} cell renderer.
+     * @desc Must be a key from {@link module:images|images}.
+     *
+     * Used by {@link SimpleCell} cell renderer.
      * @see {@link module:defaults.leftIcon|leftIcon}
      * @see {@link module:defaults.rightIcon|rightIcon}
      * @see {@link module:defaults.iconPadding|iconPadding}
@@ -480,8 +482,9 @@ var defaults = {
 
     /**
      * @summary Name of image to appear at right of cell.
-     * Must be a key from {@link module:images|images}.
-     * @desc Used by {@link SimpleCell} cell renderer.
+     * @desc Must be a key from {@link module:images|images}.
+     *
+     * Used by {@link SimpleCell} cell renderer.
      * @see {@link module:defaults.leftIcon|leftIcon}
      * @see {@link module:defaults.centerIcon|centerIcon}
      * @see {@link module:defaults.iconPadding|iconPadding}
@@ -527,7 +530,7 @@ var defaults = {
      * @type {number}
      * @default
      * @memberOf module:defaults
-     * @see {@link module:dynamicProperties.lineWidth}
+     * @see {@link module:dynamicProperties.lineWidth lineWidth}
      */
     gridLinesHWidth: 1,
 
@@ -536,7 +539,7 @@ var defaults = {
      * @type {string}
      * @default
      * @memberOf module:defaults
-     * @see {@link module:dynamicProperties.lineColor}
+     * @see {@link module:dynamicProperties.lineColor lineColor}
      */
     gridLinesHColor: 'rgb(199, 199, 199)',
 
@@ -553,7 +556,7 @@ var defaults = {
      * @type {number}
      * @default
      * @memberOf module:defaults
-     * @see {@link module:dynamicProperties.lineWidth}
+     * @see {@link module:dynamicProperties.lineWidth lineWidth}
      */
     gridLinesVWidth: 1,
 
@@ -562,7 +565,7 @@ var defaults = {
      * @type {string}
      * @default
      * @memberOf module:defaults
-     * @see {@link module:dynamicProperties.lineColor}
+     * @see {@link module:dynamicProperties.lineColor lineColor}
      */
     gridLinesVColor: 'rgb(199, 199, 199)',
 
@@ -591,9 +594,15 @@ var defaults = {
     gridLinesUserDataArea: true,
 
     /**
-     * Set canvas's CSS border to this string as well as `gridBorderLeft`, `gridBorderRight`, `gridBorderTop`, and `gridBorderBottom`.
-     * If set to `true`, uses current `lineWidth` and `lineColor`.
-     * If set to `false`, uses null.
+     * Set canvas's CSS border to this string as well as:
+     * * {@link module:dynamicProperties.gridBorderLeft gridBorderLeft}
+     * * {@link module:dynamicProperties.gridBorderRight gridBorderRight}
+     * * {@link module:dynamicProperties.gridBorderTop gridBorderTop}
+     * * {@link module:dynamicProperties.gridBorderBottom gridBorderBottom}.
+     *
+     * If set to:
+     * `true`: uses current {@link module:dynamicProperties.lineWidth lineWidth} and {@link module:dynamicProperties.lineColor lineColor}
+     * `false`: uses null
      *
      * Caveat: The use of `grid.canvas.canvas.style.boxSizing = 'border-box'` is _not_ recommended due to
      * the fact that the canvas is squashed slightly to accommodate the border resulting in blurred text.
@@ -606,8 +615,10 @@ var defaults = {
 
     /**
      * Set canvas's left CSS border to this string.
-     * If set to `true`, uses current `lineWidth` and `lineColor`.
-     * If set to `false`, uses null.
+     *
+     * If set to:
+     * * `true`: uses current {@link module:dynamicProperties.lineWidth lineWidth} and {@link module:dynamicProperties.lineColor lineColor}
+     * * `false`: uses null
      * @default
      * @type {boolean|string}
      * @memberOf module:defaults
@@ -616,8 +627,10 @@ var defaults = {
 
     /**
      * Set canvas's right CSS border to this string.
-     * If set to `true`, uses current `lineWidth` and `lineColor`.
-     * If set to `false`, uses null.
+     *
+     * If set to:
+     * * `true`: uses current {@link module:dynamicProperties.lineWidth lineWidth} and {@link module:dynamicProperties.lineColor lineColor}
+     * * `false`: uses null
      * @default
      * @type {boolean}
      * @memberOf module:defaults
@@ -626,8 +639,10 @@ var defaults = {
 
     /**
      * Set canvas's top CSS border to this string.
-     * If set to `true`, uses current `lineWidth` and `lineColor`.
-     * If set to `false`, uses null.
+     *
+     * If set to:
+     * * `true`: uses current {@link module:dynamicProperties.lineWidth lineWidth} and {@link module:dynamicProperties.lineColor lineColor}
+     * * `false`: uses null
      * @default
      * @type {boolean}
      * @memberOf module:defaults
@@ -636,8 +651,10 @@ var defaults = {
 
     /**
      * Set canvas's bottom CSS border to this string.
-     * If set to `true`, uses current `lineWidth` and `lineColor`.
-     * If set to `false`, uses null.
+     *
+     * If set to:
+     * * `true`: uses current {@link module:dynamicProperties.lineWidth lineWidth} and {@link module:dynamicProperties.lineColor lineColor}
+     * * `false`: uses null
      * @default
      * @type {boolean}
      * @memberOf module:defaults
@@ -645,7 +662,7 @@ var defaults = {
     gridBorderBottom: false,
 
     /**
-     * Define this property to style rule lines between non-scrollable rows AND scrollable rows differently from `lineWidth`.
+     * Define this property to style rule lines between non-scrollable rows and scrollable rows differently from {@link module:defaults.gridLinesHWidth gridLinesHWidth}.
      * Undefine it to show normal grid line in that position.
      * @default
      * @type {number}
@@ -654,7 +671,9 @@ var defaults = {
     fixedLinesHWidth: 2,
 
     /**
-     * Define this property to render just the edges of the lines between fixed rows & scrollable rows, creating a double-line effect. The value is the thickness of the edges. Typical definition would be `1` in tandem with setting `fixedLinesWidth` to `3`.
+     * Define this property to render just the edges of the lines between non-scrollable rows & scrollable rows, creating a double-line effect.
+     * The value is the thickness of the edges.
+     * Typical definition would be `1` in tandem with setting {@link module:defaults.fixedLinesHWidth fixedLinesHWidth} to `3`.
      * @default
      * @type {number}
      * @memberOf module:defaults
@@ -662,15 +681,15 @@ var defaults = {
     fixedLinesHEdge: undefined, // undefined means no edge effect
 
     /**
-     * Define this property to style rule lines between fixed & scolling rows differently from `lineColor`.
+     * Define this property to style rule lines between fixed & scolling rows differently from {@link module:defaults.gridLinesHColor}.
      * @default
      * @type {cssColor}
      * @memberOf module:defaults
      */
-    fixedLinesHColor: 'rgb(164,164,164)', // ~21% darker than `lineColor` default
+    fixedLinesHColor: 'rgb(164,164,164)', // ~21% darker than {@link module:defaults.gridLinesHColor} default
 
     /**
-     * Define this property to style rule lines between non-scrollable columns AND scrollable columns differently from `lineWidth`.
+     * Define this property to style rule lines between non-scrollable columns and scrollable columns differently from {@link module:defaults.gridLinesVWidth gridLinesVWidth}.
      * Undefine it to show normal grid line in that position.
      * @default
      * @type {number}
@@ -679,7 +698,10 @@ var defaults = {
     fixedLinesVWidth: 2,
 
     /**
-     * Define this property to render just the edges of the lines between fixed & scolling columns, creating a double-line effect. The value is the thickness of the edges. Typical definition would be `1` in tandem with setting `fixedLinesWidth` to `3`.
+     * Define this property to render just the edges of the lines between fixed & scrolling columns, creating a double-line effect.
+     * The value is the thickness of the edges.
+     * Typical definition would be `1` in tandem with setting {@link module:defaults.fixedLinesVWidth fixedLinesVWidth} to `3`.
+     * @see {@link module:defaults.fixedLinesVWidth}
      * @default
      * @type {number}
      * @memberOf module:defaults
@@ -687,12 +709,12 @@ var defaults = {
     fixedLinesVEdge: undefined, // undefined means no edge effect
 
     /**
-     * Define this property to style rule lines between fixed & scolling columns differently from `lineColor`.
+     * Define this property to style rule lines between fixed & scolling columns differently from {@link module:defaults.gridLinesVColor}.
      * @default
      * @type {cssColor}
      * @memberOf module:defaults
      */
-    fixedLinesVColor: 'rgb(164,164,164)', // ~21% darker than `lineColor` default
+    fixedLinesVColor: 'rgb(164,164,164)', // ~21% darker than {@link module:defaults.gridLinesVColor} default
 
     /**
      * Analogous to CSS {@link https://developer.mozilla.org/docs/Web/CSS/box-sizing `box-sizing`} property:
