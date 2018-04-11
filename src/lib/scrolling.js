@@ -298,24 +298,28 @@ exports.mixin = {
         }
 
         var scrollableWidth = bounds.width - this.behavior.getFixedColumnsMaxWidth();
+        var lineWidth = this.properties.gridLinesVWidth;
+        var lineGap = lineWidth > 1 ? lineWidth - 1 : 0;
         for (
             var columnsWidth = 0, lastPageColumnCount = 0;
             lastPageColumnCount < numColumns && columnsWidth < scrollableWidth;
             lastPageColumnCount++
         ) {
-            columnsWidth += this.getColumnWidth(numColumns - lastPageColumnCount - 1);
+            columnsWidth += this.getColumnWidth(numColumns - lastPageColumnCount - 1) + lineGap;
         }
         if (columnsWidth > scrollableWidth) {
             lastPageColumnCount--;
         }
 
         var scrollableHeight = this.renderer.getVisibleScrollHeight();
+        lineWidth = this.properties.gridLinesHWidth;
+        lineGap = lineWidth > 1 ? lineWidth - 1 : 0;
         for (
             var rowsHeight = 0, lastPageRowCount = 0;
             lastPageRowCount < numRows && rowsHeight < scrollableHeight;
             lastPageRowCount++
         ) {
-            rowsHeight += this.getRowHeight(numRows - lastPageRowCount - 1);
+            rowsHeight += this.getRowHeight(numRows - lastPageRowCount - 1) + lineGap;
         }
         if (rowsHeight > scrollableHeight) {
             lastPageRowCount--;
