@@ -299,8 +299,8 @@ Canvas.prototype = {
 
         try {
             gc.cache.save();
-            this.component.paint(gc);
             this.dirty = false;
+            this.component.paint(gc);
         } catch (e) {
             console.error(e);
         } finally {

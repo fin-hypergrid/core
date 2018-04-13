@@ -119,7 +119,7 @@ grid.cellEditors.add(CellEditor.extend('Checkbox', {
 }));
 ```
 
-Custom cell editors are generally easy to create. The above example is more complicated than usual because it uses a `defineProperty` {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/defineProperty|accessor descriptor}, necessary to define a getter. (You cannot use getter/setter literal syntax here as you can in a true prototype object.) See _Create a custom cell editor_ below for more information.
+Custom cell editors are generally easy to create. The above example is more complicated than usual because it uses a `defineProperty` {@link https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object/defineProperty|accessor descriptor}, necessary to define a getter. (You cannot use getter/setter literal syntax here as you can in a true prototype object.) See _Create a custom cell editor_ below for more information.
 
 Tip: Best practice is to define custom cell editors when feasible rather than using the `options` instantiation parameter to override instance members.
 
@@ -513,4 +513,4 @@ Finally, for some good news: We can discard the `setEditorValue` and `getEditorV
 
 Purely graphical editors (with no text box) would descend directly from `CellEditor`.
 
-One thing to keep in mind about these is that while the dimensions of the container element are automatically constrained to those of the cell, the child GUI elements can nonetheless be rendered by the browser _outside_ the div. This is useful when your GUI cannot all fit inside the cell boundaries. Just make sure the {@link https://developer.mozilla.org/en-US/docs/Web/CSS/overflow|overflow} CSS property is set to `visible` (which is the default). 
+One thing to keep in mind about these is that while the dimensions of the container element are automatically constrained to those of the cell, the child GUI elements can nonetheless be rendered by the browser _outside_ the div. This is useful when your GUI cannot all fit inside the cell boundaries. Just make sure the {@link https://developer.mozilla.org/docs/Web/CSS/overflow|overflow} CSS property is set to `visible` (which is the default). 

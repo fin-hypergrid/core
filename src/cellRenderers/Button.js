@@ -8,11 +8,6 @@ var CellRenderer = require('./CellRenderer');
  */
 var Button = CellRenderer.extend('Button', {
 
-    /**
-     * @summary The default cell rendering function for a button cell.
-     * @implements paintFunction
-     * @memberOf Button.prototype
-     */
     paint: function(gc, config) {
         var val = config.value,
             c = config.dataCell.x,
@@ -20,10 +15,15 @@ var Button = CellRenderer.extend('Button', {
             bounds = config.bounds,
             x = bounds.x + 1,
             y = bounds.y + 1,
-            width = bounds.width - 1 - config.lineWidth,
-            height = bounds.height - 1 - config.lineWidth,
+            width = bounds.width - 2,
+            height = bounds.height - 2,
             radius = height / 2,
             arcGradient = gc.createLinearGradient(x, y, x, y + height);
+
+        if (config.boxSizing === 'border-box') {
+            width -= config.gridLinesVWidth;
+            height -= config.gridLinesHWidth;
+        }
 
         if (config.mouseDown) {
             arcGradient.addColorStop(0, '#B5CBED');
@@ -52,8 +52,13 @@ var Button = CellRenderer.extend('Button', {
         config.backgroundColor = 'rgba(0,0,0,0)';
         gc.fillText(val, x + ox, y + oy);
 
-        //identify that we are a button
-        config.buttonCells[c + ',' + r] = true;
+        // Identify that we are a button by inserting an array of bounds into buttonCells for this cell's coords,
+        // one element per subrow. This will be a single-element array for a cell without `subrows`.
+        var key = c + ',' + r,
+            buttonCells = config.buttonCells,
+            buttonSubrows = buttonCells[key] || (buttonCells[key] = []);
+
+        buttonSubrows[config.subrow] = Object.assign({}, bounds);
     }
 });
 

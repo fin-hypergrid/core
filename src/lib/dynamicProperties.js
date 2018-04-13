@@ -10,8 +10,7 @@ var warnedDoubleClickDelay;
  * They are initialized by {@link Hypergrid#clearState|clearState} to the default values from {@link module:defaults|defaults} object members, (also) of the same name.
  *
  * Note that dynamic properties must enumerable to be visible to {@link Hypergrid#saveState}.
- * @name dynamicPropertyDescriptors
- * @module
+ * @module dynamicProperties
  */
 var dynamicPropertyDescriptors = {
     /**
@@ -19,7 +18,7 @@ var dynamicPropertyDescriptors = {
      * * **string:** When theme name is registered (except 'default').
      * * **undefined:** When theme layer is empty (or theme name is 'default').
      * * **object:** When theme name is not registered.
-     * @memberOf module:dynamicPropertyDescriptors
+     * @memberOf module:dynamicProperties
      */
     theme: {
         enumerable: true,
@@ -32,7 +31,7 @@ var dynamicPropertyDescriptors = {
     },
 
     /**
-     * @memberOf module:dynamicPropertyDescriptors
+     * @memberOf module:dynamicProperties
      */
     subgrids: {
         enumerable: true,
@@ -49,7 +48,7 @@ var dynamicPropertyDescriptors = {
     },
 
     /**
-     * @memberOf module:dynamicPropertyDescriptors
+     * @memberOf module:dynamicProperties
      */
     features: {
         enumerable: true,
@@ -66,7 +65,7 @@ var dynamicPropertyDescriptors = {
     },
 
     /**
-     * @memberOf module:dynamicPropertyDescriptors
+     * @memberOf module:dynamicProperties
      */
     gridRenderer: {
         enumerable: true,
@@ -80,7 +79,7 @@ var dynamicPropertyDescriptors = {
     },
 
     /**
-     * @memberOf module:dynamicPropertyDescriptors
+     * @memberOf module:dynamicProperties
      */
     columnIndexes: {
         enumerable: true,
@@ -96,7 +95,7 @@ var dynamicPropertyDescriptors = {
     },
 
     /**
-     * @memberOf module:dynamicPropertyDescriptors
+     * @memberOf module:dynamicProperties
      */
     columnNames: {
         enumerable: true,
@@ -112,7 +111,7 @@ var dynamicPropertyDescriptors = {
     },
 
     /**
-     * @memberOf module:dynamicPropertyDescriptors
+     * @memberOf module:dynamicProperties
      */
     rows: {
         enumerable: true,
@@ -126,7 +125,7 @@ var dynamicPropertyDescriptors = {
     },
 
     /**
-     * @memberOf module:dynamicPropertyDescriptors
+     * @memberOf module:dynamicProperties
      */
     columns: {
         enumerable: true,
@@ -140,7 +139,7 @@ var dynamicPropertyDescriptors = {
     },
 
     /**
-     * @memberOf module:dynamicPropertyDescriptors
+     * @memberOf module:dynamicProperties
      */
     cells: {
         enumerable: true,
@@ -154,7 +153,7 @@ var dynamicPropertyDescriptors = {
     },
 
     /**
-     * @memberOf module:dynamicPropertyDescriptors
+     * @memberOf module:dynamicProperties
      */
     rowHeaderCheckboxes: {
         enumerable: true,
@@ -168,7 +167,7 @@ var dynamicPropertyDescriptors = {
     },
 
     /**
-     * @memberOf module:dynamicPropertyDescriptors
+     * @memberOf module:dynamicProperties
      */
     rowHeaderNumbers: {
         enumerable: true,
@@ -183,7 +182,7 @@ var dynamicPropertyDescriptors = {
 
     /**
      * Legacy property; now points to both `rowHeaderFeatures` props.
-     * @memberOf module:dynamicPropertyDescriptors
+     * @memberOf module:dynamicProperties
      */
     showRowNumbers: {
         enumerable: false,
@@ -210,15 +209,25 @@ var dynamicPropertyDescriptors = {
         }
     },
 
-    // The following grid line props are now dynamic (as of v2.1.0).
-    // They're non-enumerable so they will not be output with `grid.saveState()`.
-    // The new (as of 2.1.0) props they refer to are output instead:
-    // `gridLinesHColor`, `gridLinesVColor`, `gridLinesHWidth`, and `gridLinesVWidth`
+    /** @summary Grid line color.
+     * @desc This is a Legacy property. It is now implemented as a dynamic property accessor:
+     * * Getting its value returns the current value of the new (as of 2.1.0) {@link module:defaults.gridLinesHColor gridLinesHColor} property.
+     * * Setting its value sets {@link module:defaults.gridLinesHColor gridLinesHColor} and {@link module:defaults.gridLinesVColor gridLinesVColor}.
+     * * It is non-enumerable; it is not output with `grid.saveState()`; the accessed properties are output instead.
+     * @memberOf module:dynamicProperties
+     */
     lineColor: {
         get: function() { return this.gridLinesHColor; },
         set: function(color) { this.gridLinesHColor = this.gridLinesVColor = color; }
     },
 
+    /** @summary Grid line width.
+     * @desc This is a Legacy property. It is now implemented as a dynamic property accessor:
+     * * Getting its value returns the current value of the new (as of 2.1.0) {@link module:defaults.gridLinesHColor gridLinesHColor} property.
+     * * Setting its value sets {@link module:defaults.gridLinesHColor gridLinesHColor} and {@link module:defaults.gridLinesVColor gridLinesVColor}.
+     * * It is non-enumerable; it is not output with `grid.saveState()`; the accessed properties are output instead.
+     * @memberOf module:dynamicProperties
+     */
     lineWidth: {
         get: function() { return this.gridLinesHWidth; },
         set: function(width) { this.gridLinesHWidth = this.gridLinesVWidth = width; }
@@ -232,7 +241,7 @@ var dynamicPropertyDescriptors = {
 };
 
 /**
- * @name module:dynamicPropertyDescriptors.columnProperties
+ * @name module:dynamicProperties.columnProperties
  */
 dynamicPropertyDescriptors.columnProperties = dynamicPropertyDescriptors.columns;
 
