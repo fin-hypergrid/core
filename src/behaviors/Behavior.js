@@ -1330,24 +1330,34 @@ var Behavior = Base.extend('Behavior', {
         return this.allColumns[this.rowColumnIndex];
     },
 
+    getTreeColumn: function() {
+        return this.allColumns[this.treeColumnIndex];
+    },
+
     autosizeAllColumns: function() {
         this.checkColumnAutosizing(true);
         this.changed();
     },
 
     checkColumnAutosizing: function(force) {
-        force = force === true;
-        var autoSized = this.autoSizeRowNumberColumn() ||
-            this.hasTreeColumn() && this.getRowHeaderColumn().checkColumnAutosizing(force);
+        var autoSized = this.autoSizeRowNumberColumn() || this.autoSizeTreeColumn();
+
         this.allColumns.forEach(function(column) {
             autoSized = column.checkColumnAutosizing(force) || autoSized;
         });
+
         return autoSized;
     },
 
     autoSizeRowNumberColumn: function() {
         if (this.grid.properties.showRowNumbers && this.grid.properties.rowNumberAutosizing) {
             return this.getRowHeaderColumn().checkColumnAutosizing(true);
+        }
+    },
+
+    autoSizeTreeColumn: function() {
+        if (this.grid.properties.showTreeColumn && this.grid.properties.treeColumnAutosizing) {
+            return this.getTreeColumn().checkColumnAutosizing(true);
         }
     },
 

@@ -981,6 +981,13 @@ var defaults = {
      * @type {boolean}
      * @memberOf module:defaults
      */
+    treeColumnAutosizing: true,
+
+    /**
+     * @default
+     * @type {boolean}
+     * @memberOf module:defaults
+     */
     headerTextWrapping: false,
 
     /**
