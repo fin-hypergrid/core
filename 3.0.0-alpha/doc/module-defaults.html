@@ -486,6 +486,82 @@ Edit this file to override the defaults.</p></div>
 
         
             
+<h4 class="name" id=".boxSizing"><span class="type-signature">(static) </span>boxSizing<span class="type-signature"> :string</span></h4>
+
+
+
+
+<div class="description">
+    <p>Analogous to CSS <a href="https://developer.mozilla.org/docs/Web/CSS/box-sizing"><code>box-sizing</code></a> property:</p>
+<ul>
+<li><code>'content-box'</code> <em>(default starting in version 3)</em><br>
+Grid and fixed rule lines are rendered <em>between</em> cells;
+cell rects are spread out to accommodate.</li>
+<li><code>'border-box'</code> <em>(default in version 2)</em><br>
+Grid and fixed rule lines are rendered on inside right and bottom edges of each cell
+(except right-most and bottom-most visible cells);
+cell rects are contiguous.</li>
+</ul>
+</div>
+
+
+
+    <h5>Type:</h5>
+    <ul>
+        <li>
+            
+<span class="param-type">string</span>
+
+
+        </li>
+    </ul>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+        
+            
 <h4 class="name" id=".cellPadding"><span class="type-signature">(static) </span>cellPadding<span class="type-signature"> :number</span></h4>
 
 
@@ -635,13 +711,13 @@ Edit this file to override the defaults.</p></div>
 <h4 class="name" id=".centerIcon"><span class="type-signature">(static) </span>centerIcon<span class="type-signature"> :string</span></h4>
 
 
-<p class="summary"><p>Name of image to appear at right of cell.
-Must be a key from <a href="module-images.html"><code>images</code></a>.</p></p>
+<p class="summary"><p>Name of image to appear at right of cell.</p></p>
 
 
 
 <div class="description">
-    <p>Used by <a href="SimpleCell.html"><code>SimpleCell</code></a> cell renderer.</p>
+    <p>Must be a key from <a href="module-images.html"><code>images</code></a>.</p>
+<p>Used by <a href="SimpleCell.html"><code>SimpleCell</code></a> cell renderer.</p>
 </div>
 
 
@@ -1902,16 +1978,18 @@ will overflow.</p>
     
 
     
-    <dt class="tag-default">Default Value:</dt>
-    <dd class="tag-default"><ul class="dummy">
-            <li>15</li>
-        </ul></dd>
-    
 
     
 
     
 
+    
+    <dt class="tag-see">See:</dt>
+    <dd class="tag-see">
+        <ul>
+            <li><a href="module-defaults.html#.boxSizing"><code>boxSizing</code></a></li>
+        </ul>
+    </dd>
     
 
     
@@ -3221,7 +3299,7 @@ When user presses a &quot;printable&quot; keyboard character <em>or</em> BACKSPA
 
 
 <div class="description">
-    <p>Define this property to style rule lines between fixed &amp; scolling rows differently from <code>lineColor</code>.</p>
+    <p>Define this property to style rule lines between fixed &amp; scolling rows differently from <a href="module-defaults.html#.gridLinesHColor"><code>module:defaults.gridLinesHColor</code></a>.</p>
 </div>
 
 
@@ -3293,7 +3371,9 @@ When user presses a &quot;printable&quot; keyboard character <em>or</em> BACKSPA
 
 
 <div class="description">
-    <p>Define this property to render just the edges of the lines between fixed &amp; scolling rows, creating a double-line effect. The value is the thickness of the edges. Typical definition would be <code>1</code> in tandem with setting <code>fixedLinesWidth</code> to <code>3</code>.</p>
+    <p>Define this property to render just the edges of the lines between non-scrollable rows &amp; scrollable rows, creating a double-line effect.
+The value is the thickness of the edges.
+Typical definition would be <code>1</code> in tandem with setting <a href="module-defaults.html#.fixedLinesHWidth"><code>fixedLinesHWidth</code></a> to <code>3</code>.</p>
 </div>
 
 
@@ -3360,7 +3440,8 @@ When user presses a &quot;printable&quot; keyboard character <em>or</em> BACKSPA
 
 
 <div class="description">
-    <p>Define this property to style rule lines between fixed &amp; scolling rows differently from <code>lineWidth</code>.</p>
+    <p>Define this property to style rule lines between non-scrollable rows and scrollable rows differently from <a href="module-defaults.html#.gridLinesHWidth"><code>gridLinesHWidth</code></a>.
+Undefine it to show normal grid line in that position.</p>
 </div>
 
 
@@ -3432,7 +3513,7 @@ When user presses a &quot;printable&quot; keyboard character <em>or</em> BACKSPA
 
 
 <div class="description">
-    <p>Define this property to style rule lines between fixed &amp; scolling columns differently from <code>lineColor</code>.</p>
+    <p>Define this property to style rule lines between fixed &amp; scolling columns differently from <a href="module-defaults.html#.gridLinesVColor"><code>module:defaults.gridLinesVColor</code></a>.</p>
 </div>
 
 
@@ -3504,7 +3585,9 @@ When user presses a &quot;printable&quot; keyboard character <em>or</em> BACKSPA
 
 
 <div class="description">
-    <p>Define this property to render just the edges of the lines between fixed &amp; scolling columns, creating a double-line effect. The value is the thickness of the edges. Typical definition would be <code>1</code> in tandem with setting <code>fixedLinesWidth</code> to <code>3</code>.</p>
+    <p>Define this property to render just the edges of the lines between fixed &amp; scrolling columns, creating a double-line effect.
+The value is the thickness of the edges.
+Typical definition would be <code>1</code> in tandem with setting <a href="module-defaults.html#.fixedLinesVWidth"><code>fixedLinesVWidth</code></a> to <code>3</code>.</p>
 </div>
 
 
@@ -3554,6 +3637,13 @@ When user presses a &quot;printable&quot; keyboard character <em>or</em> BACKSPA
     
 
     
+    <dt class="tag-see">See:</dt>
+    <dd class="tag-see">
+        <ul>
+            <li><a href="module-defaults.html#.fixedLinesVWidth"><code>module:defaults.fixedLinesVWidth</code></a></li>
+        </ul>
+    </dd>
+    
 
     
 </dl>
@@ -3571,7 +3661,8 @@ When user presses a &quot;printable&quot; keyboard character <em>or</em> BACKSPA
 
 
 <div class="description">
-    <p>Define this property to style rule lines between fixed &amp; scolling columns differently from <code>lineWidth</code>.</p>
+    <p>Define this property to style rule lines between non-scrollable columns and scrollable columns differently from <a href="module-defaults.html#.gridLinesVWidth"><code>gridLinesVWidth</code></a>.
+Undefine it to show normal grid line in that position.</p>
 </div>
 
 
@@ -4003,9 +4094,16 @@ When user presses a &quot;printable&quot; keyboard character <em>or</em> BACKSPA
 
 
 <div class="description">
-    <p>Set canvas's CSS border to this string as well as <code>gridBorderLeft</code>, <code>gridBorderRight</code>, <code>gridBorderTop</code>, and <code>gridBorderBottom</code>.
-If set to <code>true</code>, uses current <code>lineWidth</code> and <code>lineColor</code>.
-If set to <code>false</code>, uses null.</p>
+    <p>Set canvas's CSS border to this string as well as:</p>
+<ul>
+<li><code>gridBorderLeft</code></li>
+<li><code>gridBorderRight</code></li>
+<li><code>gridBorderTop</code></li>
+<li><code>gridBorderBottom</code>.</li>
+</ul>
+<p>If set to:
+<code>true</code>: uses current <a href="module-dynamicProperties.html#.lineWidth"><code>lineWidth</code></a> and <a href="module-dynamicProperties.html#.lineColor"><code>lineColor</code></a>
+<code>false</code>: uses null</p>
 <p>Caveat: The use of <code>grid.canvas.canvas.style.boxSizing = 'border-box'</code> is <em>not</em> recommended due to
 the fact that the canvas is squashed slightly to accommodate the border resulting in blurred text.</p>
 </div>
@@ -4077,9 +4175,12 @@ the fact that the canvas is squashed slightly to accommodate the border resultin
 
 
 <div class="description">
-    <p>Set canvas's bottom CSS border to this string.
-If set to <code>true</code>, uses current <code>lineWidth</code> and <code>lineColor</code>.
-If set to <code>false</code>, uses null.</p>
+    <p>Set canvas's bottom CSS border to this string.</p>
+<p>If set to:</p>
+<ul>
+<li><code>true</code>: uses current <a href="module-dynamicProperties.html#.lineWidth"><code>lineWidth</code></a> and <a href="module-dynamicProperties.html#.lineColor"><code>lineColor</code></a></li>
+<li><code>false</code>: uses null</li>
+</ul>
 </div>
 
 
@@ -4146,9 +4247,12 @@ If set to <code>false</code>, uses null.</p>
 
 
 <div class="description">
-    <p>Set canvas's left CSS border to this string.
-If set to <code>true</code>, uses current <code>lineWidth</code> and <code>lineColor</code>.
-If set to <code>false</code>, uses null.</p>
+    <p>Set canvas's left CSS border to this string.</p>
+<p>If set to:</p>
+<ul>
+<li><code>true</code>: uses current <a href="module-dynamicProperties.html#.lineWidth"><code>lineWidth</code></a> and <a href="module-dynamicProperties.html#.lineColor"><code>lineColor</code></a></li>
+<li><code>false</code>: uses null</li>
+</ul>
 </div>
 
 
@@ -4218,9 +4322,12 @@ If set to <code>false</code>, uses null.</p>
 
 
 <div class="description">
-    <p>Set canvas's right CSS border to this string.
-If set to <code>true</code>, uses current <code>lineWidth</code> and <code>lineColor</code>.
-If set to <code>false</code>, uses null.</p>
+    <p>Set canvas's right CSS border to this string.</p>
+<p>If set to:</p>
+<ul>
+<li><code>true</code>: uses current <a href="module-dynamicProperties.html#.lineWidth"><code>lineWidth</code></a> and <a href="module-dynamicProperties.html#.lineColor"><code>lineColor</code></a></li>
+<li><code>false</code>: uses null</li>
+</ul>
 </div>
 
 
@@ -4287,9 +4394,12 @@ If set to <code>false</code>, uses null.</p>
 
 
 <div class="description">
-    <p>Set canvas's top CSS border to this string.
-If set to <code>true</code>, uses current <code>lineWidth</code> and <code>lineColor</code>.
-If set to <code>false</code>, uses null.</p>
+    <p>Set canvas's top CSS border to this string.</p>
+<p>If set to:</p>
+<ul>
+<li><code>true</code>: uses current <a href="module-dynamicProperties.html#.lineWidth"><code>lineWidth</code></a> and <a href="module-dynamicProperties.html#.lineColor"><code>lineColor</code></a></li>
+<li><code>false</code>: uses null</li>
+</ul>
 </div>
 
 
@@ -4354,6 +4464,10 @@ If set to <code>false</code>, uses null.</p>
 
 
 
+
+<div class="description">
+    <p>Enable rendering of horizontal grid lines.</p>
+</div>
 
 
 
@@ -4423,6 +4537,10 @@ If set to <code>false</code>, uses null.</p>
 
 
 
+<div class="description">
+    <p>Color of horizontal grid lines.</p>
+</div>
+
 
 
     <h5>Type:</h5>
@@ -4478,7 +4596,7 @@ If set to <code>false</code>, uses null.</p>
     <dt class="tag-see">See:</dt>
     <dd class="tag-see">
         <ul>
-            <li><code>module:dynamicProperties.lineColor</code></li>
+            <li><a href="module-dynamicProperties.html#.lineColor"><code>lineColor</code></a></li>
         </ul>
     </dd>
     
@@ -4497,6 +4615,10 @@ If set to <code>false</code>, uses null.</p>
 
 
 
+
+<div class="description">
+    <p>Thickness of horizontal grid lines (pixels).</p>
+</div>
 
 
 
@@ -4553,7 +4675,7 @@ If set to <code>false</code>, uses null.</p>
     <dt class="tag-see">See:</dt>
     <dd class="tag-see">
         <ul>
-            <li><code>module:dynamicProperties.lineWidth</code></li>
+            <li><a href="module-dynamicProperties.html#.lineWidth"><code>lineWidth</code></a></li>
         </ul>
     </dd>
     
@@ -4572,6 +4694,10 @@ If set to <code>false</code>, uses null.</p>
 
 
 
+
+<div class="description">
+    <p>Enable rendering of vertical grid lines.</p>
+</div>
 
 
 
@@ -4641,6 +4767,10 @@ If set to <code>false</code>, uses null.</p>
 
 
 
+<div class="description">
+    <p>Color of vertical grid lines.</p>
+</div>
+
 
 
     <h5>Type:</h5>
@@ -4696,7 +4826,7 @@ If set to <code>false</code>, uses null.</p>
     <dt class="tag-see">See:</dt>
     <dd class="tag-see">
         <ul>
-            <li><code>module:dynamicProperties.lineColor</code></li>
+            <li><a href="module-dynamicProperties.html#.lineColor"><code>lineColor</code></a></li>
         </ul>
     </dd>
     
@@ -4715,6 +4845,10 @@ If set to <code>false</code>, uses null.</p>
 
 
 
+
+<div class="description">
+    <p>Thickness of vertical grid lines (pixels).</p>
+</div>
 
 
 
@@ -4771,7 +4905,7 @@ If set to <code>false</code>, uses null.</p>
     <dt class="tag-see">See:</dt>
     <dd class="tag-see">
         <ul>
-            <li><code>module:dynamicProperties.lineWidth</code></li>
+            <li><a href="module-dynamicProperties.html#.lineWidth"><code>lineWidth</code></a></li>
         </ul>
     </dd>
     
@@ -4947,7 +5081,7 @@ Renderer must have been registered.</p>
     <p>The name of a transformer function defined in require('synonomous/transformers').</p>
 <p>If the named headerify function is defined, whenever the schema array changes, it is applied each element
 (column schema) for each column that does not already have an explicitly defined <code>header</code> property.</p>
-<p>When this property does not name a defined headerify function, undefined column headers default to their column names.     *</p>
+<p>When this property does not name a defined headerify function, undefined column headers default to their column names.</p>
 </div>
 
 
@@ -5453,13 +5587,13 @@ Renderer must have been registered.</p>
 <h4 class="name" id=".leftIcon"><span class="type-signature">(static) </span>leftIcon<span class="type-signature"> :string</span></h4>
 
 
-<p class="summary"><p>Name of image to appear at right of cell.
-Must be a key from <a href="module-images.html"><code>images</code></a>.</p></p>
+<p class="summary"><p>Name of image to appear at right of cell.</p></p>
 
 
 
 <div class="description">
-    <p>Used by <a href="SimpleCell.html"><code>SimpleCell</code></a> cell renderer.</p>
+    <p>Must be a key from <a href="module-images.html"><code>images</code></a>.</p>
+<p>Used by <a href="SimpleCell.html"><code>SimpleCell</code></a> cell renderer.</p>
 </div>
 
 
@@ -6863,13 +6997,13 @@ Format is HTML.</p>
 <h4 class="name" id=".rightIcon"><span class="type-signature">(static) </span>rightIcon<span class="type-signature"> :string</span></h4>
 
 
-<p class="summary"><p>Name of image to appear at right of cell.
-Must be a key from <a href="module-images.html"><code>images</code></a>.</p></p>
+<p class="summary"><p>Name of image to appear at right of cell.</p></p>
 
 
 
 <div class="description">
-    <p>Used by <a href="SimpleCell.html"><code>SimpleCell</code></a> cell renderer.</p>
+    <p>Must be a key from <a href="module-images.html"><code>images</code></a>.</p>
+<p>Used by <a href="SimpleCell.html"><code>SimpleCell</code></a> cell renderer.</p>
 </div>
 
 
@@ -8749,6 +8883,74 @@ It is not referenced in core.</strong></p>
     <dt class="tag-default">Default Value:</dt>
     <dd class="tag-default"><ul class="dummy">
             <li>default</li>
+        </ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+        
+            
+<h4 class="name" id=".treeColumnAutosizing"><span class="type-signature">(static) </span>treeColumnAutosizing<span class="type-signature"> :boolean</span></h4>
+
+
+
+
+
+
+    <h5>Type:</h5>
+    <ul>
+        <li>
+            
+<span class="param-type">boolean</span>
+
+
+        </li>
+    </ul>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-default">Default Value:</dt>
+    <dd class="tag-default"><ul class="dummy">
+            <li>true</li>
         </ul></dd>
     
 
