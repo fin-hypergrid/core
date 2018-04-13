@@ -287,19 +287,19 @@ exports.mixin = {
      * Adjust the scrollbar properties as necessary.
      */
     synchronizeScrollingBoundaries: function() {
-        var numFixedColumns = this.getFixedColumnCount();
-
-        var numColumns = this.getColumnCount();
-        var numRows = this.getRowCount();
-
         var bounds = this.getBounds();
         if (!bounds) {
             return;
         }
 
-        var scrollableWidth = bounds.width - this.behavior.getFixedColumnsMaxWidth();
-        var lineWidth = this.properties.gridLinesVWidth;
-        var lineGap = lineWidth > 1 ? lineWidth - 1 : 0;
+        var numFixedColumns = this.getFixedColumnCount(),
+            numColumns = this.getColumnCount(),
+            numRows = this.getRowCount(),
+            scrollableWidth = bounds.width - this.behavior.getFixedColumnsMaxWidth(),
+            gridProps = this.properties,
+            borderBox = gridProps.boxSizing === 'border-box',
+            lineGap = borderBox ? 0 : gridProps.gridLinesVWidth;
+
         for (
             var columnsWidth = 0, lastPageColumnCount = 0;
             lastPageColumnCount < numColumns && columnsWidth < scrollableWidth;
@@ -312,8 +312,8 @@ exports.mixin = {
         }
 
         var scrollableHeight = this.renderer.getVisibleScrollHeight();
-        lineWidth = this.properties.gridLinesHWidth;
-        lineGap = lineWidth > 1 ? lineWidth - 1 : 0;
+        lineGap = borderBox ? 0 : gridProps.gridLinesHWidth;
+
         for (
             var rowsHeight = 0, lastPageRowCount = 0;
             lastPageRowCount < numRows && rowsHeight < scrollableHeight;
@@ -332,7 +332,7 @@ exports.mixin = {
             this.setHScrollValue(Math.min(this.getHScrollValue(), hMax));
         }
         if (this.sbVScroller) {
-            var vMax = Math.max(0, numRows - this.properties.fixedRowCount - lastPageRowCount);
+            var vMax = Math.max(0, numRows - gridProps.fixedRowCount - lastPageRowCount);
             this.setVScrollbarValues(vMax);
             this.setVScrollValue(Math.min(this.getVScrollValue(), vMax));
         }

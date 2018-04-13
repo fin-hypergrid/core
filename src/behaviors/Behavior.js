@@ -262,11 +262,7 @@ var Behavior = Base.extend('Behavior', {
 
     getColumnWidth: function(x) {
         var column = this.getActiveColumn(x);
-        if (!column) {
-            return this.grid.properties.defaultColumnWidth;
-        }
-        var width = column.getWidth();
-        return width;
+        return column ? column.getWidth() : 0;
     },
 
     /**
@@ -786,12 +782,28 @@ var Behavior = Base.extend('Behavior', {
      */
     getFixedColumnsWidth: function() {
         var count = this.getFixedColumnCount(),
+            columnWidth,
             total = 0,
-            i = this.leftMostColIndex;
+            i = this.leftMostColIndex,
+            gridProps = this.grid.properties,
+            contentBox = gridProps.boxSizing !== 'border-box',
+            gridLinesVWidth = gridProps.gridLinesVWidth;
 
         for (; i < count; i++) {
-            total += this.getColumnWidth(i);
+            columnWidth = this.getColumnWidth(i);
+            if (columnWidth) {
+                total += columnWidth;
+                if (contentBox) {
+                    total += gridLinesVWidth;
+                }
+            }
         }
+
+        // add in fixed rule thickness excess
+        if (gridProps.fixedLinesVWidth) {
+            total += gridProps.fixedLinesHWidth - gridLinesVWidth;
+        }
+
         return total;
     },
 

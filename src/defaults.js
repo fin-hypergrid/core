@@ -1,5 +1,6 @@
 'use strict';
 
+var version = require('../package.json').version;
 var graphics = require('./lib/graphics');
 var HypergridError = require('./lib/error');
 
@@ -457,20 +458,25 @@ var defaults = {
     renderFalsy: false,
 
     /**
+     * Enable rendering of horizontal grid lines.
      * @default
      * @type {boolean}
      * @memberOf module:defaults
      */
     gridLinesH: true,
 
-    /** @type {number}
+    /**
+     * Thickness of horizontal grid lines (pixels).
+     * @type {number}
      * @default
      * @memberOf module:defaults
      * @see {@link module:dynamicPropertyDescriptors.lineWidth}
      */
     gridLinesHWidth: 1,
 
-    /** @type {string}
+    /**
+     * Color of horizontal grid lines.
+     * @type {string}
      * @default
      * @memberOf module:defaults
      * @see {@link module:dynamicPropertyDescriptors.lineColor}
@@ -478,20 +484,25 @@ var defaults = {
     gridLinesHColor: 'rgb(199, 199, 199)',
 
     /**
+     * Enable rendering of vertical grid lines.
      * @default
      * @type {boolean}
      * @memberOf module:defaults
      */
     gridLinesV: true,
 
-    /** @type {number}
+    /**
+     * Thickness of vertical grid lines (pixels).
+     * @type {number}
      * @default
      * @memberOf module:defaults
      * @see {@link module:dynamicPropertyDescriptors.lineWidth}
      */
     gridLinesVWidth: 1,
 
-    /** @type {string}
+    /**
+     * Color of vertical grid lines.
+     * @type {string}
      * @default
      * @memberOf module:defaults
      * @see {@link module:dynamicPropertyDescriptors.lineColor}
@@ -553,7 +564,8 @@ var defaults = {
     gridBorderBottom: false,
 
     /**
-     * Define this property to style rule lines between fixed & scolling rows differently from `lineWidth`.
+     * Define this property to style rule lines between non-scrollable rows AND scrollable rows differently from `lineWidth`.
+     * Undefine it to show normal grid line in that position.
      * @default
      * @type {number}
      * @memberOf module:defaults
@@ -561,7 +573,7 @@ var defaults = {
     fixedLinesHWidth: 2,
 
     /**
-     * Define this property to render just the edges of the lines between fixed & scolling rows, creating a double-line effect. The value is the thickness of the edges. Typical definition would be `1` in tandem with setting `fixedLinesWidth` to `3`.
+     * Define this property to render just the edges of the lines between fixed rows & scrollable rows, creating a double-line effect. The value is the thickness of the edges. Typical definition would be `1` in tandem with setting `fixedLinesWidth` to `3`.
      * @default
      * @type {number}
      * @memberOf module:defaults
@@ -577,7 +589,8 @@ var defaults = {
     fixedLinesHColor: 'rgb(164,164,164)', // ~21% darker than `lineColor` default
 
     /**
-     * Define this property to style rule lines between fixed & scolling columns differently from `lineWidth`.
+     * Define this property to style rule lines between non-scrollable columns AND scrollable columns differently from `lineWidth`.
+     * Undefine it to show normal grid line in that position.
      * @default
      * @type {number}
      * @memberOf module:defaults
@@ -601,11 +614,27 @@ var defaults = {
     fixedLinesVColor: 'rgb(164,164,164)', // ~21% darker than `lineColor` default
 
     /**
+     * Analogous to CSS {@link https://developer.mozilla.org/docs/Web/CSS/box-sizing `box-sizing`} property:
+     * * `'content-box'` _(default starting in version 3)_<br>
+     * Grid and fixed rule lines are rendered _between_ cells;
+     * cell rects are spread out to accommodate.
+     * * `'border-box'` _(default in version 2)_<br>
+     * Grid and fixed rule lines are rendered on inside right and bottom edges of each cell
+     * (except right-most and bottom-most visible cells);
+     * cell rects are contiguous.
      * @default
-     * @type {number}
+     * @type {string}
      * @memberOf module:defaults
      */
-    defaultRowHeight: 15,
+    boxSizing: version > 2 ? 'content-box' : 'border-box',
+
+    /**
+     * @default
+     * @type {number}
+     * @see {@link module:defaults.boxSizing boxSizing}
+     * @memberOf module:defaults
+     */
+    defaultRowHeight: version > 2 ? 14 : 15,
 
     /**
      * @default

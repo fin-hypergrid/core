@@ -20,10 +20,15 @@ var Button = CellRenderer.extend('Button', {
             bounds = config.bounds,
             x = bounds.x + 1,
             y = bounds.y + 1,
-            width = bounds.width - 1 - config.lineWidth,
-            height = bounds.height - 1 - config.lineWidth,
+            width = bounds.width - 2,
+            height = bounds.height - 2,
             radius = height / 2,
             arcGradient = gc.createLinearGradient(x, y, x, y + height);
+
+        if (config.boxSizing === 'border-box') {
+            width -= config.gridLinesVWidth;
+            height -= config.gridLinesHWidth;
+        }
 
         if (config.mouseDown) {
             arcGradient.addColorStop(0, '#B5CBED');
