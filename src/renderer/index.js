@@ -112,8 +112,6 @@ var Renderer = Base.extend('Renderer', {
 
     scrollHeight: 0,
 
-    viewHeight: 0,
-
     reset: function() {
         this.bounds = {
             width: 0,
@@ -265,7 +263,8 @@ var Renderer = Base.extend('Renderer', {
     },
 
     getVisibleScrollHeight: function() {
-        return this.viewHeight - this.grid.getFixedRowsHeight();
+        var footerHeight = this.grid.properties.defaultRowHeight * this.grid.behavior.getFooterRowCount();
+        return this.getBounds().height - footerHeight - this.grid.getFixedRowsHeight();
     },
 
     /**
@@ -841,58 +840,74 @@ var Renderer = Base.extend('Renderer', {
      * @param {CanvasRenderingContext2D} gc
      */
     paintGridlines: function(gc) {
-        var visibleColumns = this.visibleColumns, C = visibleColumns.length,
-            visibleRows = this.visibleRows, R = visibleRows.length;
+        var visibleColumns = this.visibleColumns, C = visibleColumns.length, c, vc,
+            visibleRows = this.visibleRows, R = visibleRows.length, r, vr;
 
         if (C && R) {
             var gridProps = this.properties,
                 viewWidth = visibleColumns[C - 1].right,
-                viewHeight = visibleRows[R - 1].bottom;
+                viewHeight = visibleRows[R - 1].bottom,
+                gridLinesVWidth = gridProps.gridLinesVWidth,
+                gridLinesHWidth = gridProps.gridLinesHWidth,
+                gridLinesVColor = gridProps.gridLinesVColor,
+                gridLinesHColor = gridProps.gridLinesHColor,
+                borderBox = gridProps.boxSizing === 'border-box';
 
             if (gridProps.gridLinesV) {
-                gc.cache.fillStyle = gridProps.gridLinesVColor;
-                for (var right, vc = visibleColumns[0], c = 1; c < C; c++) {
-                    right = vc.right;
-                    vc = visibleColumns[c];
-                    if (!vc.gap) {
-                        gc.fillRect(right, 0, gridProps.gridLinesVWidth, viewHeight);
+                gc.cache.fillStyle = gridLinesVColor;
+
+                for (
+                    c = -1, vc = visibleColumns[c - 1]; // initial c = -2 is the row number column
+                    c < C;
+                    vc = visibleColumns[c++]
+                ) {
+                    if (vc) { // row number column and/or tree column may not be defined
+                        var x = vc.right;
+                        if (borderBox) { x -= gridLinesVWidth; }
+                        gc.fillRect(x, 0, gridLinesVWidth, viewHeight);
                     }
                 }
             }
 
             if (gridProps.gridLinesH) {
-                gc.cache.fillStyle = gridProps.gridLinesHColor;
-                for (var bottom, vr = visibleRows[0], r = 1; r < R; r++) {
-                    bottom = vr.bottom;
-                    vr = visibleRows[r];
-                    if (!vr.gap) {
-                        gc.fillRect(0, bottom, viewWidth, gridProps.gridLinesHWidth);
+                gc.cache.fillStyle = gridLinesHColor;
+                for (
+                    r = 1, vr = visibleRows[r - 1]; // initial r = 0 is the top row
+                    r < R;
+                    vr = visibleRows[r++]
+                ) {
+                    var y = vr.bottom;
+                    if (borderBox) { y -= gridLinesHWidth; }
+                    gc.fillRect(0, y, viewWidth, gridLinesHWidth);
+                }
+            }
+
+            // draw fixed rule lines over grid rule lines
+            var edgeWidth, gap;
+
+            if (gridProps.fixedLinesHWidth !== undefined) {
+                if ((gap = visibleRows.gap)) {
+                    gc.cache.fillStyle = gridProps.fixedLinesHColor || gridLinesHColor;
+                    edgeWidth = gridProps.fixedLinesHEdge;
+                    if (edgeWidth) {
+                        gc.fillRect(0, gap.top, viewWidth, edgeWidth);
+                        gc.fillRect(0, gap.bottom - edgeWidth, viewWidth, edgeWidth);
+                    } else {
+                        gc.fillRect(0, gap.top, viewWidth, gap.bottom - gap.top);
                     }
                 }
             }
 
-            var edgeWidth;
-            var gap = visibleRows.gap;
-            if (gap) {
-                gc.cache.fillStyle = gridProps.fixedLinesHColor || gridProps.gridLinesHColor;
-                edgeWidth = gridProps.fixedLinesHEdge;
-                if (edgeWidth) {
-                    gc.fillRect(0, gap.top, viewWidth, edgeWidth);
-                    gc.fillRect(0, gap.bottom - edgeWidth, viewWidth, edgeWidth);
-                } else {
-                    gc.fillRect(0, gap.top, viewWidth, gap.bottom - gap.top);
-                }
-            }
-
-            gap = visibleColumns.gap;
-            if (gap) {
-                gc.cache.fillStyle = gridProps.fixedLinesVColor || gridProps.gridLinesVColor;
-                edgeWidth = gridProps.fixedLinesVEdge;
-                if (edgeWidth) {
-                    gc.fillRect(gap.left, 0, edgeWidth, viewHeight);
-                    gc.fillRect(gap.right - edgeWidth, 0, edgeWidth, viewHeight);
-                } else {
-                    gc.fillRect(gap.left, 0, gap.right - gap.left, viewHeight);
+            if (gridProps.fixedLinesVWidth !== undefined) {
+                if ((gap = visibleColumns.gap)) {
+                    gc.cache.fillStyle = gridProps.fixedLinesVColor || gridLinesVColor;
+                    edgeWidth = gridProps.fixedLinesVEdge;
+                    if (edgeWidth) {
+                        gc.fillRect(gap.left, 0, edgeWidth, viewHeight);
+                        gc.fillRect(gap.right - edgeWidth, 0, edgeWidth, viewHeight);
+                    } else {
+                        gc.fillRect(gap.left, 0, gap.right - gap.left, viewHeight);
+                    }
                 }
             }
         }
@@ -959,9 +974,8 @@ var Renderer = Base.extend('Renderer', {
             config.halign = 'left';
         } else if (isDataRow) {
             isSelected = isCellSelected || isRowSelected || isColumnSelected;
-            format = config.format;
         } else {
-            format = cellEvent.subgrid.format || config.format; // subgrid format can override column format
+            format = cellEvent.subgrid.format; // subgrid format can override column format
             if (isFilterRow) {
                 isSelected = false;
             } else if (isColumnSelected) {
@@ -1027,7 +1041,7 @@ var Renderer = Base.extend('Renderer', {
         //allow the renderer to identify itself if it's a button
         config.buttonCells = this.buttonCells;
 
-        config.formatValue = grid.getFormatter(format);
+        config.formatValue = grid.getFormatter(format || config.format);
 
         // Following supports partial render>
         config.snapshot = cellEvent.snapshot;
@@ -1142,13 +1156,12 @@ function computeCellsBounds() {
     var scrollTop = this.getScrollTop(),
         scrollLeft = this.getScrollLeft(),
 
-        fixedColumnCount = this.grid.getFixedColumnCount(),
-        fixedRowCount = this.grid.getFixedRowCount(),
-
         bounds = this.getBounds(),
         grid = this.grid,
         behavior = grid.behavior,
-        noTreeColumn = !behavior.hasTreeColumn(),
+        hasTreeColumn = behavior.hasTreeColumn(),
+        treeColumnIndex = behavior.treeColumnIndex,
+
         editorCellEvent = grid.cellEditor && grid.cellEditor.event,
 
         vcEd, xEd,
@@ -1159,14 +1172,18 @@ function computeCellsBounds() {
         previousInsertionBoundsCursorValue = 0,
 
         gridProps = grid.properties,
-        lineWidthV = gridProps.gridLinesVWidth,
-        lineWidthH = gridProps.gridLinesHWidth,
-        fixedWidthV = gridProps.fixedLinesVWidth || gridProps.gridLinesVWidth,
-        fixedWidthH = gridProps.fixedLinesHWidth || gridProps.gridLinesHWidth,
-        hasFixedColumnGap = fixedWidthV && fixedColumnCount,
-        hasFixedRowGap = fixedWidthH && fixedRowCount,
+        borderBox = gridProps.boxSizing === 'border-box',
 
-        start = 0,
+        lineWidthV = gridProps.gridLinesVWidth,
+        lineGapV = borderBox ? 0 : lineWidthV,
+
+        lineWidthH = gridProps.gridLinesHWidth,
+        lineGapH = borderBox ? 0 : lineWidthH,
+
+        fixedColumnCount = this.grid.getFixedColumnCount(),
+        fixedRowCount = this.grid.getFixedRowCount(),
+
+        start = behavior.leftMostColIndex,
         numOfInternalCols = 0,
         x, X, // horizontal pixel loop index and limit
         y, Y, // vertical pixel loop index and limit
@@ -1175,6 +1192,10 @@ function computeCellsBounds() {
         r, R, // row loop index and limit
         subrows, // rows in subgrid g
         base, // sum of rows for all subgrids so far
+        fixedColumnIndex = -3,
+        fixedRowIndex = -1,
+        fixedWidthV, fixedGapV, fixedOverlapV,
+        fixedWidthH, fixedGapH, fixedOverlapH,
         subgrids = behavior.subgrids,
         subgrid,
         rowIndex,
@@ -1186,8 +1207,7 @@ function computeCellsBounds() {
         firstVX, lastVX,
         firstVY, lastVY,
         topR,
-        gap,
-        left, widthSpaced, heightSpaced; // adjusted for cell spacing
+        gap;
 
     if (editorCellEvent) {
         xEd = editorCellEvent.gridCell.x;
@@ -1195,16 +1215,38 @@ function computeCellsBounds() {
         sgEd = editorCellEvent.subgrid;
     }
 
-    if (noTreeColumn) {
-        this.visibleColumns[behavior.treeColumnIndex] = undefined;
-    } else {
-        start = Math.min(start, behavior.treeColumnIndex);
+    if (gridProps.showRowNumbers) {
+        fixedColumnIndex = hasTreeColumn ? treeColumnIndex : 0;
         numOfInternalCols += 1;
     }
 
-    if (gridProps.showRowNumbers) {
-        start = Math.min(start, behavior.rowColumnIndex);
+    if (hasTreeColumn) {
+        fixedColumnIndex = 0;
         numOfInternalCols += 1;
+    }
+
+    if (fixedColumnCount) {
+        fixedColumnIndex = fixedColumnCount;
+    }
+
+    if (fixedRowCount) {
+        fixedRowIndex = fixedRowCount;
+    }
+
+    if (gridProps.fixedLinesVWidth === undefined) {
+        fixedColumnIndex = -3; // left of any column
+    } else {
+        fixedWidthV = Math.max(gridProps.fixedLinesVWidth || lineWidthV, lineWidthV);
+        fixedGapV = borderBox ? fixedWidthV - lineWidthV : fixedWidthV;
+        fixedOverlapV = fixedGapV - fixedWidthV;
+    }
+
+    if (gridProps.fixedLinesHWidth === undefined) {
+        fixedRowIndex = -1; // above any row
+    } else {
+        fixedWidthH = Math.max(gridProps.fixedLinesHWidth || lineWidthH, lineWidthH);
+        fixedGapH = borderBox ? fixedWidthH - lineWidthH : fixedWidthH;
+        fixedOverlapH = fixedGapH - fixedWidthH;
     }
 
     this.scrollHeight = 0;
@@ -1225,8 +1267,19 @@ function computeCellsBounds() {
         c < C && x <= X;
         c++
     ) {
-        if (noTreeColumn && c === behavior.treeColumnIndex) {
+        if (!hasTreeColumn && c === treeColumnIndex) {
+            this.visibleColumns[c] = undefined;
             continue;
+        }
+
+        if ((gap = c === fixedColumnIndex)) {
+            this.visibleColumns.gap = {
+                left: vc.right + fixedOverlapV,
+                right: undefined
+            };
+            x += fixedGapV;
+        } else if (x) {
+            x += lineGapV;
         }
 
         vx = c;
@@ -1242,30 +1295,13 @@ function computeCellsBounds() {
 
         width = Math.ceil(behavior.getColumnWidth(vx));
 
-        gap = false;
-        if (x) {
-            if ((gap = hasFixedColumnGap && c === fixedColumnCount)) {
-                x += fixedWidthV - lineWidthV;
-                this.visibleColumns.gap = {
-                    left: vc.right,
-                    right: undefined
-                };
-            }
-            left = x + lineWidthV;
-            widthSpaced = width - lineWidthV;
-        } else {
-            left = x;
-            widthSpaced = width;
-        }
-
         this.visibleColumns[c] = this.visibleColumnsByIndex[vx] = vc = {
             index: c,
             columnIndex: vx,
             column: behavior.getActiveColumn(vx),
-            gap: gap,
-            left: left,
-            width: widthSpaced,
-            right: left + widthSpaced
+            left: x,
+            width: width,
+            right: x + width
         };
 
         if (gap) {
@@ -1299,40 +1335,39 @@ function computeCellsBounds() {
 
         // For each row of each subgrid...
         for (R = r + subrows; r < R && y < Y; r++) {
+            if ((gap = scrollableSubgrid && r === fixedRowIndex)) {
+                this.visibleRows.gap = {
+                    top: vr.bottom + fixedOverlapH,
+                    bottom: undefined
+                };
+                y += fixedGapH;
+            } else if (y) {
+                y += lineGapH;
+            }
+
+
             vy = r;
-            gap = false;
-            if (scrollableSubgrid) {
-                if ((gap = hasFixedRowGap && r === fixedRowCount)) {
-                    y += fixedWidthH - lineWidthH;
-                    this.visibleRows.gap = {
-                        top: vr.bottom,
-                        bottom: undefined
-                    };
+            if (scrollableSubgrid && r >= fixedRowCount) {
+                vy += scrollTop;
+                lastVY = vy - base;
+                if (firstVY === undefined) {
+                    firstVY = lastVY;
                 }
-                if (r >= fixedRowCount) {
-                    vy += scrollTop;
-                    lastVY = vy - base;
-                    if (firstVY === undefined) {
-                        firstVY = lastVY;
-                    }
-                    if (vy >= R) {
-                        break; // scrolled beyond last row
-                    }
+                if (vy >= R) {
+                    break; // scrolled beyond last row
                 }
             }
 
             rowIndex = vy - base;
             height = behavior.getRowHeight(rowIndex, subgrid);
 
-            heightSpaced = height - lineWidthH;
             this.visibleRows[r] = vr = {
                 index: r,
                 subgrid: subgrid,
-                gap: gap,
                 rowIndex: rowIndex,
                 top: y,
-                height: heightSpaced,
-                bottom: y + heightSpaced
+                height: height,
+                bottom: y + height
             };
 
             if (gap) {
@@ -1352,7 +1387,6 @@ function computeCellsBounds() {
 
         if (scrollableSubgrid) {
             subrows = r - topR;
-            Y += footerHeight;
         }
     }
 
@@ -1362,8 +1396,6 @@ function computeCellsBounds() {
         editorCellEvent.gridCell.y = vrEd && vrEd.index;
         editorCellEvent._bounds = null;
     }
-
-    this.viewHeight = Y;
 
     this.dataWindow = this.grid.newRectangle(firstVX, firstVY, lastVX - firstVX, lastVY - firstVY);
 

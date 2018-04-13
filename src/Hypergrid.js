@@ -756,7 +756,9 @@ var Hypergrid = Base.extend('Hypergrid', {
         if (this.cellEditor) {
             this.cellEditor.gridRenderedNotification();
         }
-        this.checkColumnAutosizing();
+        if (this.checkColumnAutosizing()) {
+            this.paintNow();
+        }
         this.fireSyntheticGridRenderedEvent();
     },
 
@@ -769,10 +771,11 @@ var Hypergrid = Base.extend('Hypergrid', {
      * @desc The grid has just been rendered, make sure the column widths are optimal.
      */
     checkColumnAutosizing: function() {
-        this.behavior.autoSizeRowNumberColumn();
-        if (this.behavior.checkColumnAutosizing(false)) {
+        var autoSized = this.behavior.checkColumnAutosizing(false);
+        if (autoSized) {
             this.behaviorShapeChanged();
         }
+        return autoSized;
     },
 
     /**
@@ -835,7 +838,7 @@ var Hypergrid = Base.extend('Hypergrid', {
         });
         this.behavior.setData(dataRows, options);
         this.setInfo(dataRows.length ? '' : this.properties.noDataMessage);
-        this.behavior.changed();
+        this.behavior.shapeChanged();
     },
 
     setInfo: function(messages) {
@@ -846,7 +849,12 @@ var Hypergrid = Base.extend('Hypergrid', {
      * @memberOf Behavior#
      */
     reindex: function() {
-        this.needsReindex = this.needsShapeChanged = true;
+        if (this.properties.repaintImmediately) {
+            this.behavior.reindex();
+        } else {
+            this.needsReindex = true;
+        }
+        this.behaviorShapeChanged();
     },
 
     /**
@@ -893,8 +901,13 @@ var Hypergrid = Base.extend('Hypergrid', {
      * @desc The dimensions of the grid data have changed. You've been notified.
      */
     behaviorShapeChanged: function() {
-        this.needsShapeChanged = true;
-        this.repaint();
+        if (!this.properties.repaintImmediately) {
+            this.needsShapeChanged = true;
+            this.canvas.repaint();
+        } if (this.divCanvas) {
+            this.synchronizeScrollingBoundaries(); // calls computeCellsBounds
+            this.repaint();
+        }
     },
 
     /**
@@ -902,8 +915,13 @@ var Hypergrid = Base.extend('Hypergrid', {
      * @desc The dimensions of the grid data have changed. You've been notified.
      */
     behaviorStateChanged: function() {
-        this.needsStateChanged = true;
-        this.repaint();
+        if (!this.properties.repaintImmediately) {
+            this.needsStateChanged = true;
+            this.canvas.repaint();
+        } if (this.divCanvas) {
+            this.computeCellsBounds();
+            this.repaint();
+        }
     },
 
     /**
@@ -917,7 +935,7 @@ var Hypergrid = Base.extend('Hypergrid', {
 
         if (this.needsShapeChanged) {
             if (this.divCanvas) {
-                this.synchronizeScrollingBoundaries(); // calls computeCellsBounds and repaint (state change)
+                this.synchronizeScrollingBoundaries(); // calls computeCellsBounds
             }
         } else if (this.needsStateChanged) {
             if (this.divCanvas) {
@@ -948,10 +966,9 @@ var Hypergrid = Base.extend('Hypergrid', {
     },
 
     repaint: function() {
-        var now = this.properties.repaintImmediately;
         var canvas = this.canvas;
         if (canvas) {
-            if (now === true) {
+            if (this.properties.repaintImmediately) {
                 canvas.paintNow();
             } else {
                 canvas.repaint();

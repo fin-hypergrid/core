@@ -77,9 +77,9 @@ if (!window.Intl) {
 /**
  * @summary Create a number localizer.
  * @implements localizerInterface
- * @desc Create an object conforming to {@link localizerInterface} for numbers, using {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/NumberFormat|Intl.NumberFormat}.
+ * @desc Create an object conforming to {@link localizerInterface} for numbers, using {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/NumberFormat `Intl.NumberFormat`}.
  * @param {string} defaultLocale
- * @param {string} [locale=defaultLocale] - Passed to the {@link Intl.NumberFormat|https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/NumberFormat} constructor.
+ * @param {string} [locale=defaultLocale] - Passed to the {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/NumberFormat `Intl.NumberFormat`} constructor.
  * @param {object} [options] - Passed to the `Intl.NumberFormat` constructor.
  * @param {boolean} [options.acceptStandardDigits=false] - Accept standard digits and decimal point interchangeably with localized digits and decimal point. (This option is interpreted here; it is not used by `Intl.NumberFormat`.)
  * @constructor
@@ -201,7 +201,7 @@ function demap(c) {
 /**
  * @implements localizerInterface
  * @param {string} defaultLocale
- * @param {string} [locale=defaultlocale] - Passed to the {@link Intl.DateFormat|https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/DateFormat} constructor.
+ * @param {string} [locale=defaultlocale] - Passed to the {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/DateFormat `Intl.DateFormat`} constructor.
  * @param {object} [options] - Passed to the `Intl.DateFormat` constructor.
  * @constructor
  * @extends Formatter
