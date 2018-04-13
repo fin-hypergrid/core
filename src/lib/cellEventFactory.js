@@ -116,7 +116,7 @@ factory.cellEventProperties = Object.defineProperties({}, {
     },
     rowProperties: {
         get: function() {
-            // use carefully! creates new object as needed; only use when object definitely needed: for setting prop with `.rowProperties[key] = value` or `Object.assign(.rowProperties, {...})`; use getRowProperty(key) instead for getting a property that may not exist because it will not create a new object
+            // use carefully! creates new object as needed; only use when object definitely needed: for setting prop with `.rowProperties[key] = value` or `Object.assign(.rowProperties, {...})`; use `rowOwnProperties`  to avoid creating a new object when object does not exist, or `getRowProperty(key)` for getting a property that may not exist
             return this.behavior.getRowProperties(this, null, this.subgrid);
         },
         set: function(properties) {

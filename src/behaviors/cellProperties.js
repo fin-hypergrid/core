@@ -27,12 +27,12 @@ var cell = {
     /**
      * @param {number} rowIndex - Data row coordinate.
      * @param {object|undefined} properties - Hash of cell properties. If `undefined`, this call is a no-op.
-     * @returns {*}
+     * @returns {*} New cell properties object, based on column properties object, with `properties` copied to it.
      * @memberOf Column#
      */
     setCellProperties: function(rowIndex, properties, dataModel) {
         if (properties) {
-            return assignOrDelete(newCellPropertiesObject.call(this, rowIndex, dataModel), properties);
+            return Object.assign(newCellPropertiesObject.call(this, rowIndex, dataModel), properties);
         }
     },
 

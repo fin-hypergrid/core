@@ -12,14 +12,24 @@ exports.mixin = {
     getFixedRowsHeight: function() {
         var subgrid, isData, r, R,
             subgrids = this.subgrids,
-            height = 0;
+            height = 0,
+            gridProps = this.grid.properties,
+            contentBox = gridProps.boxSizing !== 'border-box',
+            gridLinesHWidth = gridProps.gridLinesHWidth;
 
         for (var i = 0; i < subgrids.length && !isData; ++i) {
             subgrid = subgrids[i];
             isData = subgrid.isData;
-            R = isData ? this.grid.properties.fixedRowCount : subgrid.getRowCount();
+            R = isData ? gridProps.fixedRowCount : subgrid.getRowCount();
             for (r = 0; r < R; ++r) {
                 height += this.getRowHeight(r, subgrid);
+                if (contentBox) {
+                    height += gridLinesHWidth;
+                }
+            }
+            // add in fixed rule thickness excess
+            if (isData && gridProps.fixedLinesHWidth) {
+                height += gridProps.fixedLinesHWidth - gridLinesHWidth;
             }
         }
 

@@ -282,7 +282,7 @@ function renderSingleLineText(gc, config, val, leftPadding, rightPadding) {
 
     if (val !== null) {
         x += Math.max(leftPadding, halignOffset);
-        y += config.bounds.height / 2;
+        y += Math.floor(config.bounds.height / 2);
 
         if (config.isUserDataArea) {
             if (config.link) {
@@ -362,7 +362,7 @@ function strikeThrough(config, gc, text, x, y, thickness) {
             break;
     }
 
-    y = Math.round(y + 0.5) - 0.5;
+    y = Math.round(y) + 0.5;
 
     gc.cache.lineWidth = thickness;
     gc.moveTo(x - 1, y);
@@ -382,7 +382,7 @@ function underline(config, gc, text, x, y, thickness) {
             break;
     }
 
-    y = Math.round(y + textHeight / 2) - 0.5;
+    y = Math.ceil(y) + Math.round(textHeight / 2) - 0.5;
 
     //gc.beginPath();
     gc.cache.lineWidth = thickness;
