@@ -1,6 +1,6 @@
 [![Build Status](https://travis-ci.org/openfin/fin-hypergrid.svg?branch=develop)](https://travis-ci.org/openfin/fin-hypergrid)
 
-**fin-hypergrid** is an ultra-fast HTML5 grid presentation layer, achieving its speed by rendering (in a canvas tag) only the currently visible portion of your (virtual) grid, thus avoiding the latency and life-cycle issues of building, walking, and maintaining a complex DOM structure. Please be sure to checkout our [design overview](OVERVIEW.md) 
+**fin-hypergrid** is an ultra-fast HTML5 grid presentation layer, achieving its speed by rendering (in a canvas tag) only the currently visible portion of your (virtual) grid, thus avoiding the latency and life-cycle issues of building, walking, and maintaining a complex DOM structure. Please be sure to checkout our [design overview](OVERVIEW.md)
 
 Below is an example custom application built on top of the Hypergrid API tooling.
 It also highlights a DOM-based custom external editor triggered via hypergrid events as well as interaction with Hypergrid's column ordering API
@@ -8,7 +8,7 @@ It also highlights a DOM-based custom external editor triggered via hypergrid ev
 <img src="images/README/gridshot04.gif">
 
 ## Table of Contents
-* [Current Release](#current-release-212---29-january-2018)
+* [Current Release](#current-release-217---13-april-2018)
 * [Demos](#demos)
 * [Features](#features)
 * [Testing](#testing)
@@ -16,9 +16,9 @@ It also highlights a DOM-based custom external editor triggered via hypergrid ev
 * [Roadmap](#roadmap)
 * [Contributing](#contributors)
 
-### Current Release (2.1.6 - 16 March 2018)
+### Current Release (2.1.7 - 13 April 2018)
 
-**Hypergrid 2.1.6** includes bug fixes.
+**Hypergrid 2.1.7** includes bug fixes.
 
 _For a complete list of changes, see the [release notes](https://github.com/fin-hypergrid/core/releases)._
 
@@ -27,7 +27,7 @@ _For a complete list of changes, see the [release notes](https://github.com/fin-
 ##### Sample demo
 
 Our [dev testbed](https://fin-hypergrid.github.io/core) demos various features.
-   
+
 ##### Hyperblotter
 
 Hyperblotter is a demo app that shows the capabilities of both OpenFin and Hypergrid.
@@ -50,19 +50,19 @@ Find more information on our [testing page](TESTING.md)
 
 ### Developer Documentation
 
-Primarily our tutorials will be on the [wiki](https://github.com/fin-hypergrid/core/wiki). 
+Primarily our tutorials will be on the [wiki](https://github.com/fin-hypergrid/core/wiki).
 
-We also maintain versioned [online API documentation](https://fin-hypergrid.github.io/core/2.1.0/doc/Hypergrid.html) for all public objects and modules. This documentation is necessarily an on-going work-in-progress.
+We also maintain versioned [online API documentation](https://fin-hypergrid.github.io/core/2.1.7/doc/Hypergrid.html) for all public objects and modules. This documentation is necessarily an on-going work-in-progress.
 
 (Cell editor information can be found [here](https://github.com/fin-hypergrid/core/wiki/Cell-Editors).)
 
 (Cell Rendering information can be found [here](https://github.com/fin-hypergrid/core/wiki/Cell-Renderers).)
 
-Hypergrid global configurations can be found [here](https://fin-hypergrid.github.io/core/2.1.0/doc/module-defaults.html). 
+Hypergrid global configurations can be found [here](https://fin-hypergrid.github.io/core/2.1.7/doc/module-defaults.html).
 
 ### Roadmap
 
-For our current queue of up coming work you can find it [here](ROADMAP.md) 
+For our current queue of up coming work you can find it [here](ROADMAP.md)
 
 ### Contributors
 
