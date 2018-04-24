@@ -18,7 +18,7 @@ exports.getFieldNames = function(hash) {
     });
 };
 
-exports.titleize = require('synonomous').prototype.toTitle;
+exports.titleize = require('synonomous/transformers').toTitle;
 
 exports.getSchema = function(data){
     return exports.getFieldNames(data && data[0] || {}).map(function(name) {

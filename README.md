@@ -8,7 +8,7 @@ It also highlights a DOM-based custom external editor triggered via hypergrid ev
 <img src="images/README/gridshot04.gif">
 
 ## Table of Contents
-* [Current Release](#current-release-217---13-april-2018)
+* [Current Release](#current-release-217---14-april-2018)
 * [Demos](#demos)
 * [Features](#features)
 * [Testing](#testing)
@@ -16,9 +16,9 @@ It also highlights a DOM-based custom external editor triggered via hypergrid ev
 * [Roadmap](#roadmap)
 * [Contributing](#contributors)
 
-### Current Release (2.1.7 - 13 April 2018)
+### Current Release (2.1.8 - 24 April 2018)
 
-**Hypergrid 2.1.7** includes bug fixes.
+**Hypergrid 2.1.8** includes bug fixes.
 
 _For a complete list of changes, see the [release notes](https://github.com/fin-hypergrid/core/releases)._
 
@@ -52,13 +52,13 @@ Find more information on our [testing page](TESTING.md)
 
 Primarily our tutorials will be on the [wiki](https://github.com/fin-hypergrid/core/wiki).
 
-We also maintain versioned [online API documentation](https://fin-hypergrid.github.io/core/2.1.7/doc/Hypergrid.html) for all public objects and modules. This documentation is necessarily an on-going work-in-progress.
+We also maintain versioned [online API documentation](https://fin-hypergrid.github.io/core/2.1.8/doc/Hypergrid.html) for all public objects and modules. This documentation is necessarily an on-going work-in-progress.
 
 (Cell editor information can be found [here](https://github.com/fin-hypergrid/core/wiki/Cell-Editors).)
 
 (Cell Rendering information can be found [here](https://github.com/fin-hypergrid/core/wiki/Cell-Renderers).)
 
-Hypergrid global configurations can be found [here](https://fin-hypergrid.github.io/core/2.1.7/doc/module-defaults.html).
+Hypergrid global configurations can be found [here](https://fin-hypergrid.github.io/core/2.1.8/doc/module-defaults.html).
 
 ### Roadmap
 
