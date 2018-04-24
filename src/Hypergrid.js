@@ -904,7 +904,7 @@ var Hypergrid = Base.extend('Hypergrid', {
         if (!this.properties.repaintImmediately) {
             this.needsShapeChanged = true;
             this.canvas.repaint();
-        } if (this.divCanvas) {
+        } else if (this.divCanvas) {
             this.synchronizeScrollingBoundaries(); // calls computeCellsBounds
             this.repaint();
         }
@@ -918,7 +918,7 @@ var Hypergrid = Base.extend('Hypergrid', {
         if (!this.properties.repaintImmediately) {
             this.needsStateChanged = true;
             this.canvas.repaint();
-        } if (this.divCanvas) {
+        } else if (this.divCanvas) {
             this.computeCellsBounds();
             this.repaint();
         }

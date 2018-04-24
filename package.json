@@ -1,6 +1,6 @@
 {
   "name": "fin-hypergrid",
-  "version": "2.1.7",
+  "version": "2.1.8",
   "description": "Canvas-based high-performance grid",
   "repository": {
     "type": "git",
@@ -26,7 +26,7 @@
     "overrider": "^0",
     "rectangular": "1.0.1",
     "sparse-boolean-array": "1.0.1",
-    "synonomous": "^1.0.1"
+    "synonomous": "^2.1.2"
   },
   "devDependencies": {
     "browser-sync": "^2.10.0",
