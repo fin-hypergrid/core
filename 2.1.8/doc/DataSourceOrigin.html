@@ -1,0 +1,2123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Class: DataSourceOrigin</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-defaults.html">defaults</a></li><li><a href="module-dynamicProperties.html">dynamicProperties</a></li><li><a href="module-effects.html">effects</a></li><li><a href="module-fields.html">fields</a></li><li><a href="module-images.html">images</a></li><li><a href="module-localization.html">localization</a></li><li><a href="module-src_behaviors_cellProperties.html">src/behaviors/cellProperties</a></li></ul><h3>Classes</h3><ul><li><a href="Base.html">Base</a></li><li><a href="Behavior.html">Behavior</a></li><li><a href="behaviors.JSON.html">JSON</a></li><li><a href="Button.html">Button</a></li><li><a href="CellClick.html">CellClick</a></li><li><a href="CellEditing.html">CellEditing</a></li><li><a href="CellEditor.html">CellEditor</a></li><li><a href="CellEditors.html">CellEditors</a></li><li><a href="CellEvent.html">CellEvent</a></li><li><a href="CellRenderer.html">CellRenderer</a></li><li><a href="CellRenderers.html">CellRenderers</a></li><li><a href="CellSelection.html">CellSelection</a></li><li><a href="Color.html">Color</a></li><li><a href="Column.html">Column</a></li><li><a href="ColumnMoving.html">ColumnMoving</a></li><li><a href="ColumnResizing.html">ColumnResizing</a></li><li><a href="ColumnSelection.html">ColumnSelection</a></li><li><a href="ColumnSorting.html">ColumnSorting</a></li><li><a href="Combo.html">Combo</a></li><li><a href="DataModel.html">DataModel</a></li><li><a href="dataModels.JSON.html">JSON</a></li><li><a href="DataSourceOrigin.html">DataSourceOrigin</a></li><li><a href="Date.html">Date</a></li><li><a href="ErrorCell.html">ErrorCell</a></li><li><a href="Feature.html">Feature</a></li><li><a href="Features.html">Features</a></li><li><a href="Filters.html">Filters</a></li><li><a href="HeaderSubgrid.html">HeaderSubgrid</a></li><li><a href="Hypergrid.html">Hypergrid</a></li><li><a href="KeyPaging.html">KeyPaging</a></li><li><a href="LastSelection.html">LastSelection</a></li><li><a href="module-localization-DateFormatter.html">DateFormatter</a></li><li><a href="module-localization-Formatter.html">Formatter</a></li><li><a href="module-localization-Localization.html">Localization</a></li><li><a href="module-localization-NumberFormatter.html">NumberFormatter</a></li><li><a href="Number.html">Number</a></li><li><a href="OnHover.html">OnHover</a></li><li><a href="Registry.html">Registry</a></li><li><a href="Renderer.html">Renderer</a></li><li><a href="RowResizing.html">RowResizing</a></li><li><a href="RowSelection.html">RowSelection</a></li><li><a href="SelectionModel.html">SelectionModel</a></li><li><a href="SimpleCell.html">SimpleCell</a></li><li><a href="Slider.html">Slider</a></li><li><a href="SparkBar.html">SparkBar</a></li><li><a href="SparkLine.html">SparkLine</a></li><li><a href="Spinner.html">Spinner</a></li><li><a href="Textfield.html">Textfield</a></li><li><a href="ThumbwheelScrolling.html">ThumbwheelScrolling</a></li><li><a href="TreeCell.html">TreeCell</a></li><li><a href="WritablePoint.html">WritablePoint</a></li></ul><h3>Namespaces</h3><ul><li><a href="dataModels.html">dataModels</a></li></ul><h3>Mixins</h3><ul><li><a href="mixin.html">mixin</a></li><li><a href="sharedMixin.html">sharedMixin</a></li></ul><h3>Interfaces</h3><ul><li><a href="dataControlInterface.html">dataControlInterface</a></li><li><a href="dataModelAPI.html">dataModelAPI</a></li><li><a href="localizerInterface.html">localizerInterface</a></li></ul><h3>Global</h3><ul><li><a href="global.html#addAllColumnProperties">addAllColumnProperties</a></li><li><a href="global.html#addState">addState</a></li><li><a href="global.html#assignOrDelete">assignOrDelete</a></li><li><a href="global.html#assignProps">assignProps</a></li><li><a href="global.html#cancelEditing">cancelEditing</a></li><li><a href="global.html#cellEventFactory">cellEventFactory</a></li><li><a href="global.html#computeCellsBounds">computeCellsBounds</a></li><li><a href="global.html#dataRow">dataRow</a></li><li><a href="global.html#deferredBehaviorChange">deferredBehaviorChange</a></li><li><a href="global.html#deprecated">deprecated</a></li><li><a href="global.html#dispatchEvent">dispatchEvent</a></li><li><a href="global.html#errorEffectEnd">errorEffectEnd</a></li><li><a href="global.html#findCell">findCell</a></li><li><a href="global.html#getActiveColumns">getActiveColumns</a></li><li><a href="global.html#getColumns">getColumns</a></li><li><a href="global.html#getMinimumLeftPositionToShowColumn">getMinimumLeftPositionToShowColumn</a></li><li><a href="global.html#getTextWidthTruncated">getTextWidthTruncated</a></li><li><a href="global.html#handleKeyDown">handleKeyDown</a></li><li><a href="global.html#initialize">initialize</a></li><li><a href="global.html#rebundleGridRenderers">rebundleGridRenderers</a></li><li><a href="global.html#registry">registry</a></li><li><a href="global.html#reset">reset</a></li><li><a href="global.html#resetCellPropertiesCache">resetCellPropertiesCache</a></li><li><a href="global.html#resetRowHeaderColumnWidth">resetRowHeaderColumnWidth</a></li><li><a href="global.html#resolveCalculator">resolveCalculator</a></li><li><a href="global.html#setAllColumnProperties">setAllColumnProperties</a></li><li><a href="global.html#validateEditorValue">validateEditorValue</a></li><li><a href="global.html#valOrFunc">valOrFunc</a></li><li><a href="global.html#visibleColumns">visibleColumns</a></li><li><a href="global.html#visibleRows">visibleRows</a></li></ul>
+</nav>
+<div id="main">
+
+    <h1 class="page-title">Class: DataSourceOrigin</h1>
+
+    
+
+
+
+
+<section>
+
+<header>
+    
+        <h2>
+        DataSourceOrigin
+        </h2>
+        
+    
+</header>
+
+<article>
+    <div class="container-overview">
+    
+        
+
+    
+
+    <h4 class="name" id="DataSourceOrigin"><span class="type-signature"></span>new DataSourceOrigin<span class="signature">()</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>See <code>DataSourceOrigin#initialize</code> for constructor parameters.</p>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
+    </div>
+
+    
+
+    
+
+    
+
+     
+
+    
+
+    
+        <h3 class="subsection-title">Members</h3>
+
+        
+            
+<h4 class="name" id="schema"><span class="type-signature"></span>schema<span class="type-signature"> :Array.&lt;<a href="global.html#columnSchemaObject">columnSchemaObject</a>></span></h4>
+
+
+<p class="summary"><p>The array of uniform data objects.</p></p>
+
+
+
+
+
+    <h5>Type:</h5>
+    <ul>
+        <li>
+            
+<span class="param-type">Array.&lt;<a href="global.html#columnSchemaObject">columnSchemaObject</a>></span>
+
+
+        </li>
+    </ul>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+        
+            
+<h4 class="name" id="schema"><span class="type-signature"></span>schema<span class="type-signature"> :Array.&lt;<a href="global.html#columnSchemaObject">columnSchemaObject</a>></span></h4>
+
+
+<p class="summary"><p>The array of column schema objects.</p></p>
+
+
+
+
+
+    <h5>Type:</h5>
+    <ul>
+        <li>
+            
+<span class="param-type">Array.&lt;<a href="global.html#columnSchemaObject">columnSchemaObject</a>></span>
+
+
+        </li>
+    </ul>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+        
+    
+
+    
+        <h3 class="subsection-title">Methods</h3>
+
+        
+            
+
+    
+
+    <h4 class="name" id="findRow"><span class="type-signature"></span>findRow<span class="signature">(columnName, value<span class="signature-attributes">opt</span>, replacement<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {object|number|undefined}</span></h4>
+
+    
+    <p class="summary"><p>Find, replace, or update a row by it's primary key column.</p></p>
+    
+
+
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>columnName</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+|
+
+<span class="param-type">object</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last"><p>One of:</p>
+<ul>
+<li><em>string</em> - Column name. See <code>value</code>.</li>
+<li><em>object</em> - Hash of 0 or more key-value pairs to search for.</li>
+</ul></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>value</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Array.&lt;string></span>
+|
+
+<span class="param-type">*</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last"><p>One of:
+<em>omitted</em> - When <code>columnName</code> is a hash and you want to search all its keys.
+<em>string[]</em> - When <code>columnName</code> is a hash but you only want to search certain keys.
+<em>otherwise</em> - When <code>columnName</code> is a string. Value to search for.
+Note that <code>null</code> is a valid search value.</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>replacement</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">object</span>
+|
+
+<span class="param-type">null</span>
+|
+
+<span class="param-type">undefined</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last"><p>One of:</p>
+<ul>
+<li><em>omitted</em> - Ignored.</li>
+<li><em>object</em> - Replacement for the data row if found.</li>
+<li><code>null</code> - Flag to delete the data row if found. The found data row is nonetheless returned.</li>
+<li><code>undefined</code> - Flag to return index of found row instead of row object itself.</li>
+</ul></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-todo">To Do:</dt>
+    <dd class="tag-todo">
+        <ul>
+            <li>Use a binary search (rather than `Array..find`) when column is known to be indexed (sorted).</li>
+        </ul>
+    </dd>
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    <p>One of:</p>
+<ul>
+<li><code>undefined</code> - data row not found</li>
+<li><em>object</em> - found data row object (will have been deleted if <code>replacement</code> was <code>null</code>)</li>
+<li><em>number</em> - index of found data row object in <code>this.data</code> (if <code>replacement</code> was <code>undefined</code>)</li>
+</ul>
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">object</span>
+|
+
+<span class="param-type">number</span>
+|
+
+<span class="param-type">undefined</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="findRowByIndex"><span class="type-signature"></span>findRowByIndex<span class="signature">(index, replacement<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {object|number|undefined}</span></h4>
+
+    
+    <p class="summary"><p>Find, replace, or update a row by it's index.</p></p>
+    
+
+
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>index</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last"><p>Row index that is being accessed</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>replacement</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">object</span>
+|
+
+<span class="param-type">null</span>
+|
+
+<span class="param-type">undefined</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last"><p>One of:</p>
+<ul>
+<li><em>omitted</em> - Ignored.</li>
+<li><em>object</em> - Replacement for the data row if found.</li>
+<li><code>null</code> - Flag to delete the data row if found. The found data row is nonetheless returned.</li>
+<li><code>undefined</code> - Flag to delete the row at that index.</li>
+</ul></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-todo">To Do:</dt>
+    <dd class="tag-todo">
+        <ul>
+            <li>Use a binary search (rather than `Array..find`) when column is known to be indexed (sorted).</li>
+        </ul>
+    </dd>
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    <p>One of:</p>
+<ul>
+<li><code>undefined</code> - data row not found</li>
+<li><em>object</em> - found data row object (will have been deleted if <code>replacement</code> was <code>null</code>)</li>
+</ul>
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">object</span>
+|
+
+<span class="param-type">number</span>
+|
+
+<span class="param-type">undefined</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="getColumnCount"><span class="type-signature"></span>getColumnCount<span class="signature">()</span><span class="type-signature"> &rarr; {number}</span></h4>
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">number</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="getFields"><span class="type-signature"></span>getFields<span class="signature">()</span><span class="type-signature"> &rarr; {Array.&lt;number>}</span></h4>
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Array.&lt;number></span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="getHeaders"><span class="type-signature"></span>getHeaders<span class="signature">()</span><span class="type-signature"> &rarr; {Array.&lt;string>}</span></h4>
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Array.&lt;string></span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="getRow"><span class="type-signature"></span>getRow<span class="signature">(y)</span><span class="type-signature"> &rarr; {<a href="global.html#dataRowObject">dataRowObject</a>}</span></h4>
+
+    
+
+
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>y</code></td>
+            
+
+            <td class="type">
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type"><a href="global.html#dataRowObject">dataRowObject</a></span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="getRowCount"><span class="type-signature"></span>getRowCount<span class="signature">()</span><span class="type-signature"> &rarr; {number}</span></h4>
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">number</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="getSchema"><span class="type-signature"></span>getSchema<span class="signature">()</span><span class="type-signature"> &rarr; {Array.&lt;<a href="global.html#columnSchemaObject">columnSchemaObject</a>>}</span></h4>
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Array.&lt;<a href="global.html#columnSchemaObject">columnSchemaObject</a>></span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="getValue"><span class="type-signature"></span>getValue<span class="signature">(x, y)</span><span class="type-signature"> &rarr; {*}</span></h4>
+
+    
+
+
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>x</code></td>
+            
+
+            <td class="type">
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>y</code></td>
+            
+
+            <td class="type">
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">*</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="setData"><span class="type-signature"></span>setData<span class="signature">(data<span class="signature-attributes">opt</span>, schema<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+        <th>Default</th>
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>data</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Array.&lt;object></span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    []
+                
+                </td>
+            
+
+            <td class="description last"><p>Array of uniform objects containing the grid data.</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>schema</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Array.&lt;<a href="global.html#columnSchemaObject">columnSchemaObject</a>></span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    []
+                
+                </td>
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="setFields"><span class="type-signature"></span>setFields<span class="signature">(fields)</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>fields</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Array.&lt;string></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="setHeaders"><span class="type-signature"></span>setHeaders<span class="signature">(headers<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>headers</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Array.&lt;string></span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last"><p>If omitted, headers will be reset to their derived defaults on next call to <code>getHeaders</code>.</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="setValue"><span class="type-signature"></span>setValue<span class="signature">(x, y, value)</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>x</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>y</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>value</code></td>
+            
+
+            <td class="type">
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+    
+
+    
+
+    
+</article>
+
+</section>
+
+
+
+
+</div>
+
+<br class="clear">
+
+<footer>
+    © 2018 <a href="http://www.openfin.co" target="_blank">OpenFin</a> All Rights Reserved.
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>
