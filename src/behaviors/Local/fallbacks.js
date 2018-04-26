@@ -9,11 +9,18 @@ module.exports = {
     /** @implements DataModel#apply */
     apply: function() {},
 
-    /** @implements DataModel#isDrillDown */
-    isDrillDown: function() { return false; },
+    /** @implements DataModel#isTree */
+    isTree: function() {
+        return false;
+    },
 
-    /** @implements DataModel#click */
-    click: function() { return false; },
+    /** @implements DataModel#isTreeCol */
+    isTreeCol: function(columnIndex) {
+        return false;
+    },
+
+    /** @implements DataModel#toggleRow */
+    toggleRow: function(rowIndex, columnIndex, expand) {},
 
     /** @implements DataModel#getColumnCount */
     getColumnCount: function() {

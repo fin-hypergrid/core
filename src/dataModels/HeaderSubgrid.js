@@ -12,8 +12,6 @@ var DataSourceBase = require('datasaur-base');
 var HeaderSubgrid = DataSourceBase.extend('HeaderSubgrid', {
     type: 'header',
 
-    format: 'header', // override column format
-
     initialize: function(nextDataSource, options) {
         this.grid = options.grid;
     },

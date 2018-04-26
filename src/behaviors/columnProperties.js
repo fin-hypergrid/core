@@ -150,7 +150,7 @@ createColumnProperties.treeHeaderDescriptors = {
         configurable: true,
         enumerable: true,
         get: function() {
-            return this.treeRenderer;
+            return this.isDataRow ? this.treeRenderer : this.grid.properties.renderer;
         },
         set: function(value) {
             this.treeRenderer = value;
@@ -430,6 +430,16 @@ createColumnProperties.columnHeaderDescriptors = {
         },
         set: function(value) {
             this.columnHeaderHalign = value;
+        }
+    },
+    format: {
+        configurable: true,
+        enumerable: true,
+        get: function() {
+            return this.columnHeaderFormat;
+        },
+        set: function(value) {
+            this.columnHeaderFormat = value;
         }
     },
     renderer: {

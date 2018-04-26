@@ -54,6 +54,15 @@ function injectCode(dataModel) {
 }
 
 /**
+ * @param {DataModel} dataModel
+ * @this {Local}
+ * @memberOf module:decorators
+ */
+function injectDefaulthooks(dataModel) {
+    dataModel.install(hooks, { inject: true });
+}
+
+/**
  * @summary Add deprecation warnings for deprecated legacy data model properties.
  * @desc This method may be removed in a future version whence all deprecations are removed.
  * @this {Local}
@@ -116,21 +125,6 @@ function addFriendlierDrillDownMapKeys() {
                 }
             }
         });
-    }
-}
-
-/**
- * @param {DataModel} dataModel
- * @this {Local}
- * @memberOf module:decorators
- */
-function injectDefaulthooks(dataModel) {
-    if (!dataModel.getCell) {
-        dataModel.getCell = hooks.getCell;
-    }
-
-    if (!dataModel.getCellEditorAt) {
-        dataModel.getCellEditorAt = hooks.getCellEditorAt;
     }
 }
 

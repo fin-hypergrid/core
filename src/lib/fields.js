@@ -63,7 +63,7 @@ var fields = {
      *
      * This function is safe to call repeatedly.
      *
-     * Called via `data-schema-changed` event by data model implementation of `setSchema`.
+     * Called from {@link Behavior#createColumns createColumns} (called on receipt of the `fin-hypergrid-schema-loaded` event (dispatched by data model implementation of `setSchema`)).
      *
      * @param {rawColumnSchema[]} schema
      * @returns {columnSchema[]}

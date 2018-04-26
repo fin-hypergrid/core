@@ -84,10 +84,10 @@
  * @param {DataModelEvent} event
  */
 
-/** @event DataModel#fin-hypergrid-schema-changed
+/** @event DataModel#fin-hypergrid-schema-loaded
  * @desc The data models should trigger this event on a schema change, typically from setSchema, or wherever schema is initialized. Hypergrid responds by normalizing and decorating the schema object and recreating the grid's column objects — before triggering a grid event using the same event string, which applications can listen for using {@link Hypergrid#addEventListener addEventListener}:
  * ```js
- * grid.addEventListener('fin-hypergrid-schema-changed', myHandlerFunction);
+ * grid.addEventListener('fin-hypergrid-schema-loaded', myHandlerFunction);
  * ```
  * This event is not cancelable.
  * @see {@link module:fields.normalizeSchema normalizeSchema}
@@ -95,11 +95,11 @@
  * @see {@link module:fields.decorateColumnSchema decorateColumnSchema}
  */
 
-/** @event DataModel#fin-hypergrid-data-changed
+/** @event DataModel#fin-hypergrid-data-loaded
  * @desc The data model should trigger this event when it changes the data on its own.
  * Hypergrid responds by calling {@link Hypergrid#repaint grid.repaint()} — before triggering a grid event using the same event string, which applications can listen for using {@link Hypergrid#addEventListener addEventListener}:
  * ```js
- * grid.addEventListener('fin-hypergrid-data-changed', myHandlerFunction);
+ * grid.addEventListener('fin-hypergrid-data-loaded', myHandlerFunction);
  * ```
  * This event is not cancelable.
  */
@@ -291,46 +291,57 @@
  */
 
 /**
- * @method DataModel#click
+ * @method DataModel#toggleRow
  * @summary Mouse was clicked on a grid row.
  * @desc _IMPLEMENTATION OF THIS METHOD IS OPTIONAL._
  *
- * The data model may respond to clicks by adding/removing/decorating data rows (_e.g.,_ a drill-down).
- * If it does so, the click is considered to be "consumed."
- * When a click is consumed, data models should:
- * * Dispatch the event to the grid, one of:
- *    * 'fin-hypergrid-data-changed'; or
- *    * Both of:
- *       * 'fin-hypergrid-data-prereindex' before transorming the data
- *       * 'fin-hypergrid-data-postreindex' after transforming the data (which in turn triggers a 'fin-hypergrid-data-changed' event)
+ * Hypergrid calls this method from one place, {@link Local#cellClicked behavior.cellClicked}, which is called from src/features/CellClick when user clicks on a tree or data cell.
  *
- * Hypergrid takes appropriate internal actions on receipt of such events and dispatches them to the grid's `<canvas>` element for application listeners benefit.
+ * The data model may consume or ignore the click.
  *
- * > Note the order of this method's parameters. The row index comes first, which differs from other methods like `getValue`. This is for backwards compatibility; originally row index was the only one parameter. Implementations may choose to ignore column index (essentially responding to a click anywhere on the row) or may discriminate clicks by column as well.
+ * If the data model consumes the click by modifying some data in the existing data set, it should dispatch the 'fin-hypergrid-data-loaded` data event to the grid, which causes a grid "repaint" (which re-renders rows and columns in place).
+ *
+ * If the data model consumes the click by transforming the data, it should dispatch the following data events to the grid:
+ *    * 'fin-hypergrid-data-prereindex' before transforming the data
+ *    * 'fin-hypergrid-data-postreindex' after transforming the data
+ *
+ * This causes Hypergrid to save the current row and/or column selections before and then attempt to restore them after, before a "shape change" (which recalculates row and column bounding rects and then re-renders them).
+ *
+ * "Transforming the data" means altering the data set (by adding/removing rows, _etc._). The typical use case for this is a click on a cell containing a drill-down control.
+ *
+ * After rerendering, Hypergrid dispatches a DOM event with the same _type_ (same event string) to the grid's `<canvas>` element for the benefit of any application listeners.
+ *
  * #### Parameters:
+ *
  * @param {number} rowIndex
- * @param {number} columnIndex
- * @returns {boolean} - Click was consumed by the data model.
+ *
+ * @param {number} [columnIndex] - For the drill-down control use case, implementations should call `this.isTreeCol(columnIndex)` if they want to restrict the response to clicks in the tree column (rather than any column). Although defined in Hypergrid's call, implementations should not depend on it, which may be useful for testing purposes.
+ *
+ * @param {boolean} [toggle] - One of:
+ * * `undefined` (or omitted) - Toggle row.
+ * * `true` - Expand row iff currently collapsed.
+ * * `false` - Collapse row iff currently expanded.
+ * > NOTE: Implementation of this parameter is optional. It may be useful for testing purposes but Hypergrid does not define actual parameter in its call in {@link Hypergrid#cellClicked}.
+ *
+ * @returns {boolean|undefined} If click was consumed by the data model:
+ * * `undefined` Not consumed: Row had no drill-down control.
+ * * `true` Consumed: Row had a drill-down control which was toggled.
+ * * `false` Not consumed: Row had a drill-down control but it was already in requested state.
+ * > NOTE: Implementation of a return value is optional as of version v3.0.0. It may be useful for testing purposes but {@link Hypergrid#cellClicked} no longer uses the return value (depending instead on the implementation dispatching data events), so implementations no longer need to support it. Therefore, in general, applications should no depend on a return value. For particular requirements, however, an applications may make a private contract with a data model implementation for a return value (that may or may not follow the above definition. Regardless of the implementation, the return value of this method is propagated through the return values of {@link Local#cellClicked} -> {@link Hypergrid#cellClicked} -> the application.
  */
 
 /**
  * @method DataModel#isTree
- * @desc _IMPLEMENTATION OF THIS METHOD IS OPTIONAL._
- *
- * Synonym for {@link DataModel#isDrillDown isDrillDown}.
- * #### Parameters:
- * @param {number} y - Data row index.
- * @returns {boolean} The row has a drill down control.
+ * @desc _IMPLEMENTATION OF THIS METHOD IS OPTIONAL. It is only required for data models that support tree views._
+ * @returns {boolean} The grid view is a tree (presumably has a tree column).
  */
 
 /**
- * @method DataModel#isDrillDown
- * @desc _IMPLEMENTATION OF THIS METHOD IS OPTIONAL._
- *
- * Called by Hypergrid's CellClick feature whenever user clicks on the grid.
+ * @method DataModel#isTreeCol
+ * @desc _IMPLEMENTATION OF THIS METHOD IS OPTIONAL. It is only required for data models that support tree views._
  * #### Parameters:
- * @param {number} y - Data row index.
- * @returns {boolean} The row has a drill down control.
+ * @param {number} columnIndex
+ * @returns {boolean} This column is the tree column (displays tree structure; may or may not be an interactive drill-down control).
  */
 
 /**
@@ -368,7 +379,7 @@
  * @method DataModel#getSchema
  * @desc Get list of columns. The order of the columns in the list defines the column indexes.
  *
- * On initial call and again whenever the schema changes, the data model must dispatch the `data-schema-changed` event, which tells Hypergrid to {@link module:schema.decorate decorate} the schema and recreate the column objects.
+ * On initial call and again whenever the schema changes, the data model must dispatch the `fin-hypergrid-schema-loaded` event, which tells Hypergrid to {@link module:schema.decorate decorate} the schema and recreate the column objects.
  * @returns {columnSchema[]}
  */
 
@@ -378,7 +389,7 @@
  *
  * Define column indexes. May include `header`, `type`, and `calculator` properties for each column.
  *
- * When the schema changes, the data model should dispatch the `data-schema-changed` event, which tells Hypergrid to {@link module:schema.decorate decorate} the schema and recreate the column objects.
+ * When the schema changes, the data model should dispatch the `fin-hypergrid-schema-loaded` event, which tells Hypergrid to {@link module:schema.decorate decorate} the schema and recreate the column objects.
  *
  * It is not necessary to call on every data update when you expect to reuse the existing schema.
  * #### Parameters:

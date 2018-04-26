@@ -50,10 +50,10 @@ module.exports = {
      * _See the data model API page for event semantics (link below)._
      * @param {NormalizedDataModelEvent} event
      * @returns {undefined|boolean} Result of re-emitted event or `undefined` if event not re-emitted.
-     * @see {@link DataModel#event:fin-hypergrid-schema-changed}
+     * @see {@link DataModel#event:fin-hypergrid-schema-loaded}
      * @memberOf dataModelEventHandlers
      */
-    'fin-hypergrid-schema-changed': function(event) {
+    'fin-hypergrid-schema-loaded': function(event) {
         dispatchGridEvent.call(this, event.type, event);
         this.behavior.createColumns();
         return true;
@@ -63,10 +63,10 @@ module.exports = {
      * _See the data model API page for event semantics (link below)._
      * @param {NormalizedDataModelEvent} event
      * @returns {undefined|boolean} Result of re-emitted event or `undefined` if event not re-emitted.
-     * @see {@link DataModel#event:fin-hypergrid-data-changed}
+     * @see {@link DataModel#event:fin-hypergrid-data-loaded}
      * @memberOf dataModelEventHandlers
      */
-    'fin-hypergrid-data-changed': function(event) {
+    'fin-hypergrid-data-loaded': function(event) {
         this.repaint();
     },
 

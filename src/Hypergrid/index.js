@@ -196,7 +196,7 @@ var Hypergrid = Base.extend('Hypergrid', {
      * Be a responsible citizen and call this function on instance disposal!
      * @memberOf Hypergrid#
      */
-    destruct: function() {
+    terminate: function() {
         document.removeEventListener('mousedown', this.mouseCatcher);
         this.behavior.dataModel.removeListener(this.behavior.boundDispatchEvent);
         this.removeAllEventListeners(true);
@@ -1240,6 +1240,18 @@ var Hypergrid = Base.extend('Hypergrid', {
      */
     resized: function() {
         this.behaviorShapeChanged();
+    },
+
+    /**
+     * @memberOf Hypergrid#
+     * @summary A click event occurred.
+     * @desc Determine the cell and delegate to the behavior (model).
+     * @see {@link Local#cellClicked}
+     * @param {CellEvent} event - The cell event to interrogate.
+     * @returns {@link DataModel#toggleRow}'s return value which may or may not be implemented.
+     */
+    cellClicked: function(event) {
+        return this.behavior.cellClicked(event);
     },
 
     /**

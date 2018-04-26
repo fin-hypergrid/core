@@ -566,8 +566,6 @@ var Renderer = Base.extend('Renderer', {
     renderGrid: function(gc) {
         this.grid.deferredBehaviorChange();
 
-        gc.beginPath();
-
         var rowCount = this.grid.getRowCount();
         if (rowCount !== this.lastKnowRowCount) {
             var newWidth = resetRowHeaderColumnWidth.call(this, gc, rowCount);
@@ -588,8 +586,6 @@ var Renderer = Base.extend('Renderer', {
         this.renderOverrides(gc);
 
         this.renderLastSelection(gc);
-
-        gc.closePath();
     },
 
     renderLastSelection: function(gc) {
@@ -944,23 +940,6 @@ var Renderer = Base.extend('Renderer', {
     },
 
     /**
-     * @memberOf Renderer.prototype
-     * @param {CanvasRenderingContext2D} gc
-     * @param x
-     * @param y
-     */
-    paintCell: function(gc, x, y) {
-        gc.moveTo(0, 0);
-
-        var c = this.visibleColumns[x].index, // todo refac
-            r = this.visibleRows[y].index;
-
-        if (c) { //something is being viewed at at the moment (otherwise returns undefined)
-            this._paintCell(gc, c, r);
-        }
-    },
-
-    /**
      * @summary Render a single cell.
      * @param {CanvasRenderingContext2D} gc
      * @param {CellEvent} cellEvent
@@ -993,7 +972,6 @@ var Renderer = Base.extend('Renderer', {
             r = (config.dataCell = cellEvent.dataCell).y,
 
             value,
-            format,
             isSelected;
 
         if (isHandleColumn) {
@@ -1004,25 +982,19 @@ var Renderer = Base.extend('Renderer', {
             config.halign = 'left';
         } else if (isDataRow) {
             isSelected = isCellSelected || isRowSelected || isColumnSelected;
+        } else if (isFilterRow) {
+            isSelected = false;
+        } else if (isColumnSelected) {
+            isSelected = true;
         } else {
-            format = cellEvent.subgrid.format; // subgrid format can override column format
-            if (isFilterRow) {
-                isSelected = false;
-            } else if (isColumnSelected) {
-                isSelected = true;
-            } else {
-                isSelected = selectionModel.isCellSelectedInColumn(x); // header or summary or other non-meta
-            }
+            isSelected = selectionModel.isCellSelectedInColumn(x); // header or summary or other non-meta
         }
 
         // Set cell contents:
         // * For all cells: set `config.value` (writable property)
         // * For cells outside of row handle column: also set `config.dataRow` for use by valOrFunc
-        if (!isHandleColumn) {
-            //Including hierarchyColumn
-            config.dataRow = cellEvent.dataRow;
-            value = cellEvent.value;
-        } else {
+        // * For non-data row tree column cells, do nothing (these cells render blank so value is undefined)
+        if (isHandleColumn) {
             if (isDataRow) {
                 // row handle for a data row
                 if (config.rowHeaderNumbers) {
@@ -1032,6 +1004,9 @@ var Renderer = Base.extend('Renderer', {
                 // row handle for header row: gets "master" checkbox
                 config.allRowsSelected = selectionModel.areAllRowsSelected();
             }
+        } else if (isDataRow || !cellEvent.isTreeColumn) {
+            config.dataRow = cellEvent.dataRow;
+            value = cellEvent.value;
         }
 
         config.isSelected = isSelected;
@@ -1078,7 +1053,7 @@ var Renderer = Base.extend('Renderer', {
             // * mutate cell renderer choice (instance of which is returned)
             var cellRenderer = cellEvent.subgrid.getCell(config, config.renderer);
 
-            config.formatValue = grid.getFormatter(format);
+            config.formatValue = grid.getFormatter(config.format);
 
             // Following supports partial render
             config.snapshot = cellEvent.snapshot;

@@ -206,6 +206,14 @@ var defaults = {
      */
     columnHeaderRenderer: 'SimpleCell',
 
+    /**
+     * There is no standard format called "header"; unless defined, defaults to "string" (pass-thru formatter).
+     * @default
+     * @type {string}
+     * @memberOf module:defaults
+     */
+    columnHeaderFormat: 'header',
+
 
     /********** SECTION: ROW HEADER COLORS **********/
 

@@ -27,7 +27,7 @@ var CellClick = Feature.extend('CellClick', {
     handleClick: function(grid, event) {
         var consumed = (event.isDataCell || event.isTreeColumn) && (
             this.openLink(grid, event) !== undefined ||
-            grid.behavior.cellClicked(event)
+            grid.cellClicked(event)
         );
 
         if (!consumed && this.next) {
