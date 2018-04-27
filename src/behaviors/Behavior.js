@@ -241,12 +241,12 @@ var Behavior = Base.extend('Behavior', {
 
         schema[tc] = schema[tc] || {};
         schema[tc].index = tc;
-        if (schema[tc].name === undefined) { schema[tc].name = 'Tree'; }
-        if (schema[tc].header === undefined) { schema[tc].header = 'Tree'; }
+        if (schema[tc].name === undefined) { schema[tc].name = this.treeColumnNameDefault; }
+        if (schema[tc].header === undefined) { schema[tc].header = this.treeColumnHeaderDefault; }
 
         schema[rc] = schema[rc] || {};
         schema[rc].index = rc;
-        if (schema[rc].name === undefined) { schema[rc].name = 'RowHeader'; }
+        if (schema[rc].name === undefined) { schema[rc].name = this.rowColumnNameDefault; }
         if (schema[rc].header === undefined) { schema[rc].header = ''; }
 
         /**
@@ -1145,10 +1145,14 @@ var Behavior = Base.extend('Behavior', {
 });
 
 
-// define constants as immutable (i.e., !writable)
+// tree and row number column defaults; define indexes as immutable (i.e., !writable)
 Object.defineProperties(Behavior.prototype, {
     treeColumnIndex: { value: -1 },
-    rowColumnIndex: { value: -2 }
+    treeColumnNameDefault: { value: 'Tree', writable: true },
+    treeColumnHeaderDefault: { value: 'Tree', writable: true },
+
+    rowColumnIndex: { value: -2 },
+    rowColumnNameDefault: { value: 'RowHeader', writable: true }
 });
 
 

@@ -994,19 +994,18 @@ var Renderer = Base.extend('Renderer', {
         // * For all cells: set `config.value` (writable property)
         // * For cells outside of row handle column: also set `config.dataRow` for use by valOrFunc
         // * For non-data row tree column cells, do nothing (these cells render blank so value is undefined)
-        if (isHandleColumn) {
-            if (isDataRow) {
-                // row handle for a data row
-                if (config.rowHeaderNumbers) {
-                    value = r + 1; // row number is 1-based
-                }
-            } else if (isHeaderRow) {
-                // row handle for header row: gets "master" checkbox
-                config.allRowsSelected = selectionModel.areAllRowsSelected();
-            }
-        } else if (isDataRow || !cellEvent.isTreeColumn) {
+        if (!isHandleColumn) {
+            // including tree column
             config.dataRow = cellEvent.dataRow;
             value = cellEvent.value;
+        } else if (isDataRow) {
+            // row handle for a data row
+            if (config.rowHeaderNumbers) {
+                value = r + 1; // row number is 1-based
+            }
+        } else if (isHeaderRow) {
+            // row handle for header row: gets "master" checkbox
+            config.allRowsSelected = selectionModel.areAllRowsSelected();
         }
 
         config.isSelected = isSelected;
