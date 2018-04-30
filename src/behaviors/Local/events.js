@@ -1,7 +1,5 @@
 'use strict';
 
-var dispatchGridEvent = require('../../lib/dispatchGridEvent.js');
-
 /**
  * @namespace dataModelEventHandlers
  * @desc These handlers are called by {@link module:decorators.dispatchDataModelEvent dataModel.dispatchEvent}.
@@ -14,7 +12,7 @@ var dispatchGridEvent = require('../../lib/dispatchGridEvent.js');
  * All the built-in data model events re-emit their events (all non-cancelable).
  *
  * #### Coding patterns
- * These handlers should return a boolean if they re-emit the event as a grid event themselves (via `dispatchGridEvent`), when they have chores to perform post-re-emission. If they don't, they should return `undefined` which signals the caller (`dataModel.dispatchEvent`) to re-emit it as a grid event as a final step for the handler.
+ * These handlers should return a boolean if they re-emit the event as a grid event themselves, when they have chores to perform post-re-emission. If they don't, they should return `undefined` which signals the caller (`dataModel.dispatchEvent`) to re-emit it as a grid event as a final step for the handler.
  *
  * Given the above, there are four typical coding patterns for these handlers:
  * 1. Perform chores with no event re-emission:
@@ -30,6 +28,7 @@ var dispatchGridEvent = require('../../lib/dispatchGridEvent.js');
  * 3. First perform some pre-re-emit chores (optional); then re-emit the event as a _non-cancelable_ grid event; then perform remaining chores:
  * ```
  * optionalPreReemitChores();
+ * var dispatchGridEvent = require('../../lib/dispatchGridEvent.js');
  * dispatchGridEvent.call(this, event.type, event); // non-cancelable
  * remainingChores();
  * return true; // signals caller that we've already re-emitted the event and it was not canceled
@@ -54,9 +53,7 @@ module.exports = {
      * @memberOf dataModelEventHandlers
      */
     'fin-hypergrid-schema-loaded': function(event) {
-        dispatchGridEvent.call(this, event.type, event);
         this.behavior.createColumns();
-        return true;
     },
 
     /**
