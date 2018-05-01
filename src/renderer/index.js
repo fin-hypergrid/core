@@ -862,9 +862,11 @@ var Renderer = Base.extend('Renderer', {
                     vc = visibleColumns[c++]
                 ) {
                     if (vc) { // row number column and/or tree column may not be defined
-                        var x = vc.right;
+                        var x = vc.right,
+                            top = vc.top || 0, // vc.top and vc.bottom accommodate grouped headers plug-in
+                            height = (vc.bottom || viewHeight) - top;
                         if (borderBox) { x -= gridLinesVWidth; }
-                        gc.fillRect(x, 0, gridLinesVWidth, viewHeight);
+                        gc.fillRect(x, top, gridLinesVWidth, height);
                     }
                 }
             }
