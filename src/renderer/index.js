@@ -840,13 +840,15 @@ var Renderer = Base.extend('Renderer', {
      * @param {CanvasRenderingContext2D} gc
      */
     paintGridlines: function(gc) {
-        var visibleColumns = this.visibleColumns, C = visibleColumns.length, c, vc,
-            visibleRows = this.visibleRows, R = visibleRows.length, r, vr;
+        var visibleColumns = this.visibleColumns, C = visibleColumns.length,
+            visibleRows = this.visibleRows, R = visibleRows.length;
 
         if (C && R) {
             var gridProps = this.properties,
-                viewWidth = visibleColumns[C - 1].right,
-                viewHeight = visibleRows[R - 1].bottom,
+                C1 = C - 1,
+                R1 = R - 1,
+                viewWidth = visibleColumns[C1].right,
+                viewHeight = visibleRows[R1].bottom,
                 gridLinesVWidth = gridProps.gridLinesVWidth,
                 gridLinesHWidth = gridProps.gridLinesHWidth,
                 gridLinesVColor = gridProps.gridLinesVColor,
@@ -856,32 +858,29 @@ var Renderer = Base.extend('Renderer', {
             if (gridProps.gridLinesV) {
                 gc.cache.fillStyle = gridLinesVColor;
 
-                for (
-                    c = -1, vc = visibleColumns[c - 1]; // initial c = -2 is the row number column
-                    c < C;
-                    vc = visibleColumns[c++]
-                ) {
-                    if (vc) { // row number column and/or tree column may not be defined
+                visibleColumns.forEachWithNeg(function(vc, c) {
+                    if (
+                        vc && // tree column may not be defined
+                        c < C1 // don't draw rule after last column
+                    ) {
                         var x = vc.right,
                             top = vc.top || 0, // vc.top and vc.bottom accommodate grouped headers plug-in
                             height = (vc.bottom || viewHeight) - top;
                         if (borderBox) { x -= gridLinesVWidth; }
                         gc.fillRect(x, top, gridLinesVWidth, height);
                     }
-                }
+                });
             }
 
             if (gridProps.gridLinesH) {
                 gc.cache.fillStyle = gridLinesHColor;
-                for (
-                    r = 1, vr = visibleRows[r - 1]; // initial r = 0 is the top row
-                    r < R;
-                    vr = visibleRows[r++]
-                ) {
-                    var y = vr.bottom;
-                    if (borderBox) { y -= gridLinesHWidth; }
-                    gc.fillRect(0, y, viewWidth, gridLinesHWidth);
-                }
+                visibleRows.forEach(function(vr, r) {
+                    if (r < R1) { // don't draw rule below last row
+                        var y = vr.bottom;
+                        if (borderBox) { y -= gridLinesHWidth; }
+                        gc.fillRect(0, y, viewWidth, gridLinesHWidth);
+                    }
+                });
             }
 
             // draw fixed rule lines over grid rule lines
@@ -1254,7 +1253,7 @@ function computeCellsBounds() {
     this.scrollHeight = 0;
 
     this.visibleColumns.length = 0;
-    this.visibleColumns.gap = undefined;
+    this.visibleColumns.gap = this.visibleColumns[-1] = this.visibleColumns[-2] = undefined;
 
     this.visibleRows.length = 0;
     this.visibleRows.gap = undefined;
