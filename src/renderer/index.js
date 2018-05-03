@@ -847,15 +847,18 @@ var Renderer = Base.extend('Renderer', {
             var gridProps = this.properties,
                 C1 = C - 1,
                 R1 = R - 1,
+                rowHeader,
                 viewWidth = visibleColumns[C1].right,
                 viewHeight = visibleRows[R1].bottom,
-                gridLinesVWidth = gridProps.gridLinesVWidth,
-                gridLinesHWidth = gridProps.gridLinesHWidth,
                 gridLinesVColor = gridProps.gridLinesVColor,
                 gridLinesHColor = gridProps.gridLinesHColor,
                 borderBox = gridProps.boxSizing === 'border-box';
 
-            if (gridProps.gridLinesV) {
+            if (gridProps.gridLinesV && (gridProps.gridLinesColumnHeader || gridProps.gridLinesUserDataArea)) {
+                var gridLinesVWidth = gridProps.gridLinesVWidth,
+                    top = gridProps.gridLinesColumnHeader ? 0 : visibleRows[this.grid.getHeaderRowCount()].top,
+                    bottom = gridProps.gridLinesUserDataArea ? viewHeight : visibleRows[this.grid.getHeaderRowCount() - 1].bottom;
+
                 gc.cache.fillStyle = gridLinesVColor;
 
                 visibleColumns.forEachWithNeg(function(vc, c) {
@@ -864,21 +867,31 @@ var Renderer = Base.extend('Renderer', {
                         c < C1 // don't draw rule after last column
                     ) {
                         var x = vc.right,
-                            top = vc.top || 0, // vc.top and vc.bottom accommodate grouped headers plug-in
-                            height = (vc.bottom || viewHeight) - top;
+                            lineTop = Math.max(top, vc.top || 0), // vc.top may be set by grouped headers plug-in
+                            height = bottom - lineTop;
                         if (borderBox) { x -= gridLinesVWidth; }
-                        gc.fillRect(x, top, gridLinesVWidth, height);
+                        gc.fillRect(x, lineTop, gridLinesVWidth, height);
                     }
                 });
             }
 
-            if (gridProps.gridLinesH) {
+            if (
+                gridProps.gridLinesH && (
+                    gridProps.gridLinesUserDataArea ||
+                    (rowHeader = gridProps.gridLinesRowHeader && (visibleColumns[-1] || visibleColumns[-2]))
+                )
+            ) {
+                var gridLinesHWidth = gridProps.gridLinesHWidth,
+                    left = gridProps.gridLinesRowHeader ? 0 : visibleColumns[0].left,
+                    right = gridProps.gridLinesUserDataArea ? viewWidth : rowHeader.right;
+
                 gc.cache.fillStyle = gridLinesHColor;
+
                 visibleRows.forEach(function(vr, r) {
                     if (r < R1) { // don't draw rule below last row
                         var y = vr.bottom;
                         if (borderBox) { y -= gridLinesHWidth; }
-                        gc.fillRect(0, y, viewWidth, gridLinesHWidth);
+                        gc.fillRect(left, y, right - left, gridLinesHWidth);
                     }
                 });
             }

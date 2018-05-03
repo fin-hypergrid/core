@@ -510,6 +510,30 @@ var defaults = {
     gridLinesVColor: 'rgb(199, 199, 199)',
 
     /**
+     * When {@link module:defaults.gridLinesV} is truthy, determines if lines render in the column headers area.
+     * @type {boolean}
+     * @default
+     * @memberOf module:defaults
+     */
+    gridLinesColumnHeader: true,
+
+    /**
+     * When {@link module:defaults.gridLinesH} is truthy, determines if lines render in the row headers area.
+     * @type {boolean}
+     * @default
+     * @memberOf module:defaults
+     */
+    gridLinesRowHeader: true,
+
+    /**
+     * When {@link module:defaults.gridLinesV} or {@link module:defaults.gridLinesH} are truthy, determines if lines render in the user data area.
+     * @type {boolean}
+     * @default
+     * @memberOf module:defaults
+     */
+    gridLinesUserDataArea: true,
+
+    /**
      * Set canvas's CSS border to this string as well as `gridBorderLeft`, `gridBorderRight`, `gridBorderTop`, and `gridBorderBottom`.
      * If set to `true`, uses current `lineWidth` and `lineColor`.
      * If set to `false`, uses null.
