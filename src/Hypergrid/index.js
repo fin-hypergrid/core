@@ -1872,6 +1872,7 @@ Hypergrid.mixIn(require('./themes').sharedMixin);
 Hypergrid.prototype.mixIn(require('./themes').mixin);
 Hypergrid.prototype.mixIn(require('./events').mixin);
 Hypergrid.prototype.mixIn(require('./selection').mixin);
+Hypergrid.prototype.mixIn(require('./stash-selections').mixin);
 Hypergrid.prototype.mixIn(require('./scrolling').mixin);
 
 
