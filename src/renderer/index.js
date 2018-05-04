@@ -856,7 +856,8 @@ var Renderer = Base.extend('Renderer', {
 
             if (gridProps.gridLinesV && (gridProps.gridLinesColumnHeader || gridProps.gridLinesUserDataArea)) {
                 var gridLinesVWidth = gridProps.gridLinesVWidth,
-                    top = gridProps.gridLinesColumnHeader ? 0 : visibleRows[this.grid.getHeaderRowCount()].top,
+                    userDataAreaTop = visibleRows[this.grid.getHeaderRowCount()].top,
+                    top = gridProps.gridLinesColumnHeader ? 0 : userDataAreaTop,
                     bottom = gridProps.gridLinesUserDataArea ? viewHeight : visibleRows[this.grid.getHeaderRowCount() - 1].bottom;
 
                 gc.cache.fillStyle = gridLinesVColor;
@@ -868,9 +869,13 @@ var Renderer = Base.extend('Renderer', {
                     ) {
                         var x = vc.right,
                             lineTop = Math.max(top, vc.top || 0), // vc.top may be set by grouped headers plug-in
-                            height = bottom - lineTop;
+                            height = Math.min(bottom, vc.bottom || Infinity) - lineTop;
                         if (borderBox) { x -= gridLinesVWidth; }
                         gc.fillRect(x, lineTop, gridLinesVWidth, height);
+
+                        if (gridProps.gridLinesUserDataArea && vc.bottom < userDataAreaTop) {
+                            gc.fillRect(x, userDataAreaTop, gridLinesVWidth, bottom - userDataAreaTop);
+                        }
                     }
                 });
             }
