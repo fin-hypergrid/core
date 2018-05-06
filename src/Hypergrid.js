@@ -756,9 +756,16 @@ var Hypergrid = Base.extend('Hypergrid', {
         if (this.cellEditor) {
             this.cellEditor.gridRenderedNotification();
         }
+
+        // Grid render also calculates mix width for each column.
+        // Check here to see if there was a change and if so immediately re-render
+        // before end-of-thread so user sees only the results of the 2nd render.
+        // Mostly important on first render after setData. Note that stack overflow
+        // will not happen because this will only be called once per data change.
         if (this.checkColumnAutosizing()) {
             this.paintNow();
         }
+
         this.fireSyntheticGridRenderedEvent();
     },
 
@@ -849,10 +856,10 @@ var Hypergrid = Base.extend('Hypergrid', {
      * @memberOf Behavior#
      */
     reindex: function() {
-        if (this.properties.repaintImmediately) {
-            this.behavior.reindex();
-        } else {
+        if (paintLoopRunning.call(this)) {
             this.needsReindex = true;
+        } else {
+            this.behavior.reindex();
         }
         this.behaviorShapeChanged();
     },
@@ -901,9 +908,9 @@ var Hypergrid = Base.extend('Hypergrid', {
      * @desc The dimensions of the grid data have changed. You've been notified.
      */
     behaviorShapeChanged: function() {
-        if (!this.properties.repaintImmediately) {
+        if (paintLoopRunning.call(this)) {
             this.needsShapeChanged = true;
-            this.canvas.repaint();
+            this.canvas.requestRepaint();
         } else if (this.divCanvas) {
             this.synchronizeScrollingBoundaries(); // calls computeCellsBounds
             this.repaint();
@@ -915,9 +922,9 @@ var Hypergrid = Base.extend('Hypergrid', {
      * @desc The dimensions of the grid data have changed. You've been notified.
      */
     behaviorStateChanged: function() {
-        if (!this.properties.repaintImmediately) {
+        if (paintLoopRunning.call(this)) {
             this.needsStateChanged = true;
-            this.canvas.repaint();
+            this.canvas.requestRepaint();
         } else if (this.divCanvas) {
             this.computeCellsBounds();
             this.repaint();
@@ -1911,6 +1918,11 @@ var Hypergrid = Base.extend('Hypergrid', {
         return this.behavior.charMap;
     },
 });
+
+
+function paintLoopRunning() {
+    return !this.properties.repaintImmediately && this.canvas.paintLoopRunning();
+}
 
 
 /**

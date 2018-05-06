@@ -510,6 +510,30 @@ var defaults = {
     gridLinesVColor: 'rgb(199, 199, 199)',
 
     /**
+     * When {@link module:defaults.gridLinesV} is truthy, determines if lines render in the column headers area.
+     * @type {boolean}
+     * @default
+     * @memberOf module:defaults
+     */
+    gridLinesColumnHeader: true,
+
+    /**
+     * When {@link module:defaults.gridLinesH} is truthy, determines if lines render in the row headers area.
+     * @type {boolean}
+     * @default
+     * @memberOf module:defaults
+     */
+    gridLinesRowHeader: true,
+
+    /**
+     * When {@link module:defaults.gridLinesV} or {@link module:defaults.gridLinesH} are truthy, determines if lines render in the user data area.
+     * @type {boolean}
+     * @default
+     * @memberOf module:defaults
+     */
+    gridLinesUserDataArea: true,
+
+    /**
      * Set canvas's CSS border to this string as well as `gridBorderLeft`, `gridBorderRight`, `gridBorderTop`, and `gridBorderBottom`.
      * If set to `true`, uses current `lineWidth` and `lineColor`.
      * If set to `false`, uses null.
@@ -660,6 +684,7 @@ var defaults = {
     repaintIntervalRate: 60,
 
     /**
+     * Normally multiple calls to {@link Hypergrid#repaint grid.repaint()}, {@link Hypergrid#reindex grid.reindex()}, {@link Hypergrid#behaviorShapeChanged grid.behaviorShapeChanged()}, and/or {@link Hypergrid#behaviorStateChanged grid.behaviorStateChanged()} defer their actions until just before the next scheduled render. For debugging purposes, set `repaintImmediately` to truthy to carry out these actions immediately while leaving the paint loop running for when you resume execution. Alternatively, call {@link Canvas#stopPaintLoop grid.canvas.stopPaintLoop()}. Caveat: Both these modes are for debugging purposes only and may not render the grid perfectly for all interactions.
      * @default
      * @type {boolean}
      * @memberOf module:defaults
