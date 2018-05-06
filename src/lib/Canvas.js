@@ -181,7 +181,7 @@ Canvas.prototype = {
 
     beginPainting: function() {
         var self = this;
-        this.dirty = true;
+        this.requestRepaint();
         this.tickPainter = function(now) {
             self.tickPaint(now);
         };
@@ -525,8 +525,16 @@ Canvas.prototype = {
         });
     },
 
-    repaint: function() {
+    paintLoopRunning: function() {
+        return !!paintRequest;
+    },
+
+    requestRepaint: function() {
         this.dirty = true;
+    },
+
+    repaint: function() {
+        this.requestRepaint();
         if (!paintRequest || this.component.properties.repaintIntervalRate === 0) {
             this.paintNow();
         }
