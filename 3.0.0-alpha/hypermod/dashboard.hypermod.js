@@ -404,6 +404,6 @@ module.exports = function() {
         }
     }
 };
-})(fin.Hypergrid.require, fin.Hypergrid.modules, fin.Hypergrid.modules.exports = {}, fin.Hypergrid);
-fin.Hypergrid.modules.dashboard = fin.Hypergrid.modules.exports;
-delete fin.Hypergrid.modules.exports;
+})(fin.Hypergrid.require, fin.Hypergrid.modules, fin.$x = {}, fin.Hypergrid);
+fin.Hypergrid.modules.dashboard = fin.$x;
+delete fin.$x;

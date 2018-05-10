@@ -148,6 +148,6 @@ module.exports = function() {
     //uncomment to cancel updating the model with the new data:
     // grid.addEventListener('fin-before-cell-edit', function(e) { e.preventDefault(); });
 };
-})(fin.Hypergrid.require, fin.Hypergrid.modules, fin.Hypergrid.modules.exports = {}, fin.Hypergrid);
-fin.Hypergrid.modules.events = fin.Hypergrid.modules.exports;
-delete fin.Hypergrid.modules.exports;
+})(fin.Hypergrid.require, fin.Hypergrid.modules, fin.$x = {}, fin.Hypergrid);
+fin.Hypergrid.modules.events = fin.$x;
+delete fin.$x;

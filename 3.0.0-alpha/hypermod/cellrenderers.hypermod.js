@@ -201,6 +201,6 @@ module.exports = function() {
     // END OF CUSTOM CELL RENDERER
     return grid;
 };
-})(fin.Hypergrid.require, fin.Hypergrid.modules, fin.Hypergrid.modules.exports = {}, fin.Hypergrid);
-fin.Hypergrid.modules.cellrenderers = fin.Hypergrid.modules.exports;
-delete fin.Hypergrid.modules.exports;
+})(fin.Hypergrid.require, fin.Hypergrid.modules, fin.$x = {}, fin.Hypergrid);
+fin.Hypergrid.modules.cellrenderers = fin.$x;
+delete fin.$x;

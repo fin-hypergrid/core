@@ -110,6 +110,6 @@ module.exports = function() {
         return cellEditor;
     };
 };
-})(fin.Hypergrid.require, fin.Hypergrid.modules, fin.Hypergrid.modules.exports = {}, fin.Hypergrid);
-fin.Hypergrid.modules.celleditors = fin.Hypergrid.modules.exports;
-delete fin.Hypergrid.modules.exports;
+})(fin.Hypergrid.require, fin.Hypergrid.modules, fin.$x = {}, fin.Hypergrid);
+fin.Hypergrid.modules.celleditors = fin.$x;
+delete fin.$x;
