@@ -274,8 +274,8 @@ exports.mixin = {
 
         function getRect(selectionRect, i) {
             var rect = normalizeRect(selectionRect),
-                colCount = rect.extent.x + 1,
-                rowCount = rect.extent.y + 1,
+                colCount = rect.width,
+                rowCount = rect.height,
                 columns = {};
 
             for (var c = 0, x = rect.origin.x; c < colCount; c++, x++) {
@@ -304,8 +304,8 @@ exports.mixin = {
 
         function getRect(selectionRect, i) {
             var rect = normalizeRect(selectionRect),
-                colCount = rect.extent.x + 1,
-                rowCount = rect.extent.y + 1,
+                colCount = rect.width,
+                rowCount = rect.height,
                 rows = [];
 
             for (var c = 0, x = rect.origin.x; c < colCount; c++, x++) {
@@ -757,7 +757,7 @@ function normalizeRect(rect) {
         cx = Math.max(o.x, c.x),
         cy = Math.max(o.y, c.y);
 
-    return new Rectangle(ox, oy, cx - ox, cy - oy);
+    return new SelectionRectangle(ox, oy, cx - ox, cy - oy);
 }
 
 /**
