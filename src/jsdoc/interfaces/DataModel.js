@@ -376,6 +376,16 @@
  */
 
 /**
+ * @method DataModel#fetchData
+ * @desc _IMPLEMENTATION OF THIS METHOD IS OPTIONAL._
+ *
+ * Tells dataModel what cells will be needed by subsequent calls to {@link DataModel#getValue getValue()}. This helps remote or virtualized data models fetch and cache data. If your data model doesn't need to know this, don't implement it.
+ * #### Parameters:
+ * @param {Rectangle[]} rectangles - Unordered list of rectangular regions of cells to fetch in a single (atomic) operation.
+ * @returns {function} [callback] - Optional callback. If provided, implementation calls it if and when requested data fully fetched.
+ */
+
+/**
  * @method DataModel#getSchema
  * @desc Get list of columns. The order of the columns in the list defines the column indexes.
  *

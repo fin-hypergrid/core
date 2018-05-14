@@ -564,6 +564,8 @@ var Renderer = Base.extend('Renderer', {
      * @param {CanvasRenderingContext2D} gc
      */
     renderGrid: function(gc) {
+        var renderer = this;
+
         this.grid.deferredBehaviorChange();
 
         var rowCount = this.grid.getRowCount();
@@ -577,15 +579,17 @@ var Renderer = Base.extend('Renderer', {
         }
 
         if (this.needsComputeCellsBounds) {
-            computeCellsBounds.call(this);
+            computeCellsBounds.call(this, renderGridCompletion);
             this.needsComputeCellsBounds = false;
+        } else {
+            renderGridCompletion();
         }
 
-        this.gridRenderer.paintCells.call(this, gc);
-
-        this.renderOverrides(gc);
-
-        this.renderLastSelection(gc);
+        function renderGridCompletion() {
+            renderer.gridRenderer.paintCells.call(renderer, gc);
+            renderer.renderOverrides(gc);
+            renderer.renderLastSelection(gc);
+        }
     },
 
     renderLastSelection: function(gc) {
@@ -820,7 +824,7 @@ var Renderer = Base.extend('Renderer', {
      * @returns {number} The row to goto for a page down.
      */
     getPageDownRow: function() {
-        return this.dataWindow.corner.y - this.properties.fixedRowCount + 1;
+        return this.dataWindow.corner.y - this.properties.fixedRowCount;
     },
 
     renderErrorCell: function(err, gc, vc, vr) {
@@ -1179,7 +1183,7 @@ var Renderer = Base.extend('Renderer', {
  *
  * @this {Renderer}
  */
-function computeCellsBounds() {
+function computeCellsBounds(callback) {
     //var startTime = Date.now();
 
     var scrollTop = this.getScrollTop(),
@@ -1426,7 +1430,12 @@ function computeCellsBounds() {
         editorCellEvent._bounds = null;
     }
 
-    this.dataWindow = new InclusiveRectangle(firstVX, firstVY, lastVX - firstVX + 1, lastVY - firstVY + 1);
+    this.dataWindow = new InclusiveRectangle(
+        firstVX,
+        firstVY,
+        Math.min(lastVX - firstVX + 1, this.visibleColumns.length),
+        Math.min(lastVY - firstVY + 1, this.visibleRows.length)
+    );
 
     // Resize CellEvent pool
     var pool = this.cellEventPool,
@@ -1441,7 +1450,25 @@ function computeCellsBounds() {
     }
 
     this.resetAllGridRenderers();
+
+    if (this.grid.behavior.dataModel.fetchData) {
+        var rectangles = this.grid.fetchSubregions ? getSubregions.call(this) : [this.dataWindow];
+        this.grid.behavior.dataModel.fetchData(rectangles, callback);
+    } else if (callback) {
+        callback();
+    }
 }
+
+function getSubregions() {
+    // Handle (a) unordered columns, (b) column gaps (hidden columns), and (c) the single row gap that results when there are fixed rows and remaining rows are scrolled down.
+    // ToDo This code only handles (a) above; needs (b) (multiple rectanges for multiple contiguous column regions) and (c) (double each region for above and below the fixed boundary when scrolled down) as well. In its present form, it will "fetch" all cells from upper left of fixed area to lower right of scrollable area. (Yikes.)
+    var orderedColumnIndexes = this.visibleColumns.map(function(vc) { return vc.column.index; }).sort(intComparator),
+        xMin = orderedColumnIndexes[0],
+        width = orderedColumnIndexes[orderedColumnIndexes.length - 1] - xMin + 1;
+    return [this.grid.newRectangle(xMin, this.dataWindow.y, width, this.dataWindow.height)];
+}
+
+function intComparator(a, b){ return a - b; }
 
 /**
  * @summary Resize the handle column.

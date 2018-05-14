@@ -125,7 +125,7 @@ exports.mixin = {
 
                 // target is to right of scrollable columns; positive delta scrolls right
                 // Note: The +1 forces right-most column to scroll left (just in case it was only partially in view)
-            } else if ((c - dw.corner.x + 1) > 0) {
+            } else if ((c - dw.corner.x) > 0) {
                 this.sbHScroller.index = this.renderer.getMinimumLeftPositionToShowColumn(c);
             }
         }
@@ -134,7 +134,7 @@ exports.mixin = {
             r >= fixedRowCount && // scroll only if target not in fixed rows
             (
                 // target is above scrollable rows; negative delta scrolls up
-                (delta = r - dw.origin.y) < 0 ||
+                (delta = r - dw.origin.y - 1) < 0 ||
 
                 // target is below scrollable rows; positive delta scrolls down
                 (delta = r - dw.corner.y) > 0

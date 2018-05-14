@@ -334,7 +334,7 @@ var Behavior = Base.extend('Behavior', {
     },
 
     getColumnWidth: function(x) {
-        var column = this.getActiveColumn(x);
+        var column = (x !== this.treeColumnIndex || this.hasTreeColumn()) && this.getActiveColumn(x);
         return column ? column.getWidth() : 0;
     },
 
@@ -831,7 +831,7 @@ var Behavior = Base.extend('Behavior', {
      * @memberOf Behavior#
      */
     getColumnProperties: function(x) {
-        var column = this.getColumn(x);
+        var column = (x !== this.treeColumnIndex || this.hasTreeColumn()) && this.getColumn(x);
         return column && column.properties;
     },
 
