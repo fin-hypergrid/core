@@ -7,12 +7,17 @@
     <style>
         body { margin: 0; font-family: sans-serif; font-size: 9pt; }
         .thumb { background-color: red !important }
+        input[type="text"] { width: 15px; text-align: right; border-radius: 3px; border: 1px solid grey; padding: 1px 5px }
     </style>
 </head>
 <body>
 
-Cache has accumulated <span id="cached-rows-count" style="color:#3d96ff; font-weight:bold">0</span> rows (which are not however being reused). &nbsp;
-<label><input type="checkbox" checked> Clear cache on every data fetch (slightly faster)</label>
+<div style="margin: .75em .5em .5em .5em">
+    Cache has accumulated <span id="cached-rows-count" style="color:#3d96ff; font-weight:bold">0</span> rows (which are not however being reused); &nbsp;
+    <label><input type="checkbox" checked> Clear cache on every data fetch;</label> &nbsp;
+    Latency: <input type="text" id="latency" value="30" style="width: 30px"> msec; &nbsp;
+    Failure rate: <input type="text" id="failure-rate" value="10">%
+</div>
 
 <script src="../build/fin-hypergrid.js"></script>
 <script src="datasaur-billions.js"></script>

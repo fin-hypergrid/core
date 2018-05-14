@@ -30,8 +30,8 @@
                 }
             });
             document.getElementById('cached-rows-count').innerHTML = this.cachedRowCount += acc;
-            if (callback) {
-                callback.call(this);
+            if (callback && Math.random() > document.getElementById('failure-rate').innerHTML / 100) {
+                setTimeout(callback.bind(this), document.getElementById('latency').innerHTML);
             }
         },
 
