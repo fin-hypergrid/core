@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Class: Formatter</title>
+    <title>JSDoc: Interface: dataControlInterface</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -20,7 +20,7 @@
 </nav>
 <div id="main">
 
-    <h1 class="page-title">Class: Formatter</h1>
+    <h1 class="page-title">Interface: dataControlInterface</h1>
 
     
 
@@ -32,9 +32,7 @@
 <header>
     
         <h2>
-            <span class="ancestors"><a href="module-localization.html">localization</a>~</span>
-        
-        Formatter
+        dataControlInterface
         </h2>
         
     
@@ -44,14 +42,93 @@
     <div class="container-overview">
     
         
+            <div class="description"><p>Hypergrid's <em>data source</em> objects transform data row collections (for example, by indexing them). These might include <em>filter</em> data sources that hide data rows and <em>sorter</em> data sources that rearrange data rows.</p>
+<p>Later, the transformations are executed (by <a href="dataModels.JSON.html#reindex"><code>reindex</code></a>). The <code>apply</code> method of each data source is called in turn. For example, a filtering data source's <code>apply</code> method would call its controller's <code>test</code> method, once for each data row (typically to build an index of included rows).</p></div>
+        
+
+        
+
+
+<dl class="details">
 
     
 
-    <h4 class="name" id="Formatter"><span class="type-signature"></span>new Formatter<span class="signature">(defaultLocale, locale<span class="signature-attributes">opt</span>, options<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span></h4>
+    
 
     
 
+    
 
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+        
+    
+    </div>
+
+    
+
+    
+
+    
+
+     
+
+    
+
+    
+
+    
+        <h3 class="subsection-title">Methods</h3>
+
+        
+            
+
+    
+
+    <h4 class="name" id="properties"><span class="type-signature"></span>properties<span class="signature">(properties)</span><span class="type-signature"> &rarr; {undefined|null|*}</span></h4>
+
+    
+    <p class="summary"><p>Column property accessor.</p></p>
+    
+
+
+
+<div class="description">
+    <p>There are two types of calls:</p>
+<ul>
+<li>&quot;Getter&quot; call - when <code>properties.GETTER</code> is defined</li>
+<li>&quot;Setter&quot; call - when <code>properties.GETTER</code> is not defined</li>
+</ul>
+<p>For &quot;setter&quot; calls only: Assigns the values of all <em>enumerable</em> members of <code>properties</code> to the data controller properties with the same names, with the following exceptions:</p>
+<ul>
+<li>Value is a function - Functions should be executed by your implementation to get the actual value to be assigned to the data controller. (If you data controller has properties that are themselves functions and need to be able to have functions assigned to them, it is your responsibility to make exceptions to this rule for such properties.)</li>
+</ul>
+<p>Note: The <code>COLUMN</code> and <code>GETTER</code> and name properties are reserved.</p>
+</div>
 
 
 
@@ -74,11 +151,7 @@
         <th>Type</th>
 
         
-        <th>Attributes</th>
-        
 
-        
-        <th>Default</th>
         
 
         <th class="last">Description</th>
@@ -90,81 +163,51 @@
 
         <tr>
             
-                <td class="name"><code>defaultLocale</code></td>
+                <td class="name"><code>properties</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">string</span>
+<span class="param-type">object</span>
 
 
             
             </td>
 
             
-                <td class="attributes">
-                
-
-                
-
-                
-                </td>
-            
 
             
-                <td class="default">
+
+            <td class="description last"><p>Contains property values to assign to the data controller. This object is required. However, none of the following options are required.</p>
+                <h6>Properties</h6>
                 
-                </td>
-            
 
-            <td class="description last"></td>
-        </tr>
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
 
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
     
 
         <tr>
             
-                <td class="name"><code>locale</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
-
-            
-                <td class="default">
-                
-                    defaultlocale
-                
-                </td>
-            
-
-            <td class="description last"></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>options</code></td>
+                <td class="name"><code>COLUMN</code></td>
             
 
             <td class="type">
@@ -189,12 +232,143 @@
             
 
             
-                <td class="default">
+
+            <td class="description last"><p>If defined, value(s) pertain to the indicated column only. If omitted, value(s) pertain to the whole data controller.</p>
+<p>Note that <a href="dataModels.JSON.html#prop"><code>dataModels.JSON#prop</code></a> defines <code>COLUMN</code> as non-enumerable. This makes it easy for your helper data controller's <code>properties</code> method implementation to ignore it.</p>
+                <h6>Properties</h6>
+                
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>index</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">object</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
                 
                 </td>
             
 
-            <td class="description last"></td>
+            
+
+            <td class="description last"><p>Column index as defined by <code>dataSource.getFields()</code>.</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>name</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">object</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last"><p>Column name as defined in <code>dataSource.getFields()</code>.</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+            </td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>GETTER</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last"><p>&quot;Get&quot; (return) the value of the property with the supplied name. If undefined,return <code>null</code>. (All other members of <code>properties</code> are ignored.)</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+            </td>
         </tr>
 
     
@@ -253,24 +427,47 @@
 
 
 
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    <p>One of:</p>
+<ul>
+<li>Setter: <code>undefined</code></li>
+<li>Getter:<ul>
+<li>Property value (when the property name in <code>GETTER</code> is defined in the data controller).</li>
+<li><code>null</code> (when the property name in <code>GETTER</code> is <em>not</em> defined in the data controller).</li>
+<li><code>undefined</code> when <code>COLUMN</code> is defined but the column it specifies is not found.</li>
+</ul>
+</li>
+</ul>
+</div>
 
 
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">undefined</span>
+|
+
+<span class="param-type">null</span>
+|
+
+<span class="param-type">*</span>
+
+
+    </dd>
+</dl>
 
     
-    </div>
 
-    
 
-    
 
-    
-
-     
-
-    
-
-    
-
+        
     
 
     
