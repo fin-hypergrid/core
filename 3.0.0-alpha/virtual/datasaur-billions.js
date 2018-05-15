@@ -30,8 +30,13 @@
                 }
             });
             document.getElementById('cached-rows-count').innerHTML = this.cachedRowCount += acc;
-            if (callback && Math.random() > document.getElementById('failure-rate').value / 100) {
-                setTimeout(callback.bind(this), document.getElementById('latency').value);
+            if (callback && Math.random() > parseInt('0' + document.getElementById('failure-rate').value) / 100) {
+                var latency = parseInt('0' + document.getElementById('latency').value);
+                if (latency) {
+                    setTimeout(callback.bind(this), latency);
+                } else {
+                    callback.call(this);
+                }
             }
         },
 
