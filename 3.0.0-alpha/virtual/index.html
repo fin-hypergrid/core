@@ -5,16 +5,34 @@
     <meta http-equiv="Cache-Control" content="must-revalidate" />
     <link rel="icon" type="image/png" href="../img/hypergrid-icon.png">
     <style>
-        body { margin: 0; font-family: sans-serif; font-size: 9pt; }
-        .thumb { background-color: red !important }
-        input[type="text"] { width: 15px; text-align: right; border-radius: 3px; border: 1px solid grey; padding: 1px 5px }
+        body {
+            margin: 0;
+            font-family: sans-serif;
+            font-size: 9pt;
+        }
+        .thumb {
+            background-color: red !important
+        }
+        input[type="text"] {
+            width: 15px;
+            text-align: right;
+            border-radius: 3px;
+            border: 1px solid grey;
+            padding: 1px 5px;
+            outline: 0
+        }
+        input[type="text"], #cached-rows-count {
+            color: #3d96ff;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
 
 <div style="margin: .75em .5em .5em .5em">
-    Cache has accumulated <span id="cached-rows-count" style="color:#3d96ff; font-weight:bold">0</span> rows (which are not however being reused); &nbsp;
-    <label><input type="checkbox" checked> Clear cache on every data fetch;</label> &nbsp;
+    Cache has accumulated <span id="cached-rows-count">0</span> rows; &nbsp;
+    <label><input type="checkbox" id="clear-cache" checked> Clear cache on every data fetch;</label> &nbsp;
+    <label><input type="checkbox" id="test-range" checked> Test "range" before rendering;</label> &nbsp;
     Latency: <input type="text" id="latency" value="0" style="width: 30px"> msec; &nbsp;
     Failure rate: <input type="text" id="failure-rate" value="0">%
 </div>
@@ -23,7 +41,7 @@
 <script src="datasaur-billions.js"></script>
 
 <script>
-    var grid = new fin.Hypergrid({ DataModel: fin.Hypergrid.require('DatasaurMillions') });
+    var grid = new fin.Hypergrid({ DataModel: fin.Hypergrid.require('DatasaurBillions') });
 
     grid.setData([], { schema: [] });
 
@@ -32,8 +50,16 @@
 
     document.querySelector('.hypergrid-container').style.height = window.innerHeight - 40 + 'px';
 
-    document.querySelector('input[type="checkbox"]').addEventListener('click', function(e) {
+    document.getElementById('clear-cache').addEventListener('click', function(e) {
         grid.behavior.dataModel.clearCache = e.target.checked;
+    });
+
+    document.getElementById('test-range').addEventListener('click', function(e) {
+        if (e.target.checked) {
+            delete grid.behavior.dataModel.gotData; // reveal prototype method
+        } else {
+            grid.behavior.dataModel.gotData = undefined; // hide prototype method
+        }
     });
 </script>
 
