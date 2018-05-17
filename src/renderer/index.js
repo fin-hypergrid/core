@@ -1481,14 +1481,15 @@ function renderGrid(gc) {
  * @ToDo This function is too slow for practical use due to map and sort.
  */
 function getSubrects() {
-    if (!grid.properties.fetchSubregions) {
+    if (!this.grid.properties.fetchSubregions) {
         return [this.dataWindow];
     }
 
     var orderedColumnIndexes = this.visibleColumns.map(function(vc) { return vc.column.index; }).sort(intComparator),
         xMin = orderedColumnIndexes[0],
         width = orderedColumnIndexes[orderedColumnIndexes.length - 1] - xMin + 1;
-    return [this.grid.newRectangle(xMin, this.dataWindow.y, width, this.dataWindow.height)];
+
+    return [this.grid.newRectangle(xMin, this.dataWindow.top, width, this.dataWindow.height)];
 }
 
 function intComparator(a, b){ return a - b; }
