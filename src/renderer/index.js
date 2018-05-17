@@ -564,8 +564,6 @@ var Renderer = Base.extend('Renderer', {
      * @param {CanvasRenderingContext2D} gc
      */
     renderGrid: function(gc) {
-        var renderer = this;
-
         this.grid.deferredBehaviorChange();
 
         var rowCount = this.grid.getRowCount();
@@ -579,17 +577,12 @@ var Renderer = Base.extend('Renderer', {
         }
 
         if (this.needsComputeCellsBounds) {
-            computeCellsBounds.call(this, renderGridCompletion);
+            computeCellsBounds.call(this, gc);
             this.needsComputeCellsBounds = false;
         } else {
-            renderGridCompletion();
+            renderGrid.call(this, gc);
         }
 
-        function renderGridCompletion() {
-            renderer.gridRenderer.paintCells.call(renderer, gc);
-            renderer.renderOverrides(gc);
-            renderer.renderLastSelection(gc);
-        }
     },
 
     renderLastSelection: function(gc) {
@@ -1182,16 +1175,16 @@ var Renderer = Base.extend('Renderer', {
  * on a modest machine taking usually 0ms and no more that 3 ms."
  *
  * @this {Renderer}
+ * @param {CanvasRenderingContext2D} gc
  */
-function computeCellsBounds(callback) {
-    //var startTime = Date.now();
-
+function computeCellsBounds(gc) {
     var scrollTop = this.getScrollTop(),
         scrollLeft = this.getScrollLeft(),
 
         bounds = this.getBounds(),
         grid = this.grid,
         behavior = grid.behavior,
+        dataModel = behavior.dataModel,
         hasTreeColumn = behavior.hasTreeColumn(),
         treeColumnIndex = behavior.treeColumnIndex,
 
@@ -1451,17 +1444,47 @@ function computeCellsBounds(callback) {
 
     this.resetAllGridRenderers();
 
-    if (this.grid.behavior.dataModel.fetchData) {
-        var rectangles = this.grid.fetchSubregions ? getSubregions.call(this) : [this.dataWindow];
-        this.grid.behavior.dataModel.fetchData(rectangles, callback);
-    } else if (callback) {
-        callback();
+    if (dataModel.fetchData) {
+        var renderer = this;
+        dataModel.fetchData(getSubrects.call(renderer), function() {
+            // make sure the data is still valid since the fetchData call
+            if (!dataModel.gotData || dataModel.gotData(getSubrects.call(renderer))) {
+                renderGrid.call(renderer, gc);
+            }
+        });
+    } else {
+        renderGrid.call(this, gc);
     }
 }
 
-function getSubregions() {
-    // Handle (a) unordered columns, (b) column gaps (hidden columns), and (c) the single row gap that results when there are fixed rows and remaining rows are scrolled down.
-    // ToDo This code only handles (a) above; needs (b) (multiple rectanges for multiple contiguous column regions) and (c) (double each region for above and below the fixed boundary when scrolled down) as well. In its present form, it will "fetch" all cells from upper left of fixed area to lower right of scrollable area. (Yikes.)
+function renderGrid(gc) {
+    this.gridRenderer.paintCells.call(this, gc);
+    this.renderOverrides(gc);
+    this.renderLastSelection(gc);
+}
+
+/**
+ * @summary Create a list of `Rectangle`s representing visible cells.
+ * @desc When `grid.properties.fetchSubregions` is true, this function needs to handle:
+ * 1. unordered columns
+ * 2. column gaps (hidden columns)
+ * 3. the single row gap that results when there are fixed rows and remaining rows are scrolled down
+ *
+ * @ToDo This function currently only handles (1) above; needs (2) (multiple rectangles for multiple contiguous column regions) and (3) (double each region for above and below the fixed boundary when scrolled down) as well. In its present form, it will "fetch" all cells from upper left of fixed area to lower right of scrollable area. (Yikes.)
+ *
+ * When `grid.properties.fetchSubregions` is falsy, this function merely returns `this.dataWindow` as the only rectangle.
+ * This is way more efficient than calling `getSubrects` (as it is currently implemented) and is fine so long as there are no fixed columns or rows and column re-ordering is disabled.
+ * (If tree column in use, it is a fixed column, but this is workable so long as the data model knows to always return it regardless of rectangle.)
+ * Hidden columns within the range of visible columns will be fetched anyway.
+ * Column scrolling is ok.
+ *
+ * @ToDo This function is too slow for practical use due to map and sort.
+ */
+function getSubrects() {
+    if (!grid.properties.fetchSubregions) {
+        return [this.dataWindow];
+    }
+
     var orderedColumnIndexes = this.visibleColumns.map(function(vc) { return vc.column.index; }).sort(intComparator),
         xMin = orderedColumnIndexes[0],
         width = orderedColumnIndexes[orderedColumnIndexes.length - 1] - xMin + 1;
