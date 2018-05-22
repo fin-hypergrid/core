@@ -432,8 +432,16 @@ Canvas.prototype = {
 
     getKeyChar: function(e) {
         var key = e.keyCode || e.detail.key,
-            shift = e.shiftKey || e.detail.shift;
-        return charMap[key][shift ? 1 : 0];
+            shift = e.shiftKey || e.detail.shift,
+            mappedKey = charMap[key][shift ? 1 : 0];
+
+        // don't map simple keys (e.g. letters, digits and symbols)
+        // to improve support for non-US keyboards
+        if (typeof mappedKey === 'string' && mappedKey.length === 1) {
+            mappedKey = e.key;
+        }
+
+        return mappedKey;
     },
 
     finkeydown: function(e) {
