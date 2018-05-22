@@ -386,6 +386,18 @@
  */
 
 /**
+ * @method DataModel#gotData
+ * @desc _IMPLEMENTATION OF THIS METHOD IS OPTIONAL._
+ *
+ * Check for validity of data cells contained in the given rectangular regions.
+ *
+ * Generally this method is only implemented when {@link DataModel#fetchData fetchData()} is implemented.
+ * You _could_ implement it anyway, but in that case it should always return `true` (data always valid).
+ * #### Parameters:
+ * @param {Rectangle[]} rectangles - Unordered list of rectangular regions of cells to check for.
+ */
+
+/**
  * @method DataModel#getSchema
  * @desc Get list of columns. The order of the columns in the list defines the column indexes.
  *

@@ -561,6 +561,10 @@ var Renderer = Base.extend('Renderer', {
     /**
      * @memberOf Renderer.prototype
      * @desc This is the main forking of the renderering task.
+     *
+     * `dataModel.fetchData` callback renders the grid. Note however that this is not critical when the clock is
+     * running as it will be rendered on the next tick. We let it call it anyway in case (1) fetch returns quickly
+     * enough to be rendered on this tick rather than next or (2) clock isn't running (for debugging purposes).
      * @param {CanvasRenderingContext2D} gc
      */
     renderGrid: function(gc) {
@@ -577,12 +581,29 @@ var Renderer = Base.extend('Renderer', {
         }
 
         if (this.needsComputeCellsBounds) {
-            computeCellsBounds.call(this, gc);
+            computeCellsBounds.call(this);
             this.needsComputeCellsBounds = false;
-        } else {
-            renderGrid.call(this, gc);
+
+            // Pre-fetch data if supported by data model
+            var dataModel = this.grid.behavior.dataModel;
+            if (
+                dataModel.fetchData &&
+                !renderGridIfData.call(this, gc) // only need to pre-fetch if data NOT already available
+            ) {
+                dataModel.fetchData(
+                    getSubrects.call(this),
+                    renderGridIfData.bind(this, gc) // render immediately upon successful fetch (see above)
+                );
+                return;
+            }
         }
 
+        // Do the actual render if:
+        // * _not_ recomputing cell bounds, in which case data still valid from last fetch (if fetching); else
+        // * _not_ pre-fetching because data model doesn't implement `fetchData`; else we _are_ pre-fectching but
+        // * data already valid (previously fetched); else clock wants to render but no data (not arrived yet) so
+        // * don't render
+        renderGridIfData.call(this, gc);
     },
 
     renderLastSelection: function(gc) {
@@ -1175,16 +1196,14 @@ var Renderer = Base.extend('Renderer', {
  * on a modest machine taking usually 0ms and no more that 3 ms."
  *
  * @this {Renderer}
- * @param {CanvasRenderingContext2D} gc
  */
-function computeCellsBounds(gc) {
+function computeCellsBounds() {
     var scrollTop = this.getScrollTop(),
         scrollLeft = this.getScrollLeft(),
 
         bounds = this.getBounds(),
         grid = this.grid,
         behavior = grid.behavior,
-        dataModel = behavior.dataModel,
         hasTreeColumn = behavior.hasTreeColumn(),
         treeColumnIndex = behavior.treeColumnIndex,
 
@@ -1443,20 +1462,42 @@ function computeCellsBounds(gc) {
     }
 
     this.resetAllGridRenderers();
-
-    if (dataModel.fetchData) {
-        var renderer = this;
-        dataModel.fetchData(getSubrects.call(renderer), function() {
-            // make sure the data is still valid since the fetchData call
-            if (!dataModel.gotData || dataModel.gotData(getSubrects.call(renderer))) {
-                renderGrid.call(renderer, gc);
-            }
-        });
-    } else {
-        renderGrid.call(this, gc);
-    }
 }
 
+/**
+ * @param {CanvasRenderingContext2D} gc
+ * @param {boolean} [fetchError=false] - May be returned by `dataModel.fetchData` on failure.
+ * We're not checking this for now, relying upon `gotData` instead.
+ * @this {Renderer}
+ * @returns {boolean} Data is valid
+ */
+function renderGridIfData(gc, fetchError) {
+    // make sure the data is valid (or still valid since the fetchData call)
+    var valid = gotData.call(this);
+
+    if (valid) {
+        renderGrid.call(this, gc);
+    }
+
+    return valid;
+}
+
+/**
+ * @this {Renderer}
+ * @returns {boolean} Data is valid
+ */
+function gotData() {
+    var dataModel = this.grid.behavior.dataModel;
+    return (
+        !dataModel.gotData ||
+        dataModel.gotData(getSubrects.call(this))
+    );
+}
+
+/**
+ * @param {CanvasRenderingContext2D} gc
+ * @this {Renderer}
+ */
 function renderGrid(gc) {
     this.gridRenderer.paintCells.call(this, gc);
     this.renderOverrides(gc);
@@ -1479,6 +1520,8 @@ function renderGrid(gc) {
  * Column scrolling is ok.
  *
  * @ToDo This function is too slow for practical use due to map and sort.
+ *
+ * @this {Renderer}
  */
 function getSubrects() {
     if (!this.grid.properties.fetchSubregions) {
@@ -1502,8 +1545,8 @@ function intComparator(a, b){ return a - b; }
  * * Some padding
  *
  * @this {Renderer}
- * @param gc
- * @param rowCount
+ * @param {CanvasRenderingContext2D} gc
+ * @param {number} rowCount
  */
 function resetRowHeaderColumnWidth(gc, rowCount) {
     var columnProperties = this.grid.behavior.getColumnProperties(this.grid.behavior.rowColumnIndex),

@@ -2,7 +2,7 @@
 
 'use strict';
 
-var Rectangle = require('rectangular').Rectangle;
+var SelectionRectangle = require('../lib/SelectionRectangle');
 
 /**
  * Additions to `Hypergrid.prototype` for modeling cell, row, and column selections.
