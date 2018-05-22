@@ -21,20 +21,54 @@
             padding: 1px 5px;
             outline: 0
         }
-        input[type="text"], #cached-rows-count {
+        input[type="text"], .values {
             color: #3d96ff;
             font-weight: bold;
+        }
+        .disabled {
+            color: lightgrey;
+        }
+        label {
+            white-space: nowrap;
+            margin-right: 1em;
         }
     </style>
 </head>
 <body>
 
 <div style="margin: .75em .5em .5em .5em">
-    Cache has accumulated <span id="cached-rows-count">0</span> rows; &nbsp;
-    <label><input type="checkbox" id="clear-cache" checked> Clear cache on every data fetch;</label> &nbsp;
-    <label><input type="checkbox" id="test-range" checked> Test "range" before rendering;</label> &nbsp;
-    Latency: <input type="text" id="latency" value="0" style="width: 30px"> msec; &nbsp;
-    Failure rate: <input type="text" id="failure-rate" value="0">%
+
+    Cache has accumulated <span id="cached-row-count" class="values">0</span> rows; &nbsp;
+
+    <label>
+        <input type="checkbox" id="clear-cache" checked> Clear cache on every data fetch;
+    </label>
+
+    <label title="Double-check that data still valid before rendering because next completion routine to be called (ie, next callback) may or may not have valid data available at that time because (a) fetches are lazy and may overlap when latency non-zero (such as when grid scrolled again before previous fetch completes) and (b) fetches may complete out of order when latency non-zero and fudge factor active (order is non-deterministic).">
+        <input type="checkbox" id="test-range" checked> Test "range" before rendering;
+    </label>
+
+    Latency: <input type="text" id="latency" value="0" style="width: 30px"> msec ±
+    <label title="Random adjustment to latency for non-deterministic callback order, a value from 0 to ± this number of standard deviations from the latency value. Caveat: Latency must > render time (~16 msec, but give it a comfortable margin like > ~25).">
+        <input type="checkbox" id="fudge-toggle"> fudge factor:
+        <span id="fudge-control" class="disableable">
+            <input type="range" id="fudge-factor" min=".5" max="3" step=".5" value=".5" style="width:60px" disabled>
+            <span id="fudge-output" class="values disableable"></span> std devs; &nbsp;
+        </span>
+    </label>
+
+    <label title="Simulated data failure, applied only after a non-zero latency.">
+        Failure rate: <input type="text" id="failure-rate" value="0">%;
+    </label>
+
+    <label title="Retry indefinitely ofter simulated failure. 20% of retries have a (simulated) data timeout equal to 5 x (latency).">
+        <input type="checkbox" id="auto-retry" checked> Retry
+    </label>
+
+    <label title="Trace callbacks and failure retries. Rudimentary; just to see the order of the callbacks.">
+        <input type="checkbox" id="trace"> Trace
+    </label>
+
 </div>
 
 <script src="../build/fin-hypergrid.js"></script>
@@ -48,19 +82,84 @@
     grid.properties.halign = 'left';
     grid.properties.cellPadding = 8;
 
+    var latencyEl = document.getElementById('latency'),
+        fudgeToggleEl = document.getElementById('fudge-toggle'),
+        fudgeFactorEl = document.getElementById('fudge-factor'),
+        fudgeOutputEl = document.getElementById('fudge-output'),
+        failureRateEl = document.getElementById('failure-rate'),
+        autoRetryEl = document.getElementById('auto-retry'),
+        traceEl = document.getElementById('trace');
+
+    latencyChange.call(latencyEl); latencyEl.addEventListener('input', latencyChange);
+    fudgeClick.call(fudgeToggleEl); fudgeToggleEl.addEventListener('click', fudgeClick);
+    fudgeChange.call(fudgeFactorEl); fudgeFactorEl.addEventListener('input', fudgeChange);
+    failureRateChange(failureRateEl); failureRateEl.addEventListener('input', failureRateChange);
+    autoRetry.call(autoRetryEl); autoRetryEl.addEventListener('click', autoRetry);
+    traceClick.call(traceEl); traceEl.addEventListener('click', traceClick);
+
     document.querySelector('.hypergrid-container').style.height = window.innerHeight - 40 + 'px';
 
     document.getElementById('clear-cache').addEventListener('click', function(e) {
-        grid.behavior.dataModel.clearCache = e.target.checked;
+        grid.behavior.dataModel.clearCache = this.checked;
     });
 
     document.getElementById('test-range').addEventListener('click', function(e) {
-        if (e.target.checked) {
+        if (this.checked) {
             delete grid.behavior.dataModel.gotData; // reveal prototype method
         } else {
             grid.behavior.dataModel.gotData = undefined; // hide prototype method
         }
     });
+
+
+    function fudgeClick() {
+        var disabled = !this.checked;
+        fudgeFactorEl.disabled = disabled;
+        document.querySelectorAll('.disableable').forEach(function(el) {
+            el.classList[disabled ? 'add' : 'remove']('disabled');
+        });
+        if (disabled) {
+            grid.behavior.dataModel.latencyDeviation = 0;
+        } else {
+            fudgeChange.call(fudgeFactorEl);
+        }
+    }
+
+    function fudgeChange() {
+        var value = Number(this.value);
+        fudgeOutputEl.innerHTML = value.toFixed(1);
+        grid.behavior.dataModel.latencyDeviation = approxBellCurve(value);
+
+    }
+
+    function latencyChange() {
+        grid.behavior.dataModel.latency = parseTextInput(latencyEl);
+    }
+
+    function failureRateChange() {
+        grid.behavior.dataModel.failureRate = parseTextInput(failureRateEl) / 100;
+    }
+
+    function traceClick() {
+        grid.behavior.dataModel.trace = traceEl.checked;
+    }
+
+    function parseTextInput(inputEl) {
+        return parseInt('0' + inputEl.value, 10);
+    }
+
+    // https://www.johndcook.com/blog/2010/04/29/simple-approximation-to-normal-distribution/
+    // Input: -3 <= stdDev <= +3
+    // Output: 0.0 <= value <= 1.0
+    // This rough approximation of a bell curve is NOT asymptotic.
+    // It is 2π wide so x conveniently gives rough standard deviations so I'm calling input sigma rather than x.
+    function approxBellCurve(sigma) {
+        return (1 + Math.cos(sigma)) / (2 * Math.PI) * Math.PI;
+    }
+
+    function autoRetry() {
+        grid.behavior.dataModel.autoRetry = this.checked;
+    }
 </script>
 
 </body>

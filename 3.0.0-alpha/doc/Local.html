@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Class: Behavior</title>
+    <title>JSDoc: Class: Local</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -20,7 +20,7 @@
 </nav>
 <div id="main">
 
-    <h1 class="page-title">Class: Behavior</h1>
+    <h1 class="page-title">Class: Local</h1>
 
     
 
@@ -32,7 +32,7 @@
 <header>
     
         <h2>
-        Behavior
+        Local
         </h2>
         
     
@@ -45,16 +45,16 @@
 
     
 
-    <h4 class="name" id="Behavior"><span class="type-signature">(abstract) </span>new Behavior<span class="signature">(grid, options<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="Local"><span class="type-signature"></span>new Local<span class="signature">()</span><span class="type-signature"></span></h4>
 
     
 
 
 
 <div class="description">
-    <p>A controller for the data model.</p>
+    <p>This class mimics the <a href="DataModel.html"><code>DataModel</code></a>.</p>
 <blockquote>
-<p>This constructor (actually <code>initialize</code>) will be called upon instantiation of this class or of any class that extends from this class. See <a href="https://github.com/joneit/extend-me">extend-me</a> for more info.</p>
+<p>This constructor (actually <code>Local#initialize</code>) will be called upon instantiation of this class or of any class that extends from this class. See <a href="https://github.com/joneit/extend-me">extend-me</a> for more info.</p>
 </blockquote>
 </div>
 
@@ -64,379 +64,6 @@
 
 
 
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-        <th>Attributes</th>
-        
-
-        
-        <th>Default</th>
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>grid</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type"><a href="Hypergrid.html">Hypergrid</a></span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-
-                
-
-                
-                </td>
-            
-
-            
-                <td class="default">
-                
-                </td>
-            
-
-            <td class="description last"></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>options</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">object</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
-
-            
-                <td class="default">
-                
-                </td>
-            
-
-            <td class="description last"><p><em>(Passed to <a href="Behavior.html#reset"><code>reset</code></a>).</em></p></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>options.dataModel</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type"><a href="DataModel.html">DataModel</a></span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
-
-            
-                <td class="default">
-                
-                </td>
-            
-
-            <td class="description last"><p><em>Per <a href="Behavior.html#reset"><code>reset</code></a>.</em></p></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>options.metadata</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">object</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
-
-            
-                <td class="default">
-                
-                </td>
-            
-
-            <td class="description last"><p><em>Per <a href="Behavior.html#reset"><code>reset</code></a>.</em></p></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>options.DataModel</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">function</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
-
-            
-                <td class="default">
-                
-                    require('datasaur-local')
-                
-                </td>
-            
-
-            <td class="description last"><p><em>Per <a href="Behavior.html#reset"><code>reset</code></a>.</em></p></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>options.data</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">function</span>
-|
-
-<span class="param-type">Array.&lt;object></span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
-
-            
-                <td class="default">
-                
-                </td>
-            
-
-            <td class="description last"><p><em>Per <a href="Behavior.html#setData"><code>setData</code></a>.</em></p></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>options.schema</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">function</span>
-|
-
-<span class="param-type">Array.&lt;menuItem></span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
-
-            
-                <td class="default">
-                
-                </td>
-            
-
-            <td class="description last"><p><em>Per <a href="Behavior.html#setData"><code>setData</code></a>.</em></p></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>options.subgrids</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">Array.&lt;<a href="global.html#subgridSpec">subgridSpec</a>></span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
-
-            
-                <td class="default">
-                
-                    this.grid.properties.subgrids
-                
-                </td>
-            
-
-            <td class="description last"><p><em>Per <a href="Behavior.html#setData"><code>setData</code></a>.</em></p></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>options.apply</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">boolean</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
-
-            
-                <td class="default">
-                
-                    true
-                
-                </td>
-            
-
-            <td class="description last"><p><em>Per <a href="Behavior.html#setData"><code>setData</code></a>.</em></p></td>
-        </tr>
-
-    
-    </tbody>
-</table>
 
 
 
@@ -457,18 +84,6 @@
 
     
 
-    
-        <dt class="mixes">Mixes In:</dt>
-
-        <dd class="mixes"><ul>
-        
-            <li>cellProperties.behaviorMixin</li>
-        
-            <li>rowProperties.mixin</li>
-        
-            <li>subgrids.mixin</li>
-        
-        </ul></dd>
     
 
     
@@ -509,6 +124,17 @@
     </div>
 
     
+        <h3 class="subsection-title">Extends</h3>
+
+        
+
+
+    <ul>
+        <li><a href="Behavior.html">Behavior</a></li>
+    </ul>
+
+
+    
 
     
 
@@ -544,6 +170,11 @@
 
     
 
+    
+    <dt class="inherited-from">Inherited From:</dt>
+    <dd class="inherited-from"><ul class="dummy"><li>
+        <a href="Behavior.html#applyAnalytics">Behavior#applyAnalytics</a>
+    </li></ul></dd>
     
 
     
@@ -604,6 +235,70 @@
     
 
     
+    <dt class="inherited-from">Inherited From:</dt>
+    <dd class="inherited-from"><ul class="dummy"><li>
+        <a href="Behavior.html#cellPropertiesPrePaintNotification">Behavior#cellPropertiesPrePaintNotification</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+        
+            
+<h4 class="name" id="charMap"><span class="type-signature"></span>charMap<span class="type-signature"> :Object</span></h4>
+
+
+<p class="summary"><p>Map of drill down characters used by the data model.</p></p>
+
+
+
+
+
+    <h5>Type:</h5>
+    <ul>
+        <li>
+            
+<span class="param-type">Object</span>
+
+
+        </li>
+    </ul>
+
+
+
+
+
+<dl class="details">
 
     
 
@@ -627,6 +322,97 @@
 
     
 
+    
+
+    
+
+    
+
+    
+    <dt class="tag-see">See:</dt>
+    <dd class="tag-see">
+        <ul>
+            <li><a href="https://fin-hypergrid.github.io/doc/DataModel.html#charMap">charMap</a></li>
+        </ul>
+    </dd>
+    
+
+    
+</dl>
+
+
+
+
+
+
+        
+            
+<h4 class="name" id="schema"><span class="type-signature"></span>schema<span class="type-signature"> :Array</span></h4>
+
+
+<p class="summary"><p>Convenience getter/setter.</p></p>
+
+
+
+<div class="description">
+    <p>Calls the data model's <code>getSchema</code>/<code>setSchema</code> methods.</p>
+</div>
+
+
+
+    <h5>Type:</h5>
+    <ul>
+        <li>
+            
+<span class="param-type">Array</span>
+
+
+        </li>
+    </ul>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-see">See:</dt>
+    <dd class="tag-see">
+        <ul>
+            <li><a href="https://fin-hypergrid.github.io/doc/DataModel.html#getSchema">getSchema</a></li>
+        
+            <li><a href="https://fin-hypergrid.github.io/doc/DataModel.html#setSchema">setSchema</a></li>
+        </ul>
+    </dd>
     
 
     
@@ -685,6 +471,64 @@ It may also include zero or more other types of subgrids such as header, filter,
     
 
     
+    <dt class="inherited-from">Inherited From:</dt>
+    <dd class="inherited-from"><ul class="dummy"><li>
+        <a href="Behavior.html#subgrids">Behavior#subgrids</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+        
+            
+<h4 class="name" id="~DefaultDataModel"><span class="type-signature">(inner) </span>DefaultDataModel<span class="type-signature"></span></h4>
+
+
+<p class="summary"><p>Default data model.</p></p>
+
+
+
+<div class="description">
+    <p>The default data model for newly instantiated <code>Hypergrid</code> objects without <code>DataModel</code> or <code>dataModel</code> options specified. Scheduled for eventual deprecation at which point one of the options will be required.</p>
+</div>
+
+
+
+
+
+
+
+<dl class="details">
 
     
 
@@ -702,6 +546,17 @@ It may also include zero or more other types of subgrids such as header, filter,
 
     
 
+    
+
+    
+
+    
+
+    
+    <dt class="tag-default">Default Value:</dt>
+    <dd class="tag-default"><ul class="dummy">
+            <li>require('datasaur-local')</li>
+        </ul></dd>
     
 
     
@@ -937,6 +792,11 @@ It may also include zero or more other types of subgrids such as header, filter,
     
 
     
+    <dt class="inherited-from">Inherited From:</dt>
+    <dd class="inherited-from"><ul class="dummy"><li>
+        <a href="Behavior.html#addCellProperties">Behavior#addCellProperties</a>
+    </li></ul></dd>
+    
 
     
 
@@ -1159,6 +1019,11 @@ It may also include zero or more other types of subgrids such as header, filter,
     
 
     
+    <dt class="inherited-from">Inherited From:</dt>
+    <dd class="inherited-from"><ul class="dummy"><li>
+        <a href="Behavior.html#addRowProperties">Behavior#addRowProperties</a>
+    </li></ul></dd>
+    
 
     
 
@@ -1207,6 +1072,152 @@ It may also include zero or more other types of subgrids such as header, filter,
 
     
 
+    <h4 class="name" id="cellClicked"><span class="type-signature"></span>cellClicked<span class="signature">(event)</span><span class="type-signature"></span></h4>
+
+    
+    <p class="summary"><p>Calls <code>click</code> on the data model if column is a tree column.</p></p>
+    
+
+
+
+<div class="description">
+    <p>Sends clicked cell's coordinates to the data model.</p>
+<p>To tell if the click was consumed by the data model, add event listeners for <code>DataModel#fin-hypergrid-data-loaded</code> and/or <code>DataModel#fin-hypergrid-data-postreindex</code>.</p>
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>event</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="CellEvent.html">CellEvent</a></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-see">See:</dt>
+    <dd class="tag-see">
+        <ul>
+            <li><a href="https://fin-hypergrid.github.io/doc/DataModel.html#toggleRow">toggleRow</a></li>
+        </ul>
+    </dd>
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    <p><a href="DataModel.html#toggleRow"><code>DataModel#toggleRow</code></a>'s return value which may or may not be implemented.</p>
+</div>
+
+
+
+    
+
+
+
+        
+            
+
+    
+
     <h4 class="name" id="changed"><span class="type-signature"></span>changed<span class="signature">()</span><span class="type-signature"></span></h4>
 
     
@@ -1235,6 +1246,11 @@ It may also include zero or more other types of subgrids such as header, filter,
 
     
 
+    
+    <dt class="inherited-from">Inherited From:</dt>
+    <dd class="inherited-from"><ul class="dummy"><li>
+        <a href="Behavior.html#changed">Behavior#changed</a>
+    </li></ul></dd>
     
 
     
@@ -1373,6 +1389,11 @@ It may also include zero or more other types of subgrids such as header, filter,
 
     
 
+    
+    <dt class="inherited-from">Inherited From:</dt>
+    <dd class="inherited-from"><ul class="dummy"><li>
+        <a href="Behavior.html#clearAllCellProperties">Behavior#clearAllCellProperties</a>
+    </li></ul></dd>
     
 
     
@@ -1547,6 +1568,11 @@ It may also include zero or more other types of subgrids such as header, filter,
     
 
     
+    <dt class="inherited-from">Inherited From:</dt>
+    <dd class="inherited-from"><ul class="dummy"><li>
+        <a href="Behavior.html#clearObjectProperties">Behavior#clearObjectProperties</a>
+    </li></ul></dd>
+    
 
     
 
@@ -1623,6 +1649,11 @@ It may also include zero or more other types of subgrids such as header, filter,
 
     
 
+    
+    <dt class="inherited-from">Inherited From:</dt>
+    <dd class="inherited-from"><ul class="dummy"><li>
+        <a href="Behavior.html#clearState">Behavior#clearState</a>
+    </li></ul></dd>
     
 
     
@@ -1752,6 +1783,11 @@ It may also include zero or more other types of subgrids such as header, filter,
     
 
     
+    <dt class="inherited-from">Inherited From:</dt>
+    <dd class="inherited-from"><ul class="dummy"><li>
+        <a href="Behavior.html#createSubgrid">Behavior#createSubgrid</a>
+    </li></ul></dd>
+    
 
     
 
@@ -1822,6 +1858,186 @@ It may also include zero or more other types of subgrids such as header, filter,
 
     
 
+    <h4 class="name" id="decorateDataModel"><span class="type-signature"></span>decorateDataModel<span class="signature">(newDataModel)</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>Decorate data model object, initialize its metadata store, and subscribe to its events.</p>
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>newDataModel</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="DataModel.html">DataModel</a></span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>options.metadata</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="DataModel.html">DataModel</a></span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last"><p>Passed to <a href="DataModel.html#setMetadataStore"><code>setMetadataStore</code></a>.</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-see">See:</dt>
+    <dd class="tag-see">
+        <ul>
+            <li><a href="module-decorators.html#.injectPolyfills"><code>injectPolyfills</code></a></li>
+        
+            <li><a href="module-decorators.html#.injectCode"><code>injectCode</code></a></li>
+        
+            <li><a href="module-decorators.html#.injectDefaulthooks"><code>injectDefaulthooks</code></a></li>
+        </ul>
+    </dd>
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
     <h4 class="name" id="endDragColumnNotification"><span class="type-signature"></span>endDragColumnNotification<span class="signature">()</span><span class="type-signature"></span></h4>
 
     
@@ -1850,6 +2066,11 @@ It may also include zero or more other types of subgrids such as header, filter,
 
     
 
+    
+    <dt class="inherited-from">Inherited From:</dt>
+    <dd class="inherited-from"><ul class="dummy"><li>
+        <a href="Behavior.html#endDragColumnNotification">Behavior#endDragColumnNotification</a>
+    </li></ul></dd>
     
 
     
@@ -1927,6 +2148,11 @@ It may also include zero or more other types of subgrids such as header, filter,
 
     
 
+    
+    <dt class="inherited-from">Inherited From:</dt>
+    <dd class="inherited-from"><ul class="dummy"><li>
+        <a href="Behavior.html#getActiveColumnCount">Behavior#getActiveColumnCount</a>
+    </li></ul></dd>
     
 
     
@@ -2071,6 +2297,11 @@ It may also include zero or more other types of subgrids such as header, filter,
 
     
 
+    
+    <dt class="inherited-from">Inherited From:</dt>
+    <dd class="inherited-from"><ul class="dummy"><li>
+        <a href="Behavior.html#getCellEditorAt">Behavior#getCellEditorAt</a>
+    </li></ul></dd>
     
 
     
@@ -2316,6 +2547,11 @@ It may also include zero or more other types of subgrids such as header, filter,
 
     
 
+    
+    <dt class="inherited-from">Inherited From:</dt>
+    <dd class="inherited-from"><ul class="dummy"><li>
+        <a href="Behavior.html#getCellOwnProperties">Behavior#getCellOwnProperties</a>
+    </li></ul></dd>
     
 
     
@@ -2565,6 +2801,11 @@ It may also include zero or more other types of subgrids such as header, filter,
 
     
 
+    
+    <dt class="inherited-from">Inherited From:</dt>
+    <dd class="inherited-from"><ul class="dummy"><li>
+        <a href="Behavior.html#getCellProperties">Behavior#getCellProperties</a>
+    </li></ul></dd>
     
 
     
@@ -2846,6 +3087,11 @@ It may also include zero or more other types of subgrids such as header, filter,
     
 
     
+    <dt class="inherited-from">Inherited From:</dt>
+    <dd class="inherited-from"><ul class="dummy"><li>
+        <a href="Behavior.html#getCellProperty">Behavior#getCellProperty</a>
+    </li></ul></dd>
+    
 
     
 
@@ -2989,6 +3235,11 @@ It may also include zero or more other types of subgrids such as header, filter,
 
     
 
+    
+    <dt class="inherited-from">Inherited From:</dt>
+    <dd class="inherited-from"><ul class="dummy"><li>
+        <a href="Behavior.html#getColumnProperties">Behavior#getColumnProperties</a>
+    </li></ul></dd>
     
 
     
@@ -3157,6 +3408,11 @@ It may also include zero or more other types of subgrids such as header, filter,
     
 
     
+    <dt class="inherited-from">Inherited From:</dt>
+    <dd class="inherited-from"><ul class="dummy"><li>
+        <a href="Behavior.html#getCursorAt">Behavior#getCursorAt</a>
+    </li></ul></dd>
+    
 
     
 
@@ -3259,6 +3515,11 @@ It may also include zero or more other types of subgrids such as header, filter,
     
 
     
+    <dt class="inherited-from">Inherited From:</dt>
+    <dd class="inherited-from"><ul class="dummy"><li>
+        <a href="Behavior.html#getData">Behavior#getData</a>
+    </li></ul></dd>
+    
 
     
 
@@ -3356,6 +3617,11 @@ It may also include zero or more other types of subgrids such as header, filter,
 
     
 
+    
+    <dt class="inherited-from">Inherited From:</dt>
+    <dd class="inherited-from"><ul class="dummy"><li>
+        <a href="Behavior.html#getFixedColumnCount">Behavior#getFixedColumnCount</a>
+    </li></ul></dd>
     
 
     
@@ -3456,6 +3722,11 @@ It may also include zero or more other types of subgrids such as header, filter,
     
 
     
+    <dt class="inherited-from">Inherited From:</dt>
+    <dd class="inherited-from"><ul class="dummy"><li>
+        <a href="Behavior.html#getFixedColumnsMaxWidth">Behavior#getFixedColumnsMaxWidth</a>
+    </li></ul></dd>
+    
 
     
 
@@ -3550,6 +3821,11 @@ It may also include zero or more other types of subgrids such as header, filter,
 
     
 
+    
+    <dt class="inherited-from">Inherited From:</dt>
+    <dd class="inherited-from"><ul class="dummy"><li>
+        <a href="Behavior.html#getFixedColumnsWidth">Behavior#getFixedColumnsWidth</a>
+    </li></ul></dd>
     
 
     
@@ -3651,6 +3927,11 @@ It may also include zero or more other types of subgrids such as header, filter,
 
     
 
+    
+    <dt class="inherited-from">Inherited From:</dt>
+    <dd class="inherited-from"><ul class="dummy"><li>
+        <a href="Behavior.html#getFixedRowCount">Behavior#getFixedRowCount</a>
+    </li></ul></dd>
     
 
     
@@ -3757,6 +4038,11 @@ It may also include zero or more other types of subgrids such as header, filter,
     
 
     
+    <dt class="inherited-from">Inherited From:</dt>
+    <dd class="inherited-from"><ul class="dummy"><li>
+        <a href="Behavior.html#getFixedRowsHeight">Behavior#getFixedRowsHeight</a>
+    </li></ul></dd>
+    
 
     
 
@@ -3831,11 +4117,17 @@ It may also include zero or more other types of subgrids such as header, filter,
 
     
 
-    <h4 class="name" id="getHiddenColumnDescriptors"><span class="type-signature"></span>getHiddenColumnDescriptors<span class="signature">()</span><span class="type-signature"> &rarr; {Array.&lt;string>}</span></h4>
+    <h4 class="name" id="getFooterRowCount"><span class="type-signature"></span>getFooterRowCount<span class="signature">()</span><span class="type-signature"></span></h4>
 
+    
+    <p class="summary"><p>Gets the number of &quot;footer rows&quot;.</p></p>
     
 
 
+
+<div class="description">
+    <p>Defined as the sum of all rows in all subgrids after the (last) data subgrid.</p>
+</div>
 
 
 
@@ -3896,6 +4188,163 @@ It may also include zero or more other types of subgrids such as header, filter,
 
 
 
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="getHeaderRowCount"><span class="type-signature"></span>getHeaderRowCount<span class="signature">()</span><span class="type-signature"></span></h4>
+
+    
+    <p class="summary"><p>Gets the number of &quot;header rows&quot;.</p></p>
+    
+
+
+
+<div class="description">
+    <p>Defined as the sum of all rows in all subgrids before the (first) data subgrid.</p>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="getHiddenColumnDescriptors"><span class="type-signature"></span>getHiddenColumnDescriptors<span class="signature">()</span><span class="type-signature"> &rarr; {Array.&lt;string>}</span></h4>
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+    <dt class="inherited-from">Inherited From:</dt>
+    <dd class="inherited-from"><ul class="dummy"><li>
+        <a href="Behavior.html#getHiddenColumnDescriptors">Behavior#getHiddenColumnDescriptors</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
 <h5>Returns:</h5>
 
         
@@ -3912,6 +4361,351 @@ It may also include zero or more other types of subgrids such as header, filter,
     <dd>
         
 <span class="param-type">Array.&lt;string></span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="getLogicalRowCount"><span class="type-signature"></span>getLogicalRowCount<span class="signature">()</span><span class="type-signature"></span></h4>
+
+    
+    <p class="summary"><p>Gets the total number of logical rows.</p></p>
+    
+
+
+
+<div class="description">
+    <p>Defined as the sum of all rows in all subgrids.</p>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="getNewDataModel"><span class="type-signature"></span>getNewDataModel<span class="signature">(options<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {boolean}</span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>Create a new data model</p>
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>options</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">object</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">
+                <h6>Properties</h6>
+                
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+        <th>Default</th>
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>dataModel</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="DataModel.html">DataModel</a></span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                </td>
+            
+
+            <td class="description last"><p>A fully instantiated data model object.</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>DataModel</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">function</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    require('datasaur-local')
+                
+                </td>
+            
+
+            <td class="description last"><p>Data model will be instantiated from this constructor unless <code>options.dataModel</code> was given.</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+            </td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    <p><code>true</code> if the data model has changed.</p>
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">boolean</span>
 
 
     </dd>
@@ -4003,6 +4797,11 @@ It may also include zero or more other types of subgrids such as header, filter,
 
     
 
+    
+    <dt class="inherited-from">Inherited From:</dt>
+    <dd class="inherited-from"><ul class="dummy"><li>
+        <a href="Behavior.html#getRow">Behavior#getRow</a>
+    </li></ul></dd>
     
 
     
@@ -4107,6 +4906,11 @@ It may also include zero or more other types of subgrids such as header, filter,
 
     
 
+    
+    <dt class="inherited-from">Inherited From:</dt>
+    <dd class="inherited-from"><ul class="dummy"><li>
+        <a href="Behavior.html#getRowCount">Behavior#getRowCount</a>
+    </li></ul></dd>
     
 
     
@@ -4291,6 +5095,11 @@ It may also include zero or more other types of subgrids such as header, filter,
 
     
 
+    
+    <dt class="inherited-from">Inherited From:</dt>
+    <dd class="inherited-from"><ul class="dummy"><li>
+        <a href="Behavior.html#getRowHeight">Behavior#getRowHeight</a>
+    </li></ul></dd>
     
 
     
@@ -4533,6 +5342,11 @@ Typical defined value is <code>null</code>, which creates a plain object with no
     
 
     
+    <dt class="inherited-from">Inherited From:</dt>
+    <dd class="inherited-from"><ul class="dummy"><li>
+        <a href="Behavior.html#getRowProperties">Behavior#getRowProperties</a>
+    </li></ul></dd>
+    
 
     
 
@@ -4769,6 +5583,11 @@ Typical defined value is <code>null</code>, which creates a plain object with no
     
 
     
+    <dt class="inherited-from">Inherited From:</dt>
+    <dd class="inherited-from"><ul class="dummy"><li>
+        <a href="Behavior.html#getValue">Behavior#getValue</a>
+    </li></ul></dd>
+    
 
     
 
@@ -4940,6 +5759,11 @@ Typical defined value is <code>null</code>, which creates a plain object with no
     
 
     
+    <dt class="inherited-from">Inherited From:</dt>
+    <dd class="inherited-from"><ul class="dummy"><li>
+        <a href="Behavior.html#handleMouseDown">Behavior#handleMouseDown</a>
+    </li></ul></dd>
+    
 
     
 
@@ -5088,6 +5912,11 @@ Typical defined value is <code>null</code>, which creates a plain object with no
 
     
 
+    
+    <dt class="inherited-from">Inherited From:</dt>
+    <dd class="inherited-from"><ul class="dummy"><li>
+        <a href="Behavior.html#handleMouseExit">Behavior#handleMouseExit</a>
+    </li></ul></dd>
     
 
     
@@ -5284,6 +6113,11 @@ Typical defined value is <code>null</code>, which creates a plain object with no
     
 
     
+    <dt class="inherited-from">Inherited From:</dt>
+    <dd class="inherited-from"><ul class="dummy"><li>
+        <a href="Behavior.html#hideColumns">Behavior#hideColumns</a>
+    </li></ul></dd>
+    
 
     
 
@@ -5428,6 +6262,11 @@ Typical defined value is <code>null</code>, which creates a plain object with no
 
     
 
+    
+    <dt class="inherited-from">Inherited From:</dt>
+    <dd class="inherited-from"><ul class="dummy"><li>
+        <a href="Behavior.html#highlightCellOnHover">Behavior#highlightCellOnHover</a>
+    </li></ul></dd>
     
 
     
@@ -5589,6 +6428,11 @@ Typical defined value is <code>null</code>, which creates a plain object with no
     
 
     
+    <dt class="inherited-from">Inherited From:</dt>
+    <dd class="inherited-from"><ul class="dummy"><li>
+        <a href="Behavior.html#initializeFeatureChain">Behavior#initializeFeatureChain</a>
+    </li></ul></dd>
+    
 
     
 
@@ -5661,6 +6505,11 @@ Typical defined value is <code>null</code>, which creates a plain object with no
 
     
 
+    
+    <dt class="inherited-from">Inherited From:</dt>
+    <dd class="inherited-from"><ul class="dummy"><li>
+        <a href="Behavior.html#isColumnReorderable">Behavior#isColumnReorderable</a>
+    </li></ul></dd>
     
 
     
@@ -5833,6 +6682,11 @@ Typical defined value is <code>null</code>, which creates a plain object with no
     
 
     
+    <dt class="inherited-from">Inherited From:</dt>
+    <dd class="inherited-from"><ul class="dummy"><li>
+        <a href="Behavior.html#onClick">Behavior#onClick</a>
+    </li></ul></dd>
+    
 
     
 
@@ -5981,6 +6835,11 @@ Typical defined value is <code>null</code>, which creates a plain object with no
 
     
 
+    
+    <dt class="inherited-from">Inherited From:</dt>
+    <dd class="inherited-from"><ul class="dummy"><li>
+        <a href="Behavior.html#onContextMenu">Behavior#onContextMenu</a>
+    </li></ul></dd>
     
 
     
@@ -6131,6 +6990,11 @@ Typical defined value is <code>null</code>, which creates a plain object with no
     
 
     
+    <dt class="inherited-from">Inherited From:</dt>
+    <dd class="inherited-from"><ul class="dummy"><li>
+        <a href="Behavior.html#onDoubleClick">Behavior#onDoubleClick</a>
+    </li></ul></dd>
+    
 
     
 
@@ -6279,6 +7143,11 @@ Typical defined value is <code>null</code>, which creates a plain object with no
 
     
 
+    
+    <dt class="inherited-from">Inherited From:</dt>
+    <dd class="inherited-from"><ul class="dummy"><li>
+        <a href="Behavior.html#onKeyDown">Behavior#onKeyDown</a>
+    </li></ul></dd>
     
 
     
@@ -6429,6 +7298,11 @@ Typical defined value is <code>null</code>, which creates a plain object with no
     
 
     
+    <dt class="inherited-from">Inherited From:</dt>
+    <dd class="inherited-from"><ul class="dummy"><li>
+        <a href="Behavior.html#onKeyUp">Behavior#onKeyUp</a>
+    </li></ul></dd>
+    
 
     
 
@@ -6577,6 +7451,11 @@ Typical defined value is <code>null</code>, which creates a plain object with no
 
     
 
+    
+    <dt class="inherited-from">Inherited From:</dt>
+    <dd class="inherited-from"><ul class="dummy"><li>
+        <a href="Behavior.html#onMouseDrag">Behavior#onMouseDrag</a>
+    </li></ul></dd>
     
 
     
@@ -6727,6 +7606,11 @@ Typical defined value is <code>null</code>, which creates a plain object with no
     
 
     
+    <dt class="inherited-from">Inherited From:</dt>
+    <dd class="inherited-from"><ul class="dummy"><li>
+        <a href="Behavior.html#onMouseMove">Behavior#onMouseMove</a>
+    </li></ul></dd>
+    
 
     
 
@@ -6875,6 +7759,11 @@ Typical defined value is <code>null</code>, which creates a plain object with no
 
     
 
+    
+    <dt class="inherited-from">Inherited From:</dt>
+    <dd class="inherited-from"><ul class="dummy"><li>
+        <a href="Behavior.html#onMouseUp">Behavior#onMouseUp</a>
+    </li></ul></dd>
     
 
     
@@ -7025,78 +7914,10 @@ Typical defined value is <code>null</code>, which creates a plain object with no
     
 
     
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
-            
-
-    
-
-    <h4 class="name" id="reindex"><span class="type-signature"></span>reindex<span class="signature">()</span><span class="type-signature"></span></h4>
-
-    
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
+    <dt class="inherited-from">Inherited From:</dt>
+    <dd class="inherited-from"><ul class="dummy"><li>
+        <a href="Behavior.html#onWheelMoved">Behavior#onWheelMoved</a>
+    </li></ul></dd>
     
 
     
@@ -7173,7 +7994,10 @@ Typical defined value is <code>null</code>, which creates a plain object with no
     
 
     
-
+    <dt class="tag-overrides">Overrides:</dt>
+    <dd class="tag-overrides"><ul class="dummy"><li>
+        <a href="Behavior.html#reindex">Behavior#reindex</a>
+    </li></ul></dd>
     
 
     
@@ -7196,86 +8020,6 @@ Typical defined value is <code>null</code>, which creates a plain object with no
 
     
 
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
-            
-
-    
-
-    <h4 class="name" id="reindex"><span class="type-signature"></span>reindex<span class="signature">()</span><span class="type-signature"></span></h4>
-
-    
-    <p class="summary"><p>Calls <code>apply()</code> on the data model.</p></p>
-    
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-see">See:</dt>
-    <dd class="tag-see">
-        <ul>
-            <li><a href="https://fin-hypergrid.github.io/doc/DataModel.html#reindex">reindex</a></li>
-        </ul>
-    </dd>
     
 
     
@@ -7392,6 +8136,11 @@ Typical defined value is <code>null</code>, which creates a plain object with no
     
 
     
+    <dt class="inherited-from">Inherited From:</dt>
+    <dd class="inherited-from"><ul class="dummy"><li>
+        <a href="Behavior.html#reset">Behavior#reset</a>
+    </li></ul></dd>
+    
 
     
 
@@ -7432,6 +8181,315 @@ Typical defined value is <code>null</code>, which creates a plain object with no
 
 
 
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="resetDataModel"><span class="type-signature"></span>resetDataModel<span class="signature">(options<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {boolean}</span></h4>
+
+    
+    <p class="summary"><p>Attach a data model object to the grid.</p></p>
+    
+
+
+
+<div class="description">
+    <p>Installs data model events, fallbacks, and hooks.</p>
+<p>Called from <a href="Behavior.html#reset"><code>Behavior#reset</code></a>.</p>
+</div>
+
+
+
+
+
+
+
+    <h5>This:</h5>
+    <ul><li>{<a href="Behavior.html">Behavior</a>}</li></ul>
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>options</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">object</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">
+                <h6>Properties</h6>
+                
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+        <th>Default</th>
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>dataModel</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="DataModel.html">DataModel</a></span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                </td>
+            
+
+            <td class="description last"><p>A fully instantiated data model object.</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>DataModel</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">function</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    require('datasaur-local')
+                
+                </td>
+            
+
+            <td class="description last"><p>Data model will be instantiated from this constructor unless <code>options.dataModel</code> was given.</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>metadata</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="DataModel.html">DataModel</a></span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                </td>
+            
+
+            <td class="description last"><p>Passed to <a href="DataModel.html#setMetadataStore"><code>setMetadataStore</code></a>.</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+            </td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    <p><code>true</code> if the data model has changed.</p>
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">boolean</span>
+
+
+    </dd>
+</dl>
+
+    
 
 
 
@@ -7517,6 +8575,11 @@ Typical defined value is <code>null</code>, which creates a plain object with no
 
     
 
+    
+    <dt class="inherited-from">Inherited From:</dt>
+    <dd class="inherited-from"><ul class="dummy"><li>
+        <a href="Behavior.html#resolveProperty">Behavior#resolveProperty</a>
+    </li></ul></dd>
     
 
     
@@ -7795,6 +8858,11 @@ Typical defined value is <code>null</code>, which creates a plain object with no
 
     
 
+    
+    <dt class="inherited-from">Inherited From:</dt>
+    <dd class="inherited-from"><ul class="dummy"><li>
+        <a href="Behavior.html#setCellProperties">Behavior#setCellProperties</a>
+    </li></ul></dd>
     
 
     
@@ -8087,6 +9155,11 @@ Typical defined value is <code>null</code>, which creates a plain object with no
     
 
     
+    <dt class="inherited-from">Inherited From:</dt>
+    <dd class="inherited-from"><ul class="dummy"><li>
+        <a href="Behavior.html#setCellProperty">Behavior#setCellProperty</a>
+    </li></ul></dd>
+    
 
     
 
@@ -8268,6 +9341,11 @@ Typical defined value is <code>null</code>, which creates a plain object with no
     
 
     
+    <dt class="inherited-from">Inherited From:</dt>
+    <dd class="inherited-from"><ul class="dummy"><li>
+        <a href="Behavior.html#setColumnIndexes">Behavior#setColumnIndexes</a>
+    </li></ul></dd>
+    
 
     
 
@@ -8389,6 +9467,11 @@ Typical defined value is <code>null</code>, which creates a plain object with no
 
     
 
+    
+    <dt class="inherited-from">Inherited From:</dt>
+    <dd class="inherited-from"><ul class="dummy"><li>
+        <a href="Behavior.html#setColumnProperties">Behavior#setColumnProperties</a>
+    </li></ul></dd>
     
 
     
@@ -8537,6 +9620,11 @@ Typical defined value is <code>null</code>, which creates a plain object with no
 
     
 
+    
+    <dt class="inherited-from">Inherited From:</dt>
+    <dd class="inherited-from"><ul class="dummy"><li>
+        <a href="Behavior.html#setCursor">Behavior#setCursor</a>
+    </li></ul></dd>
     
 
     
@@ -8850,6 +9938,11 @@ Typical defined value is <code>null</code>, which creates a plain object with no
     
 
     
+    <dt class="inherited-from">Inherited From:</dt>
+    <dd class="inherited-from"><ul class="dummy"><li>
+        <a href="Behavior.html#setData">Behavior#setData</a>
+    </li></ul></dd>
+    
 
     
 
@@ -8975,6 +10068,11 @@ Typical defined value is <code>null</code>, which creates a plain object with no
 
     
 
+    
+    <dt class="inherited-from">Inherited From:</dt>
+    <dd class="inherited-from"><ul class="dummy"><li>
+        <a href="Behavior.html#setFixedColumnCount">Behavior#setFixedColumnCount</a>
+    </li></ul></dd>
     
 
     
@@ -9111,6 +10209,11 @@ Typical defined value is <code>null</code>, which creates a plain object with no
     
 
     
+    <dt class="inherited-from">Inherited From:</dt>
+    <dd class="inherited-from"><ul class="dummy"><li>
+        <a href="Behavior.html#setFixedRowCount">Behavior#setFixedRowCount</a>
+    </li></ul></dd>
+    
 
     
 
@@ -9173,6 +10276,139 @@ Typical defined value is <code>null</code>, which creates a plain object with no
 </dl>
 
     
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="setHeaders"><span class="type-signature"></span>setHeaders<span class="signature">(headers)</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+<div class="description">
+    <p>Set the header labels.</p>
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>headers</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Array.&lt;string></span>
+|
+
+<span class="param-type">object</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>The header labels. One of:</p>
+<ul>
+<li><em>If an array:</em> Must contain all headers in column order.</li>
+<li><em>If a hash:</em> May contain any headers, keyed by field name, in any order.</li>
+</ul></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -9348,6 +10584,11 @@ Typical defined value is <code>null</code>, which creates a plain object with no
 
     
 
+    
+    <dt class="inherited-from">Inherited From:</dt>
+    <dd class="inherited-from"><ul class="dummy"><li>
+        <a href="Behavior.html#setRowHeight">Behavior#setRowHeight</a>
+    </li></ul></dd>
     
 
     
@@ -9570,6 +10811,11 @@ Typical defined value is <code>null</code>, which creates a plain object with no
 
     
 
+    
+    <dt class="inherited-from">Inherited From:</dt>
+    <dd class="inherited-from"><ul class="dummy"><li>
+        <a href="Behavior.html#setRowProperties">Behavior#setRowProperties</a>
+    </li></ul></dd>
     
 
     
@@ -9820,6 +11066,11 @@ Typical defined value is <code>null</code>, which creates a plain object with no
     
 
     
+    <dt class="inherited-from">Inherited From:</dt>
+    <dd class="inherited-from"><ul class="dummy"><li>
+        <a href="Behavior.html#setRowProperty">Behavior#setRowProperty</a>
+    </li></ul></dd>
+    
 
     
 
@@ -9948,6 +11199,11 @@ Typical defined value is <code>null</code>, which creates a plain object with no
     
 
     
+    <dt class="inherited-from">Inherited From:</dt>
+    <dd class="inherited-from"><ul class="dummy"><li>
+        <a href="Behavior.html#setScrollPositionX">Behavior#setScrollPositionX</a>
+    </li></ul></dd>
+    
 
     
 
@@ -10073,6 +11329,11 @@ Typical defined value is <code>null</code>, which creates a plain object with no
 
     
 
+    
+    <dt class="inherited-from">Inherited From:</dt>
+    <dd class="inherited-from"><ul class="dummy"><li>
+        <a href="Behavior.html#setScrollPositionY">Behavior#setScrollPositionY</a>
+    </li></ul></dd>
     
 
     
@@ -10200,6 +11461,11 @@ See the <a href="http://c2.com/cgi/wiki?MementoPattern">memento pattern</a>.</p>
 
     
 
+    
+    <dt class="inherited-from">Inherited From:</dt>
+    <dd class="inherited-from"><ul class="dummy"><li>
+        <a href="Behavior.html#setState">Behavior#setState</a>
+    </li></ul></dd>
     
 
     
@@ -10438,6 +11704,11 @@ See the <a href="http://c2.com/cgi/wiki?MementoPattern">memento pattern</a>.</p>
     
 
     
+    <dt class="inherited-from">Inherited From:</dt>
+    <dd class="inherited-from"><ul class="dummy"><li>
+        <a href="Behavior.html#setValue">Behavior#setValue</a>
+    </li></ul></dd>
+    
 
     
 
@@ -10514,6 +11785,11 @@ See the <a href="http://c2.com/cgi/wiki?MementoPattern">memento pattern</a>.</p>
 
     
 
+    
+    <dt class="inherited-from">Inherited From:</dt>
+    <dd class="inherited-from"><ul class="dummy"><li>
+        <a href="Behavior.html#shapeChanged">Behavior#shapeChanged</a>
+    </li></ul></dd>
     
 
     
@@ -10790,6 +12066,11 @@ See the <a href="http://c2.com/cgi/wiki?MementoPattern">memento pattern</a>.</p>
     
 
     
+    <dt class="inherited-from">Inherited From:</dt>
+    <dd class="inherited-from"><ul class="dummy"><li>
+        <a href="Behavior.html#showColumns">Behavior#showColumns</a>
+    </li></ul></dd>
+    
 
     
 
@@ -10866,6 +12147,11 @@ See the <a href="http://c2.com/cgi/wiki?MementoPattern">memento pattern</a>.</p>
 
     
 
+    
+    <dt class="inherited-from">Inherited From:</dt>
+    <dd class="inherited-from"><ul class="dummy"><li>
+        <a href="Behavior.html#stateChanged">Behavior#stateChanged</a>
+    </li></ul></dd>
     
 
     
@@ -11016,136 +12302,10 @@ See the <a href="http://c2.com/cgi/wiki?MementoPattern">memento pattern</a>.</p>
     
 
     
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
-            
-
-    
-
-    <h4 class="name" id="~derefSubgridRef"><span class="type-signature">(inner) </span>derefSubgridRef<span class="signature">(ref)</span><span class="type-signature"> &rarr; {<a href="DataModel.html">DataModel</a>}</span></h4>
-
-    
-    <p class="summary"><p>Resolves a subgrid constructor reference.</p></p>
-    
-
-
-
-<div class="description">
-    <p>The ref is resolved to a data model constructor.</p>
-</div>
-
-
-
-
-
-
-
-    <h5>This:</h5>
-    <ul><li>{<a href="Behavior.html">Behavior</a>}</li></ul>
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>ref</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type"><a href="global.html#subgridConstructorRef">subgridConstructorRef</a></span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"></td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
+    <dt class="inherited-from">Inherited From:</dt>
+    <dd class="inherited-from"><ul class="dummy"><li>
+        <a href="Behavior.html#swapColumns">Behavior#swapColumns</a>
+    </li></ul></dd>
     
 
     
@@ -11187,28 +12347,6 @@ See the <a href="http://c2.com/cgi/wiki?MementoPattern">memento pattern</a>.</p>
 
 
 
-<h5>Returns:</h5>
-
-        
-<div class="param-desc">
-    <p>A data model constructor.</p>
-</div>
-
-
-
-<dl>
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
-<span class="param-type"><a href="DataModel.html">DataModel</a></span>
-
-
-    </dd>
-</dl>
-
-    
 
 
 
