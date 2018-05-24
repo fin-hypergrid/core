@@ -120,7 +120,8 @@ module.exports = {
         return dispatchEvent.call(this, 'fin-editor-keyup', {
             input: inputControl,
             keyEvent: keyEvent,
-            char: this.canvas.getCharMap()[keyEvent.keyCode][keyEvent.shiftKey ? 1 : 0]
+            char: this.canvas.getKeyChar(keyEvent),
+            legacyChar: keyEvent.legacyKey // decorated by getKeyChar
         });
     },
 
@@ -128,7 +129,8 @@ module.exports = {
         return dispatchEvent.call(this, 'fin-editor-keydown', {
             input: inputControl,
             keyEvent: keyEvent,
-            char: this.canvas.getCharMap()[keyEvent.keyCode][keyEvent.shiftKey ? 1 : 0]
+            char: this.canvas.getKeyChar(keyEvent),
+            legacyChar: keyEvent.legacyKey // decorated by getKeyChar
         });
     },
 
@@ -136,7 +138,8 @@ module.exports = {
         return dispatchEvent.call(this, 'fin-editor-keypress', {
             input: inputControl,
             keyEvent: keyEvent,
-            char: this.canvas.getCharMap()[keyEvent.keyCode][keyEvent.shiftKey ? 1 : 0]
+            char: this.canvas.getKeyChar(keyEvent),
+            legacyChar: keyEvent.legacyKey // decorated by getKeyChar
         });
     },
 

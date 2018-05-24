@@ -134,6 +134,7 @@ var CellEditor = Base.extend('CellEditor', {
                     alt: e.altKey,
                     ctrl: e.ctrlKey,
                     char: keyChar,
+                    legacyChar: e.legacyKey, // decorated by getKeyChar
                     code: e.charCode,
                     key: e.keyCode,
                     meta: e.metaKey,
