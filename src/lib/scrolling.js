@@ -208,12 +208,14 @@ exports.mixin = {
 
         var horzBar = new Scrollbar({
             orientation: 'horizontal',
+            deltaXFactor: this.constructor.defaults.wheelHFactor,
             onchange: self.setHScrollValue.bind(self),
             cssStylesheetReferenceElement: this.div
         });
 
         var vertBar = new Scrollbar({
             orientation: 'vertical',
+            deltaYFactor: this.constructor.defaults.wheelVFactor,
             onchange: self.setVScrollValue.bind(self),
             paging: {
                 up: self.pageUp.bind(self),

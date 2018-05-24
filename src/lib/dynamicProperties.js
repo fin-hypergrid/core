@@ -30,6 +30,26 @@ var dynamicPropertyDescriptors = {
         }
     },
 
+    wheelHFactor: {
+        enumerable: true,
+        get: function() {
+            return this.grid.sbHScroller.deltaXFactor;
+        },
+        set: function(factor) {
+            this.grid.sbHScroller.deltaXFactor = factor;
+        }
+    },
+
+    wheelVFactor: {
+        enumerable: true,
+        get: function() {
+            return this.grid.sbVScroller.deltaYFactor;
+        },
+        set: function(factor) {
+            this.grid.sbVScroller.deltaYFactor = factor;
+        }
+    },
+
     /**
      * @memberOf module:dynamicPropertyDescriptors
      */
