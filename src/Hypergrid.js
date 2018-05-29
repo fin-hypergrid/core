@@ -1322,10 +1322,6 @@ var Hypergrid = Base.extend('Hypergrid', {
         return this.behavior.getHiddenColumns();
     },
 
-    isViewableButton: function(c, r) {
-        return this.renderer.isViewableButton(c, r);
-    },
-
     /**
      * @memberOf Hypergrid#
      * @desc Request input focus.

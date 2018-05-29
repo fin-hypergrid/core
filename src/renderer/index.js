@@ -586,8 +586,6 @@ var Renderer = Base.extend('Renderer', {
 
         gc.beginPath();
 
-        this.buttonCells = {};
-
         var rowCount = this.grid.getRowCount();
         if (rowCount !== this.lastKnowRowCount) {
             var newWidth = resetRowHeaderColumnWidth.call(this, gc, rowCount);
@@ -1057,9 +1055,6 @@ var Renderer = Base.extend('Renderer', {
 
         behavior.cellPropertiesPrePaintNotification(config);
 
-        //allow the renderer to identify itself if it's a button
-        config.buttonCells = this.buttonCells;
-
         config.formatValue = grid.getFormatter(format || config.format);
 
         // Following supports partial render>
@@ -1133,11 +1128,6 @@ var Renderer = Base.extend('Renderer', {
         this.cellEventPool.forEach(function(cellEvent) {
             cellEvent._cellOwnProperties = undefined;
         });
-    },
-
-    isViewableButton: function(c, r) {
-        var key = c + ',' + r;
-        return this.buttonCells[key] === true;
     },
 
     getBounds: function() {

@@ -188,7 +188,7 @@ module.exports = {
     },
 
     fireSyntheticButtonPressedEvent: function(event) {
-        if (this.isViewableButton(event.dataCell.x, event.gridCell.y)) {
+        if (event.properties.renderer === 'button') {
             return dispatchEvent.call(this, 'fin-button-pressed', {}, event);
         }
     },
