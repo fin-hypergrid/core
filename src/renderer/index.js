@@ -346,7 +346,6 @@ var Renderer = Base.extend('Renderer', {
      * @returns {Point} Cell coordinates
      */
     getGridCellFromMousePoint: function(point) {
-
         var x = point.x,
             y = point.y,
             isPseudoRow = false,
@@ -374,13 +373,8 @@ var Renderer = Base.extend('Renderer', {
             isPseudoCol = true;
         }
 
-        var mousePoint = this.grid.newPoint(x - vc.left, y - vr.top),
-            cellEvent = new this.grid.behavior.CellEvent(vc.columnIndex, vr.index);
-
-        // cellEvent.visibleColumn = vc;
-        // cellEvent.visibleRow = vr;
-
-        result.cellEvent = Object.defineProperty(cellEvent, 'mousePoint', {value: mousePoint});
+        result.cellEvent = Object.create(this.findCell(new this.grid.behavior.CellEvent(vc.columnIndex, vr.index)));
+        result.cellEvent.mousePoint = this.grid.newPoint(x - vc.left, y - vr.top);
 
         if (isPseudoCol || isPseudoRow) {
             result.fake = true;
@@ -1090,21 +1084,25 @@ var Renderer = Base.extend('Renderer', {
 
         if (typeof colIndexOrCellEvent === 'object') {
             // colIndexOrCellEvent is a cell event object
-            dataModel = rowIndex;
-            rowIndex = colIndexOrCellEvent.visibleRow.rowIndex;
-            colIndex = colIndexOrCellEvent.column.index;
+            dataModel = colIndexOrCellEvent.subgrid;
+            rowIndex = colIndexOrCellEvent.dataCell.y;
+            colIndex = colIndexOrCellEvent.dataCell.x;
         } else {
             colIndex = colIndexOrCellEvent;
         }
 
         dataModel = dataModel || this.grid.behavior.dataModel;
 
-        for (var p = 0, len = this.visibleColumns.length * this.visibleRows.length; p < len; ++p) {
+        var len = len = this.visibleColumns.length;
+        if (this.grid.properties.showRowNumbers) { len++; }
+        if (this.grid.behavior.hasTreeColumn()) { len++; }
+        len *= this.visibleRows.length;
+        for (var p = 0; p < len; ++p) {
             cellEvent = pool[p];
             if (
                 cellEvent.subgrid === dataModel &&
-                cellEvent.column.index === colIndex &&
-                cellEvent.visibleRow.rowIndex === rowIndex
+                cellEvent.dataCell.x === colIndex &&
+                cellEvent.dataCell.y === rowIndex
             ) {
                 return cellEvent;
             }
