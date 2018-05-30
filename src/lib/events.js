@@ -404,9 +404,19 @@ module.exports = {
                 return;
             }
             handleMouseEvent(e, function(mouseEvent) {
-                mouseEvent.keys = e.detail.keys; // todo: this was in fin-tap but wasn't here
-                this.fireSyntheticClickEvent(mouseEvent);
-                this.delegateClick(mouseEvent);
+                var isMouseDownCell = this.mouseDownState && this.mouseDownState.gridCell.equals(mouseEvent.gridCell);
+                if (
+                    isMouseDownCell &&
+                    isMousePointInClickRect(mouseEvent)
+                ) {
+                    mouseEvent.keys = e.detail.keys; // todo: this was in fin-tap but wasn't here
+                    if (this.mouseDownState) {
+                        this.fireSyntheticButtonPressedEvent(this.mouseDownState);
+                        this.mouseDownState = null;
+                    }
+                    this.fireSyntheticClickEvent(mouseEvent);
+                    this.delegateClick(mouseEvent);
+                }
             });
         });
 
@@ -423,10 +433,6 @@ module.exports = {
             }
             handleMouseEvent(e, function(mouseEvent) {
                 this.delegateMouseUp(mouseEvent);
-                if (self.mouseDownState) {
-                    self.fireSyntheticButtonPressedEvent(self.mouseDownState);
-                }
-                this.mouseDownState = null;
                 this.fireSyntheticMouseUpEvent(mouseEvent);
             });
         });
@@ -590,6 +596,10 @@ module.exports = {
         this.behavior.onKeyUp(this, event);
     },
 };
+
+function isMousePointInClickRect(e) {
+    return !e.clickRect || e.clickRect.contains(e.mousePoint);
+}
 
 var details = [
     'gridCell',

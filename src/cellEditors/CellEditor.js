@@ -10,15 +10,13 @@ var Localization = require('../lib/Localization');
 
 /**
  * @constructor
+ * @param grid
+ * @param {CellEvent} options - Properties listed below + arbitrary mustache "variables" for merging into template.
+ * @param {Point} options.editPoint - Deprecated; use `options.gridCell`.
+ * @param {string} [options.format] - Name of a localizer with which to override prototype's `localizer` property.
  */
 var CellEditor = Base.extend('CellEditor', {
 
-    /**
-     * @param grid
-     * @param {CellEvent} options - Properties listed below + arbitrary mustache "variables" for merging into template.
-     * @param {Point} options.editPoint - Deprecated; use `options.gridCell`.
-     * @param {string} [options.format] - Name of a localizer with which to override prototype's `localizer` property.
-     */
     initialize: function(grid, options) {
         // Mix in all enumerable properties for mustache use, typically `column` and `format`.
         for (var key in options) {

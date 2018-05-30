@@ -343,7 +343,7 @@ var Renderer = Base.extend('Renderer', {
      * @memberOf Renderer.prototype
      * @desc Answer specific data cell coordinates given mouse coordinates in pixels.
      * @param {Point} point
-     * @returns {Point} Cell coordinates
+     * @returns {{cellEvent:CellEvent,fake:boolean}} Cell coordinates
      */
     getGridCellFromMousePoint: function(point) {
         var x = point.x,
@@ -1032,10 +1032,7 @@ var Renderer = Base.extend('Renderer', {
         config.isColumnSelected = isColumnSelected;
         config.isInCurrentSelectionRectangle = selectionModel.isInCurrentSelectionRectangle(x, r);
         config.prefillColor = prefillColor;
-
-        if (grid.mouseDownState) {
-            config.mouseDown = grid.mouseDownState.gridCell.equals(cellEvent.gridCell);
-        }
+        config.mouseDown = grid.mouseDownState && grid.mouseDownState.gridCell.equals(cellEvent.gridCell);
 
         // compute value if a calculator
         if (isUserDataArea && !(config.value && config.value.constructor === Array)) { // fastest array determination
@@ -1061,6 +1058,9 @@ var Renderer = Base.extend('Renderer', {
         // Following supports partial render:
         cellEvent.snapshot = config.snapshot;
         cellEvent.minWidth = config.minWidth;
+
+        // Following supports clicking in a renderer-defined Rectangle of a cell (in the cell's local coordinates)
+        cellEvent.clickRect = config.clickRect;
 
         return config.minWidth;
     },
@@ -1093,7 +1093,7 @@ var Renderer = Base.extend('Renderer', {
 
         dataModel = dataModel || this.grid.behavior.dataModel;
 
-        var len = len = this.visibleColumns.length;
+        var len = this.visibleColumns.length;
         if (this.grid.properties.showRowNumbers) { len++; }
         if (this.grid.behavior.hasTreeColumn()) { len++; }
         len *= this.visibleRows.length;

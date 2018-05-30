@@ -464,6 +464,18 @@ factory.cellEventProperties = Object.defineProperties({}, {
     } },
 });
 
+/** @typedef {WritablePoint} dataCellCoords
+ * @property {number} x - The data model's column index, unaffected by column scrolling; _i.e.,_
+ * an index suitable for dereferencing the column object to which the cell belongs via {@link Behavior#getColumn}.
+ * @property {number} y - The data model's row index, adjusted for data row scrolling after fixed rows.
+ */
+
+/** @typedef {WritablePoint} gridCellCoords
+ * @property {number} x - The active column index, adjusted for column scrolling after fixed columns; _i.e.,_
+ * an index suitable for dereferencing the column object to which the cell belongs via {@link Behavior#getActiveColumn}.
+ * @property {number} y - The vertical grid coordinate, unaffected by subgrid, row scrolling, and fixed rows.
+ */
+
 /**
  * @name cellEventFactory
  *
