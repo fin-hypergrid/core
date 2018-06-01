@@ -42,15 +42,15 @@ module.exports = {
      * @returns {string} Tab separated value string from the selection and our data.
      */
     getSelectionAsTSV: function() {
-        var sm = this.selectionModel;
-        if (sm.hasSelections()) {
-            var selections = this.getSelectionMatrix();
-            selections = selections[selections.length - 1];
-            return this.getMatrixSelectionAsTSV(selections);
-        } else if (sm.hasRowSelections()) {
-            return this.getMatrixSelectionAsTSV(this.getRowSelectionMatrix());
-        } else if (sm.hasColumnSelections()) {
-            return this.getMatrixSelectionAsTSV(this.getColumnSelectionMatrix());
+        switch (this.selectionModel.getLastSelectionType()) {
+            case 'cell':
+                var selections = this.getSelectionMatrix();
+                selections = selections[selections.length - 1];
+                return this.getMatrixSelectionAsTSV(selections);
+            case 'row':
+                return this.getMatrixSelectionAsTSV(this.getRowSelectionMatrix());
+            case 'column':
+                return this.getMatrixSelectionAsTSV(this.getColumnSelectionMatrix());
         }
     },
 
@@ -592,8 +592,8 @@ module.exports = {
     getSelections: function() {
         return this.behavior.getSelections();
     },
-    getLastSelectionType: function() {
-        return this.selectionModel.getLastSelectionType();
+    getLastSelectionType: function(n) {
+        return this.selectionModel.getLastSelectionType(n);
     },
     isInCurrentSelectionRectangle: function(x, y) {
         return this.selectionModel.isInCurrentSelectionRectangle(x, y);

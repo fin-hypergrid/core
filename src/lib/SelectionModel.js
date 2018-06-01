@@ -2,6 +2,8 @@
 
 var RangeSelectionModel = require('sparse-boolean-array');
 
+var InclusiveRectangle = require('./InclusiveRectangle');
+
 /**
  *
  * @constructor
@@ -91,8 +93,8 @@ SelectionModel.prototype = {
      * @memberOf SelectionModel.prototype
      * @returns {*}
      */
-    getLastSelectionType: function() {
-        return this.lastSelectionType[0] || '';
+    getLastSelectionType: function(n) {
+        return this.lastSelectionType[n || 0] || '';
     },
 
     /**
@@ -128,7 +130,7 @@ SelectionModel.prototype = {
      * @param {boolean} silent - whether to fire selection changed event
      */
     select: function(ox, oy, ex, ey, silent) {
-        var newSelection = this.grid.newRectangle(ox, oy, ex, ey);
+        var newSelection = new InclusiveRectangle(ox, oy, ex + 1, ey + 1);
 
         //Cache the first selected cell before it gets normalized to top-left origin
         newSelection.firstSelectedCell = this.grid.newPoint(ox, oy);
@@ -322,6 +324,7 @@ SelectionModel.prototype = {
      *
      */
     clear: function(keepRowSelections) {
+        this.lastSelectionType.length = 0;
         this.selections.length = 0;
         this.flattenedX.length = 0;
         this.flattenedY.length = 0;
