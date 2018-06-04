@@ -556,9 +556,8 @@ module.exports = {
 
         if (this.singleSelect()) {
             y1 = y2;
-        } else {
-            // multiple row selection
-            y2 = y2 || y1;
+        } else if (y2 === undefined) {
+            y2 = y1;
         }
 
         sm.selectRow(Math.min(y1, y2), Math.max(y1, y2));
