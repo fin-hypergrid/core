@@ -67,9 +67,10 @@ var RowSelection = Feature.extend('RowSelection', {
      */
     handleMouseDown: function(grid, event) {
         var rowSelectable = grid.properties.rowSelection &&
-            !event.primitiveEvent.detail.isRightClick &&
-            grid.properties.showRowNumbers &&
-            event.isHandleColumn;
+            !event.primitiveEvent.detail.isRightClick && (
+                grid.properties.autoSelectRows ||
+                grid.properties.showRowNumbers && event.isHandleColumn
+            );
 
         if (rowSelectable && event.isHeaderHandle) {
             //global row selection
