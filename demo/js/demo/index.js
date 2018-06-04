@@ -10,6 +10,7 @@ window.onload = function() {
 
     var demo = window.demo = {
         set vent(start) { window.grid[start ? 'logStart' : 'logStop'](); },
+        NOON: 12 * 60, // used by `hhmm` localizer and `Time` cell editor
         reset: reset,
         setData: setData,
         toggleEmptyData: toggleEmptyData,
