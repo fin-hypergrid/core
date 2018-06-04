@@ -607,6 +607,7 @@ var Renderer = Base.extend('Renderer', {
     renderLastSelection: function(gc) {
         var selection, left, top, width, height,
             grid = this.grid,
+            gridProps = grid.properties,
             sm = grid.selectionModel;
 
         switch (sm.getLastSelectionType()) {
@@ -622,7 +623,7 @@ var Renderer = Base.extend('Renderer', {
                 break;
 
             case 'row':
-                if (sm.getLastSelectionType(1) !== 'cell') {
+                if (!(gridProps.collapseCellSelections && sm.getLastSelectionType(1) === 'cell')) {
                     var rowSelections = sm.rowSelectionModel.selection,
                         lastRowSelection = rowSelections[rowSelections.length - 1];
 
@@ -656,7 +657,6 @@ var Renderer = Base.extend('Renderer', {
             lastScrollableRow = this.visibleRows[this.visibleRows.length - 1], // last row in scrollable data section
             firstScrollableColumn = vci[this.dataWindow.origin.x],
             firstScrollableRow = vri[this.dataWindow.origin.y],
-            gridProps = grid.properties,
             fixedColumnCount = gridProps.fixedColumnCount,
             fixedRowCount = gridProps.fixedRowCount,
             headerRowCount = grid.getHeaderRowCount();

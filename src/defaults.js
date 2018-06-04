@@ -1195,6 +1195,14 @@ var defaults = {
      */
     autoSelectColumns: false,
 
+    /**
+     * Collapse cell selection onto next row selection.
+     * @default
+     * @type {boolean}
+     * @memberOf module:defaults
+     */
+    collapseCellSelections: false,
+
     /** @summary Name of a formatter for cell text.
      * @desc Unknown formatter falls back to the `string` formatter (simple conversion to string with `+ ''`).
      * @default undefined

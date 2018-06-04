@@ -68,7 +68,11 @@ module.exports = function(demo, grid) {
                     name: 'checkboxOnlyRowSelections', label: 'by row handles only', setter: setSelectionProp,
                     tooltip: 'Note that when this property is active, autoSelectRows will not work.'
                 },
-                {name: 'singleRowSelectionMode', label: 'one row at a time', setter: setSelectionProp},
+                {
+                    name: 'singleRowSelectionMode',
+                    label: 'one row at a time',
+                    setter: setSelectionProp
+                },
                 {
                     name: '!multipleSelections',
                     label: 'one cell region at a time',
@@ -81,7 +85,18 @@ module.exports = function(demo, grid) {
                     '1. Requires that checkboxOnlyRowSelections be set to false (so checking this box automatically unchecks that one).\n' +
                     '2. Set singleRowSelectionMode to false to allow auto-select of multiple rows.'
                 },
-                {name: 'autoSelectColumns', label: 'auto-select columns', setter: setSelectionProp}
+                {
+                    name: 'autoSelectColumns',
+                    label: 'auto-select columns',
+                    setter: setSelectionProp
+                },
+                {
+                    name: 'collapseCellSelections',
+                    label: 'collapse cell selections',
+                    setter: setSelectionProp,
+                    tooltip: 'Cell selections are projected onto subsequently selected rows.\n\n' +
+                        'Requires singleRowSelectionMode && !multipleSelections.'
+                }
             ]
         }
     ];

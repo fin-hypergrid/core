@@ -47,8 +47,6 @@ module.exports = function(demo, grid) {
 
         checkboxOnlyRowSelections: true,
 
-        autoSelectRows: true,
-
         rows: {
             header: {
                 0: {

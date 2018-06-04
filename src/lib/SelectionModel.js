@@ -324,14 +324,16 @@ SelectionModel.prototype = {
      *
      */
     clear: function(keepRowSelections) {
-        this.lastSelectionType.length = 0;
         this.selections.length = 0;
         this.flattenedX.length = 0;
         this.flattenedY.length = 0;
         this.columnSelectionModel.clear();
         if (!keepRowSelections) {
+            this.lastSelectionType.length = 0;
             this.setAllRowsSelected(false);
             this.rowSelectionModel.clear();
+        } else if (this.lastSelectionType.indexOf('row') >= 0) {
+            this.lastSelectionType = ['row'];
         }
         //this.getGrid().selectionChanged();
     },
