@@ -363,7 +363,7 @@ var Renderer = Base.extend('Renderer', {
         var rows = Array(this.visibleRows.length);
         var adjust = this.grid.behavior.hasTreeColumn() ? 1 : 0;
         for (var y = 0; y < rows.length; ++y) { rows[y] = Array(this.visibleColumns.length); }
-        this.cellEventPool.map(function(cell) {
+        this.cellEventPool.forEach(function(cell) {
             var x = cell.gridCell.x + adjust;
             if (x >= 0) {
                 rows[cell.gridCell.y][x] = cell.value;
@@ -1524,15 +1524,17 @@ function renderGrid(gc) {
  * @this {Renderer}
  */
 function getSubrects() {
+    var dw = this.dataWindow;
     if (!this.grid.properties.fetchSubregions) {
-        return [this.dataWindow];
+        var rect = this.grid.newRectangle(dw.left, dw.top, dw.width, dw.height); // convert from InclusiveRect
+        return [rect];
     }
 
     var orderedColumnIndexes = this.visibleColumns.map(function(vc) { return vc.column.index; }).sort(intComparator),
         xMin = orderedColumnIndexes[0],
         width = orderedColumnIndexes[orderedColumnIndexes.length - 1] - xMin + 1;
 
-    return [this.grid.newRectangle(xMin, this.dataWindow.top, width, this.dataWindow.height)];
+    return [this.grid.newRectangle(xMin, dw.top, width, dw.height)];
 }
 
 function intComparator(a, b){ return a - b; }
