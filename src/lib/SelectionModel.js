@@ -2,6 +2,9 @@
 
 var RangeSelectionModel = require('sparse-boolean-array');
 
+var InclusiveRectangle = require('./InclusiveRectangle');
+
+
 /**
  *
  * @constructor
@@ -69,7 +72,7 @@ SelectionModel.prototype = {
          */
         this.columnSelectionModel = new RangeSelectionModel();
 
-        this.setLastSelectionType('');
+        this.lastSelectionType = [];
     },
 
     /**
@@ -83,19 +86,38 @@ SelectionModel.prototype = {
     },
 
     /**
+     * The most recent selection type. This is the TOS of `this.lastSelectionType`, the stack of unique selection types.
+     *
+     * Note that in the case where the only remaining previous selection of `type` was deselected, and `setLastSelectionType` was called with `reset` truthy, `type` is removed from the stack. If it was previously TOS, the TOS will now be what was the 2nd most recently pushed type (or nothing if no other selections).
+     *
+     * Returns empty string (`''`) if there are no selections.
      * @memberOf SelectionModel.prototype
      * @returns {*}
      */
-    getLastSelectionType: function() {
-        return this.lastSelectionType;
+    getLastSelectionType: function(n) {
+        return this.lastSelectionType[n || 0] || '';
     },
 
     /**
-     * @param type
+     * Set the most recent selection's `type`. That is, push onto TOS of `this.lastSelectionType`, the stack of unique selection types. If already in the stack, move it to the top.
+     *
+     * If `reset` is truthy, remove the given `type` from the stack, regardless of where found therein (or not), thus "revealing" the 2nd most recently pushed type.
+     *
+     * @param {string} type - One of: `'cell'`, `'row'`, or `'column'`
+     * @param {boolean} [reset=false] - Remove the given `type` from the stack. Specify truthy when the only remaining previous selection of `type` has been deselected.
      * @memberOf SelectionModel.prototype
      */
-    setLastSelectionType: function(type) {
-        this.lastSelectionType = type;
+    setLastSelectionType: function(type, reset) {
+        var i = this.lastSelectionType.indexOf(type);
+        if (i === 0 && !reset) {
+            return;
+        }
+        if (i >= 0) {
+            this.lastSelectionType.splice(i, 1);
+        }
+        if (!reset) {
+            this.lastSelectionType.unshift(type);
+        }
     },
 
     /**
@@ -109,7 +131,7 @@ SelectionModel.prototype = {
      * @param {boolean} silent - whether to fire selection changed event
      */
     select: function(ox, oy, ex, ey, silent) {
-        var newSelection = this.grid.newRectangle(ox, oy, ex, ey);
+        var newSelection = new InclusiveRectangle(ox, oy, ex + 1, ey + 1);
 
         //Cache the first selected cell before it gets normalized to top-left origin
         newSelection.firstSelectedCell = this.grid.newPoint(ox, oy);
@@ -160,6 +182,7 @@ SelectionModel.prototype = {
             this.selections.splice(index, 1);
             this.flattenedX.splice(index, 1);
             this.flattenedY.splice(index, 1);
+            this.setLastSelectionType('cell', !this.selections.length);
             this.grid.selectionChanged();
         } else {
             this.select(ox, oy, ex, ey);
@@ -177,6 +200,7 @@ SelectionModel.prototype = {
         if (this.selections.length) { --this.selections.length; }
         if (this.flattenedX.length) { --this.flattenedX.length; }
         if (this.flattenedY.length) { --this.flattenedY.length; }
+        this.setLastSelectionType('cell', !this.selections.length);
         //this.getGrid().selectionChanged();
     },
 
@@ -185,7 +209,7 @@ SelectionModel.prototype = {
      */
     clearMostRecentColumnSelection: function() {
         this.columnSelectionModel.clearMostRecentSelection();
-        this.setLastSelectionType('column');
+        this.setLastSelectionType('column', !this.columnSelectionModel.selection.length);
     },
 
     /**
@@ -193,7 +217,7 @@ SelectionModel.prototype = {
      */
     clearMostRecentRowSelection: function() {
         this.rowSelectionModel.clearMostRecentSelection();
-        this.setLastSelectionType('row');
+        this.setLastSelectionType('row', !this.rowSelectionModel.selection.length);
     },
 
     /**
@@ -201,7 +225,7 @@ SelectionModel.prototype = {
      */
     clearRowSelection: function() {
         this.rowSelectionModel.clear();
-        this.setLastSelectionType('row');
+        this.setLastSelectionType('row', !this.rowSelectionModel.selection.length);
     },
 
     /**
@@ -306,8 +330,11 @@ SelectionModel.prototype = {
         this.flattenedY.length = 0;
         this.columnSelectionModel.clear();
         if (!keepRowSelections) {
+            this.lastSelectionType.length = 0;
             this.setAllRowsSelected(false);
             this.rowSelectionModel.clear();
+        } else if (this.lastSelectionType.indexOf('row') >= 0) {
+            this.lastSelectionType = ['row'];
         }
         //this.getGrid().selectionChanged();
     },
@@ -354,7 +381,7 @@ SelectionModel.prototype = {
      */
     selectColumn: function(x1, x2) {
         this.columnSelectionModel.select(x1, x2);
-        this.setLastSelectionType('column');
+        this.setLastSelectionType('column', !this.columnSelectionModel.selection.length);
     },
 
     /**
@@ -385,7 +412,7 @@ SelectionModel.prototype = {
      */
     selectRow: function(y1, y2) {
         this.rowSelectionModel.select(y1, y2);
-        this.setLastSelectionType('row');
+        this.setLastSelectionType('row', !this.rowSelectionModel.selection.length);
     },
 
     /**
@@ -395,7 +422,7 @@ SelectionModel.prototype = {
      */
     deselectColumn: function(x1, x2) {
         this.columnSelectionModel.deselect(x1, x2);
-        this.setLastSelectionType('column');
+        this.setLastSelectionType('column', !this.columnSelectionModel.selection.length);
     },
 
     /**
@@ -411,7 +438,7 @@ SelectionModel.prototype = {
             this.rowSelectionModel.select(0, this.grid.getRowCount() - 1);
         }
         this.rowSelectionModel.deselect(y1, y2);
-        this.setLastSelectionType('row');
+        this.setLastSelectionType('row', !this.rowSelectionModel.selection.length);
     },
 
     /**
@@ -456,7 +483,7 @@ SelectionModel.prototype = {
         var set = {};
         this.selections.forEach(function(selection) {
             var top = selection.origin.y;
-            var size = selection.extent.y + 1;
+            var size = selection.height;
             for (var r = 0; r < size; r++) {
                 var ti = r + top;
                 if (!set[ti]) {
@@ -518,7 +545,7 @@ SelectionModel.prototype = {
      * @returns {*}
      */
     isInCurrentSelectionRectangle: function(x, y) {
-        var last = this.selections[this.selections.length - 1];
+        var last = this.getLastSelection();
         return last && this.rectangleContains(last, x, y);
     },
 

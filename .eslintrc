@@ -117,7 +117,7 @@
     "no-script-url": 2,
     "no-sequences": 2,
     "no-unused-expressions": 2,
-    "yoda": 2,
+    "yoda": 0,
     "no-delete-var": 2,
     "no-label-var": 2,
     "no-shadow-restricted-names": 2,

@@ -1,6 +1,6 @@
 'use strict';
 
-var dataModels = require('../dataModels');
+var dataModels = require('../dataModels/index');
 
 /** @typedef subgridConstructorRef
  * @summary Type definition.
@@ -20,7 +20,11 @@ var dataModels = require('../dataModels');
  *   * Remaining elements are used as additional parameters to the constructor.
  */
 
-module.exports = {
+/**
+ * Behavior.js mixes this module into its prototype.
+ * @mixin
+ */
+exports.mixin = {
     /**
      * An array where each element represents a subgrid to be rendered in the hypergrid.
      *
@@ -39,7 +43,7 @@ module.exports = {
      *
      * @param {subgridSpec[]} subgridSpecs
      *
-     * @type {dataModelAPI[]}
+     * @type {DataModel[]}
      *
      * @memberOf Behavior#
      */
@@ -64,7 +68,7 @@ module.exports = {
      * @summary Maps a `subgridSpec` to a data model.
      * @desc The spec may describe either an existing data model, or a constructor for a new data model.
      * @param {subgridSpec} spec
-     * @returns {dataModelAPI} A data model.
+     * @returns {DataModel} A data model.
      * @memberOf Behavior#
      */
     createSubgrid: function(spec, args) {
@@ -75,20 +79,24 @@ module.exports = {
         } else if (spec instanceof Array && spec.length) {
             Constructor = derefSubgridRef.call(this, spec[0]);
             variableArgArray = spec.slice(1);
-            subgrid = this.createApply(Constructor, variableArgArray, this.grid);
+            subgrid = this.createApply(Constructor, variableArgArray, undefined, { grid: this.grid });
+            subgrid = this.decorateDataModel(subgrid);
         } else if (typeof spec === 'object') {
             subgrid = spec;
         } else {
             Constructor = derefSubgridRef.call(this, spec);
             variableArgArray = Array.prototype.slice.call(arguments, 1);
-            subgrid = this.createApply(Constructor, variableArgArray, this.grid);
+            subgrid = this.createApply(Constructor, variableArgArray, undefined, { grid: this.grid });
+            subgrid = this.decorateDataModel(subgrid);
         }
 
         // undefined type is data
-        subgrid.type = subgrid.type || 'data';
+        if (!subgrid.type) {
+            subgrid.type = 'data';
+        }
 
         // make dictionary lookup entry
-        var key = subgrid.name || subgrid.type;
+        var key = subgrid.type === 'data' && subgrid.type || subgrid.name || subgrid.type;
         this._subgrids.lookup[key] = this._subgrids.lookup[key] || subgrid; // only save first with this key
 
         // make isType boolean
@@ -100,7 +108,7 @@ module.exports = {
     /**
      * @summary Gets the number of "header rows".
      * @desc Defined as the sum of all rows in all subgrids before the (first) data subgrid.
-     * @memberOf behaviors.JSON.prototype
+     * @memberOf Local.prototype
      */
     getHeaderRowCount: function() {
         var result = 0;
@@ -118,7 +126,7 @@ module.exports = {
     /**
      * @summary Gets the number of "footer rows".
      * @desc Defined as the sum of all rows in all subgrids after the (last) data subgrid.
-     * @memberOf behaviors.JSON.prototype
+     * @memberOf Local.prototype
      */
     getFooterRowCount: function() {
         var gotData;
@@ -135,7 +143,7 @@ module.exports = {
     /**
      * @summary Gets the total number of logical rows.
      * @desc Defined as the sum of all rows in all subgrids.
-     * @memberOf behaviors.JSON.prototype
+     * @memberOf Local.prototype
      */
     getLogicalRowCount: function() {
         return this.subgrids.reduce(function(rows, subgrid) {
@@ -156,7 +164,7 @@ function derefSubgridRef(ref) {
     var Constructor;
     switch (typeof ref) {
         case 'string':
-            Constructor = dataModels[ref];
+            Constructor = dataModels.get(ref);
             break;
         case 'function':
             Constructor = ref;

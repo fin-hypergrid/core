@@ -49,9 +49,11 @@ var RowSelection = Feature.extend('RowSelection', {
     handleMouseUp: function(grid, event) {
         if (this.dragArmed) {
             this.dragArmed = false;
+            moveCellSelection(grid);
             grid.fireSyntheticRowSelectionChangedEvent();
         } else if (this.dragging) {
             this.dragging = false;
+            moveCellSelection(grid);
             grid.fireSyntheticRowSelectionChangedEvent();
         } else if (this.next) {
             this.next.handleMouseUp(grid, event);
@@ -65,9 +67,10 @@ var RowSelection = Feature.extend('RowSelection', {
      */
     handleMouseDown: function(grid, event) {
         var rowSelectable = grid.properties.rowSelection &&
-            !event.primitiveEvent.detail.isRightClick &&
-            grid.properties.showRowNumbers &&
-            event.isHandleColumn;
+            !event.primitiveEvent.detail.isRightClick && (
+                grid.properties.autoSelectRows ||
+                grid.properties.showRowNumbers && event.isHandleColumn
+            );
 
         if (rowSelectable && event.isHeaderHandle) {
             //global row selection
@@ -351,60 +354,54 @@ var RowSelection = Feature.extend('RowSelection', {
      * @param {number} offsetY - y coordinate to start at
      */
     moveShiftSelect: function(grid, offsetY) {
-        var origin = grid.getMouseDown(),
-            extent = grid.getDragExtent(),
-            maxViewableRows = grid.renderer.visibleRows.length - 1,
-            maxRows = grid.getRowCount() - 1;
-
-        if (!grid.properties.scrollingEnabled) {
-            maxRows = Math.min(maxRows, maxViewableRows);
-        }
-
-        var newY = extent.y + offsetY;
-
-        newY = Math.min(maxRows - origin.y, Math.max(-origin.y, newY));
-
-        grid.clearMostRecentRowSelection();
-        grid.selectRow(origin.y, origin.y + newY);
-        grid.setDragExtent(grid.newPoint(0, newY));
-
-        if (grid.insureModelRowIsVisible(newY + origin.y, offsetY)) {
-            this.pingAutoScroll();
-        }
-
-        grid.fireSyntheticRowSelectionChangedEvent();
-
-        grid.repaint();
+       this.moveSingleSelect(grid, offsetY, true);
     },
 
     /**
      * @memberOf RowSelection.prototype
-     * @desc Replace the most recent selection with a single cell selection that is moved (offsetX,offsetY) from the previous selection extent.
+     * @desc Replace the most recent row selection with a single cell row selection `offsetY` rows from the previous selection.
      * @param {Hypergrid} grid
-     * @param {number} offsetX - x coordinate to start at
      * @param {number} offsetY - y coordinate to start at
      */
-    moveSingleSelect: function(grid, offsetY) {
-        var maxRows = grid.getRowCount() - 1,
-            maxViewableRows = grid.getVisibleRowsCount() - 1,
-            mouseCorner = grid.getMouseDown().plus(grid.getDragExtent()),
-            newY = mouseCorner.y + offsetY;
+    moveSingleSelect: function(grid, offsetY, shift) {
+        var selections = grid.selectionModel.rowSelectionModel.selection,
+            lastSelection = selections[selections.length - 1],
+            top = lastSelection[0],
+            bottom = lastSelection[1];
 
-        if (!grid.properties.scrollingEnabled) {
-            maxRows = Math.min(maxRows, maxViewableRows);
+        if (shift) {
+            var firstOffsetY = lastSelection.offsetY = lastSelection.offsetY || offsetY;
+            if (lastSelection.offsetY < 0) {
+                top += offsetY;
+            } else {
+                bottom += offsetY;
+            }
+        } else {
+            top += offsetY;
+            bottom += offsetY;
         }
 
-        newY = Math.min(maxRows, Math.max(0, newY));
-
-        grid.clearSelections();
-        grid.selectRow(newY);
-        grid.setMouseDown(grid.newPoint(0, newY));
-        grid.setDragExtent(grid.newPoint(0, 0));
-
-        if (grid.insureModelRowIsVisible(newY, offsetY)) {
-            this.pingAutoScroll();
+        if (top < 0 || bottom >= grid.getRowCount()) {
+            return;
         }
 
+        selections.length -= 1;
+        if (selections.length) {
+            lastSelection = selections[selections.length - 1];
+            delete lastSelection.offsetY;
+        }
+        grid.selectRow(top, bottom);
+        if (shift && top !== bottom) {
+            lastSelection = selections[selections.length - 1];
+            lastSelection.offsetY = firstOffsetY;
+        }
+
+        grid.setMouseDown(grid.newPoint(0, top));
+        grid.setDragExtent(grid.newPoint(0, bottom - top));
+
+        grid.scrollToMakeVisible(grid.properties.fixedColumnCount, offsetY < 0 ? top : bottom + 1); // +1 for partial row
+
+        moveCellSelection(grid);
         grid.fireSyntheticRowSelectionChangedEvent();
         grid.repaint();
     },
@@ -414,5 +411,28 @@ var RowSelection = Feature.extend('RowSelection', {
     }
 
 });
+
+function moveCellSelection(grid) {
+    var rows;
+
+    if (
+        grid.properties.collapseCellSelections &&
+        grid.properties.singleRowSelectionMode && // let's only attempt this when in this mode
+        !grid.properties.multipleSelections && // and only when in single selection mode
+        (rows = grid.getSelectedRows()).length && // user just selected a row (must be single row due to mode we're in)
+        grid.selectionModel.getSelections().length  // there was a cell region selected (must be the only one)
+    ) {
+        var rect = grid.selectionModel.getLastSelection(), // the only cell selection
+            x = rect.left,
+            y = rows[0], // we know there's only 1 row selected
+            width = rect.right - x,
+            height = 0, // collapse the new region to occupy a single row
+            fireSelectionChangedEvent = false;
+
+        grid.selectionModel.select(x, y, width, height, fireSelectionChangedEvent);
+        grid.repaint();
+    }
+
+}
 
 module.exports = RowSelection;

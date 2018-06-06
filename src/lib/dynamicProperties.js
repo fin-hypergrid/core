@@ -18,7 +18,7 @@ var dynamicPropertyDescriptors = {
      * * **string:** When theme name is registered (except 'default').
      * * **undefined:** When theme layer is empty (or theme name is 'default').
      * * **object:** When theme name is not registered.
-     * @memberOf module:dynamicPropertyDescriptors
+     * @memberOf module:dynamicProperties
      */
     theme: {
         enumerable: true,
@@ -30,8 +30,28 @@ var dynamicPropertyDescriptors = {
         }
     },
 
+    wheelHFactor: {
+        enumerable: true,
+        get: function() {
+            return this.grid.sbHScroller.deltaXFactor;
+        },
+        set: function(factor) {
+            this.grid.sbHScroller.deltaXFactor = factor;
+        }
+    },
+
+    wheelVFactor: {
+        enumerable: true,
+        get: function() {
+            return this.grid.sbVScroller.deltaYFactor;
+        },
+        set: function(factor) {
+            this.grid.sbVScroller.deltaYFactor = factor;
+        }
+    },
+
     /**
-     * @memberOf module:dynamicPropertyDescriptors
+     * @memberOf module:dynamicProperties
      */
     subgrids: {
         enumerable: true,
@@ -48,7 +68,7 @@ var dynamicPropertyDescriptors = {
     },
 
     /**
-     * @memberOf module:dynamicPropertyDescriptors
+     * @memberOf module:dynamicProperties
      */
     features: {
         enumerable: true,
@@ -65,7 +85,7 @@ var dynamicPropertyDescriptors = {
     },
 
     /**
-     * @memberOf module:dynamicPropertyDescriptors
+     * @memberOf module:dynamicProperties
      */
     gridRenderer: {
         enumerable: true,
@@ -79,7 +99,7 @@ var dynamicPropertyDescriptors = {
     },
 
     /**
-     * @memberOf module:dynamicPropertyDescriptors
+     * @memberOf module:dynamicProperties
      */
     columnIndexes: {
         enumerable: true,
@@ -95,7 +115,7 @@ var dynamicPropertyDescriptors = {
     },
 
     /**
-     * @memberOf module:dynamicPropertyDescriptors
+     * @memberOf module:dynamicProperties
      */
     columnNames: {
         enumerable: true,
@@ -111,7 +131,7 @@ var dynamicPropertyDescriptors = {
     },
 
     /**
-     * @memberOf module:dynamicPropertyDescriptors
+     * @memberOf module:dynamicProperties
      */
     rows: {
         enumerable: true,
@@ -125,7 +145,7 @@ var dynamicPropertyDescriptors = {
     },
 
     /**
-     * @memberOf module:dynamicPropertyDescriptors
+     * @memberOf module:dynamicProperties
      */
     columns: {
         enumerable: true,
@@ -139,7 +159,7 @@ var dynamicPropertyDescriptors = {
     },
 
     /**
-     * @memberOf module:dynamicPropertyDescriptors
+     * @memberOf module:dynamicProperties
      */
     cells: {
         enumerable: true,
@@ -153,7 +173,7 @@ var dynamicPropertyDescriptors = {
     },
 
     /**
-     * @memberOf module:dynamicPropertyDescriptors
+     * @memberOf module:dynamicProperties
      */
     rowHeaderCheckboxes: {
         enumerable: true,
@@ -167,7 +187,7 @@ var dynamicPropertyDescriptors = {
     },
 
     /**
-     * @memberOf module:dynamicPropertyDescriptors
+     * @memberOf module:dynamicProperties
      */
     rowHeaderNumbers: {
         enumerable: true,
@@ -182,7 +202,7 @@ var dynamicPropertyDescriptors = {
 
     /**
      * Legacy property; now points to both `rowHeaderFeatures` props.
-     * @memberOf module:dynamicPropertyDescriptors
+     * @memberOf module:dynamicProperties
      */
     showRowNumbers: {
         enumerable: false,
@@ -241,7 +261,7 @@ var dynamicPropertyDescriptors = {
 };
 
 /**
- * @name module:dynamicPropertyDescriptors.columnProperties
+ * @name module:dynamicProperties.columnProperties
  */
 dynamicPropertyDescriptors.columnProperties = dynamicPropertyDescriptors.columns;
 
