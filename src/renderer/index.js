@@ -588,14 +588,16 @@ var Renderer = Base.extend('Renderer', {
 
             // Pre-fetch data if supported by data model
             var dataModel = this.grid.behavior.dataModel;
-            if (
-                dataModel.fetchData &&
-                !renderGridIfData.call(this, gc) // only need to pre-fetch if data NOT already available
-            ) {
-                dataModel.fetchData(
-                    getSubrects.call(this),
-                    renderGridIfData.bind(this, gc) // render immediately upon successful fetch (see above)
-                );
+            if (dataModel.fetchData) {
+                if (dataModel.gotData && dataModel.gotData(getSubrects.call(this))) {
+                    // data already available
+                    renderGrid.call(this, gc);
+                } else {
+                    dataModel.fetchData(
+                        getSubrects.call(this),
+                        renderGridIfData.bind(this, gc) // render immediately upon successful fetch (see above)
+                    );
+                }
                 return;
             }
         }
