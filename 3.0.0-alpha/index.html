@@ -5,11 +5,19 @@
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8" >
     <meta http-equiv="Cache-Control" content="must-revalidate" />
     <link rel="icon" type="image/png" href="img/hypergrid-icon.png">
-    <script src="build/fin-hypergrid.js"></script>
     <script src="build/testbench.js"></script>
     <link rel="stylesheet" href="css/demo.css">
 </head>
 <body>
+
+    <label style="float:right; color:lightgrey; font:bold italic 9pt sans-serif; margin-right:1em; cursor:help"
+     onclick="alert(this.title)"
+     title="var grid = new Hypergrid,
+    g = grid,
+    p = g.properties,
+    b = g.behavior,
+    m = b.dataModel;">top-level global vars</label>
+
     <h1 style="margin:.5em; color:lightgrey">Hypergrid <span id="version"></span> dev testbench</h1>
 
     <div id="tabs">

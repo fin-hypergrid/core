@@ -865,6 +865,73 @@ cell rects are contiguous.</li>
 
         
             
+<h4 class="name" id=".collapseCellSelections"><span class="type-signature">(static) </span>collapseCellSelections<span class="type-signature"> :boolean</span></h4>
+
+
+
+
+<div class="description">
+    <p>Collapse cell selection onto next row selection.</p>
+</div>
+
+
+
+    <h5>Type:</h5>
+    <ul>
+        <li>
+            
+<span class="param-type">boolean</span>
+
+
+        </li>
+    </ul>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+        
+            
 <h4 class="name" id=".color"><span class="type-signature">(static) </span>color<span class="type-signature"> :string</span></h4>
 
 
@@ -10135,6 +10202,162 @@ Useful for excluding some columns but not other from participating in sorting.</
 
     
 
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+        
+            
+<h4 class="name" id=".wheelHFactor"><span class="type-signature">(static) </span>wheelHFactor<span class="type-signature"> :number</span></h4>
+
+
+
+
+<div class="description">
+    <p>Multiplier for horizontal mouse wheel movement, applied to values of <a href="https://developer.mozilla.org/docs/Web/API/WheelEvent/deltaX"><code>WheelEvent#deltaX</code></a> (received by the horizontal scrollbar's listener).</p>
+<h4>Caveat</h4><p>Wheel granularity depends on the OS, the input device, and possibly the browser. Any setting you choose will work differently in different environments. If you don't know the user's environment, it is probably best to give users control of this setting so they can fine tune it themselves.</p>
+<h4>Default values</h4><p>This particular default value of <code>0.01</code> seems to work well on the MacBook Pro trackpad. It's slower than it was, which will greatly improve the scrolling experience since column scrolling often occurred inadvertently when the intent was to scroll in the veritcal direction only.</p>
+<p>Be aware however that the trackpad scrolling speed can be adjusted by the Mac user at the OS level (System Preferences -&gt; Accessibility -&gt; Mouse &amp; Trackpad -&gt; Trackpad Options… -&gt; Scrolling speed).</p>
+<p>Hint: You can tell if the user is using a trackpad by listening for any deltaX (since a simple mouse wheel is deltaY only); and what OS by checking user agent.</p>
+</div>
+
+
+
+    <h5>Type:</h5>
+    <ul>
+        <li>
+            
+<span class="param-type">number</span>
+
+
+        </li>
+    </ul>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-default">Default Value:</dt>
+    <dd class="tag-default"><ul class="dummy">
+            <li>0.01</li>
+        </ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+        
+            
+<h4 class="name" id=".wheelVFactor"><span class="type-signature">(static) </span>wheelVFactor<span class="type-signature"> :number</span></h4>
+
+
+
+
+<div class="description">
+    <p>Multiplier for vertical mouse wheel movement, applied to values of <a href="https://developer.mozilla.org/docs/Web/API/WheelEvent/deltaY"><code>WheelEvent#deltaY</code></a> (received by the vertical scrollbar's listener).</p>
+<h4>Caveat</h4><p>Wheel granularity depends on the OS, the input device, and possibly the browser. Any setting you choose will work differently in different environments. If you don't know the user's environment, it is probably best to give users control of this setting so they can fine tune it themselves.</p>
+<h4>Default values</h4><p>This particular default value of <code>0.05</code> is a compromise. It seems to work well on the MacBook Pro trackpad; and works acceptably (though differently) with a mouse wheel on both Mac OS and Windows.</p>
+<p>Be aware however that the trackpad scrolling speed can be adjusted by the Mac user at the OS level (System Preferences -&gt; Accessibility -&gt; Mouse &amp; Trackpad -&gt; Trackpad Options… -&gt; Scrolling speed). Mouse wheel scrolling speed is also adjustable ( <em>yada yada</em> -&gt; Mouse Options… -&gt; Scrolling speed; or on Windows search for &quot;Change mouse wheel settings&quot; in the Start menu).</p>
+<p>This default setting of <code>0.05</code> feels good on trackpad (2-finger drag). It's much slower than it was, but the way it was before was way to coarse and fast, scrolling hundreds of rows in a flash.</p>
+<p>With this setting, a mouse connected to a Mac, the wheel requires 5 click-stops to scroll 1 row; the same mouse connected to Windows scrolls 5 rows per click-stop. (However, I may have changed the default settings on my machines; not sure.)</p>
+<p>On Windows, the original multiplier setting (<em>i.e.,</em> <code>1.0</code>) scrolled 100 grid rows on a single mouse wheel click-stop; the new default (<code>0.05</code>) scrolls 5 rows per click-stop. It stands to reason therefore that a setting of <code>0.01</code> will scroll 1:1 (1 row per 1 click-stop).</p>
+<pre class="prettyprint source"><code> #### Hint
+ You can tell if the user is using a trackpad by listening for any deltaX (since a simple mouse wheel is deltaY only); and what OS by checking user agent.</code></pre>
+</div>
+
+
+
+    <h5>Type:</h5>
+    <ul>
+        <li>
+            
+<span class="param-type">number</span>
+
+
+        </li>
+    </ul>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-default">Default Value:</dt>
+    <dd class="tag-default"><ul class="dummy">
+            <li>0.05</li>
+        </ul></dd>
     
 
     

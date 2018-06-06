@@ -1383,6 +1383,12 @@
 
 
 
+<div class="description">
+    <p>The most recent selection type. This is the TOS of <code>this.lastSelectionType</code>, the stack of unique selection types.</p>
+<p>Note that in the case where the only remaining previous selection of <code>type</code> was deselected, and <code>setLastSelectionType</code> was called with <code>reset</code> truthy, <code>type</code> is removed from the stack. If it was previously TOS, the TOS will now be what was the 2nd most recently pushed type (or nothing if no other selections).</p>
+<p>Returns empty string (<code>''</code>) if there are no selections.</p>
+</div>
+
 
 
 
@@ -4425,11 +4431,16 @@
 
     
 
-    <h4 class="name" id="setLastSelectionType"><span class="type-signature"></span>setLastSelectionType<span class="signature">(type)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="setLastSelectionType"><span class="type-signature"></span>setLastSelectionType<span class="signature">(type, reset<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span></h4>
 
     
 
 
+
+<div class="description">
+    <p>Set the most recent selection's <code>type</code>. That is, push onto TOS of <code>this.lastSelectionType</code>, the stack of unique selection types. If already in the stack, move it to the top.</p>
+<p>If <code>reset</code> is truthy, remove the given <code>type</code> from the stack, regardless of where found therein (or not), thus &quot;revealing&quot; the 2nd most recently pushed type.</p>
+</div>
 
 
 
@@ -4452,7 +4463,11 @@
         <th>Type</th>
 
         
+        <th>Attributes</th>
+        
 
+        
+        <th>Default</th>
         
 
         <th class="last">Description</th>
@@ -4469,13 +4484,69 @@
 
             <td class="type">
             
+                
+<span class="param-type">string</span>
+
+
+            
             </td>
 
             
+                <td class="attributes">
+                
 
+                
+
+                
+                </td>
             
 
-            <td class="description last"></td>
+            
+                <td class="default">
+                
+                </td>
+            
+
+            <td class="description last"><p>One of: <code>'cell'</code>, <code>'row'</code>, or <code>'column'</code></p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>reset</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">boolean</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    false
+                
+                </td>
+            
+
+            <td class="description last"><p>Remove the given <code>type</code> from the stack. Specify truthy when the only remaining previous selection of <code>type</code> has been deselected.</p></td>
         </tr>
 
     

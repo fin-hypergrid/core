@@ -632,8 +632,10 @@
 <li>First passed to a <a href="DataModel.html#getCell"><code>getCell</code></a> method implementation, which may override (most of) its values before returning.</li>
 <li>Then passed to the specified cell renderers' <a href="CellRenderer.html#paint"><code>paint</code></a> function for rendering.</li>
 </ol>
-<h4>Standard Properties</h4><p>On each and every render of every cell in view, this a fresh instance of an object created from a <a href="CellEvent.html"><code>CellEvent</code></a> object, which in turn descends from <a href="module-defaults.html"><code>module:defaults</code></a>. It therefore has all the standard properties defined in both objects (see).</p>
-<h4>Additional Properties</h4><p>Properties marked <em>read-only</em> below may in fact be writable, but should be considered <strong>off limits</strong> to overriding. Do not attempt to change these properties inside a <a href="DataModel.html#getCell"><code>getCell</code></a> method override.</p>
+<h4>Standard Properties</h4><p>On each render of every visible cell, this a fresh instance of an object created from (whose prototype is) a properties object as defined by layer-props.js. It therefore has all the standard properties defined in <a href="module-defaults.html"><code>module:defaults</code></a>.</p>
+<h4>Additional Properties</h4><p>In addition, the config object has the following additional properties.</p>
+<p>Properties marked <strong><em>read-only</em></strong> may in fact be writable, but should be considered <strong>off limits</strong> to overriding. Do not attempt to change these properties inside a <a href="DataModel.html#getCell"><code>getCell</code></a> method override.</p>
+<p>Properties marked <strong><em>write-only</em></strong> are to be defined the cell renderer for use by the caller (the grid renderer).</p>
 </div>
 
 
@@ -738,7 +740,7 @@
 
         <tr>
             
-                <td class="name"><code>buttonCells</code></td>
+                <td class="name"><code>config.clickRect</code></td>
             
 
             <td class="type">
@@ -753,6 +755,8 @@
             
                 <td class="attributes">
                 
+                    &lt;optional><br>
+                
 
                 
                 </td>
@@ -760,7 +764,7 @@
 
             
 
-            <td class="description last"><p><em>For cell renderer use only. Not available in <code>getCell</code> override.</em>  (Button renderers register themselves in this object so the click handler can know whether or not to fire the 'fin-button-pressed' event.)</p></td>
+            <td class="description last"><p><strong><em>Write-only.</em></strong> The Cell renderer may return in this property a subrect in the cell's local coordinates that represents a click region. If defined by the cell renderer, the CellClick feature will ignore clicks outside the click region. If not defined by the cell renderer, the entire cell is clickable.</p></td>
         </tr>
 
     
@@ -789,7 +793,7 @@
 
             
 
-            <td class="description last"><p><em>Read-only.</em> Data coordinates of the cell.</p></td>
+            <td class="description last"><p><strong><em>Read-only.</em></strong> Data coordinates of the cell.</p></td>
         </tr>
 
     
@@ -876,7 +880,7 @@
 
             
 
-            <td class="description last"><p><em>Read-only.</em> Grid coordinates of the cell.</p></td>
+            <td class="description last"><p><strong><em>Read-only.</em></strong> Grid coordinates of the cell.</p></td>
         </tr>
 
     
@@ -887,6 +891,11 @@
             
 
             <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
             
             </td>
 
@@ -1364,7 +1373,7 @@
 
             
 
-            <td class="description last"><p><em>For cell renderer use only. Not available in <code>getCell</code> override.</em> The Cell renderer returns the pixel width of the rendered contents in this property.</p></td>
+            <td class="description last"><p><strong><em>Write-only.</em></strong> The Cell renderer should return the pixel width of the rendered contents in this property.</p></td>
         </tr>
 
     
@@ -1393,7 +1402,7 @@
 
             
 
-            <td class="description last"><p>The last mousedown event occured over this cell and the mouse is still down. Note, however, that the mouse may no longer be hovering over this cell when it has been dragged away.</p></td>
+            <td class="description last"><p>The last mousedown event occurred over this cell and the mouse is still down. Note, however, that the mouse may no longer be hovering over this cell when it has been dragged away.</p></td>
         </tr>
 
     
@@ -1419,7 +1428,7 @@
 
             
 
-            <td class="description last"><p><em>For cell renderer use only. Do not mutate in <code>getCell</code> override.</em> (This is the color already painted behind the cell to be rendered. If the cell's specified background color is the same, renderer may (and should!) skip painting it. If <code>undefined</code>, this is a &quot;partial render&quot; and cell renderers that support partial rendering can use <code>config.snapshot</code> to determine whether or not to rerender the cell.)</p></td>
+            <td class="description last"><p><strong><em>Write-only.</em></strong> This is the color <em>already painted</em> by the grid renderer behind the cell to be rendered. If the cell's specified background color is the same, renderer may (and should!) skip painting it. If <code>undefined</code>, this signals a &quot;partial render&quot;; cell renderers that support partial rendering can use <code>config.snapshot</code> to determine whether or not to rerender the cell.</p></td>
         </tr>
 
     
@@ -1450,7 +1459,7 @@
 
             
 
-            <td class="description last"><p><em>For cell renderer use only. Not available in <code>getCell</code> override.</em> Supports <em>partial render.</em> In support of the <a href="Renderer.html#paintCellsAsNeeded"><code>by-cells</code></a> &quot;partial&quot; grid renderer, cell renderers can save the essential render parameters in this property so that on subsequent calls, when the parameters are the same, cell renderers can skip the actual rendering. Only when the parameters have changed is the cell rendered and this property reset (with the new parameters). This object would typically include at the very least the (formatted) <code>value</code>, plus additional properties as needed to fully describe the appearance of the render, such as color, <em>etc.</em> This property is undefined the first time a cell is rendered by the <code>by-cells</code> grid renderer. See also the <code>DataModel#configObject</code>'s <code>prefillColor</code> property.</p></td>
+            <td class="description last"><p><strong><em>Write-only.</em></strong> Supports <em>partial render.</em> In support of the <a href="Renderer.html#paintCellsAsNeeded"><code>by-cells</code></a> &quot;partial&quot; grid renderer, cell renderers can save the essential render parameters in this property so that on subsequent calls, when the parameters are the same, cell renderers can skip the actual rendering. Only when the parameters have changed is the cell rendered and this property reset (with the new parameters). This object would typically include at the very least the (formatted) <code>value</code>, plus additional properties as needed to fully describe the appearance of the render, such as color, <em>etc.</em> This property is undefined the first time a cell is rendered by the <code>by-cells</code> grid renderer. See also the <code>DataModel#configObject</code>'s <code>prefillColor</code> property.</p></td>
         </tr>
 
     

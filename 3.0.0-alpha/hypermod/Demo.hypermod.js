@@ -111,7 +111,9 @@ Demo.prototype = {
         } else {
             this.grid.logStop();
         }
-    }
+    },
+
+    NOON: 12 * 60 // used by `hhmm` localizer and `Time` cell editor
 };
 
 module.exports = Demo;
