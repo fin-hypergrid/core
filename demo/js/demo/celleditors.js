@@ -43,6 +43,34 @@ module.exports = function(demo, grid) {
             this.input.onblur = function(e) {
                 this.el.style.outline = 0;
             }.bind(this);
+            this.input.onkeypress = function(e) {
+                switch (e.key) {
+                    case 'a': case 'A':
+                        this.meridian.textContent = 'AM';
+                        e.preventDefault();
+                        break;
+                    case 'p': case 'P':
+                        this.meridian.textContent = 'PM';
+                        e.preventDefault();
+                        break;
+                    case 'm': case 'M':
+                        if (/[ap]/i.test(this.previousKeypress)) {
+                            // just ignore M when preceded by A or P
+                            e.preventDefault();
+                            break;
+                        }
+                        // fall through when NOT preceded by A or P
+                    default:
+                        // only allow digits and colon (besides A, P, M as above)
+                        if ('0123456789:'.indexOf(e.key) >= 0) {
+                            break;
+                        }
+                        // FSM jam!
+                        this.errorEffectBegin(); // feedback for unexpected key press
+                        e.preventDefault();
+                }
+                this.previousKeypress = e.key;
+            }.bind(this);
         },
 
         setEditorValue: function(value) {
@@ -53,6 +81,7 @@ module.exports = function(demo, grid) {
         },
 
         getEditorValue: function(value) {
+            delete this.previousKeypress;
             value = CellEditor.prototype.getEditorValue.call(this, value);
             if (this.meridian.textContent === 'PM') {
                 value += demo.NOON;
