@@ -792,7 +792,7 @@ function makeCharMap() {
 }
 
 function getCachedContext(canvasElement, type) {
-    var gc = canvasElement.getContext(type || '2d'),
+    var gc = canvasElement.getContext(type || '2d', { alpha: false }),
         props = {},
         values = {};
 
