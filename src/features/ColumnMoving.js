@@ -99,7 +99,7 @@ var ColumnMoving = Feature.extend('ColumnMoving', {
             dragger.style.position = 'fixed';
 
             document.body.appendChild(dragger);
-            draggerCTX = dragger.getContext('2d');
+            draggerCTX = dragger.getContext('2d', { alpha: false });
         }
         if (!floatColumn) {
             floatColumn = document.createElement('canvas');
@@ -108,7 +108,7 @@ var ColumnMoving = Feature.extend('ColumnMoving', {
             floatColumn.style.position = 'fixed';
 
             document.body.appendChild(floatColumn);
-            floatColumnCTX = floatColumn.getContext('2d');
+            floatColumnCTX = floatColumn.getContext('2d', { alpha: false });
         }
 
     },
