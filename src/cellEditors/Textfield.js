@@ -16,6 +16,7 @@ var Textfield = CellEditor.extend('Textfield', {
 
     initialize: function() {
         this.input.style.textAlign = this.event.properties.halign;
+        this.input.style.font = this.event.properties.font;
     },
 
     localizer: Localization.prototype.string,

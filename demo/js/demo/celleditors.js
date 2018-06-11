@@ -18,7 +18,7 @@ module.exports = function(demo, grid) {
     var Time = Textfield.extend('Time', {
         template: [
             '<div class="hypergrid-textfield" style="text-align:right;">',
-            '    <input type="text" lang="{{locale}}" style="background-color:transparent; width:75%; text-align:right; border:0; padding:0; outline:0; font-size:inherit; font-weight:inherit;' +
+            '    <input type="text" lang="{{locale}}" style="background-color:transparent; width:75%; text-align:right; border:0; padding:0; outline:0; font:inherit;' +
             '{{style}}">',
             '    <span>AM</span>',
             '</div>'
