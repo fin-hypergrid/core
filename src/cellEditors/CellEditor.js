@@ -299,15 +299,17 @@ var CellEditor = Base.extend('CellEditor', {
      * @memberOf CellEditor.prototype
      */
     errorEffectBegin: function(error) {
-        var spec = this.grid.properties.feedbackEffect, // spec may e a string or an object with name and options props
-            options = Object.assign({}, spec.options), // if spec is a string, spec.options will be undefined
-            effect = effects[spec.name || spec]; // if spec is a string, spec.name will be undefined
-
-        if (error) {
-            options.callback = this.errorEffectEnd.bind(this, error);
+        if (this.effecting) {
+            return;
         }
 
+        var spec = this.grid.properties.feedbackEffect, // spec may e a string or an object with name and options props
+            effect = effects[spec.name || spec]; // if spec is a string, spec.name will be undefined
+
         if (effect) {
+            var options = Object.assign({}, spec.options); // if spec is a string, spec.options will be undefined
+            options.callback = this.errorEffectEnd.bind(this, error);
+            this.effecting = true;
             effect.call(this, options);
         }
     },
@@ -347,6 +349,7 @@ var CellEditor = Base.extend('CellEditor', {
                 alert(msg); // eslint-disable-line no-alert
             });
         }
+        this.effecting = false;
     },
 
     /**
