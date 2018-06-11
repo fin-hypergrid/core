@@ -247,14 +247,16 @@ var CellEditor = Base.extend('CellEditor', {
      * @memberOf CellEditor.prototype
      */
     stopEditing: function(feedback) {
+        var str = this.input.value;
+
         /**
          * @type {boolean|string|Error}
          */
-        var error = this.validateEditorValue();
+        var error = this.validateEditorValue(str);
 
         if (!error) {
             try {
-                var value = this.getEditorValue();
+                var value = this.getEditorValue(str);
             } catch (err) {
                 error = err;
             }
@@ -378,19 +380,21 @@ var CellEditor = Base.extend('CellEditor', {
      * The localizer's {@link localizerInterface#parse|parse} method will be called on the text box contents.
      *
      * Override this method if your editor has additional or alternative GUI elements. The GUI elements will influence the primitive value, either by altering the edited string before it is parsed, or by transforming the parsed value before returning it.
+     * @param {string} str - current editors input string
      * @returns {object} the current editor's value
      * @memberOf CellEditor.prototype
      */
-    getEditorValue: function() {
-        return this.localizer.parse(this.input.value);
+    getEditorValue: function(str) {
+        return this.localizer.parse(str);
     },
 
     /**
      * If there is no validator on the localizer, returns falsy (not invalid; possibly valid).
+     * @param {string} str - current editors input string
      * @returns {boolean|string} Truthy value means invalid. If a string, this will be an error message. If not a string, it merely indicates a generic invalid result.
      */
-    validateEditorValue: function() {
-        return this.localizer.invalid && this.localizer.invalid(this.input.value);
+    validateEditorValue: function(str) {
+        return this.localizer.invalid && this.localizer.invalid(str);
     },
 
     /**
