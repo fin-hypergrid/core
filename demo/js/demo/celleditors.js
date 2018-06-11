@@ -18,7 +18,7 @@ module.exports = function(demo, grid) {
     var Time = Textfield.extend('Time', {
         template: [
             '<div class="hypergrid-textfield" style="text-align:right;">',
-            '    <input type="text" lang="{{locale}}" style="background-color:transparent; width:75%; text-align:right; border:0; padding:0; outline:0; font:inherit;' +
+            '    <input type="text" lang="{{locale}}" style="background-color:transparent; width:60%; text-align:right; border:0; padding:0; outline:0; font:inherit;' +
             '{{style}}">',
             '    <span>AM</span>',
             '</div>'
@@ -31,38 +31,20 @@ module.exports = function(demo, grid) {
             // Flip AM/PM on any click
             this.el.onclick = function() {
                 this.meridian.textContent = this.meridian.textContent === 'AM' ? 'PM' : 'AM';
+                this.input.focus(); // return focus to text field
             }.bind(this);
-            this.input.onclick = function(e) {
-                e.stopPropagation(); // ignore clicks in the text field
-            };
-            this.input.onfocus = function(e) {
-                var target = e.target;
-                this.el.style.outline = this.outline = this.outline || window.getComputedStyle(target).outline;
-                target.style.outline = 0;
-            }.bind(this);
-            this.input.onblur = function(e) {
-                this.el.style.outline = 0;
-            }.bind(this);
+
+            // Flip AM/PM on 'am' or 'pm' keypresses
             this.input.onkeypress = function(e) {
                 switch (e.key) {
-                    case 'a': case 'A':
-                        this.meridian.textContent = 'AM';
-                        e.preventDefault();
-                        break;
-                    case 'p': case 'P':
-                        this.meridian.textContent = 'PM';
-                        e.preventDefault();
-                        break;
+                    case 'a': case 'A': this.meridian.textContent = 'AM'; e.preventDefault(); break;
+                    case 'p': case 'P': this.meridian.textContent = 'PM'; e.preventDefault(); break;
                     case 'm': case 'M':
-                        if (/[ap]/i.test(this.previousKeypress)) {
-                            // just ignore M when preceded by A or P
-                            e.preventDefault();
-                            break;
-                        }
-                        // fall through when NOT preceded by A or P
+                        if (/[ap]/i.test(this.previousKeypress)) { e.preventDefault(); break; }
+                        // fall through to FSM when M NOT preceded by A or P
                     default:
-                        // only allow digits and colon (besides A, P, M as above)
-                        if ('0123456789:'.indexOf(e.key) >= 0) {
+                        // only allow digits and colon (besides A, P, M as above) and specials (ENTER, TAB, ESC)
+                        if ('0123456789:'.indexOf(e.key) >= 0 || this.specialKeyups[e.keyCode]) {
                             break;
                         }
                         // FSM jam!
@@ -74,7 +56,7 @@ module.exports = function(demo, grid) {
         },
 
         setEditorValue: function(value) {
-            CellEditor.prototype.setEditorValue.call(this, value);
+            this.super.setEditorValue.call(this, value);
             var parts = this.input.value.split(' ');
             this.input.value = parts[0];
             this.meridian.textContent = parts[1];
@@ -82,11 +64,11 @@ module.exports = function(demo, grid) {
 
         getEditorValue: function(value) {
             delete this.previousKeypress;
-            value = CellEditor.prototype.getEditorValue.call(this, value);
-            if (this.meridian.textContent === 'PM') {
-                value += demo.NOON;
-            }
-            return value;
+            return this.super.getEditorValue.call(this, value + ' ' + this.meridian.textContent);
+        },
+
+        validateEditorValue: function(value) {
+            return this.super.validateEditorValue.call(this, value + ' ' + this.meridian.textContent);
         }
     });
 

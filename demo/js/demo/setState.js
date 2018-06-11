@@ -104,7 +104,7 @@ module.exports = function(demo, grid) {
             birthTime: {
                 halign: 'right',
                 editor: 'time',
-                format: 'hhmm'
+                format: 'clock12'
             },
 
             birthState: {
