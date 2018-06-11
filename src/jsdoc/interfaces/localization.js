@@ -29,7 +29,7 @@
  * @name localizerInterface#parse
  * @param {string} editedValue
  * @returns {null|*} Primitive typed value.
- * @throws {boolean|string|Error} Parser error.
+ * @throws {boolean|string|Error} Throws an error on parse failure. If the error's `message` is defined, the message will eventually be displayed (every `feedbackCount`th attempt).
  */
 
 /**
@@ -37,11 +37,14 @@
  * @summary Tests string representation for invalidity.
  * @desc Implementation of this method is optional.
  *
- * The method may be strict or loose but caller has no way of knowing and must assume loose. Loose means it may return a false negative. This means that while a truthy return means invalid, falsy merely means "not invalid." In other words, you cannot assume that a falsy value means valid. The parser is the final arbiter and should be designed to throw an error on parser jam. For example, a number parser should not simply return NaN but should throw an error.
+ * The method may be strict or loose but caller has no way of knowing and must assume loose. Loose means it may return a false negative. This means that while a truthy return means invalid, falsy merely means "not invalid." The parser is the final arbiter and should throw an error on parser jam.
+ *
+ * Return an error message here only if you can describe what precisely caused the syntax error. If all you know is that there was a syntax error, it would probably be more helpful to the user to define {@link localizerInterface#expectation expectation}, which is appended to all error messages, and should contain a general description of the expected syntax.
  *
  * Overridden by `options.invalid` passed to constructor.
  * @method
  * @returns {boolean|string} Truthy value means invalid. If a string, this will be an error message. If not a string, it merely indicates a generic invalid result.
+ * @throws {boolean|string|Error} May throw an error on syntax failure as an alternative to returning truthy. Define the error's `message` field as an alternative to returning string.
  */
 
 /**
