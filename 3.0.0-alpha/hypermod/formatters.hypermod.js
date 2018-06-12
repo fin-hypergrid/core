@@ -54,25 +54,31 @@ module.exports = function() {
         currency: 'EUR'
     }));
 
+    var NOON = 12 * 60;
     grid.localization.add({
-        name: 'hhmm', // alternative to having to hame localizer in `grid.localization.add`
+        name: 'clock12', // alternative to having to hame localizer in `grid.localization.add`
 
-        // returns formatted string from number
+        // returns formatted string from number of minutes
         format: function(mins) {
-            var hh = Math.floor(mins / 60) % 12 || 12, // modulo 12 hrs with 0 becoming 12
-                mm = (mins % 60 + 100 + '').substr(1, 2),
-                AmPm = mins < demo.NOON ? 'AM' : 'PM';
+            var hh = Math.floor(mins / 60) % 12 || 12; // modulo 12 hrs with 0 becoming 12
+            var mm = (mins % 60 + 100 + '').substr(1, 2);
+            var AmPm = mins < NOON ? 'AM' : 'PM';
             return hh + ':' + mm + ' ' + AmPm;
         },
 
-        invalid: function(hhmm) {
-            return !/^(0?[1-9]|1[0-2]):[0-5]\d$/.test(hhmm); // 12:59 max
+        invalid: function(hhmmAmPm) {
+            return !/^(0?[1-9]|1[0-2]):[0-5]\d\s+(AM|PM)$/i.test(hhmmAmPm); // 12:59 max
         },
 
-        // returns number from formatted string
-        parse: function(hhmm) {
-            var parts = hhmm.match(/^(\d+):(\d{2})$/);
-            return Number(parts[1]) * 60 + Number(parts[2]);
+        // returns number of minutes from formatted string
+        parse: function(hhmmAmPm) {
+            var parts = hhmmAmPm.match(/^(\d+):(\d{2})\s+(AM|PM)$/i);
+            var hours = parts[1] === '12' ? 0 : Number(parts[1]);
+            var minutes = Number(parts[2]);
+            var value = hours * 60 + minutes;
+            var pm = parts[3].toUpperCase() === 'PM';
+            if (pm) { value += NOON; }
+            return value;
         }
     });
 

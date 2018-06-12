@@ -100,7 +100,7 @@ module.exports = function() {
             birthTime: {
                 halign: 'right',
                 editor: 'time',
-                format: 'hhmm'
+                format: 'clock12'
             },
 
             birthState: {
