@@ -38,7 +38,15 @@ var Registry = Base.extend('Registry', {
             throw new this.HypergridError('Cannot register ' + this.friendlyName() + ' without a name.');
         }
 
-        return (this.items[name] = item);
+        this.items[name] = item;
+
+        // update existing keys that differ only in case
+        name = name.toLowerCase();
+        Object.keys(this.items)
+            .filter(function(key) { return key.toLowerCase() === name; })
+            .forEach(function(key) { this.items[key] = item; }, this);
+
+        return item;
     },
 
     /**
