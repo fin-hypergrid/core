@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" >
+    <title>Hypergrid Cell Formatter &amp; Editor Workbench</title>
+    <link rel="stylesheet" href="index.css">
+</head>
+<body>
+
+<h1 style="margin:.5em; color:lightgrey">
+    Hypergrid Cell Formatter &amp; Editor Workbench
+    <div style="float:right; font: 9pt sans-serif">
+        <a href="instructions.html" target="instructions">Instructions…</a>
+    </div>
+</h1>
+
+<table style="width:100%"><tr>
+    <td>
+        <input type="button" class="api" value="grid.setData(…)" onclick="callApi('setData', 'data', true)">
+    </td>
+    <td>
+        <input type="button" class="api" value="grid.addState(…)" onclick="callApi('addState', 'state', true)">
+    </td>
+</tr><tr>
+    <td style="width:50%; height:300px">
+        <textarea id="data"></textarea>
+    </td>
+    <td style="width:50%; height:300px">
+        <textarea id="state"></textarea>
+    </td>
+</tr><tr>
+    <td style="text-align:right; white-space: nowrap">
+        Load localizer:
+        <select id="localizer-dropdown"></select>
+        <input type="button" class="api" value="grid.localization.add(…)" style="float:left">
+        <input type="button" value="Locals" class="locals">
+    </td>
+    <td style="text-align:right; white-space: nowrap">
+        Load cell editor:
+        <select id="editor-dropdown"></select>
+        <input type="button" class="api" value="grid.cellEditors.add(…)" style="float:left">
+        <input type="button" value="Locals" class="locals">
+    </td>
+</tr><tr>
+    <td style="height:300px">
+        <textarea id="localizer-script"></textarea>
+    </td>
+    <td style="height:300px">
+        <textarea id="editor-script"></textarea>
+    </td>
+</tr></table>
+
+
+<script src="../build/fin-hypergrid.js"></script>
+
+<script>var exports = {}, module = {exports};</script>
+<script src="scripts.js"></script>
+<script>var scripts = module.exports; delete window.exports; delete window.module;</script>
+
+<script src="index.js"></script>
+
+</body>
+</html>
