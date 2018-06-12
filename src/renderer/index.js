@@ -6,7 +6,7 @@
 var Base = require('../Base');
 var images = require('../../images');
 var layerProps = require('./layer-props');
-
+var InclusiveRectangle = require('../lib/InclusiveRectangle');
 
 var visibleColumnPropertiesDescriptorFn = function(grid) {
     return {
@@ -343,10 +343,9 @@ var Renderer = Base.extend('Renderer', {
      * @memberOf Renderer.prototype
      * @desc Answer specific data cell coordinates given mouse coordinates in pixels.
      * @param {Point} point
-     * @returns {Point} Cell coordinates
+     * @returns {{cellEvent:CellEvent,fake:boolean}} Cell coordinates
      */
     getGridCellFromMousePoint: function(point) {
-
         var x = point.x,
             y = point.y,
             isPseudoRow = false,
@@ -374,13 +373,8 @@ var Renderer = Base.extend('Renderer', {
             isPseudoCol = true;
         }
 
-        var mousePoint = this.grid.newPoint(x - vc.left, y - vr.top),
-            cellEvent = new this.grid.behavior.CellEvent(vc.columnIndex, vr.index);
-
-        // cellEvent.visibleColumn = vc;
-        // cellEvent.visibleRow = vr;
-
-        result.cellEvent = Object.defineProperty(cellEvent, 'mousePoint', {value: mousePoint});
+        result.cellEvent = Object.create(this.findCell(new this.grid.behavior.CellEvent(vc.columnIndex, vr.index)));
+        result.cellEvent.mousePoint = this.grid.newPoint(x - vc.left, y - vr.top);
 
         if (isPseudoCol || isPseudoRow) {
             result.fake = true;
@@ -586,8 +580,6 @@ var Renderer = Base.extend('Renderer', {
 
         gc.beginPath();
 
-        this.buttonCells = {};
-
         var rowCount = this.grid.getRowCount();
         if (rowCount !== this.lastKnowRowCount) {
             var newWidth = resetRowHeaderColumnWidth.call(this, gc, rowCount);
@@ -613,12 +605,47 @@ var Renderer = Base.extend('Renderer', {
     },
 
     renderLastSelection: function(gc) {
-        var selections = this.grid.selectionModel.getSelections();
-        if (!selections || selections.length === 0) {
-            return;
+        var selection, left, top, width, height,
+            grid = this.grid,
+            gridProps = grid.properties,
+            sm = grid.selectionModel;
+
+        switch (sm.getLastSelectionType()) {
+            case 'column':
+                var columnSelections = sm.columnSelectionModel.selection,
+                    lastColumnSelection = columnSelections[columnSelections.length - 1];
+
+                left = lastColumnSelection[0];
+                top = 0;
+                width = lastColumnSelection[1] - left + 1;
+                height = grid.getRowCount();
+                selection = new InclusiveRectangle(left, top, width, height);
+                break;
+
+            case 'row':
+                if (!(gridProps.collapseCellSelections && sm.getLastSelectionType(1) === 'cell')) {
+                    var rowSelections = sm.rowSelectionModel.selection,
+                        lastRowSelection = rowSelections[rowSelections.length - 1];
+
+                    left = 0;
+                    top = lastRowSelection[0];
+                    width = grid.behavior.getActiveColumns().length;
+                    height = lastRowSelection[1] - top + 1;
+                    selection = new InclusiveRectangle(left, top, width, height);
+                    break;
+                }
+                // fall through to 'cell'
+
+            case 'cell':
+                selection = sm.getLastSelection();
+                break;
         }
 
-        var selection = this.grid.selectionModel.getLastSelection();
+        if (!selection) {
+            return; // no selection
+        }
+
+        // todo not sure what this is for; might be defunct logic
         if (selection.origin.x === -1) {
             // no selected area, lets exit
             return;
@@ -626,33 +653,44 @@ var Renderer = Base.extend('Renderer', {
 
         var vci = this.visibleColumnsByIndex,
             vri = this.visibleRowsByDataRowIndex,
-            lastColumn = this.visibleColumns[this.visibleColumns.length - 1], // last column in scrollable section
-            lastRow = vri[this.dataWindow.corner.y]; // last row in scrollable data section
+            lastScrollableColumn = this.visibleColumns[this.visibleColumns.length - 1], // last column in scrollable section
+            lastScrollableRow = this.visibleRows[this.visibleRows.length - 1], // last row in scrollable data section
+            firstScrollableColumn = vci[this.dataWindow.origin.x],
+            firstScrollableRow = vri[this.dataWindow.origin.y],
+            fixedColumnCount = gridProps.fixedColumnCount,
+            fixedRowCount = gridProps.fixedRowCount,
+            headerRowCount = grid.getHeaderRowCount();
+
         if (
-            !lastColumn || !lastRow ||
-            selection.origin.x > lastColumn.columnIndex ||
-            selection.origin.y > lastRow.rowIndex
+            // entire selection scrolled out of view to left of visible columns; or
+            selection.corner.x < this.visibleColumns[0].columnIndex ||
+
+            // entire selection scrolled out of view between fixed columns and scrollable columns; or
+            fixedColumnCount &&
+            selection.origin.x > this.visibleColumns[fixedColumnCount - 1].columnIndex &&
+            selection.corner.x < firstScrollableColumn.columnIndex ||
+
+            // entire selection scrolled out of view to right of visible columns; or
+            selection.origin.x > lastScrollableColumn.columnIndex ||
+
+            // entire selection scrolled out of view above visible rows; or
+            selection.corner.y < this.visibleRows[headerRowCount].rowIndex ||
+
+            // entire selection scrolled out of view between fixed rows and scrollable rows; or
+            fixedRowCount &&
+            selection.origin.y > this.visibleRows[headerRowCount + fixedRowCount - 1].rowIndex &&
+            selection.corner.y < firstScrollableRow.rowIndex ||
+
+            // entire selection scrolled out of view below visible rows
+            selection.origin.y > lastScrollableRow.rowIndex
         ) {
-            // selection area begins to right or below grid
             return;
         }
 
-        var vcOrigin = vci[selection.origin.x],
-            vcCorner = vci[selection.corner.x],
-            vrOrigin = vri[selection.origin.y],
-            vrCorner = vri[selection.corner.y];
-        if (
-            !(vcOrigin || vcCorner) || // entire selection scrolled out of view to left of scrollable region
-            !(vrOrigin || vrCorner)    // entire selection scrolled out of view above scrollable region
-        ) {
-            return;
-        }
-
-        var gridProps = this.properties;
-        vcOrigin = vcOrigin || this.visibleColumns[gridProps.fixedColumnCount];
-        vrOrigin = vrOrigin || this.visibleRows[gridProps.fixedRowCount];
-        vcCorner = vcCorner || (selection.corner.x > lastColumn.columnIndex ? lastColumn : vci[gridProps.fixedColumnCount - 1]);
-        vrCorner = vrCorner || (selection.corner.y > lastRow.rowIndex ? lastRow : vri[gridProps.fixedRowCount - 1]);
+        var vcOrigin = vci[selection.origin.x] || firstScrollableColumn,
+            vrOrigin = vri[selection.origin.y] || firstScrollableRow,
+            vcCorner = vci[selection.corner.x] || (selection.corner.x > lastScrollableColumn.columnIndex ? lastScrollableColumn : vci[fixedColumnCount - 1]),
+            vrCorner = vri[selection.corner.y] || (selection.corner.y > lastScrollableRow.rowIndex ? lastScrollableRow : vri[fixedRowCount - 1]);
 
         // Render the selection model around the bounds
         var config = {
@@ -665,7 +703,9 @@ var Renderer = Base.extend('Renderer', {
             selectionRegionOverlayColor: this.gridRenderer.paintCells.partial ? 'transparent' : gridProps.selectionRegionOverlayColor,
             selectionRegionOutlineColor: gridProps.selectionRegionOutlineColor
         };
-        this.grid.cellRenderers.get('lastselection').paint(gc, config);
+
+        grid.cellRenderers.get('lastselection').paint(gc, config);
+
         if (this.gridRenderer.paintCells.key === 'by-cells') {
             this.gridRenderer.reset = true; // fixes GRID-490
         }
@@ -856,9 +896,10 @@ var Renderer = Base.extend('Renderer', {
 
             if (gridProps.gridLinesV && (gridProps.gridLinesColumnHeader || gridProps.gridLinesUserDataArea)) {
                 var gridLinesVWidth = gridProps.gridLinesVWidth,
-                    userDataAreaTop = visibleRows[this.grid.getHeaderRowCount()].top,
+                    headerRowCount = this.grid.getHeaderRowCount(),
+                    userDataAreaTop = visibleRows[headerRowCount].top,
                     top = gridProps.gridLinesColumnHeader ? 0 : userDataAreaTop,
-                    bottom = gridProps.gridLinesUserDataArea ? viewHeight : visibleRows[this.grid.getHeaderRowCount() - 1].bottom;
+                    bottom = gridProps.gridLinesUserDataArea ? viewHeight : visibleRows[headerRowCount - 1].bottom;
 
                 gc.cache.fillStyle = gridLinesVColor;
 
@@ -1040,10 +1081,7 @@ var Renderer = Base.extend('Renderer', {
         config.isColumnSelected = isColumnSelected;
         config.isInCurrentSelectionRectangle = selectionModel.isInCurrentSelectionRectangle(x, r);
         config.prefillColor = prefillColor;
-
-        if (grid.mouseDownState) {
-            config.mouseDown = grid.mouseDownState.gridCell.equals(cellEvent.gridCell);
-        }
+        config.mouseDown = grid.mouseDownState && grid.mouseDownState.gridCell.equals(cellEvent.gridCell);
 
         // compute value if a calculator
         if (isUserDataArea && !(config.value && config.value.constructor === Array)) { // fastest array determination
@@ -1057,9 +1095,6 @@ var Renderer = Base.extend('Renderer', {
 
         behavior.cellPropertiesPrePaintNotification(config);
 
-        //allow the renderer to identify itself if it's a button
-        config.buttonCells = this.buttonCells;
-
         config.formatValue = grid.getFormatter(format || config.format);
 
         // Following supports partial render>
@@ -1072,6 +1107,9 @@ var Renderer = Base.extend('Renderer', {
         // Following supports partial render:
         cellEvent.snapshot = config.snapshot;
         cellEvent.minWidth = config.minWidth;
+
+        // Following supports clicking in a renderer-defined Rectangle of a cell (in the cell's local coordinates)
+        cellEvent.clickRect = config.clickRect;
 
         return config.minWidth;
     },
@@ -1095,21 +1133,25 @@ var Renderer = Base.extend('Renderer', {
 
         if (typeof colIndexOrCellEvent === 'object') {
             // colIndexOrCellEvent is a cell event object
-            dataModel = rowIndex;
-            rowIndex = colIndexOrCellEvent.visibleRow.rowIndex;
-            colIndex = colIndexOrCellEvent.column.index;
+            dataModel = colIndexOrCellEvent.subgrid;
+            rowIndex = colIndexOrCellEvent.dataCell.y;
+            colIndex = colIndexOrCellEvent.dataCell.x;
         } else {
             colIndex = colIndexOrCellEvent;
         }
 
         dataModel = dataModel || this.grid.behavior.dataModel;
 
-        for (var p = 0, len = this.visibleColumns.length * this.visibleRows.length; p < len; ++p) {
+        var len = this.visibleColumns.length;
+        if (this.grid.properties.showRowNumbers) { len++; }
+        if (this.grid.behavior.hasTreeColumn()) { len++; }
+        len *= this.visibleRows.length;
+        for (var p = 0; p < len; ++p) {
             cellEvent = pool[p];
             if (
                 cellEvent.subgrid === dataModel &&
-                cellEvent.column.index === colIndex &&
-                cellEvent.visibleRow.rowIndex === rowIndex
+                cellEvent.dataCell.x === colIndex &&
+                cellEvent.dataCell.y === rowIndex
             ) {
                 return cellEvent;
             }
@@ -1133,11 +1175,6 @@ var Renderer = Base.extend('Renderer', {
         this.cellEventPool.forEach(function(cellEvent) {
             cellEvent._cellOwnProperties = undefined;
         });
-    },
-
-    isViewableButton: function(c, r) {
-        var key = c + ',' + r;
-        return this.buttonCells[key] === true;
     },
 
     getBounds: function() {
@@ -1416,7 +1453,7 @@ function computeCellsBounds() {
         editorCellEvent._bounds = null;
     }
 
-    this.dataWindow = this.grid.newRectangle(firstVX, firstVY, lastVX - firstVX, lastVY - firstVY);
+    this.dataWindow = new InclusiveRectangle(firstVX, firstVY, lastVX - firstVX + 1, lastVY - firstVY + 1);
 
     // Resize CellEvent pool
     var pool = this.cellEventPool,

@@ -15,8 +15,6 @@ var Button = CellRenderer.extend('Button', {
      */
     paint: function(gc, config) {
         var val = config.value,
-            c = config.dataCell.x,
-            r = config.gridCell.y,
             bounds = config.bounds,
             x = bounds.x + 1,
             y = bounds.y + 1,
@@ -56,9 +54,6 @@ var Button = CellRenderer.extend('Button', {
         gc.cache.font = height - 2 + 'px sans-serif';
         config.backgroundColor = 'rgba(0,0,0,0)';
         gc.fillText(val, x + ox, y + oy);
-
-        //identify that we are a button
-        config.buttonCells[c + ',' + r] = true;
     }
 });
 

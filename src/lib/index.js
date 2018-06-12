@@ -2,9 +2,10 @@
 
 module.exports = {
     cellEventFactory: require('./cellEventFactory'),
-    DataSourceOrigin: require('./DataSourceOrigin'),
     dynamicPropertyDescriptors: require('./dynamicProperties'),
+    fields: require('./fields'),
     graphics: require('./graphics'),
     Canvas: require('./Canvas'),
-    fields: require('./fields')
+    DataSourceOrigin: require('./DataSourceOrigin'),
+    InclusiveRectangle: require('./InclusiveRectangle')
 };

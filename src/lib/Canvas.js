@@ -431,9 +431,20 @@ Canvas.prototype = {
     },
 
     getKeyChar: function(e) {
-        var key = e.keyCode || e.detail.key,
-            shift = e.shiftKey || e.detail.shift;
-        return charMap[key][shift ? 1 : 0];
+        var keyCode = e.keyCode || e.detail.key,
+            shift = e.shiftKey || e.detail.shift,
+            key = e.key;
+
+        e.legacyKey = charMap[keyCode] && charMap[keyCode][shift ? 1 : 0];
+
+        if (typeof key === 'string' && key.length === 1) {
+            return key;
+        }
+
+        return (
+            e.legacyKey || // legacy unprintable char string
+            key // modern unprintable char string when no such legacy string
+        );
     },
 
     finkeydown: function(e) {
@@ -467,6 +478,7 @@ Canvas.prototype = {
             alt: e.altKey,
             ctrl: e.ctrlKey,
             char: keyChar,
+            legacyChar: e.legacyKey,
             code: e.charCode,
             key: e.keyCode,
             meta: e.metaKey,
@@ -497,6 +509,7 @@ Canvas.prototype = {
             alt: e.altKey,
             ctrl: e.ctrlKey,
             char: keyChar,
+            legacyChar: e.legacyKey,
             code: e.charCode,
             key: e.keyCode,
             meta: e.metaKey,

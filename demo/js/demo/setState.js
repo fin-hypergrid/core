@@ -47,8 +47,6 @@ module.exports = function(demo, grid) {
 
         checkboxOnlyRowSelections: true,
 
-        autoSelectRows: true,
-
         rows: {
             header: {
                 0: {
@@ -106,7 +104,7 @@ module.exports = function(demo, grid) {
             birthTime: {
                 halign: 'right',
                 editor: 'time',
-                format: 'hhmm'
+                format: 'clock12'
             },
 
             birthState: {

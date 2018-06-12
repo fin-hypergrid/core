@@ -65,10 +65,12 @@ module.exports = function(demo, grid) {
             label: 'Selection',
             ctrls: [
                 {
-                    name: 'checkboxOnlyRowSelections', label: 'by row handles only', setter: setSelectionProp,
-                    tooltip: 'Note that when this property is active, autoSelectRows will not work.'
+                    name: 'cellSelection',
+                    label: 'cells',
+                    weight: 'bold',
+                    tooltip: 'Basic cell selectability.',
+                    setter: setSelectionProp
                 },
-                {name: 'singleRowSelectionMode', label: 'one row at a time', setter: setSelectionProp},
                 {
                     name: '!multipleSelections',
                     label: 'one cell region at a time',
@@ -76,12 +78,46 @@ module.exports = function(demo, grid) {
                     checked: true
                 },
                 {
+                    name: 'collapseCellSelections',
+                    label: 'collapse cell selections',
+                    setter: setSelectionProp,
+                    tooltip: 'Cell selections are projected onto subsequently selected rows.\n\n' +
+                    'Requires singleRowSelectionMode && !multipleSelections.'
+                },
+                {
+                    name: 'rowSelection',
+                    label: 'rows',
+                    weight: 'bold',
+                    tooltip: 'Basic row selectability.',
+                    setter: setSelectionProp
+                },
+                {
                     name: 'autoSelectRows', label: 'auto-select rows', setter: setSelectionProp,
                     tooltip: 'Notes:\n' +
                     '1. Requires that checkboxOnlyRowSelections be set to false (so checking this box automatically unchecks that one).\n' +
                     '2. Set singleRowSelectionMode to false to allow auto-select of multiple rows.'
                 },
-                {name: 'autoSelectColumns', label: 'auto-select columns', setter: setSelectionProp}
+                {
+                    name: 'checkboxOnlyRowSelections', label: 'by row handles only', setter: setSelectionProp,
+                    tooltip: 'Note that when this property is active, autoSelectRows will not work.'
+                },
+                {
+                    name: 'singleRowSelectionMode',
+                    label: 'one row at a time',
+                    setter: setSelectionProp
+                },
+                {
+                    name: 'columnSelection',
+                    label: 'columns',
+                    weight: 'bold',
+                    tooltip: 'Basic column selectability.',
+                    setter: setSelectionProp
+                },
+                {
+                    name: 'autoSelectColumns',
+                    label: 'auto-select columns',
+                    setter: setSelectionProp
+                }
             ]
         }
     ];
@@ -180,6 +216,7 @@ module.exports = function(demo, grid) {
 
             label = document.createElement('label');
             label.title = tooltip;
+            label.style.fontWeight = ctrl.weight;
             label.appendChild(input);
             label.insertBefore(
                 document.createTextNode(' ' + (ctrl.label || ctrl.name)),
@@ -369,7 +406,6 @@ module.exports = function(demo, grid) {
         var ctrl;
 
         grid.selectionModel.clear();
-        grid.behavior.dataModel.clearSelectedData();
 
         setProp.call(this);
 

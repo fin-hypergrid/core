@@ -52,6 +52,49 @@ var defaults = {
     noDataMessage: '',
 
     /**
+     * Multiplier for horizontal mouse wheel movement, applied to values of [`WheelEvent#deltaX`](https://developer.mozilla.org/docs/Web/API/WheelEvent/deltaX) (received by the horizontal scrollbar's listener).
+     *
+     * #### Caveat
+     * Wheel granularity depends on the OS, the input device, and possibly the browser. Any setting you choose will work differently in different environments. If you don't know the user's environment, it is probably best to give users control of this setting so they can fine tune it themselves.
+     *
+     * #### Default values
+     * This particular default value of `0.01` seems to work well on the MacBook Pro trackpad. It's slower than it was, which will greatly improve the scrolling experience since column scrolling often occurred inadvertently when the intent was to scroll in the veritcal direction only.
+     *
+     * Be aware however that the trackpad scrolling speed can be adjusted by the Mac user at the OS level (System Preferences -> Accessibility -> Mouse & Trackpad -> Trackpad Options… -> Scrolling speed).
+     *
+     * Hint: You can tell if the user is using a trackpad by listening for any deltaX (since a simple mouse wheel is deltaY only); and what OS by checking user agent.
+     * @default
+     * @type {number}
+     * @memberOf module:defaults
+     */
+    wheelHFactor: 0.01,
+
+    /**
+     * Multiplier for vertical mouse wheel movement, applied to values of [`WheelEvent#deltaY`](https://developer.mozilla.org/docs/Web/API/WheelEvent/deltaY) (received by the vertical scrollbar's listener).
+     *
+     * #### Caveat
+     * Wheel granularity depends on the OS, the input device, and possibly the browser. Any setting you choose will work differently in different environments. If you don't know the user's environment, it is probably best to give users control of this setting so they can fine tune it themselves.
+     *
+     * #### Default values
+     * This particular default value of `0.05` is a compromise. It seems to work well on the MacBook Pro trackpad; and works acceptably (though differently) with a mouse wheel on both Mac OS and Windows.
+     *
+     * Be aware however that the trackpad scrolling speed can be adjusted by the Mac user at the OS level (System Preferences -> Accessibility -> Mouse & Trackpad -> Trackpad Options… -> Scrolling speed). Mouse wheel scrolling speed is also adjustable ( _yada yada_ -> Mouse Options… -> Scrolling speed; or on Windows search for "Change mouse wheel settings" in the Start menu).
+     *
+     * This default setting of `0.05` feels good on trackpad (2-finger drag). It's much slower than it was, but the way it was before was way to coarse and fast, scrolling hundreds of rows in a flash.
+     *
+     * With this setting, a mouse connected to a Mac, the wheel requires 5 click-stops to scroll 1 row; the same mouse connected to Windows scrolls 5 rows per click-stop. (However, I may have changed the default settings on my machines; not sure.)
+     *
+     * On Windows, the original multiplier setting (_i.e.,_ `1.0`) scrolled 100 grid rows on a single mouse wheel click-stop; the new default (`0.05`) scrolls 5 rows per click-stop. It stands to reason therefore that a setting of `0.01` will scroll 1:1 (1 row per 1 click-stop).
+     *
+     #### Hint
+     You can tell if the user is using a trackpad by listening for any deltaX (since a simple mouse wheel is deltaY only); and what OS by checking user agent.
+     * @default
+     * @type {number}
+     * @memberOf module:defaults
+     */
+    wheelVFactor: 0.05,
+
+    /**
      * @summary List of subgrids by
      * @desc Restrict usage here to strings (naming data models) or arrays consisting of such a string + constructor arguments. That is, avoid {@link subgridSpec}'s function and object overloads and {@link subgridConstructorRef} function overload.
      * @default "[ 'HeaderSubgrid', 'data' ]"
@@ -1151,6 +1194,14 @@ var defaults = {
      * @memberOf module:defaults
      */
     autoSelectColumns: false,
+
+    /**
+     * Collapse cell selection onto next row selection.
+     * @default
+     * @type {boolean}
+     * @memberOf module:defaults
+     */
+    collapseCellSelections: false,
 
     /** @summary Name of a formatter for cell text.
      * @desc Unknown formatter falls back to the `string` formatter (simple conversion to string with `+ ''`).

@@ -120,7 +120,8 @@ module.exports = {
         return dispatchEvent.call(this, 'fin-editor-keyup', {
             input: inputControl,
             keyEvent: keyEvent,
-            char: this.canvas.getCharMap()[keyEvent.keyCode][keyEvent.shiftKey ? 1 : 0]
+            char: this.canvas.getKeyChar(keyEvent),
+            legacyChar: keyEvent.legacyKey // decorated by getKeyChar
         });
     },
 
@@ -128,7 +129,8 @@ module.exports = {
         return dispatchEvent.call(this, 'fin-editor-keydown', {
             input: inputControl,
             keyEvent: keyEvent,
-            char: this.canvas.getCharMap()[keyEvent.keyCode][keyEvent.shiftKey ? 1 : 0]
+            char: this.canvas.getKeyChar(keyEvent),
+            legacyChar: keyEvent.legacyKey // decorated by getKeyChar
         });
     },
 
@@ -136,7 +138,8 @@ module.exports = {
         return dispatchEvent.call(this, 'fin-editor-keypress', {
             input: inputControl,
             keyEvent: keyEvent,
-            char: this.canvas.getCharMap()[keyEvent.keyCode][keyEvent.shiftKey ? 1 : 0]
+            char: this.canvas.getKeyChar(keyEvent),
+            legacyChar: keyEvent.legacyKey // decorated by getKeyChar
         });
     },
 
@@ -185,7 +188,7 @@ module.exports = {
     },
 
     fireSyntheticButtonPressedEvent: function(event) {
-        if (this.isViewableButton(event.dataCell.x, event.gridCell.y)) {
+        if (event.properties.renderer === 'button') {
             return dispatchEvent.call(this, 'fin-button-pressed', {}, event);
         }
     },
@@ -401,9 +404,19 @@ module.exports = {
                 return;
             }
             handleMouseEvent(e, function(mouseEvent) {
-                mouseEvent.keys = e.detail.keys; // todo: this was in fin-tap but wasn't here
-                this.fireSyntheticClickEvent(mouseEvent);
-                this.delegateClick(mouseEvent);
+                var isMouseDownCell = this.mouseDownState && this.mouseDownState.gridCell.equals(mouseEvent.gridCell);
+                if (
+                    isMouseDownCell &&
+                    isMousePointInClickRect(mouseEvent)
+                ) {
+                    mouseEvent.keys = e.detail.keys; // todo: this was in fin-tap but wasn't here
+                    if (this.mouseDownState) {
+                        this.fireSyntheticButtonPressedEvent(this.mouseDownState);
+                        this.mouseDownState = null;
+                    }
+                    this.fireSyntheticClickEvent(mouseEvent);
+                    this.delegateClick(mouseEvent);
+                }
             });
         });
 
@@ -420,10 +433,6 @@ module.exports = {
             }
             handleMouseEvent(e, function(mouseEvent) {
                 this.delegateMouseUp(mouseEvent);
-                if (self.mouseDownState) {
-                    self.fireSyntheticButtonPressedEvent(self.mouseDownState);
-                }
-                this.mouseDownState = null;
                 this.fireSyntheticMouseUpEvent(mouseEvent);
             });
         });
@@ -587,6 +596,10 @@ module.exports = {
         this.behavior.onKeyUp(this, event);
     },
 };
+
+function isMousePointInClickRect(e) {
+    return !e.clickRect || e.clickRect.contains(e.mousePoint);
+}
 
 var details = [
     'gridCell',

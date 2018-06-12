@@ -2,7 +2,8 @@
 <html>
 <head>
     <title>fin-hypergrid Demo</title>
-
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" >
+    <meta http-equiv="Cache-Control" content="must-revalidate" />
     <link rel="icon" type="image/x-icon" href="favicon.ico" />
 
     <script src="data/widedata.js"></script>
@@ -12,7 +13,16 @@
 
 </head>
 <body>
-    <h1 style="margin:.5em; color:lightgrey">Hypergrid 2.1.9 dev testbench</h1>
+
+    <label style="float:right; color:lightgrey; font:bold italic 9pt sans-serif; margin-right:1em; cursor:help"
+     onclick="alert(this.title)"
+     title="var grid = new Hypergrid,
+    g = grid,
+    p = g.properties,
+    b = g.behavior,
+    m = b.dataModel;">top-level global vars</label>
+
+    <h1 style="margin:.5em; color:lightgrey">Hypergrid 2.1.11 dev testbench</h1>
 
     <div id="tabs">
         <div id="tab-dashboard">Dashboard</div>
