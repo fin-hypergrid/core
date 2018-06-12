@@ -44,11 +44,15 @@ window.onload = function() {
             plugins: require('fin-hypergrid-event-logger'),
             state: { color: 'orange' }
         },
-        grid = window.grid = window.g = new Hypergrid('div#json-example', gridOptions),
-        behavior = window.b = grid.behavior,
-        dataModel = window.m = behavior.dataModel,
+        grid = new Hypergrid('div#json-example', gridOptions),
+        behavior = grid.behavior,
+        dataModel = behavior.dataModel,
         idx = behavior.columnEnum;
 
+    window.g = window.grid = grid;
+    window.p = grid.properties;
+    window.b = behavior;
+    window.m = dataModel;
 
     console.log('Fields:');  console.dir(behavior.dataModel.schema.map(function(cs) { return cs.name; }));
     console.log('Headers:'); console.dir(behavior.dataModel.schema.map(function(cs) { return cs.header; }));

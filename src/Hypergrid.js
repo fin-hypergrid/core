@@ -1227,7 +1227,7 @@ var Hypergrid = Base.extend('Hypergrid', {
      */
     insureModelRowIsVisible: function(rowIndex, offsetY) {
         var maxRows = this.getRowCount() - 1, // -1 excludes partially visible rows
-            scrollOffset = (offsetY > -1) ? 2 : 0, // 2 to keep one blank line below active cell, 0 to keep zero lines above active cell
+            scrollOffset = (offsetY > -1) ? 1 : 0, // 1 to keep one blank line below active cell, 0 to keep zero lines above active cell
             indexToCheck = rowIndex + scrollOffset,
             visible = !this.isDataRowVisible(indexToCheck) || rowIndex === maxRows;
 
@@ -1320,10 +1320,6 @@ var Hypergrid = Base.extend('Hypergrid', {
     getHiddenColumns: function(){
         //A non in-memory behavior will be more troublesome
         return this.behavior.getHiddenColumns();
-    },
-
-    isViewableButton: function(c, r) {
-        return this.renderer.isViewableButton(c, r);
     },
 
     /**

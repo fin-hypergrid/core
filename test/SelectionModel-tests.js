@@ -27,10 +27,6 @@ var instance = [
         name:'columnSelectionModel',
         type: 'object'
     },
-    {
-        name:'lastSelectionType',
-        type: 'string'
-    },
     {name:'allRowsSelected', type:'boolean'},
     {name:'areAllRowsSelected', type:'function'},
     {name:'clear', type:'function'},
