@@ -6,6 +6,12 @@ var _ = require('object-iterators');
 
 var Behavior = require('../behaviors/Behavior');
 
+/**
+ * Additions to `Hypergrid.prototype` for handling and firing events.
+ *
+ * All members are documented on the {@link Hypergrid} page.
+ * @mixin events.mixin
+ */
 module.exports = {
 
     /**
