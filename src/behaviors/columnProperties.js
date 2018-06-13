@@ -335,6 +335,16 @@ createColumnProperties.filterDescriptors = {
             this.filterRenderer = value;
         }
     },
+    editor: {
+        configurable: true,
+        enumerable: true,
+        get: function() {
+            return this.filterEditor;
+        },
+        set: function(value) {
+            this.filterEditor = value;
+        }
+    },
     rightIcon: {
         configurable: true,
         enumerable: true,
