@@ -157,6 +157,10 @@ module.exports = {
         });
     },
 
+    fireSyntheticRowHeaderClickedEvent: function(event) {
+        return dispatchEvent.call(this, 'fin-row-header-clicked', true, {}, event);
+    },
+
     /**
      * @memberOf Hypergrid#
      * @desc Synthesize and fire a `fin-row-selection-changed` event.
