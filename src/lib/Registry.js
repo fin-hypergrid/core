@@ -57,7 +57,7 @@ var Registry = Base.extend('Registry', {
      * @memberOf Registry#
      */
     addSynonym: function(synonymName, existingName) {
-        return (this.items[synonymName] = this.get(existingName));
+        return (this.items[synonymName] = this.items[existingName]);
     },
 
     /**
