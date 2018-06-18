@@ -582,23 +582,25 @@ var Renderer = Base.extend('Renderer', {
             this.lastKnowRowCount = rowCount;
         }
 
+        var dataModel = this.grid.behavior.dataModel;
+
         if (this.needsComputeCellsBounds) {
             computeCellsBounds.call(this);
             this.needsComputeCellsBounds = false;
 
             // Pre-fetch data if supported by data model
-            var dataModel = this.grid.behavior.dataModel;
             if (dataModel.fetchData) {
+                this.dataAvail = false;
                 if (dataModel.gotData && dataModel.gotData(getSubrects.call(this))) {
                     // data already available
                     renderGrid.call(this, gc);
                 } else {
                     dataModel.fetchData(
                         getSubrects.call(this),
-                        renderGridIfData.bind(this, gc) // render immediately upon successful fetch (see above)
+                        renderGrid.bind(this, gc) // render immediately upon successful fetch
                     );
                 }
-                return;
+                return; // skip "tick" renderGrid call below
             }
         }
 
@@ -607,7 +609,11 @@ var Renderer = Base.extend('Renderer', {
         // * _not_ pre-fetching because data model doesn't implement `fetchData`; else we _are_ pre-fectching but
         // * data already valid (previously fetched); else clock wants to render but no data (not arrived yet) so
         // * don't render
-        renderGridIfData.call(this, gc);
+
+        // make sure the data is valid (or still valid since the fetchData call)
+        if (this.dataAvail || !dataModel.gotData || dataModel.gotData(getSubrects.call(this))) {
+            renderGrid.call(this, gc);
+        }
     },
 
     renderLastSelection: function(gc) {
@@ -1471,41 +1477,17 @@ function computeCellsBounds() {
 /**
  * @param {CanvasRenderingContext2D} gc
  * @param {boolean} [fetchError=false] - May be returned by `dataModel.fetchData` on failure.
- * We're not checking this for now, relying upon `gotData` instead.
  * @this {Renderer}
- * @returns {boolean} Data is valid
  */
-function renderGridIfData(gc, fetchError) {
-    // make sure the data is valid (or still valid since the fetchData call)
-    var valid = gotData.call(this);
-
-    if (valid) {
-        renderGrid.call(this, gc);
+function renderGrid(gc, fetchError) {
+    if (fetchError) {
+        this.dataAvail = false;
+    } else {
+        this.dataAvail = true;
+        this.gridRenderer.paintCells.call(this, gc);
+        this.renderOverrides(gc);
+        this.renderLastSelection(gc);
     }
-
-    return valid;
-}
-
-/**
- * @this {Renderer}
- * @returns {boolean} Data is valid
- */
-function gotData() {
-    var dataModel = this.grid.behavior.dataModel;
-    return (
-        !dataModel.gotData ||
-        dataModel.gotData(getSubrects.call(this))
-    );
-}
-
-/**
- * @param {CanvasRenderingContext2D} gc
- * @this {Renderer}
- */
-function renderGrid(gc) {
-    this.gridRenderer.paintCells.call(this, gc);
-    this.renderOverrides(gc);
-    this.renderLastSelection(gc);
 }
 
 /**
