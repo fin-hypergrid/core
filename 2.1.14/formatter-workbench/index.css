@@ -1,0 +1,51 @@
+body {
+    font: 9pt sans-serif;
+    margin: 8px;
+}
+table {
+    border-spacing: 12px 6px;
+}
+textarea {
+    font: 8pt monospace;
+    background-color: ivory;
+    border-radius: 5px;
+    height: 100%;
+    width: 100%;
+    transition: background-color 1s;
+}
+textarea.zowie {
+    background-color: yellow;
+    transition: none;
+}
+label {
+    white-space: nowrap;
+    font: normal 9pt sans-serif;
+}
+select, input {
+    /*margin-right: .5em;*/
+    outline: 0;
+}
+input[type=button] {
+    background-color: grey;
+    color: white;
+    border: 1px dotted transparent;
+}
+input[type=button].locals {
+    cursor: help;
+    float: left;
+    margin-left: 3em;
+    border-radius: 4px;
+}
+input[type=button].api {
+    font: 14px monospace;
+    border-radius: 7px;
+    padding: 3px 9px;
+}
+input[type=button]:hover {
+    background-color: #555;
+}
+input[type=button]:active {
+    color: #555;
+    background-color: white;
+    border-color: grey;
+}

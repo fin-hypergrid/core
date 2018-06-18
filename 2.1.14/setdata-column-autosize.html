@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" >
+    <meta http-equiv="Cache-Control" content="must-revalidate" />
+    <link rel="icon" type="image/x-icon" href="favicon.ico" />
+</head>
+<body>
+
+<script src="build/fin-hypergrid.js"></script>
+
+<h3>setData test</h3>
+
+<p><em>Each click of the button calls grid.setData with a new array. Of particular interest is how column auto-sizing handles such calls. The original behavior is that columns should expand to accommodate wider data in the view, but should not shrink. Once manually resized, a column should no longer grow.</em></p>
+
+<input type="button" value="setData">
+&nbsp; &nbsp; &nbsp;
+<label style="font-family:sans-serif; font-size:9pt"><input type="checkbox"> Bump row count</label>
+<br>
+<br>
+
+<script>
+    var input = document.querySelectorAll('input');
+    var setDataButton = input[0];
+    var bumpRowCountCheckbox = input[1];
+
+    var data = [];
+    var grid = new fin.Hypergrid();
+
+    data.push(makeDataRow());
+    grid.setData(data);
+
+    setDataButton.onclick = function() {
+        makeData();
+        if (bumpRowCountCheckbox.checked) {
+            data.push(makeDataRow());
+        }
+        grid.setData(data);
+    };
+
+    function makeData() {
+        return data = data.map(function(dataRow) { return makeDataRow(); })
+    }
+
+    function makeDataRow(exp) {
+        var dataRow = {};
+        exp = exp || 10;
+        for (var i = 1; i <= 8; i++) {
+            dataRow[String.fromCharCode(i + 64)] = Math.random() * Math.pow(10, Math.random() * exp | 0) | 0;
+        }
+        return dataRow;
+    }
+</script>
+</body>
+</html>

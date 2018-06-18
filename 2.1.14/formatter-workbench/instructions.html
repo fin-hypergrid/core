@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body {
+            font: 10pt sans-serif;
+            margin: 8px;
+            column-gap: 2em;
+        }
+        pre {
+            font: 8pt monospace;
+            background-color: #eee;
+            border: 1px solid #aaa;
+            padding: 0.4em;
+            white-space: pre-wrap;
+        }
+        span.button {
+            background-color: #eee;
+            border: 1px solid black;
+            border-radius: 3px;
+            padding: 1px 3px;
+            font-size: 7pt;
+            font-weight: bold;
+        }
+        a.code, code {
+            font-family: monospace;
+            font-weight: bold;
+            color: #444;
+            background-color: #ddd;
+            padding: 0 4px;
+            border-radius: 3px;
+        }
+        li {
+            margin: .3em 0 .3em -1em;
+        }
+        h3 {
+            background-color: #666;
+            color: white;
+            margin-left: -4px;
+            padding: 5px 8px;
+            border-radius: 6px;
+            text-align: center;
+            font: 14pt cursive;
+            letter-spacing: 1px;
+        }
+        h4 {
+            color: #666;
+            border-top: 1px dashed #aaa;
+            padding-top: 5px;
+            margin-bottom: .65em;
+        }
+        h5 {
+            color: #666;
+            font-style: italic;
+            font-size: 9pt;
+            margin-top: 1em;
+            margin-bottom: .5em;
+        }
+        div.note {
+            text-align: center;
+            margin: 1em 15%;
+            padding: .75em;
+            background-color: ivory;
+            border: 3px orange double;
+        }
+    </style>
+</head>
+<body>
+
+<h2 style="margin-top:0">
+    Instructions
+    <div style="float:right; font-size: 10pt; font-weight: normal">
+        Columns:
+        <select style="outline:0">
+            <option>1</option>
+            <option>2</option>
+            <option>3</option>
+            <option>4</option>
+        </select>
+    </div>
+</h2>
+
+…for the Hypergrid Cell Formatter &amp; Editor Workbench
+
+<div class="note">
+    This document discusses the workbench user
+    interface and concludes with a <a href="#example">tutorial/example</a>.
+</div>
+
+<p>This “workbench” is for learning about Hypergrid cell formatting and editing using <em>localizers</em> and <em>cell editors</em>.
+You can also use it for actual development and testing of these objects, but be aware this app does not persist your work anywhere.
+Be carefore to cut &amp; paste anything you want to keep!</p>
+
+<div style="page-break-inside: avoid">
+    <h3>Data pane</h3>
+    A data pane is provided to adjust the data to suit the needs of your localizers and cell editors.
+    Bind the data to the grid by clicking <code class="button">grid.setData(…)</code> button.
+    The grid in turn is bound to the data window for any edits made to cells using cell editors.
+</div>
+
+<div style="page-break-inside: avoid">
+    <h3>State pane</h3>
+    This pane lets you add a set of properties declaratively to the grid.
+    Properties can also be set programmaticaly from the console with the various set property methods.
+</div>
+
+<div style="page-break-inside: avoid">
+    <h4>Example</h4>
+    <ol>
+        <li>Edit the state pane to make the <code>prevclose</code> column to use the <code>ft-in</code> (“foot-inch”) localizer.</li>
+        <li>Click the <code class="button">grid.addState(…)</code> button.</li>
+        <li>Notice how these values are now formatted as feet and inches.</li>
+        <li>Double click one of these formatted values in the grid. Cell editing is enabled because:
+            <ul>
+                <li>The cell’s <code>editable</code> property is truthy.</li>
+                <li>The cell’s <code>editor</code> property is defined and resolves to a registered cell editor.</li>
+                <li>The cell’s <code>ft-in</code> localizer has a <a href="https://fin-hypergrid.github.io/core/doc/localizerInterface.html#parse" class="code">parse</a> method. (You can see the localizer by selecting it from the dropdown in the Localizer pane.)</li>
+            </ul>
+        </li>
+        <li>Notice how editing in the grid is done in the format specified by the localizer (unlike the in the Data pane where these numbers are integers). The cell editor uses the localizer’s <a href="https://fin-hypergrid.github.io/core/doc/localizerInterface.html#parse" class="code">parse</a> function to turn the edited value back into an integer.</li>
+    </ol>
+</div>
+
+<div style="page-break-inside: avoid">
+<h3>Localizer pane</h3>
+Value formatting in Hypergrid is controlled by <em>localizers,</em> objects with the following shape:
+
+<pre>{
+  format: function(str), // required; returns value
+  parse: function(value), // required; returns string
+  invalid: function(value), // optional; helper function for `parse`
+  expectation: "optional error message describing expected syntax"
+}</pre>
+</div>
+
+Formatting grid cell values is purely a text string manipulation. Any other graphical effects are the purview of cell renderers (not covered here). Cell editors can include fancy controls for manipulating the string, but the result needs to be a formatted string (which will be parsed before storing the result in the data model).
+
+<div style="page-break-inside: avoid">
+    <h4><a href="https://fin-hypergrid.github.io/core/doc/localizerInterface.html#format" class="code">format</a></h4>
+    <em>Required.</em>
+    Formats raw data values for display in the grid.
+</div>
+
+<div style="page-break-inside: avoid">
+    <h4><a href="https://fin-hypergrid.github.io/core/doc/localizerInterface.html#parse" class="code">parse</a></h4>
+    <em>Required.</em>
+    Parses values in the displayed format, converting them back into raw data values. Used by cell editors to store results back to data model, or by search algorithms to compare a formatted value to other cells' raw values (without having to format every on of the other cells), <i>etc.</i>
+</div>
+
+<p></p>Although <a href="https://fin-hypergrid.github.io/core/doc/localizerInterface.html#parse" class="code">parse</a> is only called by Hypergrid when a formatted cell is edited, an implementation is currently required (by <code>add</code>). The reason for this is "completeness" — to be ready and available when your application inevitably needs to parse a value later on. The assumption is it’s easier to write a parser when you write the formatter than to have to go back later and rethink it. <em>That said, you can provide a no-op implementation to fake out <code>add</code> but you do so at your peril. (So long as the cells using this localizer are not editable you should be all right.)</em></li>
+
+<div style="page-break-inside: avoid">
+    <h4><a href="https://fin-hypergrid.github.io/core/doc/localizerInterface.html#invalid" class="code">invalid</a></h4>
+    <em>Optional.</em>
+    Validates the syntax.
+    Usually implemented with a <Code>RegExp</code>. For example (replace <code>regex</code> with an actual regex):
+    <pre>  invalid: function(str) { return !/^regex$/.test(); }</pre>
+    Should be implemented when <a href="https://fin-hypergrid.github.io/core/doc/localizerInterface.html#parse" class="code">parse</a> is not bulletproof (when it would jam unexpectedly on bad syntax). When implemented, <a href="https://fin-hypergrid.github.io/core/doc/localizerInterface.html#invalid" class="code">invalid</a> is called first; <a href="https://fin-hypergrid.github.io/core/doc/localizerInterface.html#parse" class="code">parse</a> is only called if the syntax is valid (<a href="https://fin-hypergrid.github.io/core/doc/localizerInterface.html#invalid" class="code">invalid</a> returns falsy; <i>i.e.,</i> “not invalid”).
+    </div>
+
+    <div style="page-break-inside: avoid">
+    <h4><a href="https://fin-hypergrid.github.io/core/doc/localizerInterface.html#expectation" class="code">expectation</a></h4>
+    <em>Optional.</em>
+    A friendly description of the expected syntax. Used for error feedback, but also helpful for self-documenting the localizer.
+</div>
+
+<div style="page-break-inside: avoid">
+    <h4>Define a new localizer and add it to the grid</h4>
+    <ol>
+        <li>Select <strong>(New)</strong> from the <em>Load localizer</em> drop-down.</li>
+        <li>Rename it with a unique name by editing the <a href="https://fin-hypergrid.github.io/core/doc/localizerInterface.html#name" class="code">name</a> field.</li>
+        <li>Add additional local variables by declaring them at the top, as needed.</li>
+        <li>Code your localizer referring to examples and the <a href="https://fin-hypergrid.github.io/core/doc/localizerInterface.html" target="localizer-docs">localizer interface</a> documentation.</li>
+        <li>Be sure to assign your localizer to <code>module.exports</code>.</li>
+        <li>Click the <span class="button">grid.localization.add(…)</span> button.</li>
+        <li><em>Optional:</em> Edit the localizer and click <span class="button">grid.localization.add(…)</span> to update it.</li>
+    </ol>
+</div>
+
+For example, here’s a localizer to show a “degrees” unit:
+<pre>grid.localization.add('deg', { format: function(s) { return s + '°' } }</pre>
+(Notice incidentally how <code>add</code> can optionally accept a name parameter for localizers that lack a <a href="https://fin-hypergrid.github.io/core/doc/localizerInterface.html#name" class="code">name</a> property.)
+
+<div style="page-break-inside: avoid">
+    <h4>Bind the localizer to a cell</h4>
+    Bind a localizer using the <a href="https://fin-hypergrid.github.io/core/doc/localizerInterface.html#format" class="code">format</a> property. As always, a property can be set for the entire grid, a specific column (or row), or a specific cell.
+    There are many ways to do this programmatically from the console with the various property setting methods.
+</div>
+
+<p>From this interface, edit the state and click the <span class="button">grid.addState(…)</span> button:</p>
+<ul>
+    <li>State object to set grid <a href="https://fin-hypergrid.github.io/core/doc/localizerInterface.html#format" class="code">format</a> property to <code>'deg'</code>: <pre>{ format: 'deg' }</pre></li>
+    <li>To set column property: <pre>{ columns: { data: { prevclose: { format: 'deg' } } } }</pre></li>
+    <li>To set row property: <pre>{ rows: { data: { 3: { format: 'deg' } } } }</pre></li>
+    <li>To set cell property: <pre>{ cells: { data: { 3: { prevclose: { format: 'deg' } } } } }</pre></li>
+    <li>The <code>editable: true</code> (grid) property in the default state shown above is included for clarity (<code>true</code> is the default)</li>
+</ul>
+
+<div style="page-break-inside: avoid">
+    <h4>Edit an existing localizer</h4>
+    <ul>
+        <li>Select a localizer to edit from the <em>Load localizer</em> drop-down.</li>
+        <li>Edit the localizer.</li>
+        <li>Click the <span class="button">grid.localization.add(…)</span> button to replace the existing cell editor with your changes.</li>
+    </ul>
+</div>
+
+<div style="page-break-inside: avoid">
+    <h4>Duplicate an existing localizer</h4>
+    <ul>
+        <li>Select a localizer to edit from the <em>Load localizer</em> drop-down.</li>
+        <li>Rename it with a new unique name by editing the <a href="https://fin-hypergrid.github.io/core/doc/localizerInterface.html#name" class="code">name</a> field.</li>
+        <li>Click the <span class="button">grid.localization.add(…)</span> button to save it under the new name.</li>
+    </ul>
+</div>
+
+<div style="page-break-inside: avoid">
+    <h3>Cell editor pane</h3>
+        This pane lets you create and edit cell editors. It comes with a sample cell editor called <code>Time</code> for editing values formatted with the <code>hh:mm</code> localizer.
+    <h4>Define a new cell editor in this workbench</h4>
+    Procedure is similar to that for localizer (see above) except:
+    <ul>
+        <li>Hover over (or click) <span class="button">Locals</span> button to see defined local variables.</li>
+        <li>Refer to the <a href="https://fin-hypergrid.github.io/core/doc/CellEditor.html" target="cell-editor-docs">API documentation</a>
+            and the code (<a href="https://github.com/fin-hypergrid/core/blob/master/src/cellEditors/CellEditor.js" target="cell-editor-code">CellEditor.js</a>).</li>
+        <li>Use the <span class="button">grid.cellEditors.add(…)</span> button (rather than <span class="button">grid.localization.add(…)</span>.</li>
+        <li>Be sure to define the <a href="https://fin-hypergrid.github.io/core/doc/localizerInterface.html#parse" class="code">parse</a> function, which is required for editing, as well as the <a href="https://fin-hypergrid.github.io/core/doc/localizerInterface.html#format" class="code">format</a> funciton.</li>
+    </ul>
+</div>
+
+<div style="page-break-inside: avoid">
+    <h4>Bind the cell editor to a cell</h4>
+    Procedure is similar to that for localizer (see above) except:
+    <ul>
+        <li>Use the <code>editor</code> binding (rather than <a href="https://fin-hypergrid.github.io/core/doc/localizerInterface.html#format" class="code">format</a>).</li>
+    </ul>
+</div>
+
+<div style="page-break-inside: avoid">
+    <h4>Edit an existing cell editor</h4>
+    Procedure is similar to that for localizer (see above).
+</div>
+
+<div style="page-break-inside: avoid">
+    <h4>Duplicate an existing cell editor</h4>
+    Procedure is similar to that for localizer (see above).
+</div>
+
+<div style="page-break-inside: avoid">
+    <h3>Grid</h3>
+    The live Hypergrid appears below the other panes.
+</div>
+
+<div style="page-break-inside: avoid">
+    <h3 id="example">Tutorial / Example</h3>
+    The <code>prevclose</code> column is set to use this localizer (see the State pane), whose <a href="https://fin-hypergrid.github.io/core/doc/localizerInterface.html#format" class="code">format</a> function formats positive numbers with an up-arrow (⬆) and negative numbers with a down-arrow (⬇). The data for this column are all initially positive (see Data pane), so all values are formatted with up-arrows (see Grid).
+    </div>
+
+    <div style="page-break-inside: avoid">
+    <h4>Edit the cell value in the data pane</h4>
+    <ol>
+        <li>In the data pane, change a couple of the <code>prevclose</code> values to negative numbers.</li>
+        <li>Click the <code class="button">grid.setData(…)</code> button.</li>
+        <li>Notice how these values are now formatted with down-arrows in the grid.</li>
+    </ol>
+</div>
+
+<div style="page-break-inside: avoid">
+    <h4>Edit the cell in the grid</h4>
+    <ol>
+        <li>Double click one of these formatted values in the grid to edit it using the <a href="https://github.com/fin-hypergrid/core/blob/master/src/cellEditors/Textfield.js" class="code">Textfield</a> cell editor.</li>
+        <li>Cell editors append additional elements to the DOM, positioned precisely to the cell bounds.</li>
+        <li>Edit the cell. This editor is for straight-forward text editing; it has no special controls for handling the arrows which are arrows are not available on the keyboard. You could cut &amp; paste a down-arrow from another cell; or as a special accommodation to this problem the <code>trend</code> localizer’s <a href="https://fin-hypergrid.github.io/core/doc/localizerInterface.html#parse" class="code">parse</a> function also accepts a prefixed negative sign.</li>
+        <li>Press the <strong>enter</strong> key.</li>
+        <li>The <a href="https://fin-hypergrid.github.io/core/doc/localizerInterface.html#parse" class="code">parse</a> function converts the input to a value.</li>
+        <li>Editor is closed.</li>
+        <li>Grid is updated with the new value.</li>
+        <li>Data pane is also updated with the new value.</li>
+    </ol>
+</div>
+
+<div style="page-break-inside: avoid">
+    <h4>Edit the localizer</h4>
+    Let’s improve the localizer.
+    <h5>Throw error on parser failer</h5>
+    The <code>trend</code> localizer’s <a href="https://fin-hypergrid.github.io/core/doc/localizerInterface.html#parse" class="code">parse</a> function has a problem. It doesn't properly throw an error on failure:
+    <ol>
+        <li>Double-click another cell to edit it, seting the contents to some invalid value (such as “xyz” which is not a number).</li>
+        <li>Press the <strong>enter</strong> key.</li>
+        <li>The parser cannot convert the value.</li>
+        <li>Editor is closed.</li>
+        <li>Grid is updated with null.</li>
+        <li>Data pane is also updated with null.</li>
+    </ol>
+</div>
+
+<div style="page-break-inside: avoid">
+    The solution is to have the <a href="https://fin-hypergrid.github.io/core/doc/localizerInterface.html#parse" class="code">parse</a> function throw an error when it cannot convert the value. If the native <code>window.parseFloat</code> function threw an error on failure we'd be there already. Instead, it returns <code>NaN</code> (“<u>n</u>ot <u>a</u> <u>n</u>umber”) on failure. Let’s catch the <code>NaN</code> and throw an actual error:
+    <ol>
+        <li>In the Localizer pane, select the <code>trend</code> localizer.</li>
+        <li>Uncomment the <code><i>if</i></code> statement with the <code><i>throw</i></code> statement within it.</li>
+        <li>Edit another cell, again setting the contents to some invalid value.</li>
+        <li>Press the <strong>enter</strong> key.</li>
+        <li>The parser cannot convert the value.</li>
+        <li>Negative feedback animation plays.</li>
+        <li>Every third failure (press <strong>enter</strong> again) is accompanied by an <code>alert</code> with additional information (the error’s message is shown in the alert).</li>
+    </ol>
+</div>
+
+<div style="page-break-inside: avoid">
+    <h5>Check for valid syntax</h5>
+    The <a href="https://fin-hypergrid.github.io/core/doc/localizerInterface.html#parse" class="code">parse</a> function as implemented correctly parses expected input. However, it’s not a fully realized finite-state machine; it doesn't parse the input as a grammar and therefore doesn't catch invalid syntax. Specifically, this parser ignores extraneous characters between a valid floating point number and the end of string, which conveniently ignores the arrows, but also anything else. There are two choices for addressing this:
+    <ol>
+        <li>Make the parser "bulletproof" by implementing an FSM (from scratch or via a <code>RegExp</code>).</li>
+        <li>Implement an <a href="https://fin-hypergrid.github.io/core/doc/localizerInterface.html#invalid" class="code">invalid</a> function to do a syntax pre-scan, which allows a (simpler) parser to assume the syntax is valid.</li>
+    </ol>
+</div>
+
+<div style="page-break-inside: avoid">
+    <h5>Display syntax hint</h5>
+    If you implement the <a href="https://fin-hypergrid.github.io/core/doc/localizerInterface.html#expectation" class="code">expectation</a> string property, that string (a friendly description of the syntax) will be included in the error alert mentioned above. If <a href="https://fin-hypergrid.github.io/core/doc/localizerInterface.html#parse" class="code">parse</a> is called and it throws an error with a defined <code>message</code> property, that message will also be included (prepended to the expectation message).
+</div>
+
+<div style="page-break-inside: avoid">
+    <h4>Cell editors</h4>
+    We haven't discussed cell editors so far. Often, the <a href="https://github.com/fin-hypergrid/core/blob/master/src/cellEditors/Textfield.js" class="code">Textfield</a> cell renderer + a localizer with well-defined <a href="https://fin-hypergrid.github.io/core/doc/localizerInterface.html#format" class="code">format</a> and <a href="https://fin-hypergrid.github.io/core/doc/localizerInterface.html#parse" class="code">parse</a> methods is all you need. A custom cell renderer is needed when what you’re editing cannot be easily represented or conveniently edited as text, or if you want to code special event handlers (such as ignoring illegal chars).
+</div>
+
+<div style="page-break-inside: avoid">
+    <h5>Bind to a cell editor</h5>
+    Cell editors depend on localizers and always have a default localizer that is used when the cell does not define a custom localizer (in its <code>format</code> property). Custom cell editors generally work hand-in-hand with a custom localizer. Let’s add a simple editor to the <code>prevclose</code> column. The column already specifies a custom localizer, <code>trend</code>. We're going to bind a custom cell editor to this column, also called <code>Trend</code>.
+</div>
+
+<blockquote style="font-size:smaller"><i>Note:</i> The <code>get</code> methods, such as <code>grid.localization.get(localizerName)</code> and <code>grid.cellEditors.get(cellEditorName)</code> treat their parameter as case-insensitive. Localizer and cell editor names must be unique but exist in different name spaces which is why these two names don't clash (not case differences.) The only reason cell editors start with a capital letter is a nod to the fact that they’re object constructors (or "classes" which by long-standing convention are always capitalized).</blockquote>
+
+<ol>
+    <li>In the State pane, add <code>editor: "Trend"</code> to the <code>prevclose</code> column.</li>
+    <li>Click the <span class="button">grid.addState(…)</span> button.</li>
+    <li>Double-click a cell in the <code>prevclose</code> column.</li>
+    <li>Click the arrow and notice how it flips.</li>
+    <li>Press the <span class="button">enter</span> key to save the change or <span class="button">esc</span> key to cancel it.</li>
+</ol>
+
+This cell editor makes toggling the arrow a simple matter of clicking on it. This usually would not be worth writing a cell editor for — except that in this case, the Unicode arrows are not on the keyboard so they're impossible to type.
+
+<div style="page-break-inside: avoid">
+    <h5>Edit the cell editor</h5>
+    Take a look at the <code>Trend</code> cell editor:
+    <ol>
+        <li>In the Cell Editor pane, select "Trend" from the drop-down.</li>
+        <li>Uncomment the <code>keypress</code> event handler.</li>
+        <li>Click the <span class="button">grid.cellEditors.add(…)</span> button.</li>
+        <li>Double-click a cell in the <code>prevclose</code> column.</li>
+        <li>Type <span class="button">&plus;</span> or <span class="button">&minus;</span> and notice how the arrow flips.</li>
+    </ol>
+</div>
+
+This <code>keypress</code> handler does two things:
+<ol>
+    <li>The <code>case '+'</code> and <code>case '-'</code> cases let the user "type" in the arrows at any time during editing by pressing the <span class="button">&plus;</span> or <span class="button">&minus;</span> keys for up-arrow or down-arrow, respectively.</li>
+    <li>The <code>default</code> case discards unexpected key presses, triggering an error feedback animation.</li>
+</ol>
+
+<div style="page-break-inside: avoid">
+    <h5>Regarding <code>this.super</code></h5>
+    Calling the superclasses implementation from <code>setEditorValue</code>, <code>setEditorValue</code>, and  <code>setEditorValue</code>, while not a requirement, is a common pattern and is recommended.
+</div>
+
+<div style="page-break-inside: avoid">
+    <h3>Debugging cell editors</h3>
+    Because the workbench's cell editors are dynamically added and don't exist as code files, debugging is challenging. To see your cell editor's code page, make sure you have an <code>initialize</code> method (even if it’s empty). From the browser console, load up <code>src/cellEditors/CellEditor.js</code>. Place a breakpoint on the last line of the <code>initialize</code> method. From there 1 &times; "step-over" &plus; 3 &times; "step-into" and you should find yourself in the subclass’s <code>initialize</code> method. (To get to a sub-subclass: .1 &times; "step-out" &plus; 3 &times; "step-into") Now that the debugger is displaying your cell editor, you can set breakpoints in your other methods.
+</div>
+
+<script>
+    var c = document.querySelector('select');
+    c.value = Math.floor(window.innerWidth / 500);
+    c.onchange = function() {
+        document.body.style.columns = this.selectedIndex + 1;
+    };
+    c.onchange();
+</script>
+</body>
+</html>
