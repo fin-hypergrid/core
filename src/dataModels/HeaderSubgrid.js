@@ -1,6 +1,6 @@
 'use strict';
 
-var DataModel = require('./DataModel');
+var DataSourceBase = require('datasaur-base');
 
 /**
  * @implements dataModelAPI
@@ -9,26 +9,18 @@ var DataModel = require('./DataModel');
  * @param {string} [options.name]
  * @constructor
  */
-var HeaderSubgrid = DataModel.extend('HeaderSubgrid', {
-    initialize: function(grid, options) {
-        this.behavior = grid.behavior;
-
-        /**
-         * @type {dataRowObject}
-         */
-        this.dataRow = {}; // for meta data (__HEIGHT)
-
-        if (options && options.name) {
-            this.name = options.name;
-        }
-    },
-
+var HeaderSubgrid = DataSourceBase.extend('HeaderSubgrid', {
     type: 'header',
 
     format: 'header', // override column format
 
+    initialize: function(nextDataSource, options) {
+        this.properties = options.grid.properties;
+        this.behavior = options.grid.behavior;
+    },
+
     getRowCount: function() {
-        return this.grid.properties.showHeaderRow ? 1 : 0;
+        return this.properties.showHeaderRow ? 1 : 0;
     },
 
     getValue: function(x, y) {
@@ -44,6 +36,14 @@ var HeaderSubgrid = DataModel.extend('HeaderSubgrid', {
 
     getRow: function(y) {
         return this.dataRow;
+    },
+
+    getRowMetadata: function(y, prototype) {
+        return this.metadata || prototype !== undefined && (this.metadata = Object.create(prototype));
+    },
+
+    setRowMetadata: function(y, metadata) {
+        return (this.metadata = metadata);
     }
 });
 

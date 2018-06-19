@@ -79,6 +79,7 @@ exports.mixin = {
         if (metadata) {
             metadata.__ROW = Object.create(this.rowPropertiesPrototype);
             this.addRowProperties(yOrCellEvent, properties, dataModel, metadata.__ROW);
+            this.stateChanged();
         }
     },
 

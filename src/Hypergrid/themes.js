@@ -8,9 +8,9 @@
 
 var _ = require('object-iterators'); // fyi: installs the Array.prototype.find polyfill, as needed
 
-var defaults = require('./defaults');
-var dynamicPropertyDescriptors = require('./lib/dynamicProperties');
-var HypergridError = require('./lib/error');
+var defaults = require('../defaults');
+var dynamicPropertyDescriptors = require('../lib/dynamicProperties');
+var HypergridError = require('../lib/error');
 
 var styles = [
     'BackgroundColor',

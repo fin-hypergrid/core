@@ -4,7 +4,7 @@
 
 module.exports = function(demo, grid) {
 
-    var idx = grid.behavior.columnEnum;
+    var idx = grid.behavior.schema;
 
     //GET CELL
     //all formatting and rendering per cell can be overridden in here

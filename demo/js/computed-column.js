@@ -17,7 +17,7 @@ window.onload = function() {
         ]
     });
 
-    grid.behavior.dataModel.schema.push({
+    grid.behavior.schema.push({
         name: 'squared',
         calculator: square
     });

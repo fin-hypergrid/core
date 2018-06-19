@@ -3,15 +3,12 @@
 var CellRenderer = require('./CellRenderer');
 
 /**
+ * Renders a sparkline.
+ * @see [Edward Tufte sparkline](http://www.edwardtufte.com/bboard/q-and-a-fetch-msg?msg_id=0001OR)
  * @constructor
  * @extends CellRenderer
  */
 var SparkLine = CellRenderer.extend('SparkLine', {
-
-    /**
-     * @desc A simple implementation of a sparkline.  see [Edward Tufte sparkline](http://www.edwardtufte.com/bboard/q-and-a-fetch-msg?msg_id=0001OR)
-     * @memberOf SparkLine.prototype
-     */
     paint: function(gc, config) {
         var x = config.bounds.x,
             y = config.bounds.y,

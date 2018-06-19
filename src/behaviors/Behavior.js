@@ -3,6 +3,7 @@
 var Point = require('rectangular').Point;
 
 var Base = require('../Base');
+var dataModel = require('./dataModel');
 var Column = require('./Column');
 var cellEventFactory = require('../lib/cellEventFactory');
 var featureRegistry = require('../features');
@@ -22,20 +23,24 @@ var noExportProperties = [
 ];
 
 /**
+ * @mixes subgrids.mixin
+ * @mixes dataModel.mixin
  * @constructor
+ * @desc A controller for the data model.
+ * > This constructor (actually `initialize`) will be called upon instantiation of this class or of any class that extends from this class. See {@link https://github.com/joneit/extend-me|extend-me} for more info.
+ * @param {Hypergrid} grid
+ * @param {object} [options] - _(Passed to {@link Behavior#reset reset})._
+ * @param {dataModelAPI} [options.dataModel] - _Per {@link Behavior#reset reset}._
+ * @param {object} [options.metadata] - _Per {@link Behavior#reset reset}._
+ * @param {function} [options.DataModel=require('datasaur-local')] - _Per {@link Behavior#reset reset}._
+ * @param {function|object[]} [options.data] - _Per {@link Behavior#setData setData}._
+ * @param {function|menuItem[]} [options.schema] - _Per {@link Behavior#setData setData}._
+ * @param {subgridSpec[]} [options.subgrids=this.grid.properties.subgrids] - _Per {@link Behavior#setData setData}._
+ * @param {boolean} [options.apply=true] - _Per {@link Behavior#setData setData}._
  * @abstract
- * @desc A sort of "model++." It contains all code/data that's necessary for easily implementing a virtual data source and its manipulation/analytics.
- *
  */
 var Behavior = Base.extend('Behavior', {
 
-    /**
-     * @desc this is the callback for the plugin pattern of nested tags
-     * @param {Hypergrid} grid
-     * @param {object} [options] - _(See {@link behaviors.JSON#setData} for additional options.)_
-     * @param {DataModels[]} [options.subgrids]
-     * @memberOf Behavior#
-     */
     initialize: function(grid, options) {
         /**
          * @type {Hypergrid}
@@ -105,30 +110,16 @@ var Behavior = Base.extend('Behavior', {
     features: [], // override in implementing class; or provide feature names in grid.properties.features; else no features
 
     /**
-     * @param {object} [options]
-     * @param {object} [options.pipeline] - Consumed by {@link dataModels.JSON#reset}.
-     *
-     * If omitted, previously established pipeline is reused.
-     * @param {object} [options.controllers] - Consumed by {@link dataModels.JSON#reset}.
-     *
-     * If omitted, previously established controllers list is reused.
+     * Reset the behavior.
+     * @param {object} [options] - _Same as constructor's `options`._<br>
+     * _Passed to {@link Behavior#resetDataModel resetDataModel} and {@link Behavior#setData setData} (both of which see)._
      * @memberOf Behavior#
      */
     reset: function(options) {
-        if (this.dataModel) {
-            options = options || {};
-            this.dataModel.reset({
-                pipeline: options.pipeline,
-                controllers: options.controllers
-            });
-        } else {
-            /**
-             * @type {dataModelAPI}
-             * @memberOf Behavior#
-             */
-            this.dataModel = this.getNewDataModel(options);
+        var dataModelChanged = this.resetDataModel(options);
 
-            // recreate `CellEvent` class so it can set up its internal `grid`, `behavior`, and `dataModel` convenience properties
+        if (dataModelChanged) {
+            // recreate `CellEvent` class so it can update its cached `grid`, `behavior`, and `dataModel` properties
             this.CellEvent = cellEventFactory(this.grid);
         }
 
@@ -145,7 +136,37 @@ var Behavior = Base.extend('Behavior', {
          * @type {subgridSpec[]}
          * @memberOf Hypergrid#
          */
-        this.subgrids = options.subgrids || this.subgrids || this.grid.properties.subgrids;
+        this.subgrids = options && options.subgrids ||
+            !dataModelChanged && this.subgrids ||
+            this.grid.properties.subgrids;
+
+        this.setData(options);
+    },
+
+    /**
+     * @abstract
+     * @summary Set grid data.
+     * @desc Exits without doing anything if no data (`dataRows` undefined or omitted and `options.data` undefined).
+     *
+     * @param {function|object[]} [dataRows=options.data] - Array of uniform data row objects or function returning same.
+     *
+     * @param {object} [options] - _(Promoted to first argument position when `dataRows` omitted.)_
+     *
+     * @param {function|object[]} [options.data] - Passed to behavior constructor. May be:
+     * * An array of congruent raw data objects
+     * * A function returning same
+     * * Omit for non-local datasources
+     *
+     * @param {function|menuItem[]} [options.schema] - Passed to behavior constructor. May be:
+     * * A schema array
+     * * A function returning same. Called at filter reset time with behavior as context.
+     * * Omit to allow the data model to generate a basic schema from its data.
+     *
+     * @param {boolean} [options.apply=true] Apply data transformations to the new data.
+     *
+     * @memberOf Behavior#
+     */
+    setData: function(dataRows, options) {
     },
 
     get renderedColumnCount() {
@@ -161,7 +182,7 @@ var Behavior = Base.extend('Behavior', {
     },
 
     clearColumns: function() {
-        var schema = this.dataModel.schema,
+        var schema = this.schema,
             tc = this.treeColumnIndex,
             rc = this.rowColumnIndex;
 
@@ -213,19 +234,6 @@ var Behavior = Base.extend('Behavior', {
         return this.columns.findIndex(function(column) { return column[key] === value; });
     },
 
-    getVisibleColumn: function() {
-        return this.deprecated('getVisibleColumn(x)', 'getActiveColumn(x)', '1.0.6', arguments);
-    },
-    getVisibleColumnName: function() {
-        return this.deprecated('getVisibleColumnName(x)', 'getActiveColumn(x).name', '1.0.6', arguments);
-    },
-    getColumnId: function() {
-        return this.deprecated('getColumnId(x)', 'getActiveColumn(x).header', '1.0.6', arguments);
-    },
-    getHeader: function() {
-        return this.deprecated('getHeader(x)', 'getActiveColumn(x).header', '1.0.6', arguments);
-    },
-
     getColumn: function(x) {
         return this.allColumns[x];
     },
@@ -269,21 +277,6 @@ var Behavior = Base.extend('Behavior', {
         this.stateChanged();
     },
 
-    getCellProvider: function(name) {
-        return this.deprecated('getCellProvider()', 'grid.cellRenderers', '1.0.6', arguments);
-    },
-    createCellProvider: function(name) {
-        console.error('getCellProvider() is deprecated as of v1.0.6. No replacement; do not call. Previously called by `Behavior` constructor; `new CellRenderers()` is now called by `Hypergrid` constructor instead.', arguments);
-    },
-
-    /**
-     * @memberOf Behavior#
-     */
-    reindex: function() {
-        this.dataModel.reindex();
-        this.shapeChanged();
-    },
-
     /**
      * @memberOf Behavior#
      * @desc utility function to empty an object of its members
@@ -305,15 +298,6 @@ var Behavior = Base.extend('Behavior', {
                 delete obj[key];
             }
         }
-    },
-
-    /**
-     * @memberOf Behavior#
-     * @desc getter for a [Memento](http://c2.com/cgi/wiki?MementoPattern) Object
-     * @returns {object}
-     */
-    getPrivateState: function() {
-        return this.deprecated('getPrivateState()', 'grid.properties', '1.2.0');
     },
 
     //this is effectively a clone, with certain things removed....
@@ -421,10 +405,6 @@ var Behavior = Base.extend('Behavior', {
             var allColumns = this.allColumns;
             this.setColumnOrder(columnNames.map(function(name) { return allColumns[name].index; }));
         }
-    },
-
-    _setColumnOrder: function(columnIndexes) {
-        this.deprecated('_setColumnOrder(columnIndexes)', 'setColumnOrder(columnIndexes)', '1.2.10', arguments);
     },
 
     /**
@@ -545,29 +525,6 @@ var Behavior = Base.extend('Behavior', {
         return this.grid.resolveProperty(key);
     },
 
-    /**
-     * @memberOf Behavior#
-     * @desc A specific cell was clicked; you've been notified.
-     * @param {Object} event - all event information
-     * @return {boolean} Clicked in a drill-down column.
-     */
-    cellClicked: function(event) {
-        if (arguments.length === 2) {
-            return this.deprecated('cellClicked(cell, event)', 'cellClicked(event)', '1.2.0', arguments);
-        }
-        return this.dataModel.cellClicked(event);
-    },
-
-    /**
-     * @memberOf Behavior#
-     * @desc A specific cell was le double-clicked; you've been notified.
-     * @param {Point} cell - point of cell coordinates
-     * @param {Object} event - all event information
-     */
-    cellDoubleClicked: function(cell, event) {
-
-    },
-
     lookupFeature: function(key) {
         return this.featureMap[key];
     },
@@ -589,18 +546,6 @@ var Behavior = Base.extend('Behavior', {
             }
         }
         return xOrCellEvent.value;
-    },
-
-    /**
-     * @summary Gets the number of rows in the data subgrid.
-     * @memberOf Behavior.prototype
-     */
-    getRowCount: function() {
-        return this.dataModel.getRowCount();
-    },
-
-    getUnfilteredValue: function(x, y) {
-        return this.deprecated('getUnfilteredValue()', '', '1.4.0', arguments, 'No longer supported');
     },
 
     /**
@@ -628,14 +573,6 @@ var Behavior = Base.extend('Behavior', {
         xOrCellEvent.value = value;
     },
 
-    getDataValue: function(x, y) {
-        return this.deprecated('getDataValue(x, y)', 'dataModel.getValue(x, y)', '1.1.0', arguments);
-    },
-
-    setDataValue: function(x, y, value) {
-        return this.deprecated('setDataValue(x, y, value)', 'dataModel.setValue(x, y, value)', '1.1.0', arguments);
-    },
-
     /**
      * @summary Get the cell's own properties object.
      * @desc May be undefined because cells only have their own properties object when at lest one own property has been set.
@@ -646,11 +583,12 @@ var Behavior = Base.extend('Behavior', {
      * @memberOf Behavior#
      */
     getCellOwnProperties: function(xOrCellEvent, y, dataModel) {
-        switch (arguments.length) {
-            case 1: // xOrCellEvent is cellEvent
-                return xOrCellEvent.column.getCellOwnProperties(xOrCellEvent.dataCell.y, xOrCellEvent.subgrid);
-            case 2: case 3: // xOrCellEvent is x
-                return this.getColumn(xOrCellEvent).getCellOwnProperties(y, dataModel);
+        if (arguments.length === 1) {
+            // xOrCellEvent is cellEvent
+            return xOrCellEvent.column.getCellOwnProperties(xOrCellEvent.dataCell.y, xOrCellEvent.subgrid);
+        } else {
+            // xOrCellEvent is x
+            return this.getColumn(xOrCellEvent).getCellOwnProperties(y, dataModel);
         }
     },
 
@@ -666,11 +604,12 @@ var Behavior = Base.extend('Behavior', {
      * @memberOf Behavior#
      */
     getCellProperties: function(xOrCellEvent, y, dataModel) {
-        switch (arguments.length) {
-            case 1: // xOrCellEvent is cellEvent
-                return xOrCellEvent.properties;
-            case 2: case 3: // xOrCellEvent is x
-                return this.getColumn(xOrCellEvent).getCellProperties(y, dataModel);
+        if (arguments.length === 1) {
+            // xOrCellEvent is cellEvent
+            return xOrCellEvent.properties;
+        } else {
+            // xOrCellEvent is x
+            return this.getColumn(xOrCellEvent).getCellProperties(y, dataModel);
         }
     },
 
@@ -687,7 +626,7 @@ var Behavior = Base.extend('Behavior', {
     getCellProperty: function(xOrCellEvent, y, key, dataModel) {
         if (typeof xOrCellEvent === 'object') {
             key = y;
-            return xOrCellEvent.properties[key];
+            return xOrCellEvent.properties[y];
         } else {
             return this.getColumn(xOrCellEvent).getCellProperty(y, key, dataModel);
         }
@@ -756,10 +695,6 @@ var Behavior = Base.extend('Behavior', {
         return cellOwnProperties;
     },
 
-    getUnfilteredRowCount: function() {
-        return this.deprecated('getUnfilteredRowCount()', '', '1.2.0', arguments, 'No longer supported');
-    },
-
     /**
      * @memberOf Behavior#
      * @desc The value is lazily initialized and comes from the properties mechanism for '`defaultRowHeight`', which should be ~20px.
@@ -807,51 +742,6 @@ var Behavior = Base.extend('Behavior', {
      */
     getFixedColumnsMaxWidth: function() {
         return this.getFixedColumnsWidth();
-    },
-
-    /**
-     * @memberOf Behavior#
-     * @desc Set the scroll position in vertical dimension and notify listeners.
-     * @param {number} y - the new y value
-     */
-    _setScrollPositionY: function(y) {
-        this.setScrollPositionY(y);
-        this.changed();
-    },
-
-    /**
-     * @memberOf Behavior#
-     * @desc Set the scroll position in horizontal dimension and notify listeners.
-     * @param {number} x - the new x value
-     */
-    _setScrollPositionX: function(x) {
-        this.setScrollPositionX(x);
-        this.changed();
-    },
-
-    /**
-     * @memberOf Behavior#
-     * @desc The fixed row area has been clicked, massage the details and call the real function.
-     * @param {Hypergrid} grid
-     * @param {Object} mouse - event details
-     */
-    _fixedRowClicked: function(grid, mouse) {
-        var x = this.translateColumnIndex(this.getScrollPositionX() + mouse.gridCell.x - this.getFixedColumnCount());
-        var translatedPoint = new Point(x, mouse.gridCell.y);
-        mouse.gridCell = translatedPoint;
-        this.fixedRowClicked(grid, mouse);
-    },
-
-    /**
-     * @memberOf Behavior#
-     * @desc The fixed column area has been clicked, massage the details and call the real function.
-     * @param {Hypergrid} grid
-     * @param {Object} mouse - event details
-     */
-    _fixedColumnClicked: function(grid, mouse) {
-        var translatedPoint = new Point(mouse.gridCell.x, this.getScrollPositionY() + mouse.gridCell.y - this.getFixedRowCount());
-        mouse.gridCell = translatedPoint;
-        this.fixedColumnClicked(grid, mouse);
     },
 
     /**
@@ -1071,10 +961,7 @@ var Behavior = Base.extend('Behavior', {
         } else if (this.subgrids) {
             this.subgrids.forEach(function(dataModel) {
                 for (var i = dataModel.getRowCount(); i--;) {
-                    delete dataModel.getRow(i).__META;
-                    // todo: test if optimizer wants following instead
-                    // dataRow = dataModel.getRow(i);
-                    // if (dataRow.__META !== undefined) { dataRow.__META = undefined; }
+                    dataModel.setRowMetadata(i);
                 }
             });
         }
@@ -1175,9 +1062,6 @@ var Behavior = Base.extend('Behavior', {
     getActiveColumnCount: function() {
         return this.columns.length;
     },
-    getColumnCount: function() {
-        return this.deprecated('getColumnCount()', 'getActiveColumnCount()', '1.0.6', arguments);
-    },
 
     /**
      * @summary Column alignment of given grid column.
@@ -1242,7 +1126,7 @@ var Behavior = Base.extend('Behavior', {
     /**
      * @memberOf Behavior#
      * @desc this function is a hook and is called just before the painting of a cell occurs
-     * @param {window.fin.rectangular.Point} cell
+     * @param {Point} cell
      */
     cellPropertiesPrePaintNotification: function(cell) {
 
@@ -1251,7 +1135,7 @@ var Behavior = Base.extend('Behavior', {
     /**
      * @memberOf Behavior#
      * @desc this function is a hook and is called just before the painting of a fixed row cell occurs
-     * @param {window.fin.rectangular.Point} cell
+     * @param {Point} cell
      */
     cellFixedRowPrePaintNotification: function(cell) {
 
@@ -1260,7 +1144,7 @@ var Behavior = Base.extend('Behavior', {
     /**
      * @memberOf Behavior#
      * @desc this function is a hook and is called just before the painting of a fixed column cell occurs
-     * @param {window.fin.rectangular.Point} cell
+     * @param {Point} cell
      */
     cellFixedColumnPrePaintNotification: function(cell) {
 
@@ -1269,7 +1153,7 @@ var Behavior = Base.extend('Behavior', {
     /**
      * @memberOf Behavior#
      * @desc this function is a hook and is called just before the painting of a top left cell occurs
-     * @param {window.fin.rectangular.Point} cell
+     * @param {Point} cell
      */
     cellTopLeftPrePaintNotification: function(cell) {
 
@@ -1289,19 +1173,6 @@ var Behavior = Base.extend('Behavior', {
         this.changed();
     },
 
-    getColumnEdge: function(c, renderer) {
-        return this.dataModel.getColumnEdge(c, renderer);
-    },
-
-    /**
-     * @memberOf Behavior#
-     * @return {object} The object at y index.
-     * @param {number} y - the row index of interest
-     */
-    getRow: function(y) {
-        return this.dataModel.getRow(y);
-    },
-
     convertViewPointToDataPoint: function(unscrolled) {
         return new Point(
             this.getActiveColumn(unscrolled.x).index,
@@ -1309,7 +1180,7 @@ var Behavior = Base.extend('Behavior', {
         );
     },
 
-    hasTreeColumn: function() {
+    hasTreeColumn: function(columnIndex) {
         return false;
     },
 
@@ -1354,47 +1225,6 @@ var Behavior = Base.extend('Behavior', {
         }
     },
 
-    /**
-     * @summary Get the given data controller.
-     * @param {string} type
-     * @returns {undefined|*} The data controller; or `undefined` if data controller unknown to data model.
-     * @memberOf Behavior#
-     */
-    getController: function(type) {
-        return this.dataModel.getController(type);
-    },
-
-    /**
-     * @summary Set the given data controller(s).
-     * @desc Triggers a shape change.
-     * @param {string} typeOrHashOfTypes - One of:
-     * * **object** - Hash of multiple data controllers, by type.
-     * * **string** - Type of the single data controller given in `controller`.
-     * @param {dataControlInterface} [controller] - Only required when 'hash' is a string; omit when `hash` is an object.
-     * @returns {object} - Hash of all results, by type. Each member will be:
-     * * The given data controller for that type when defined.
-     * * A new "null" data controller, generated by the data model when the given data controller for that type was `undefined`.
-     * * `undefined` - The data controller was unknown to the data model..
-     * @memberOf Behavior#
-     */
-    setController: function(typeOrHashOfTypes, controller) {
-        var results = this.dataModel.setController(typeOrHashOfTypes, controller);
-        this.changed();
-        return results;
-    },
-
-    prop: function(type, columnIndex, keyOrHash, value) {
-        var result = this.dataModel.prop.apply(this.dataModel, arguments);
-        if (result === undefined) {
-            this.changed();
-        }
-        return result;
-    },
-
-    get charMap() {
-        return this.dataModel.charMap;
-    },
-
     getColumns: function() {
         return this.allColumns;
     },
@@ -1429,17 +1259,6 @@ var Behavior = Base.extend('Behavior', {
     getSelections: function() {
         return this.grid.selectionModel.getSelections();
     },
-
-    getData: function() {
-        return this.dataModel.getData();
-    },
-
-    getFilteredData: function() {
-        return this.deprecated('getIndexedData()', 'getIndexedData', '1.2.0', arguments);
-    },
-    getIndexedData: function() {
-       this.dataModel.getIndexedData();
-    }
 });
 
 
@@ -1505,7 +1324,8 @@ Behavior.prototype.applyAnalytics = Behavior.prototype.reindex;
 
 
 // mix-ins
-Behavior.prototype.mixIn(require('./subgrids'));
+Behavior.prototype.mixIn(dataModel.mixin);
+Behavior.prototype.mixIn(require('./subgrids').mixin);
 Behavior.prototype.mixIn(require('./rowProperties').mixin);
 
 

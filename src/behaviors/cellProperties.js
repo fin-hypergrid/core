@@ -1,5 +1,3 @@
-/* eslint-env bro wser */
-
 'use strict';
 
 var assignOrDelete = require('../lib/misc').assignOrDelete;
@@ -7,9 +5,9 @@ var assignOrDelete = require('../lib/misc').assignOrDelete;
 
 /**
  * Column.js mixes this module into its prototype.
- * @module
+ * @mixin
  */
-var cell = {
+exports.mixin = {
 
     /**
      * @summary Get the properties object for cell.
@@ -50,7 +48,7 @@ var cell = {
 
     /**
      * @summary Get the cell's own properties object.
-     * @desc Due to memory constraints, we don't create a cell options properties object for every cell.
+     * @desc Due to memory constraints, we don't create a cell properties object for every cell.
      *
      * If the cell has its own properties object, it:
      * * was created by a previous call to `setCellProperties` or `setCellProperty`
@@ -61,23 +59,27 @@ var cell = {
      *
      * Call this method only when you need to know if the the cell has its own properties object; otherwise call {@link Column#getCellProperties|getCellProperties}.
      * @param {number} rowIndex - Data row coordinate.
-     * @returns {null|object} The "own" properties of the cell at x,y in the grid. If the cell does not own a properties object, returns `undefined`.
+     * @returns {null|object} The "own" properties of the cell at x,y in the grid. If the cell does not own a properties object, returns `null`.
      * @memberOf Column#
      */
     getCellOwnProperties: function(rowIndex, dataModel) {
-        var rowData;
+        var metadata;
         return (
             // this.index >= 0 && // no cell props on row handle cells
-            (rowData = (dataModel || this.dataModel).getRow(rowIndex)) && // no cell props on non-existent rows
-            rowData.__META && rowData.__META[this.name] ||
+            (metadata = (dataModel || this.dataModel).getRowMetadata(rowIndex)) && // no cell props on non-existent rows
+            metadata && metadata[this.name] ||
             null // null means not previously created
         );
     },
 
     deleteCellOwnProperties: function(rowIndex, dataModel) {
-        var rowData = (dataModel || this.dataModel).getRow(rowIndex);
-        if (rowData.__META) {
-            delete rowData.__META[this.name];
+        dataModel = dataModel || this.dataModel;
+        var metadata = dataModel.getRowMetadata(rowIndex);
+        if (metadata) {
+            delete metadata[this.name];
+            if (Object.keys(metadata).length === 0) {
+                dataModel.setRowMetadata(rowIndex);
+            }
         }
     },
 
@@ -97,7 +99,7 @@ var cell = {
      * @param {number} rowIndex - Data row coordinate.
      * @param {string} key
      * @param value
-     * @returns {object}
+     * @returns {object} Cell's own properties object, which will be created by this call if it did not already exist.
      * @memberOf Column#
      */
     setCellProperty: function(rowIndex, key, value, dataModel) {
@@ -113,26 +115,21 @@ var cell = {
         }
     },
 
+    /**
+     * Clear all cell properties from all cells in this column.
+     * @memberOf Column#
+     */
     clearAllCellProperties: function() {
-        var key = this.name;
         this.behavior.subgrids.forEach(function(dataModel) {
-            for (var i = dataModel.getRowCount(); i--;) {
-                var rowData = dataModel.getRow(i),
-                    meta = rowData.__META;
-                if (meta) {
-                    if (Object.keys(meta).length === 1) {
-                        delete rowData.__META;
-                    }
-                    if (meta) {
-                        delete meta[key];
-                    }
-                }
+            for (var y = dataModel.getRowCount(); y--;) {
+                this.deleteCellOwnProperties(y, dataModel);
             }
-        });
+        }, this);
     }
 };
 
 /**
+ * @todo: Theoretically setData should call this method to ensure each cell's persisted properties object is properly recreated with prototype set to its column's properties object.
  * @this {Column}
  * @param {number} rowIndex - Data row coordinate.
  * @returns {object}
@@ -143,15 +140,13 @@ function getCellPropertiesObject(rowIndex, dataModel) {
 }
 
 /**
- * @todo: For v8 optimization, consider setting the new `__META` object to a "regularly shaped object" (i.e., with all the columns) instead of simply to `{}`. Considerations include how many of these objects are there, how often are they referenced, etc.
- * @todo: We need a function to reset the prototypes of pre-existing __META members to their respective column properties objects.
  * @this {Column}
  * @param {number} rowIndex - Data row coordinate.
  * @returns {object}
  * @private
  */
 function newCellPropertiesObject(rowIndex, dataModel) {
-    var metadata = (dataModel || this.dataModel).getRowMetadata(rowIndex, {}),
+    var metadata = (dataModel || this.dataModel).getRowMetadata(rowIndex, null),
         props = this.properties;
 
     switch (this.index) {
@@ -169,5 +164,3 @@ function newCellPropertiesObject(rowIndex, dataModel) {
 
     return (metadata[this.name] = Object.create(props));
 }
-
-module.exports = cell;

@@ -24,8 +24,7 @@ window.onload = function() {
         initDashboard = require('./dashboard'),
         initEvents = require('./events');
 
-    // convert field names containing underscore to camel case by overriding column enum decorator
-    Hypergrid.behaviors.JSON.prototype.columnEnumKey = Hypergrid.behaviors.JSON.columnEnumDecorators.toCamelCase;
+    document.getElementById('version').innerText = Hypergrid.prototype.version;
 
     var schema = Hypergrid.lib.fields.getSchema(people1);
 
@@ -38,26 +37,33 @@ window.onload = function() {
     });
 
     var gridOptions = {
+            // Because v3 defaults to use datasaur-local (which is still included in the build),
+            // specifying it here is still optional, but may be required for v4.
+            // Uncomment one of the following 2 lines to specify ("bring your own") data source:
+
+            // dataModel: new (Hypergrid.require('datasaur-local'))(people1, getSchema(people1)),
+            // DataModel: Hypergrid.require('datasaur-local'),
+
             data: people1,
-            margin: { bottom: '17px', right: '17px'},
-            schema: schema,
+            margin: { bottom: '17px', right: '17px' },
             plugins: require('fin-hypergrid-event-logger'),
             // canvasContextAttributes: { alpha: false },
+            schema: schema,
             state: { color: 'orange' }
         },
         grid = new Hypergrid('div#json-example', gridOptions),
         behavior = grid.behavior,
-        dataModel = behavior.dataModel,
-        idx = behavior.columnEnum;
+        dataModel = behavior.dataModel;
 
     window.g = window.grid = grid;
     window.p = grid.properties;
-    window.b = behavior;
-    window.m = dataModel;
 
-    console.log('Fields:');  console.dir(behavior.dataModel.schema.map(function(cs) { return cs.name; }));
-    console.log('Headers:'); console.dir(behavior.dataModel.schema.map(function(cs) { return cs.header; }));
-    console.log('Indexes:'); console.dir(idx);
+    Object.defineProperties(window, {
+        b: { get: function() { return behavior; } },
+        m: { get: function() { return dataModel; } }
+    });
+
+    console.log('schema', behavior.schema);
 
     function setData(data, options) {
         options = Object.assign({}, options);
@@ -74,8 +80,8 @@ window.onload = function() {
     function toggleEmptyData() {
         if (!oldData) {
             oldData = {
-                data: dataModel.getData(),
-                schema: dataModel.schema,
+                data: dataModel.data,
+                schema: behavior.schema,
                 activeColumns: behavior.getActiveColumns().map(function(column) { return column.index; })
             };
             //important to set top totals first
@@ -99,4 +105,7 @@ window.onload = function() {
     initEvents(demo, grid);
     initDashboard(demo, grid);
     initState(demo, grid);
+
+    // Following would be needed for row height changes made in data model subrows POC:
+    // setTimeout(function() { grid.behaviorStateChanged(); });
 };

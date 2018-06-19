@@ -2,7 +2,9 @@
 
 module.exports = function(demo, grid) {
 
-    var idx = grid.behavior.columnEnum;
+    var idx = grid.behavior.schema;
+
+    var greenland = { color: '#116611', backgroundColor: '#e8ffe8', font: 'italic small garamond' };
 
     var state = {
         columnIndexes: [
@@ -27,9 +29,9 @@ module.exports = function(demo, grid) {
             undefined,
             undefined,
             undefined,
-            { color: '#116611', backgroundColor: '#e8ffe8', font: 'italic small garamond' },
-            { color: '#116611', backgroundColor: '#e8ffe8', font: 'italic small garamond' },
-            { color: '#116611', backgroundColor: '#e8ffe8', font: 'italic small garamond' }
+            greenland,
+            greenland,
+            greenland
         ],
 
         fixedColumnCount: 1,
@@ -47,16 +49,8 @@ module.exports = function(demo, grid) {
 
         checkboxOnlyRowSelections: true,
 
-        rows: {
-            header: {
-                0: {
-                    height: 40
-                }
-            }
-        },
-
         calculators: {
-            Add10: 'function(dataRow,columnName) { return dataRow[columnName] + 10; }'
+            Add10: add10.toString()
         },
 
         // ANTI-PATTERNS FOLLOW
@@ -133,15 +127,35 @@ module.exports = function(demo, grid) {
             }
         },
 
-        // Following `cells` example sets properties for a cell in the data subgrid.
-        // Specifying cell properties here in grid state may be useful for static data subgrids
-        // where cell coordinates are permanently assigned. Otherwise, for my dynamic grid data,
-        // cell properties might more properly accompany the data itself as metadata
-        // (i.e., as a hash in dataRow.__META[fieldName]).
-        cells: {
-            data: {
-                16: {
-                    height: {
+        /* Following `rows` and `cells` examples shows how to set row and cell properties declaratively,
+         * useful for static grids when cell coordinates are known ahead of time.
+         *
+         * (There are as well several equivalent programmatic methods for setting cells props, such as
+         * `cell.setProperty`,
+         * `cell.setProperties`,
+         * `behavior.setCellProperty`,
+         * `behavior.setCellProperties`,
+         * _etc._)
+         *
+         * Caveat: For dynamic grid data, when cell coordinates are *not* known at start up (when state is
+         * usually applied), loading row and cell properties _with the data_ (as metadata) has advantages
+         * and is, preferred especially for frequently changing rows and cells. In this paradigm, row and
+         * cell properties are omitted here and the state object only loads grid and column properties.
+         * (Metadata is supported in the data source when it implements `getRowMetaData` and `setRowMetaData`.)
+         */
+        rows: {
+            header: { // subgrid key
+                0: { // row index
+                    // row properties
+                    height: 40 // (height is the only supported row property at the current time)
+                }
+            }
+        },
+        cells: { // cell properties
+            data: { // subgrid key
+                16: { // row index
+                    height: { // column name
+                        // cell properties:
                         font: '10pt Tahoma',
                         color: 'lightblue',
                         backgroundColor: 'red',
@@ -158,3 +172,9 @@ module.exports = function(demo, grid) {
 
     demo.resetDashboard();
 };
+
+function add10(dataRow, columnName, subrow) {
+    var val = dataRow[columnName];
+    if (val.constructor === Array) { val = val[subrow]; }
+    return val + 10;
+}

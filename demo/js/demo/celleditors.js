@@ -4,7 +4,7 @@
 
 module.exports = function(demo, grid) {
 
-    var idx = grid.behavior.columnEnum;
+    var idx = grid.behavior.schema;
 
     var Textfield = grid.cellEditors.get('textfield');
 

@@ -4,15 +4,13 @@
 
 var _ = require('object-iterators');
 
-var Behavior = require('../behaviors/Behavior');
-
 /**
  * Additions to `Hypergrid.prototype` for handling and firing events.
  *
  * All members are documented on the {@link Hypergrid} page.
  * @mixin events.mixin
  */
-module.exports = {
+var mixin = {
 
     /**
      * @summary Add an event listener to me.
@@ -199,6 +197,11 @@ module.exports = {
 
     fireSyntheticButtonPressedEvent: function(event) {
         if (event.properties.renderer === 'button') {
+            if (event.value && event.value.subrows) {
+                var y = event.primitiveEvent.detail.mouse.y - event.bounds.y,
+                    subheight = event.bounds.height / event.value.subrows;
+                event.subrow = Math.floor(y / subheight);
+            }
             return dispatchEvent.call(this, 'fin-button-pressed', {}, event);
         }
     },
@@ -271,12 +274,6 @@ module.exports = {
     fireSyntheticDoubleClickEvent: function(cellEvent) {
         if (!this.abortEditing()) { return; }
 
-        if (this.behavior.cellDoubleClicked !== Behavior.prototype.cellDoubleClicked) {
-            this.deprecated('fin-double-click', 'behavior.cellDoubleClicked(gridCell, cellEvent) has been deprecated as of v1.2.6 in favor of handling in a \'fin-double-click\' event (event.detail.gridCell, event.primitiveEvent) and will be removed in a future release.');
-        }
-        // to deprecate, remove above warning + following line + abstract implementation in Behavior.js
-        this.behavior.cellDoubleClicked(cellEvent.gridCell, cellEvent);
-
         return dispatchEvent.call(this, 'fin-double-click', {}, cellEvent);
     },
 
@@ -342,6 +339,49 @@ module.exports = {
             oldValue: oldValue,
             input: control
         }, cellEvent);
+    },
+
+    /**
+     * @memberOf Hypergrid#
+     * @desc Synthesize and fire a `fin-data-changed` event.
+     */
+    fireDataSchemaChangedEvent: function() {
+        return dispatchEvent.call(this, 'fin-data-schema-changed', {});
+    },
+
+    /**
+     * @memberOf Hypergrid#
+     * @desc Synthesize and fire a `fin-data-changed` event.
+     */
+    fireDataChangedEvent: function() {
+
+        return dispatchEvent.call(this, 'fin-data-changed', {});
+    },
+
+    /**
+     * @memberOf Hypergrid#
+     * @desc Synthesize and fire a `fin-data-shape-changed` event.
+     */
+    fireDataShapeChangedEvent: function() {
+
+        return dispatchEvent.call(this, 'fin-data-shape-changed', {});
+    },
+
+    /**
+     * @memberOf Hypergrid#
+     * @desc Synthesize and fire a `fin-data-preindex` event.
+     */
+    fireDataPrereindexEvent: function() {
+
+        return dispatchEvent.call(this, 'fin-data-prereindex', {});
+    },
+
+    /**
+     * @memberOf Hypergrid#
+     * @desc Synthesize and fire a `fin-data-postindex` event.
+     */
+    fireDataPostreindexEvent: function() {
+        return dispatchEvent.call(this, 'fin-data-postreindex', {});
     },
 
     delegateCanvasEvents: function() {
@@ -620,7 +660,6 @@ var details = [
 ];
 
 /**
- *
  * @param {string} eventName
  * @param {boolean} [cancelable=false]
  * @param {object} event
@@ -629,6 +668,10 @@ var details = [
  */
 function dispatchEvent(eventName, cancelable, event, primitiveEvent) {
     var detail, result;
+
+    if (!this.canvas) {
+        return;
+    }
 
     if (typeof cancelable !== 'boolean') {
         primitiveEvent = event; // propmote primitiveEvent to 3rd position
@@ -673,3 +716,8 @@ function dispatchEvent(eventName, cancelable, event, primitiveEvent) {
         return result;
     }
 }
+
+module.exports = {
+    mixin: mixin,
+    dispatchEvent: dispatchEvent
+};

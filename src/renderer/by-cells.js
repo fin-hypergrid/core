@@ -5,13 +5,11 @@ var paintCellsByColumnsAndRows = require('./by-columns-and-rows');
 /** @summary Render the grid only as needed ("partial render").
  * @desc Paints all the cells of a grid, one column at a time, but only as needed.
  *
- * Paints all the cells of a grid, one row at a time.
- *
  * #### On reset
  *
  * Defers to {@link Renderer#paintCellsByColumnsAndRows|paintCellsByColumnsAndRows}, which clears the canvas, draws the grid, and draws the grid lines.
  *
- * #### On the next call (afer reset)
+ * #### On the next call (after reset)
  *
  * First, a background rect is drawn using the grid background color.
  *

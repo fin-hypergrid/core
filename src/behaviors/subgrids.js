@@ -20,7 +20,11 @@ var dataModels = require('../dataModels');
  *   * Remaining elements are used as additional parameters to the constructor.
  */
 
-module.exports = {
+/**
+ * Behavior.js mixes this module into its prototype.
+ * @mixin
+ */
+exports.mixin = {
     /**
      * An array where each element represents a subgrid to be rendered in the hypergrid.
      *
@@ -75,20 +79,22 @@ module.exports = {
         } else if (spec instanceof Array && spec.length) {
             Constructor = derefSubgridRef.call(this, spec[0]);
             variableArgArray = spec.slice(1);
-            subgrid = this.createApply(Constructor, variableArgArray, this.grid);
+            subgrid = this.createApply(Constructor, variableArgArray, undefined, { grid: this.grid });
         } else if (typeof spec === 'object') {
             subgrid = spec;
         } else {
             Constructor = derefSubgridRef.call(this, spec);
             variableArgArray = Array.prototype.slice.call(arguments, 1);
-            subgrid = this.createApply(Constructor, variableArgArray, this.grid);
+            subgrid = this.createApply(Constructor, variableArgArray, undefined, { grid: this.grid });
         }
 
         // undefined type is data
-        subgrid.type = subgrid.type || 'data';
+        if (!subgrid.type) {
+            subgrid.type = 'data';
+        }
 
         // make dictionary lookup entry
-        var key = subgrid.name || subgrid.type;
+        var key = subgrid.type === 'data' && subgrid.type || subgrid.name || subgrid.type;
         this._subgrids.lookup[key] = this._subgrids.lookup[key] || subgrid; // only save first with this key
 
         // make isType boolean
@@ -156,7 +162,7 @@ function derefSubgridRef(ref) {
     var Constructor;
     switch (typeof ref) {
         case 'string':
-            Constructor = dataModels[ref];
+            Constructor = dataModels.get(ref);
             break;
         case 'function':
             Constructor = ref;
