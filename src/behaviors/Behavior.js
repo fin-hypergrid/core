@@ -27,6 +27,7 @@ var noExportProperties = [
  * @mixes cellProperties.behaviorMixin
  * @mixes rowProperties.mixin
  * @mixes subgrids.mixin
+ * @mixes dataModel.mixin
  * @constructor
  * @desc A controller for the data model.
  * > This constructor (actually `initialize`) will be called upon instantiation of this class or of any class that extends from this class. See {@link https://github.com/joneit/extend-me|extend-me} for more info.

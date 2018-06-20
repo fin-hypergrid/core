@@ -1,5 +1,9 @@
 'use strict';
 
+/**
+ * Behavior.js mixes this module into its prototype.
+ * @mixin
+ */
 exports.mixin = {
 
     getSchema: function() {
@@ -37,7 +41,7 @@ exports.mixin = {
             var cellEvent = new this.CellEvent,
                 visible = cellEvent.resetDataXY(x, y, dataModel);
             if (visible) {
-                return cellEvent.getValue();
+                return cellEvent.value;
             }
         }
     },
@@ -60,7 +64,7 @@ exports.mixin = {
             var cellEvent = new this.CellEvent,
                 visible = cellEvent.resetDataXY(x, y, dataModel);
             if (visible) {
-                cellEvent.setValue(value);
+                cellEvent.value = value;
             }
         }
     },

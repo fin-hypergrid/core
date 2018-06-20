@@ -109,7 +109,7 @@ function paintCellsByColumnsAndRows(gc) {
         gc.clipRestore(columnClip);
 
         cellEvent.column.properties.preferredWidth = Math.round(preferredWidth);
-    }.bind(this));
+    }, this);
 
     // gc.clipRestore(clipToGrid);
 

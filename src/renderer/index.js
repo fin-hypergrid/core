@@ -604,12 +604,6 @@ var Renderer = Base.extend('Renderer', {
             }
         }
 
-        // Do the actual render if:
-        // * _not_ recomputing cell bounds, in which case data still valid from last fetch (if fetching); else
-        // * _not_ pre-fetching because data model doesn't implement `fetchData`; else we _are_ pre-fectching but
-        // * data already valid (previously fetched); else clock wants to render but no data (not arrived yet) so
-        // * don't render
-
         // make sure the data is valid (or still valid since the fetchData call)
         if (this.dataAvail || !dataModel.gotData || dataModel.gotData(getSubrects.call(this))) {
             renderGrid.call(this, gc);
