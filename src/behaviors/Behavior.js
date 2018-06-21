@@ -1084,7 +1084,7 @@ var Behavior = Base.extend('Behavior', {
     },
 
     checkColumnAutosizing: function(force) {
-        var autoSized = this.autoSizeRowNumberColumn() || this.autoSizeTreeColumn();
+        var autoSized = this.autoSizeRowNumberColumn(force) || this.autoSizeTreeColumn(force);
 
         this.allColumns.findWithNeg(function(column) {
             autoSized = column.checkColumnAutosizing(force) || autoSized;
@@ -1093,15 +1093,15 @@ var Behavior = Base.extend('Behavior', {
         return autoSized;
     },
 
-    autoSizeRowNumberColumn: function() {
+    autoSizeRowNumberColumn: function(force) {
         if (this.grid.properties.showRowNumbers && this.grid.properties.rowNumberAutosizing) {
-            return this.getRowHeaderColumn().checkColumnAutosizing(true);
+            return this.getRowHeaderColumn().checkColumnAutosizing(force);
         }
     },
 
-    autoSizeTreeColumn: function() {
+    autoSizeTreeColumn: function(force) {
         if (this.grid.properties.showTreeColumn && this.grid.properties.treeColumnAutosizing) {
-            return this.getTreeColumn().checkColumnAutosizing(true);
+            return this.getTreeColumn().checkColumnAutosizing(force);
         }
     },
 
