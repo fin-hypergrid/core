@@ -8,45 +8,6 @@ var images = require('../../images');
 var layerProps = require('./layer-props');
 var InclusiveRectangle = require('../lib/InclusiveRectangle');
 
-var visibleColumnPropertiesDescriptorFn = function(grid) {
-    return {
-        findWithNeg: {
-            // Like the Array.prototype version except searches the negative indexes as well.
-            value: function(iteratee, context) {
-                for (var i = grid.behavior.leftMostColIndex; i < 0; i++) {
-                    if (!this[i]) {
-                        continue;
-                    }
-                    if (iteratee.call(context, this[i], i, this)) {
-                        return this[i];
-                    }
-                }
-                return Array.prototype.find.call(this, iteratee, context);
-            }
-        },
-        forEachWithNeg: {
-            // Like the Array.prototype version except it iterates the negative indexes as well.
-            value: function(iteratee, context) {
-                for (var i = grid.behavior.leftMostColIndex; i < 0; i++) {
-                    if (!this[i]) {
-                        continue;
-                    }
-                    iteratee.call(context, this[i], i, this);
-                }
-                return Array.prototype.forEach.call(this, iteratee, context);
-            }
-
-        },
-
-        totalLength: {
-            get: function() {
-                return Math.abs(grid.behavior.leftMostColIndex) + this.length;
-            }
-        }
-    };
-};
-
-
 /**
  * @summary List of grid renderers available to new grid instances.
  * @desc Developer may augment this list with additional grid renderers before grid instantiation by calling @link {Renderer.registerGridRenderer}.
@@ -131,7 +92,7 @@ var Renderer = Base.extend('Renderer', {
          * 3. An n-based list of consecutive of integers representing the scrollable columns (where n = number of fixed columns + the number of columns scrolled off to the left).
          * @type {visibleColumnArray}
          */
-        this.visibleColumns = Object.defineProperties([], visibleColumnPropertiesDescriptorFn(this.grid));
+        this.visibleColumns = this.grid.decorateColumnArray();
 
         /**
          * Represents the ordered set of visible rows. Array size is always the exact number of visible rows.

@@ -1732,6 +1732,42 @@ var Hypergrid = Base.extend('Hypergrid', {
 
     get charMap() {
         return this.behavior.charMap;
+    },
+
+    decorateColumnArray: function(array) {
+        if (!this.columnArrayDecorations) {
+            var grid = this;
+            this.columnArrayDecorations = {
+                findWithNeg: {
+                    // Like the Array.prototype version except searches the negative indexes as well.
+                    value: function(iteratee, context) {
+                        for (var i = grid.behavior.leftMostColIndex; i < 0; i++) {
+                            if (!this[i]) {
+                                continue;
+                            }
+                            if (iteratee.call(context, this[i], i, this)) {
+                                return this[i];
+                            }
+                        }
+                        return this.find(iteratee, context);
+                    }
+                },
+                forEachWithNeg: {
+                    // Like the Array.prototype version except it iterates the negative indexes as well.
+                    value: function(iteratee, context) {
+                        for (var i = grid.behavior.leftMostColIndex; i < 0; i++) {
+                            if (!this[i]) {
+                                continue;
+                            }
+                            iteratee.call(context, this[i], i, this);
+                        }
+                        return this.forEach(iteratee, context);
+                    }
+
+                }
+            }
+        }
+        return Object.defineProperties(array || [], this.columnArrayDecorations);
     }
 });
 

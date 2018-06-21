@@ -254,13 +254,13 @@ var Behavior = Base.extend('Behavior', {
          * @type {Column[]}
          * @memberOf Behavior#
          */
-        this.columns = [];
+        this.columns = this.grid.decorateColumnArray();
 
         /**
          * @type {Column[]}
          * @memberOf Behavior#
          */
-        this.allColumns = [];
+        this.allColumns = this.grid.decorateColumnArray();
 
         this.allColumns[tc] = this.columns[tc] = this.newColumn(schema[tc]);
         this.allColumns[rc] = this.columns[rc] = this.newColumn(schema[rc]);
@@ -1086,7 +1086,7 @@ var Behavior = Base.extend('Behavior', {
     checkColumnAutosizing: function(force) {
         var autoSized = this.autoSizeRowNumberColumn() || this.autoSizeTreeColumn();
 
-        this.allColumns.forEach(function(column) {
+        this.allColumns.findWithNeg(function(column) {
             autoSized = column.checkColumnAutosizing(force) || autoSized;
         });
 
