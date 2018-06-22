@@ -92,6 +92,11 @@ function createColumnProperties() {
         filterProperties: { value: Object.create(properties, createColumnProperties.filterDescriptors) }
     });
 
+    switch (column.index) {
+        case column.behavior.treeColumnIndex: properties = properties.treeHeader; break;
+        case column.behavior.rowColumnIndex: properties = properties.rowHeader; break;
+    }
+
     return properties;
 }
 

@@ -48,10 +48,8 @@ var cellEventProperties = Object.defineProperties({}, { // all props non-enumera
         var cp = this._columnProperties;
         if (!cp) {
             cp = this.column.properties;
-            if (this.isHandleColumn){
-                cp = cp.rowHeader;
-            } else if (this.isTreeColumn) {
-                cp = cp.treeHeader;
+            if (!this.isDataColumn) {
+                // cp already set to cp.rowHeader or cp.treeHeader
             } else if (this.isDataRow) {
                 // cp already set to basic props
             } else if (this.isFilterRow) {
