@@ -1765,7 +1765,7 @@ var Hypergrid = Base.extend('Hypergrid', {
                     }
 
                 }
-            }
+            };
         }
         return Object.defineProperties(array || [], this.columnArrayDecorations);
     }
