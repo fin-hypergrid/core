@@ -382,19 +382,7 @@
  * Tells dataModel what cells will be needed by subsequent calls to {@link DataModel#getValue getValue()}. This helps remote or virtualized data models fetch and cache data. If your data model doesn't need to know this, don't implement it.
  * #### Parameters:
  * @param {Rectangle[]} rectangles - Unordered list of rectangular regions of cells to fetch in a single (atomic) operation.
- * @returns {function} [callback] - Optional callback. If provided, implementation calls it if and when requested data fully fetched.
- */
-
-/**
- * @method DataModel#gotData
- * @desc _IMPLEMENTATION OF THIS METHOD IS OPTIONAL._
- *
- * Check for validity of data cells contained in the given rectangular regions.
- *
- * Generally this method is only implemented when {@link DataModel#fetchData fetchData()} is implemented.
- * You _could_ implement it anyway, but in that case it should always return `true` (data always valid).
- * #### Parameters:
- * @param {Rectangle[]} rectangles - Unordered list of rectangular regions of cells to check for.
+ * @returns {function} [callback] - Optional callback. If provided, implementation calls it with `false` on success (requested data fully fetched) or `true` on failure.
  */
 
 /**

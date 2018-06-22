@@ -531,9 +531,11 @@ var Renderer = Base.extend('Renderer', {
      * @param {CanvasRenderingContext2D} gc
      */
     renderGrid: function(gc) {
-        this.grid.deferredBehaviorChange();
+        var grid = this.grid;
 
-        var rowCount = this.grid.getRowCount();
+        grid.deferredBehaviorChange();
+
+        var rowCount = grid.getRowCount();
         if (rowCount !== this.lastKnowRowCount) {
             var newWidth = resetRowHeaderColumnWidth.call(this, gc, rowCount);
             if (newWidth !== this.handleColumnWidth) {
@@ -543,32 +545,20 @@ var Renderer = Base.extend('Renderer', {
             this.lastKnowRowCount = rowCount;
         }
 
-        var dataModel = this.grid.behavior.dataModel;
-
         if (this.needsComputeCellsBounds) {
             computeCellsBounds.call(this);
             this.needsComputeCellsBounds = false;
 
             // Pre-fetch data if supported by data model
-            if (dataModel.fetchData) {
-                this.dataAvail = false;
-                if (dataModel.gotData && dataModel.gotData(getSubrects.call(this))) {
-                    // data already available
-                    renderGrid.call(this, gc);
-                } else {
-                    dataModel.fetchData(
-                        getSubrects.call(this),
-                        renderGrid.bind(this, gc) // render immediately upon successful fetch
-                    );
-                }
-                return; // skip "tick" renderGrid call below
+            if (grid.behavior.dataModel.fetchData) {
+                grid.behavior.dataModel.fetchData(getSubrects.call(this), fetchCompletion.bind(this, gc));
+                return; // skip refresh renderGrid call below
             }
         }
 
-        // make sure the data is valid (or still valid since the fetchData call)
-        if (this.dataAvail || !dataModel.gotData || dataModel.gotData(getSubrects.call(this))) {
-            renderGrid.call(this, gc);
-        }
+        this.gridRenderer.paintCells.call(this, gc);
+        this.renderOverrides(gc);
+        this.renderLastSelection(gc);
     },
 
     renderLastSelection: function(gc) {
@@ -1150,6 +1140,16 @@ var Renderer = Base.extend('Renderer', {
     }
 });
 
+function fetchCompletion(gc, fetchError) {
+    if (!fetchError) {
+        // STEP 1: Render the grid immediately (before next refresh) just to get column widths
+        // (for better performance this could be done off-screen but this works fine as is)
+        this.gridRenderer.paintCells.call(this, gc);
+        // STEP 2: Re-render upon next refresh with proper column widths
+        this.grid.repaint();
+    }
+}
+
 /**
  * This function creates several data structures:
  * * {@link Renderer#visibleColumns}
@@ -1427,22 +1427,6 @@ function computeCellsBounds() {
     }
 
     this.resetAllGridRenderers();
-}
-
-/**
- * @param {CanvasRenderingContext2D} gc
- * @param {boolean} [fetchError=false] - May be returned by `dataModel.fetchData` on failure.
- * @this {Renderer}
- */
-function renderGrid(gc, fetchError) {
-    if (fetchError) {
-        this.dataAvail = false;
-    } else {
-        this.dataAvail = true;
-        this.gridRenderer.paintCells.call(this, gc);
-        this.renderOverrides(gc);
-        this.renderLastSelection(gc);
-    }
 }
 
 /**
