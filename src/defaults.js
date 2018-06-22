@@ -1021,6 +1021,20 @@ var defaults = {
      * @type {boolean}
      * @memberOf module:defaults
      */
+    columnAutosizingMax: 400,
+
+    /**
+     * @default
+     * @type {boolean}
+     * @memberOf module:defaults
+     */
+    treeColumnAutosizingMax: 400,
+
+    /**
+     * @default
+     * @type {boolean}
+     * @memberOf module:defaults
+     */
     headerTextWrapping: false,
 
     /**

@@ -170,6 +170,26 @@ createColumnProperties.treeHeaderDescriptors = {
         set: function(value) {
             this.treeHeaderBackgroundSelectionColor = value;
         }
+    },
+    columnAutosizing: {
+        configurable: true,
+        enumerable: true,
+        get: function() {
+            return this.treeColumnAutosizing;
+        },
+        set: function(value) {
+            this.treeColumnAutosizing = value;
+        }
+    },
+    columnAutosizingMax: {
+        configurable: true,
+        enumerable: true,
+        get: function() {
+            return this.treeColumnAutosizingMax;
+        },
+        set: function(value) {
+            this.treeColumnAutosizingMax = value;
+        }
     }
     //leftIcon: undefined
 };
@@ -259,6 +279,16 @@ createColumnProperties.rowHeaderDescriptors = {
                 writable: true,
                 value: value
             });
+        }
+    },
+    columnAutosizing: {
+        configurable: true,
+        enumerable: true,
+        get: function() {
+            return this.rowNumberAutosizing;
+        },
+        set: function(value) {
+            this.rowNumberAutosizing = value;
         }
     }
 };

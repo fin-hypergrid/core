@@ -30,8 +30,8 @@ var warned = {};
  * Negative values of `index` are special cases:
  * `index` | Meaning
  * :-----: | --------
- *    -1   | Row header column
- *    -2   | Tree (drill-down) column
+ *    -2   | Row header column
+ *    -1   | Tree (drill-down) column
  */
 function Column(behavior, columnSchema) {
     switch (typeof columnSchema) {
@@ -205,6 +205,9 @@ Column.prototype = {
             force = force || !properties.columnAutosized;
             if (width !== preferredWidth || force && preferredWidth !== undefined) {
                 properties.width = force ? preferredWidth : Math.max(width, preferredWidth);
+                if (properties.columnAutosizingMax && properties.width > properties.columnAutosizingMax) {
+                    properties.width = properties.columnAutosizingMax;
+                }
                 properties.columnAutosized = !isNaN(properties.width);
                 autoSized = properties.width !== width;
             }
