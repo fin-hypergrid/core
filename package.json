@@ -42,7 +42,7 @@
     "gulp-imagine-64": "^1.0.1",
     "gulp-load-plugins": "^1.1.0",
     "gulp-mirror": "^0.4.0",
-    "gulp-mocha": "^2.2.0",
+    "gulp-mocha": "^6.0.0",
     "gulp-rename": "^1.2.2",
     "gulp-replace": "^0.5.4",
     "gulp-uglify": "^3.0.0",
