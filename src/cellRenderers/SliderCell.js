@@ -10,7 +10,6 @@ var Slider = CellRenderer.extend('Slider', {
 
     /**
      * @desc Emerson's paint function for a slider button. currently the user cannot interact with it
-     * @implements paintFunction
      * @memberOf Slider.prototype
      */
     paint: function(gc, config) {

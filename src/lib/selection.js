@@ -4,6 +4,12 @@
 
 var Rectangle = require('rectangular').Rectangle;
 
+/**
+ * Additions to `Hypergrid.prototype` for modeling cell, row, and column selections.
+ *
+ * All members are documented on the {@link Hypergrid} page.
+ * @mixin selection.mixin
+ */
 module.exports = {
     selectionInitialize: function() {
         var grid = this;

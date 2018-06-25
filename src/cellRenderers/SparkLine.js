@@ -10,7 +10,6 @@ var SparkLine = CellRenderer.extend('SparkLine', {
 
     /**
      * @desc A simple implementation of a sparkline.  see [Edward Tufte sparkline](http://www.edwardtufte.com/bboard/q-and-a-fetch-msg?msg_id=0001OR)
-     * @implements paintFunction
      * @memberOf SparkLine.prototype
      */
     paint: function(gc, config) {

@@ -19,6 +19,16 @@ Object.defineProperty(Base.prototype, 'version', {
     value: require('../package.json').version
 });
 
+Base.prototype.atLeastVersion = function(neededVersion) {
+    var neededParts = neededVersion.split('.'),
+        thisParts = this.version.split('.'),
+        delta;
+    neededParts.find(function(neededPart, i) {
+        return (delta = neededPart - thisParts[i]);
+    });
+    return delta >= 0;
+};
+
 Base.prototype.deprecated = require('./lib/deprecated');
 Base.prototype.HypergridError = require('./lib/error');
 

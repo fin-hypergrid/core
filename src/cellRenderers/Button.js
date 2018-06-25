@@ -10,7 +10,6 @@ var Button = CellRenderer.extend('Button', {
 
     /**
      * @summary The default cell rendering function for a button cell.
-     * @implements paintFunction
      * @memberOf Button.prototype
      */
     paint: function(gc, config) {

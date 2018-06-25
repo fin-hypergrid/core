@@ -14,7 +14,6 @@ var SimpleCell = CellRenderer.extend('SimpleCell', {
     /**
      * @summary The default cell rendering function for rendering a vanilla cell.
      * @desc Great care has been taken in crafting this function as it needs to perform extremely fast. Reads on the gc object are expensive but not quite as expensive as writes to it. We do our best to avoid writes, then avoid reads. Clipping bounds are not set here as this is also an expensive operation. Instead, we truncate overflowing text and content by filling a rectangle with background color column by column instead of cell by cell.  This column by column fill happens higher up on the stack in a calling function from fin-hypergrid-renderer.  Take note we do not do cell by cell border rendering as that is expensive.  Instead we render many fewer gridlines after all cells are rendered.
-     * @implements paintFunction
      * @memberOf SimpleCell.prototype
      */
     paint: function(gc, config) {
