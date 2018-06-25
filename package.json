@@ -15,7 +15,6 @@
     "grid"
   ],
   "dependencies": {
-    "chai": "^3.5.0",
     "extend-me": "^2.7.0",
     "fin-hypergrid-data-source-base": "^0.4.10",
     "fin-hypergrid-event-logger": "^1.0.3",
@@ -31,6 +30,7 @@
   "devDependencies": {
     "browser-sync": "^2.10.0",
     "browserify": "^15.1.0",
+    "chai": "^3.5.0",
     "css-injector": "^1.1.0",
     "gulp": "^3.9.0",
     "gulp-concat": "^2.6.0",
