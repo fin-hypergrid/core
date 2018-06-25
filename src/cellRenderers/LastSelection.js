@@ -10,7 +10,6 @@ var LastSelection = CellRenderer.extend('LastSelection', {
 
     /**
      * @desc A rendering of the last Selection Model
-     * @implements paintFunction
      * @memberOf LastSelection.prototype
      */
     paint: function(gc, config) {

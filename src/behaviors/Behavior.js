@@ -7,7 +7,6 @@ var Column = require('./Column');
 var cellEventFactory = require('../lib/cellEventFactory');
 var featureRegistry = require('../features');
 var Synonomous = require('synonomous');
-var propClassEnum = require('../defaults.js').propClassEnum;
 var assignOrDelete = require('../lib/misc').assignOrDelete;
 
 
@@ -166,15 +165,15 @@ var Behavior = Base.extend('Behavior', {
             tc = this.treeColumnIndex,
             rc = this.rowColumnIndex;
 
-        schema[tc] = schema[tc] || {
-            name: 'Tree',
-            header: 'Tree'
-        };
+        schema[tc] = schema[tc] || {};
+        schema[tc].index = tc;
+        if (schema[tc].name === undefined) { schema[tc].name = 'Tree'; }
+        if (schema[tc].header === undefined) { schema[tc].header = 'Tree'; }
 
-        schema[rc] = schema[rc] || {
-            name: '',
-            header: ''
-        };
+        schema[rc] = schema[rc] || {};
+        schema[rc].index = rc;
+        if (schema[rc].name === undefined) { schema[rc].name = 'RowHeader'; }
+        if (schema[rc].header === undefined) { schema[rc].header = ''; }
 
         /**
          * @type {Column[]}
@@ -188,16 +187,10 @@ var Behavior = Base.extend('Behavior', {
          */
         this.allColumns = [];
 
-        this.allColumns[tc] = this.columns[tc] = this.newColumn({
-            index: tc,
-            header: schema[tc].header
-        });
-        this.allColumns[rc] = this.columns[rc] = this.newColumn({
-            index: rc,
-            header: schema[rc].header
-        });
+        this.allColumns[tc] = this.columns[tc] = this.newColumn(schema[tc]);
+        this.allColumns[rc] = this.columns[rc] = this.newColumn(schema[rc]);
 
-        this.columns[tc].properties.propClassLayers = this.columns[rc].properties.propClassLayers = [propClassEnum.COLUMNS];
+        this.columns[tc].properties.propClassLayers = this.columns[rc].properties.propClassLayers = this.grid.properties.propClassLayersMap.NO_ROWS;
 
         // Signal the renderer to size the now-reset handle column before next render
         this.grid.renderer.resetRowHeaderColumnWidth();

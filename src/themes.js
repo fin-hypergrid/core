@@ -163,7 +163,9 @@ function applyTheme(theme) {
 
 /**
  * Additions to `Hypergrid.prototype` for setting an instance theme.
- * @mixin
+ *
+ * All members are documented on the {@link Hypergrid} page.
+ * @mixin themes.mixin
  */
 var mixin = {
     initThemeLayer: function() {
@@ -218,8 +220,10 @@ Object.defineProperty(mixin, 'theme', {
 
 
 /**
- * Shared properties of `Hypergrid` for registering themes and setting a global theme.
- * @mixin
+ * Shared properties of `Hypergrid` "class" (_i.e.,_ "static" properties of constructor function) for registering themes and setting a global theme.
+ *
+ * All members are documented on the {@link Hypergrid} page (annotated as "(static)").
+ * @mixin themes.sharedMixin
  */
 var sharedMixin = {
     /**
@@ -230,7 +234,6 @@ var sharedMixin = {
      * ```javascript
      * var myTheme = require('fin-hypergrid-themes').buildTheme();
      * ```
-     * @this {Hypergrid.constructor}
      * @memberOf Hypergrid.
      */
     registerTheme: function(name, theme) {
@@ -273,7 +276,7 @@ var sharedMixin = {
      * @summary Apply global theme.
      * @desc Apply props from the given theme object to the global theme object,
      * the `defaults` layer at the bottom of the properties hierarchy.
-     * @this {Hypergrid.constructor}
+     * @this {Hypergrid.}
      * @param {object|string} [theme=registry.default] - One of:
      * * **string:** A registered theme name.
      * * **object:** A theme object. Empty object removes global them, restoring defaults.

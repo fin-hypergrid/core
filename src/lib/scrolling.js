@@ -4,7 +4,9 @@ var Scrollbar = require('./modules').Scrollbar;
 
 /**
  * Additions to `Hypergrid.prototype` for scrollbar support.
- * @mixin
+ *
+ * All members are documented on the {@link Hypergrid} page.
+ * @mixin scrolling.mixin
  */
 exports.mixin = {
 
@@ -23,10 +25,18 @@ exports.mixin = {
     hScrollValue: 0,
 
     /**
-     * @property {fin-vampire-bar} sbVScroller - An instance of {@link https://github.com/openfin/finbars|FinBar}.
+     * The verticl scroll bar model/controller.
+     * @type {FinBar}
      * @memberOf Hypergrid#
      */
     sbVScroller: null,
+
+    /**
+     * The horizontal scroll bar model/controller.
+     * @type {FinBar}
+     * @memberOf Hypergrid#
+     */
+    sbHScroller: null,
 
     /**
      * The previous value of sbVScrollVal.

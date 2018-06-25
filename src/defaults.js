@@ -365,6 +365,13 @@ var defaults = {
 
     /**
      * @default
+     * @type {string}
+     * @memberOf module:defaults
+     */
+    filterEditor: undefined,
+
+    /**
+     * @default
      * @type {boolean}
      * @memberOf module:defaults
      */

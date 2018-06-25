@@ -2,7 +2,7 @@
 
 /** @interface localizerInterface
  * @desc Implemented by instances of {@link NumberFormatter} and {@link DateFormatter}.
- * Note however that a custom implementation need to be created by such a factory object; it only needs to implement the required properties.
+ * Note however that it not a requirement that a custom localizer implementation be created from such a factory object; it only needs to implement the required methods described below (_i.e.,_ `format` and `parse`).
  */
 
 /**
@@ -37,14 +37,12 @@
  * @summary Tests string representation for invalidity.
  * @desc Implementation of this method is optional.
  *
- * The method may be strict or loose but caller has no way of knowing and must assume loose. Loose means it may return a false negative. This means that while a truthy return means invalid, falsy merely means "not invalid." The parser is the final arbiter and should throw an error on parser jam.
+ * Return an error message here only if you can describe what precisely caused the syntax error. If all you know is that there was a syntax error, return `true`. In such a case it would be helpful to also define {@link localizerInterface#expectation expectation}, which is appended to all error messages, and should contain a general description of the expected syntax.
  *
- * Return an error message here only if you can describe what precisely caused the syntax error. If all you know is that there was a syntax error, it would probably be more helpful to the user to define {@link localizerInterface#expectation expectation}, which is appended to all error messages, and should contain a general description of the expected syntax.
- *
- * Overridden by `options.invalid` passed to constructor.
+ * Overridden by `options.invalid` passed to a factory constructor ({@link NumberFormatter} or {@link DateFormatter}).
  * @method
  * @returns {boolean|string} Truthy value means invalid. If a string, this will be an error message. If not a string, it merely indicates a generic invalid result.
- * @throws {boolean|string|Error} May throw an error on syntax failure as an alternative to returning truthy. Define the error's `message` field as an alternative to returning string.
+ * @throws {Error} May throw an error on syntax failure as an alternative to returning truthy. Define the error's `message` field as an alternative to returning string.
  */
 
 /**
@@ -56,13 +54,14 @@
  *
  * If undefined and in the absence of an error message, the user will know only that the value is invalid but nothing else.
  *
- * Overridden by `options.expectation` passed to constructor.
+ * Overridden by `options.expectation` passed to factory constructor ({@link NumberFormatter} or {@link DateFormatter}).
  *
  * @type {string}
  */
 
 /**
  * @name localizerInterface#locale
- * @summary Locale provided to constructor. Required.
+ * @summary Locale for formatting purposes.
+ * @desc A locale value is required as the 2nd parameter (`locale`) to a factory constructor ({@link NumberFormatter} or {@link DateFormatter}).
  * @type {string}
  */

@@ -382,7 +382,7 @@ var CellEditor = Base.extend('CellEditor', {
      * @memberOf CellEditor.prototype
      */
     getEditorValue: function(str) {
-        return this.localizer.parse(str);
+        return this.localizer.parse(str || this.input.value);
     },
 
     /**
@@ -393,7 +393,7 @@ var CellEditor = Base.extend('CellEditor', {
      * @memberOf CellEditor.prototype
      */
     validateEditorValue: function(str) {
-        return this.localizer.invalid && this.localizer.invalid(str);
+        return this.localizer.invalid && this.localizer.invalid(str || this.input.value);
     },
 
     /**

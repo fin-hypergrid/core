@@ -1102,7 +1102,13 @@ var Renderer = Base.extend('Renderer', {
         config.minWidth = cellEvent.minWidth; // in case `paint` aborts before setting `minWidth`
 
         // Render the cell
-        cellRenderer.paint(gc, config);
+        if (cellRenderer.forEach) {
+            cellRenderer.forEach(function(subrenderer) {
+                subrenderer.paint(gc, config);
+            });
+        } else {
+            cellRenderer.paint(gc, config);
+        }
 
         // Following supports partial render:
         cellEvent.snapshot = config.snapshot;

@@ -6,6 +6,12 @@ var _ = require('object-iterators');
 
 var Behavior = require('../behaviors/Behavior');
 
+/**
+ * Additions to `Hypergrid.prototype` for handling and firing events.
+ *
+ * All members are documented on the {@link Hypergrid} page.
+ * @mixin events.mixin
+ */
 module.exports = {
 
     /**
@@ -149,6 +155,10 @@ module.exports = {
             oldValue: oldValue,
             newValue: newValue
         });
+    },
+
+    fireSyntheticRowHeaderClickedEvent: function(event) {
+        return dispatchEvent.call(this, 'fin-row-header-clicked', true, {}, event);
     },
 
     /**

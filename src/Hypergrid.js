@@ -27,7 +27,10 @@ var EDGE_STYLES = ['top', 'bottom', 'left', 'right'],
 
 /**
  * @mixes scrolling.mixin
- * @mixes themes.instanceMixin
+ * @mixes events.mixin
+ * @mixes selection.mixin
+ * @mixes themes.mixin
+ * @mixes themes.sharedMixin
  * @constructor
  * @param {string|Element} [container] - CSS selector or Element
  * @param {object} [options]
@@ -212,7 +215,6 @@ var Hypergrid = Base.extend('Hypergrid', {
     },
 
     /**
-     *
      * A null object behavior serves as a place holder.
      * @type {object}
      * @memberOf Hypergrid#
@@ -220,7 +222,8 @@ var Hypergrid = Base.extend('Hypergrid', {
     behavior: null,
 
     /**
-     * Cached resulan}
+     * Cached result of webkit test.
+     * @type {boolean}
      * @memberOf Hypergrid#
      */
     isWebkit: true,
@@ -237,33 +240,29 @@ var Hypergrid = Base.extend('Hypergrid', {
      * @type {Point}
      * @memberOf Hypergrid#
      */
-
     dragExtent: null,
 
     /**
-     * @property {fin-hypergrid-selection-model} selectionModel - A [fin-hypergrid-selection-model](module-._selection-model.html) instance.
+     * The instance of the grid's selection model.
+     * May or may not contain any cell, row, and/or column selections.
+     * @type {SelectionModel}
      * @memberOf Hypergrid#
      */
     selectionModel: null,
 
     /**
-     * @property {fin-hypergrid-cell-editor} cellEditor - The current instance of [fin-hypergrid-cell-editor](module-cell-editors_base.html).
+     * The instance of the currently active cell editor.
+     * Will be `null` when not editing.
+     * @type {CellEditor}
      * @memberOf Hypergrid#
      */
     cellEditor: null,
 
     /**
-     * @property {fin-vampire-bar} sbHScroller - An instance of {@link https://github.com/openfin/finbars|FinBar}.
-     * @memberOf Hypergrid#
-     */
-    sbHScroller: null,
-
-    /**
-     * is the short term memory of what column I might be dragging around
+     * Non-`null` members represent additional things to render, after rendering the grid, such as the column being dragged.
      * @type {object}
      * @memberOf Hypergrid#
      */
-
     renderOverridesCache: {},
 
     /**
@@ -401,8 +400,6 @@ var Hypergrid = Base.extend('Hypergrid', {
      * The "`installPlugins` calling context" means either the grid instance or its prototype, depending on how this method is called.
      *
      * Plugins may have both `preinstall` _and_ `install` methods, in which case both will be called. However, note that in any case, `install` methods on object API plugins are ignored.
-     *
-     * @this {Hypergrid}
      * @param {pluginSpec|pluginSpec[]} [plugins] - The plugins to install. If omitted, the call is a no-op.
      * @memberOf Hypergrid#
      */

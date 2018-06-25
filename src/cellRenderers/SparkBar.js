@@ -10,7 +10,6 @@ var SparkBar = CellRenderer.extend('SparkBar', {
 
     /**
      * @desc A simple implementation of a sparkline, because it's a barchart we've changed the name ;).
-     * @implements paintFunction
      * @memberOf SparkBar.prototype
      */
     paint: function(gc, config) {
