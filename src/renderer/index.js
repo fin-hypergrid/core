@@ -1027,8 +1027,8 @@ var Renderer = Base.extend('Renderer', {
 
             config.formatValue = grid.getFormatter(config.format);
 
-            // Following supports partial render
-            config.snapshot = cellEvent.snapshot;
+            config.snapshot = cellEvent.snapshot[config.subrow]; // supports partial render
+
             config.minWidth = cellEvent.minWidth; // in case `paint` aborts before setting `minWidth`
 
             // Render the cell
@@ -1040,8 +1040,8 @@ var Renderer = Base.extend('Renderer', {
                 cellRenderer.paint(gc, config);
             }
 
-            // Following supports partial render:
-            cellEvent.snapshot[config.subrow] = config.snapshot;
+            cellEvent.snapshot[config.subrow] = config.snapshot; // supports partial render
+
             if (cellEvent.minWidth === undefined || config.minWidth > cellEvent.minWidth) {
                 cellEvent.minWidth = config.minWidth;
             }

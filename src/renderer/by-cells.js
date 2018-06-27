@@ -5,15 +5,15 @@ var paintCellsByColumnsAndRows = require('./by-columns-and-rows');
 /** @summary Render the grid only as needed ("partial render").
  * @desc Paints all the cells of a grid, one column at a time, but only as needed.
  *
+ * Partial render is supported only by those cells whose cell renderer supports it by returning before rendering (based on `config.snapshot`).
+ *
  * #### On reset
  *
  * Defers to {@link Renderer#paintCellsByColumnsAndRows|paintCellsByColumnsAndRows}, which clears the canvas, draws the grid, and draws the grid lines.
  *
  * #### On the next call (after reset)
  *
- * First, a background rect is drawn using the grid background color.
- *
- * Then, each cell is drawn. If its background differs from the grid background, the background is repainted.
+ * Each cell is drawn redrawn only when its appearance changes. This determination is made by the cell renderer by comparing with (and maintaining) `config.snapshot`. See {@link SimpleCell} for a sample implementation.
  *
  * `try...catch` surrounds each cell paint in case a cell renderer throws an error.
  * The error message is error-logged to console AND displayed in cell.
@@ -67,6 +67,7 @@ function paintCellsAsNeeded(gc) {
             cellEvent = pool[p]; // next cell down the column (redundant for first cell in column)
 
             try {
+                // Partial render signaled by calling `_paintCell` with undefined 3rd param (formal `prefillColor`).
                 preferredWidth = Math.max(preferredWidth, this._paintCell(gc, pool[p]));
             } catch (e) {
                 this.renderErrorCell(e, gc, vc, pool[p].visibleRow);
