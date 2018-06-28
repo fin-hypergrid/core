@@ -203,7 +203,7 @@ var Hypergrid = Base.extend('Hypergrid', {
     terminate: function() {
         document.removeEventListener('mousedown', this.mouseCatcher);
         this.canvas.stop();
-        Hypergrid.grids.splice(this.grids.indexOf(this), 1);
+        Hypergrid.grids.splice(Hypergrid.grids.indexOf(this), 1);
     },
 
 
