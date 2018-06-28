@@ -1,7 +1,6 @@
 'use strict';
 
 var Behavior = require('./Behavior');
-var columnEnumDecorators = require('./columnEnumDecorators');
 
 
 var warned = {};
@@ -40,16 +39,6 @@ var JSON = Behavior.extend('behaviors.JSON', {
             this.addColumn(columnSchema);
         }, this);
     },
-
-    /**
-     * @summary Style enum keys.
-     * @desc Override this method to style your keys to your liking.
-     * @see {@columnEnumDecorators} or roll your own
-     * @param key
-     * @returns {string}
-     * @memberOf behaviors.JSON#
-     */
-    columnEnumKey: columnEnumDecorators.toAllCaps,
 
     /**
      * @memberOf behaviors.JSON#
@@ -121,12 +110,7 @@ var JSON = Behavior.extend('behaviors.JSON', {
 
         // Inform interested data models of data.
         this.subgrids.forEach(function(dataModel) {
-            if (
-                dataModel.getOwnerOf && dataModel.getOwnerOf('setData') ||
-                'setData' in dataModel
-            ) {
-                dataModel.setData(dataRows, schema);
-            }
+            dataModel.setData(dataRows, schema);
         });
 
         if (grid.cellEditor) {

@@ -1325,7 +1325,7 @@ Behavior.prototype.applyAnalytics = Behavior.prototype.reindex;
 
 // mix-ins
 Behavior.prototype.mixIn(dataModel.mixin);
-Behavior.prototype.mixIn(require('./subgrids').mixin);
+Behavior.prototype.mixIn(require('./dataModel/subgrids').mixin);
 Behavior.prototype.mixIn(require('./rowProperties').mixin);
 
 

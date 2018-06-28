@@ -39,7 +39,7 @@ Object.defineProperties(Hypergrid.modules, {
     rectangular: { value: require('rectangular') },
     'fin-hypergrid-field-tools': { value: require('fin-hypergrid-field-tools') },
     'datasaur-base': { value: require('datasaur-base') },
-    'datasaur-local': { value: require('datasaur-local') } // scheduled for removal in v4
+    'datasaur-local': { value: require('datasaur-local') }
 });
 
 // Install internal modules may not be overridden so non-configurable, non-writable

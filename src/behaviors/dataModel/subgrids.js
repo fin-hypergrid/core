@@ -1,6 +1,6 @@
 'use strict';
 
-var dataModels = require('../dataModels');
+var dataModels = require('../../dataModels/index');
 
 /** @typedef subgridConstructorRef
  * @summary Type definition.
@@ -80,12 +80,14 @@ exports.mixin = {
             Constructor = derefSubgridRef.call(this, spec[0]);
             variableArgArray = spec.slice(1);
             subgrid = this.createApply(Constructor, variableArgArray, undefined, { grid: this.grid });
+            subgrid = this.decorateDataModel(subgrid);
         } else if (typeof spec === 'object') {
             subgrid = spec;
         } else {
             Constructor = derefSubgridRef.call(this, spec);
             variableArgArray = Array.prototype.slice.call(arguments, 1);
             subgrid = this.createApply(Constructor, variableArgArray, undefined, { grid: this.grid });
+            subgrid = this.decorateDataModel(subgrid);
         }
 
         // undefined type is data

@@ -1,7 +1,7 @@
 'use strict';
 
 /**
- * @module dataModel/fallbacks
+ * @module fallbacks
  *
  * @desc {@link Behavior#resetDataModel resetDataModel()} inserts each of these catcher methods into the new data model when not otherwise implemented, which allows Hypergrid to indiscriminately call these otherwise missing methods on the data model without fear of the call failing.
  */
@@ -46,6 +46,12 @@ module.exports = {
         }
 
         return rows;
+    },
+
+    setData: function(data) {},
+
+    setValue: function(x, y, value) {
+        console.warn('dataModel.setValue(' + x + ', ' + y + ', "' + value + '") called but no implementation. Data not saved.');
     },
 
     /** @implements dataModelAPI#getRowIndex */

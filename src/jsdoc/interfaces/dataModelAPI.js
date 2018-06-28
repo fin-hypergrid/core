@@ -297,17 +297,10 @@ Object.setPrototypeOf(DataModel.prototype, DataSourceBase.prototype);
  */
 
 /**
- * @method dataModelAPI#getOwnerOf
- * @summary Get object that defines the member.
- * @dsc Searches the data source for the object that owns the named member.
- *
- * This will be somewhere in the prototype chain of the data source, _excluding the bottom and base layers._
- *
- * Useful for checking if a member implementation exists, or for overriding or deleting a member.
- *
- * Cannot find the synonyms defined below.
+ * @method dataModelAPI#supports
+ * @desc Checks if the method is supported.
  * @param string {key}
- * @returns {object|undefined} The object that owns the found member or `undefined` if not found.
+ * @returns {boolean} The method is supported.
  * @returns {dataRowObject[]}
  */
 
@@ -323,7 +316,14 @@ Object.setPrototypeOf(DataModel.prototype, DataSourceBase.prototype);
 
 /**
  * @method dataModelAPI#click
- * @returns {boolean} If the row had a drill down control and the click caused it's state to change.
+ * @summary Mouse was clicked on a grid row.
+ *
+ * The data model may respond to clicks by adding/removing/decorating data rows (_e.g.,_ a drill-down).
+ * If it does so, the click is considered to be "consumed."
+ * When a click is consumed, data models should publish 'data-changed' to the grid; or 'data-prereindex' and 'data-postreindex', which in turn triggers a 'data-changed' event. (The grid responds to 'data-' events by
+ * synthesizing and firing 'fin-data-' events on the `<canvas>` element.)
+ * @param {CellEvent} event
+ * @returns {boolean} - Click was consumed by the data model.
  */
 
 /**

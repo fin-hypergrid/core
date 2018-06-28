@@ -162,7 +162,8 @@ function applyTheme(theme) {
 
 
 /**
- * Additions to `Hypergrid.prototype` for setting an instance theme.
+ * @summary Instance theme support.
+ * @desc Additions to `Hypergrid.prototype` for setting an instance theme.
  *
  * All members are documented on the {@link Hypergrid} page.
  * @mixin themes.mixin
@@ -220,7 +221,8 @@ Object.defineProperty(mixin, 'theme', {
 
 
 /**
- * Shared properties of `Hypergrid` "class" (_i.e.,_ "static" properties of constructor function) for registering themes and setting a global theme.
+ * @summary Theme registration and global theme support.
+ * @desc Shared properties of `Hypergrid` "class" (_i.e.,_ "static" properties of constructor function) for registering themes and setting a global theme.
  *
  * All members are documented on the {@link Hypergrid} page (annotated as "(static)").
  * @mixin themes.sharedMixin

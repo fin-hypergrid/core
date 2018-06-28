@@ -29,7 +29,7 @@
  * @this {dataModelAPI}
  */
 exports.enrich = function(schema) {
-    schema = schema || this.schema;
+    schema = schema || this.getSchema();
 
     // Make sure each element of `schema` is an object with a `name` property.
     // Set `index` property.

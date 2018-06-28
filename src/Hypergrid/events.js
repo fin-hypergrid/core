@@ -5,7 +5,8 @@
 var _ = require('object-iterators');
 
 /**
- * Additions to `Hypergrid.prototype` for handling and firing events.
+ * @summary Grid event support.
+ * @desc Additions to `Hypergrid.prototype` for handling and firing events.
  *
  * All members are documented on the {@link Hypergrid} page.
  * @mixin events.mixin
@@ -341,58 +342,15 @@ var mixin = {
         }, cellEvent);
     },
 
-    /**
-     * @memberOf Hypergrid#
-     * @desc Synthesize and fire a `fin-data-changed` event.
-     */
-    fireDataSchemaChangedEvent: function() {
-        return dispatchEvent.call(this, 'fin-data-schema-changed', {});
-    },
-
-    /**
-     * @memberOf Hypergrid#
-     * @desc Synthesize and fire a `fin-data-changed` event.
-     */
-    fireDataChangedEvent: function() {
-
-        return dispatchEvent.call(this, 'fin-data-changed', {});
-    },
-
-    /**
-     * @memberOf Hypergrid#
-     * @desc Synthesize and fire a `fin-data-shape-changed` event.
-     */
-    fireDataShapeChangedEvent: function() {
-
-        return dispatchEvent.call(this, 'fin-data-shape-changed', {});
-    },
-
-    /**
-     * @memberOf Hypergrid#
-     * @desc Synthesize and fire a `fin-data-preindex` event.
-     */
-    fireDataPrereindexEvent: function() {
-
-        return dispatchEvent.call(this, 'fin-data-prereindex', {});
-    },
-
-    /**
-     * @memberOf Hypergrid#
-     * @desc Synthesize and fire a `fin-data-postindex` event.
-     */
-    fireDataPostreindexEvent: function() {
-        return dispatchEvent.call(this, 'fin-data-postreindex', {});
-    },
-
     delegateCanvasEvents: function() {
-        var self = this;
+        var grid = this;
 
         function handleMouseEvent(e, cb) {
-            if (self.getLogicalRowCount() === 0) {
+            if (grid.getLogicalRowCount() === 0) {
                 return;
             }
 
-            var c = self.getGridCellFromMousePoint(e.detail.mouse),
+            var c = grid.getGridCellFromMousePoint(e.detail.mouse),
                 primitiveEvent,
                 decoratedEvent;
 
@@ -412,17 +370,17 @@ var mixin = {
                         writable: true
                     }
                 );
-                cb.call(self, decoratedEvent);
+                cb.call(grid, decoratedEvent);
             }
         }
 
         this.addInternalEventListener('fin-canvas-resized', function(e) {
-            self.resized();
-            self.fireSyntheticGridResizedEvent(e);
+            grid.resized();
+            grid.fireSyntheticGridResizedEvent(e);
         });
 
         this.addInternalEventListener('fin-canvas-mousemove', function(e) {
-            if (self.properties.readOnly) {
+            if (grid.properties.readOnly) {
                 return;
             }
             handleMouseEvent(e, function(mouseEvent) {
@@ -432,10 +390,10 @@ var mixin = {
         });
 
         this.addInternalEventListener('fin-canvas-mousedown', function(e) {
-            if (self.properties.readOnly) {
+            if (grid.properties.readOnly) {
                 return;
             }
-            if (!self.abortEditing()) {
+            if (!grid.abortEditing()) {
                 event.stopPropagation();
                 return;
             }
@@ -450,7 +408,7 @@ var mixin = {
         });
 
         this.addInternalEventListener('fin-canvas-click', function(e) {
-            if (self.properties.readOnly) {
+            if (grid.properties.readOnly) {
                 return;
             }
             handleMouseEvent(e, function(mouseEvent) {
@@ -471,15 +429,15 @@ var mixin = {
         });
 
         this.addInternalEventListener('fin-canvas-mouseup', function(e) {
-            if (self.properties.readOnly) {
+            if (grid.properties.readOnly) {
                 return;
             }
-            self.dragging = false;
-            if (self.isScrollingNow()) {
-                self.setScrollingNow(false);
+            grid.dragging = false;
+            if (grid.isScrollingNow()) {
+                grid.setScrollingNow(false);
             }
-            if (self.columnDragAutoScrolling) {
-                self.columnDragAutoScrolling = false;
+            if (grid.columnDragAutoScrolling) {
+                grid.columnDragAutoScrolling = false;
             }
             handleMouseEvent(e, function(mouseEvent) {
                 this.delegateMouseUp(mouseEvent);
@@ -488,7 +446,7 @@ var mixin = {
         });
 
         this.addInternalEventListener('fin-canvas-dblclick', function(e) {
-            if (self.properties.readOnly) {
+            if (grid.properties.readOnly) {
                 return;
             }
             handleMouseEvent(e, function(mouseEvent) {
@@ -498,44 +456,44 @@ var mixin = {
         });
 
         this.addInternalEventListener('fin-canvas-drag', function(e) {
-            if (self.properties.readOnly) {
+            if (grid.properties.readOnly) {
                 return;
             }
-            self.dragging = true;
-            handleMouseEvent(e, self.delegateMouseDrag);
+            grid.dragging = true;
+            handleMouseEvent(e, grid.delegateMouseDrag);
         });
 
         this.addInternalEventListener('fin-canvas-keydown', function(e) {
-            if (self.properties.readOnly) {
+            if (grid.properties.readOnly) {
                 return;
             }
-            self.fireSyntheticKeydownEvent(e);
-            self.delegateKeyDown(e);
+            grid.fireSyntheticKeydownEvent(e);
+            grid.delegateKeyDown(e);
         });
 
         this.addInternalEventListener('fin-canvas-keyup', function(e) {
-            if (self.properties.readOnly) {
+            if (grid.properties.readOnly) {
                 return;
             }
-            self.fireSyntheticKeyupEvent(e);
-            self.delegateKeyUp(e);
+            grid.fireSyntheticKeyupEvent(e);
+            grid.delegateKeyUp(e);
         });
 
         this.addInternalEventListener('fin-canvas-wheelmoved', function(e) {
-            handleMouseEvent(e, self.delegateWheelMoved);
+            handleMouseEvent(e, grid.delegateWheelMoved);
         });
 
         this.addInternalEventListener('fin-canvas-mouseout', function(e) {
-            if (self.properties.readOnly) {
+            if (grid.properties.readOnly) {
                 return;
             }
-            handleMouseEvent(e, self.delegateMouseExit);
+            handleMouseEvent(e, grid.delegateMouseExit);
         });
 
         this.addInternalEventListener('fin-canvas-context-menu', function(e) {
             handleMouseEvent(e, function(mouseEvent){
-                self.delegateContextMenu(mouseEvent);
-                self.fireSyntheticContextMenuEvent(mouseEvent);
+                grid.delegateContextMenu(mouseEvent);
+                grid.fireSyntheticContextMenuEvent(mouseEvent);
             });
         });
 
@@ -660,6 +618,7 @@ var details = [
 ];
 
 /**
+ * @this {Hypergrid}
  * @param {string} eventName
  * @param {boolean} [cancelable=false]
  * @param {object} event
@@ -712,9 +671,7 @@ function dispatchEvent(eventName, cancelable, event, primitiveEvent) {
 
     result = this.canvas.dispatchEvent(new CustomEvent(eventName, event));
 
-    if (cancelable) {
-        return result;
-    }
+    return !cancelable || result;
 }
 
 module.exports = {

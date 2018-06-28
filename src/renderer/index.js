@@ -1077,7 +1077,7 @@ var Renderer = Base.extend('Renderer', {
             // This call's dataModel.getCell which developer can override to:
             // * mutate the (writable) properties of `config` (including config.value)
             // * mutate cell renderer choice (instance of which is returned)
-            var cellRenderer = behavior.dataModel.getCell(config, config.renderer);
+            var cellRenderer = cellEvent.subgrid.getCell(config, config.renderer);
 
             behavior.cellPropertiesPrePaintNotification(config);
 

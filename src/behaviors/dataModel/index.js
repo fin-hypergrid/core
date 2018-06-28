@@ -1,3 +1,5 @@
+/* globals CustomEvent */
+
 'use strict';
 
 /**
@@ -20,9 +22,6 @@
  */
 
 
-var addEvents = require('./events').addEvents;
-
-
 /** @name DataSource
  * @memberOf Behavior#
  * @default require('datasaur-local')
@@ -33,9 +32,17 @@ var addEvents = require('./events').addEvents;
 var DefaultDataModel = require('datasaur-local');
 
 
+var fallbacks = require('./fallbacks');
+var HypergridError = require('../../lib/error');
+
+
 var warned = {};
 
 
+/**
+ * Behavior.js mixes this module into its prototype.
+ * @mixin
+ */
 var mixin = {
     /**
      * Create a new data model
@@ -55,10 +62,6 @@ var mixin = {
         } else if (options.DataModel) {
             newDataModel = new options.DataModel;
         } else {
-            if (!warned.DataModel) {
-                console.warn('The default data model (`require(\'datasaur-local\')`) has been deprecated as of v3.0.0. (May be removed in a future version.) Developers should provide either an instantiated data model in `options.dataModel` or a data model constructor in `options.DataModel` for each grid instantiation.');
-                warned.DataModel = true;
-            }
             newDataModel = new DefaultDataModel;
         }
 
@@ -73,7 +76,7 @@ var mixin = {
      * @param {object} [options]
      * @param {dataModelAPI} [options.dataModel] - A fully instantiated data model object.
      * @param {function} [options.DataModel=require('datasaur-local')] - Data model will be instantiated from this constructor unless `options.dataModel` was given.
-     * @param {dataModelAPI} [options.metadata] - Value to be passed to {@link dataModelAPI#setMetadataStore setMetadataStore} if the data model has changed.
+     * @param {dataModelAPI} [options.metadata] - Passed to {@link dataModelAPI#setMetadataStore setMetadataStore}.
      * @returns {boolean} `true` if the data model has changed.
      * @memberOf Behavior#
      */
@@ -82,43 +85,33 @@ var mixin = {
             changed = newDataModel && newDataModel !== this.dataModel;
 
         if (changed) {
-            this.dataModel = newDataModel;
-
-            addEvents.call(this);
-            addCatchers.call(this);
+            this.dataModel = this.decorateDataModel(newDataModel, options);
             addDeprecationWarnings.call(this);
             addFriendlierDrillDownMapKeys.call(this);
-            addHooks.call(this);
-
-            this._dataModelSupport = {};
-
-            newDataModel.setMetadataStore(options && options.metadata);
-        }
-
-        if (!this.dataModel) {
-            throw new this.HypergridError('Expected a data model in `options.dataModel` or `options.DataModel`.');
         }
 
         return changed;
     },
 
     /**
-     * @this {Behavior}
-     * @param {string} methodName
-     * @returns {boolean}
-     * @memberOf Behavior#
+     * @param {dataModelAPI} newDataModel
+     * @param {dataModelAPI} [options.metadata] - Passed to {@link dataModelAPI#setMetadataStore setMetadataStore}.
      */
-    dataModelSupports: function(methodName) {
-        return methodName in this._dataModelSupport ? this._dataModelSupport[methodName] : (
-            this._dataModelSupport[methodName] =
-                this.dataModel.getOwnerOf && !!this.dataModel.getOwnerOf(methodName) ||
-                methodName in this.dataModel
-        );
+    decorateDataModel: function(newDataModel, options) {
+        addPolyfills(newDataModel);
+        addFallbacks(newDataModel, this.grid);
+        addHooks(newDataModel);
+
+        newDataModel.setMetadataStore(options && options.metadata);
+
+        return newDataModel;
     },
 
     /**
      * @summary Convenience getter/setter.
      * @desc Calls the data model's `getSchema`/`setSchema` methods.
+     * @see {@link https://fin-hypergrid.github.io/doc/dataModelAPI.html#getSchema|getSchema}
+     * @see {@link https://fin-hypergrid.github.io/doc/dataModelAPI.html#setSchema|setSchema}
      * @type {Array}
      * @memberOf Behavior#
      */
@@ -130,7 +123,8 @@ var mixin = {
     },
 
     /**
-     * Map of drill down characters used by the data model.
+     * @summary Map of drill down characters used by the data model.
+     * @see {@link https://fin-hypergrid.github.io/doc/dataModelAPI.html#charMap|charMap}
      * @type {{OPEN:string, CLOSE:string, INDENT:string}}
      * @memberOf Behavior#
      */
@@ -140,7 +134,7 @@ var mixin = {
 
     /**
      * @summary Calls `isDrillDown()` on the data model.
-     * @see {@link module:dataModel/fallbacks}
+     * @see {@link https://fin-hypergrid.github.io/doc/dataModelAPI.html#isDrillDown|isDrillDown}
      * @memberOf Behavior#
      */
     isDrillDown: function(x) {
@@ -149,7 +143,7 @@ var mixin = {
 
     /**
      * @summary Calls `click()` on the data model.
-     * @see {@link module:dataModel~fallbacks}
+     * @see {@link https://fin-hypergrid.github.io/doc/dataModelAPI.html#click|click}
      * @memberOf Behavior#
      */
     click: function(y) {
@@ -158,7 +152,7 @@ var mixin = {
 
     /**
      * @summary Calls `apply()` on the data model.
-     * @see {@link module:dataModel~fallbacks.apply}
+     * @see {@link https://fin-hypergrid.github.io/doc/dataModelAPI.html#reindex|reindex}
      * @memberOf Behavior#
      */
     reindex: function() {
@@ -167,6 +161,7 @@ var mixin = {
 
     /**
      * @summary Gets the number of rows in the data subgrid.
+     * @see {@link https://fin-hypergrid.github.io/doc/dataModelAPI.html#getRowCount|getRowCount}
      * @memberOf Behavior#
      */
     getRowCount: function() {
@@ -175,7 +170,7 @@ var mixin = {
 
     /**
      * Retrieve a data row from the data model.
-     * @see {@link module:dataModel~fallbacks}
+     * @see {@link https://fin-hypergrid.github.io/doc/dataModelAPI.html#getRow|getRow}
      * @memberOf Behavior#
      * @return {dataRowObject} The data row object at y index.
      * @param {number} y - the row index of interest
@@ -187,6 +182,7 @@ var mixin = {
     /**
      * Retrieve all data rows from the data model.
      * > Use with caution!
+     * @see {@link https://fin-hypergrid.github.io/doc/dataModelAPI.html#getData|getData}
      * @return {dataRowObject[]}
      * @memberOf Behavior#
      */
@@ -202,25 +198,16 @@ var mixin = {
     },
 
     /**
-     * @summary Calls `click` on the data model.
-     * @desc Send clicked cell's data coordinates to the data model.
-     * The data model may respond to clicks by adding/removing/decorating data rows (_e.g.,_ a drill-down).
-     * If the click was "consumed" by the data model, fire the 'fin-data-changed' event,
-     * which reindexes the data and reshapes the grid.
+     * @summary Calls `click` on the data model if column is a tree column.
+     * @desc Sends clicked cell's coordinates to the data model.
+     * @see {@link https://fin-hypergrid.github.io/doc/dataModelAPI.html#isDrillDown|isDrillDown}
+     * @see {@link https://fin-hypergrid.github.io/doc/dataModelAPI.html#click|click}
      * @param {CellEvent} event
-     * @returns {boolean} - `true` means the click was consumed by the data model.
+     * @returns {boolean} If click was in a drill down column and click on this row was "consumed" by the data model (_i.e., caused it's state to change).
      * @memberOf Behavior#
      */
     cellClicked: function(event) {
-        var x = event.dataCell.x,
-            y = event.dataCell.y,
-            consumed = this.isDrillDown(x) && this.click(y);
-
-        if (consumed) {
-            this.grid.fireDataShapeChangedEvent();
-        }
-
-        return consumed;
+        return this.isDrillDown(event.dataCell.x) && this.click(event.dataCell.y);
     }
 };
 
@@ -244,23 +231,51 @@ function getCellEditorAt(columnIndex, rowIndex, editorName, cellEvent) {
 //////// LOCAL METHODS -- to be called with `.call(this`
 
 /**
- * Add all catcher methods to data model.
- * Also adds `dispatchEvent`, which data model call internally to communicate back to Hypergrid.
- * (Hypergrid itself never calls `dispatchEvent`.)
- * Catchers are added with `installProperties` when available; otherwise they're just added directly to the data model object.
- * @private
- * @this {Behavior}
+ * @param {dataModelAPI} dataModel
  */
-function addCatchers() {
-    var dataModel = this.dataModel;
-
-    if (!dataModel.installMethods) {
-        dataModel.installMethods = function(api) {
-            Object.assign(this, api);
+function addPolyfills(dataModel) {
+    if (!dataModel.bubble) {
+        dataModel.bubble = function(api, fallback) {
+            if (fallback && !Array.isArray(api)) {
+                api = api || this;
+                Object.keys(api).filter(function(key) {
+                    return typeof api[key] === 'function';
+                }).forEach(function(key) {
+                    if (!this[key]) {
+                        this[key] = api[key];
+                    }
+                }, this);
+            }
         };
     }
+}
 
-    dataModel.installMethods({ dispatchEvent: this.grid.trigger.bind(this.grid) });
+/**
+ * Inject fallback methods into data model when not implemented by data model.
+ * Also adds `dispatchEvent`, called by data model to communicate back to Hypergrid.
+ * (Hypergrid itself never calls `dispatchEvent` on the data model.)
+ * @param {dataModelAPI} dataModel
+ * @param {Hypergrid} grid
+ * @private
+ */
+function addFallbacks(dataModel, grid) {
+    dataModel.bubble(fallbacks, true);
+    dataModel.bubble({ dispatchEvent: dispatchEvent.bind(grid) }, true);
+}
+
+var REGEX_DATA_EVENT_STRING = /^data-((schema-|shape-)?changed|(pre|post)reindex)$/;
+
+/**
+ * @private
+ * @this {Hypergrid}
+ * @param eventName
+ * @param eventDetail
+ */
+function dispatchEvent(eventName, eventDetail) {
+    if (!REGEX_DATA_EVENT_STRING.test(eventName)) {
+        throw new HypergridError('Expected event string to match ' + REGEX_DATA_EVENT_STRING + '.');
+    }
+    this.canvas.dispatchEvent(new CustomEvent('fin-canvas-' + eventName, eventDetail));
 }
 
 /**
@@ -272,9 +287,8 @@ function addDeprecationWarnings() {
 
     Object.defineProperty(this.dataModel, 'grid', {
         configurable: true,
-        writable: true,
         enumerable: false,
-        value: function() {
+        get: function() {
             if (!warned.grid) {
                 console.warn('`this.grid` (dataModel.grid) property has been deprecated as of v3.0.0 and will be removed in a future version. Data models should have no direct knowledge of or access to the grid. (If you need access to the grid object within your `getCell` or `getCellEditAt` override functions, define it in a closure.)');
                 warned.grid = true;
@@ -285,7 +299,7 @@ function addDeprecationWarnings() {
 
     if (this.dataModel.dataSource) {
         if (!warned.dataSource) {
-            console.warn('As of Hypergrid 3.0.0, the `grid.behavior.dataModel` is now defined externally; `.dataModel.dataSource` is deprecated and no longer referenced internally. (Formerly, `.dataModel` was defined internally (by Hypergrid) and `.dataModel.dataSource` was the external "data source." Data model authors are strongly advised to avoid implementing a `.dataSource` property to reduce the confusion that would result should legacy application level code try to reference the data model via `.dataModel.dataSource` and get something unexpected instead.)');
+            console.warn('As of Hypergrid 3.0.0, the external data model is now `grid.behavior.dataModel`. Formerly, it was `grid.behavior.dataModel.dataSource`. Data model authors are strongly advised to avoid implementing a `.dataSource` property inside their data model to reduce the confusion that would result if a legacy application were to try to reference the data model via `.dataModel.dataSource` and get something unexpected instead of an error.)');
         }
     }
 }
@@ -319,16 +333,15 @@ function addFriendlierDrillDownMapKeys() {
 }
 
 /**
- * @private
- * @this {Behavior}
+ * @param {dataModelAPI} dataModel
  */
-function addHooks() {
-    if (!this.dataModel.getCell) {
-        this.dataModel.getCell = getCell;
+function addHooks(dataModel) {
+    if (!dataModel.getCell) {
+        dataModel.getCell = getCell;
     }
 
-    if (!this.dataModel.getCellEditorAt) {
-        this.dataModel.getCellEditorAt = getCellEditorAt;
+    if (!dataModel.getCellEditorAt) {
+        dataModel.getCellEditorAt = getCellEditorAt;
     }
 }
 

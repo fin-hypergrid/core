@@ -16,6 +16,5 @@
 
 module.exports = {
     Scrollbar: require('finbars'),
-    templater: require('mustache'), // interface à la mustache: { render: function(template, context) }
-    events: require('pubsubstar').mixin
+    templater: require('mustache') // interface à la mustache: { render: function(template, context) }
 };
