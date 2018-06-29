@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Tutorial: Localizers (formatters and deformatters)</title>
+    <title>JSDoc: Mixin: mixin</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -20,51 +20,98 @@
 </nav>
 <div id="main">
 
-    <h1 class="page-title">Tutorial: Localizers (formatters and deformatters)</h1>
+    <h1 class="page-title">Mixin: mixin</h1>
 
-    <section>
+    
+
+
+
+
+<section>
 
 <header>
     
-
-    <h2>Localizers (formatters and deformatters)</h2>
+        <h2>
+        mixin
+        </h2>
+        
+    
 </header>
 
 <article>
-    <p>The file ./src/lib/localization.js provides &quot;localization agents&quot; that know how to:</p>
-<ul>
-<li>Localize a data value into a string representation for:<ul>
-<li>Grid display</li>
-<li>Cell editor pre-load</li>
-</ul>
-</li>
-<li>Standardize a localized string back into a typed primitive (or object) for writing back to a data row.</li>
-<li>Check an edited localized string for syntax or just for illegal characters (implementation optional).</li>
-</ul>
-<p>The API includes factory functions that invoke the <code>Intl</code> API for numbers and dates. On instantiation, the singleton Localization object &quot;constructs&quot; basic <code>number</code> and <code>date</code> localizers using these factory functions. It also defines several other localizers (). You can also add your own custom localizers using the <code>grid.localization.add</code> method. For numbers and dates, use the factory functions. For other formats, supply an object that conforms to the localization API interface (has the required <code>format</code> and <code>parse</code> methods; and the optional <code>isValid</code> method).</p>
-<p>For illustration purposes, however, here's a simple implementation of this localizer:</p>
-<pre class="prettyprint source lang-javascript"><code>var hhmm = {
-    // returns formatted string from number
-    format: function(mins) {
-        var hh = Math.floor(mins / 60),
-            mm = (mins % 60 + 100 + '').substr(1, 2);
-        return hh + ':' + mm;
-    },
+    <div class="container-overview">
+    
+        
+            <div class="description"><p>Additions to <code>Hypergrid.prototype</code> for modeling cell, row, and column selections.</p>
+<p>All members are documented on the <a href="Hypergrid.html"><code>Hypergrid</code></a> page.</p></div>
+        
 
-    // tests input for full validity
-    invalid: function(hhmm) {
-        return /^([01]?\d|2[0-3]):[0-5]\d$/.test(hhmm); // 23:59 max
-    },
+        
 
-    // returns number from formatted string
-    parse: function(hhmm) {
-        var parts = hhmm.match(/^(\d+):(\d{2})$/);
-        return Number(parts[1]) * 60 + Number(parts[2]);
-    }
-};</code></pre>
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+        
+    
+    </div>
+
+    
+
+    
+
+    
+
+     
+
+    
+
+    
+
+    
+
+    
+
+    
 </article>
 
 </section>
+
+
+
 
 </div>
 

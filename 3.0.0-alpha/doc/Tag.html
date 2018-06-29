@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Class: CellRenderer</title>
+    <title>JSDoc: Class: Tag</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -20,7 +20,7 @@
 </nav>
 <div id="main">
 
-    <h1 class="page-title">Class: CellRenderer</h1>
+    <h1 class="page-title">Class: Tag</h1>
 
     
 
@@ -32,7 +32,7 @@
 <header>
     
         <h2>
-        CellRenderer
+        Tag
         </h2>
         
     
@@ -45,16 +45,11 @@
 
     
 
-    <h4 class="name" id="CellRenderer"><span class="type-signature"></span>new CellRenderer<span class="signature">()</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="Tag"><span class="type-signature"></span>new Tag<span class="signature">()</span><span class="type-signature"></span></h4>
 
     
 
 
-
-<div class="description">
-    <p>Instances of <code>CellRenderer</code> are used to render the 2D graphics context within the bound of a cell.</p>
-<p>Extend this base class to implement your own cell renderer.</p>
-</div>
 
 
 
@@ -96,13 +91,6 @@
 
     
 
-    
-    <dt class="tag-tutorial">Tutorials:</dt>
-    <dd class="tag-tutorial">
-        <ul>
-            <li><a href="tutorial-cell-renderer.html">Cell Renderers</a></li>
-        </ul>
-    </dd>
     
 
     
@@ -129,6 +117,17 @@
     </div>
 
     
+        <h3 class="subsection-title">Extends</h3>
+
+        
+
+
+    <ul>
+        <li><a href="CellRenderer.html">CellRenderer</a></li>
+    </ul>
+
+
+    
 
     
 
@@ -148,97 +147,18 @@
 
     
 
-    <h4 class="name" id="paint"><span class="type-signature"></span>paint<span class="signature">(gc, config)</span><span class="type-signature"> &rarr; {number}</span></h4>
+    <h4 class="name" id="paint"><span class="type-signature"></span>paint<span class="signature">()</span><span class="type-signature"></span></h4>
 
     
 
 
 
-<div class="description">
-    <p>An empty implementation of a cell renderer, see <a href="http://c2.com/cgi/wiki?NullObject">the null object pattern</a>.</p>
-</div>
 
 
 
 
 
 
-
-    <h5>This:</h5>
-    <ul><li>{<a href="CellEditor.html">CellEditor</a>}</li></ul>
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>gc</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type"><a href="global.html#CanvasRenderingContext2D">CanvasRenderingContext2D</a></span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>config</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type"><a href="CellRenderer.html#renderConfig">CellRenderer#renderConfig</a></span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"></td>
-        </tr>
-
-    
-    </tbody>
-</table>
 
 
 
@@ -254,6 +174,11 @@
     
 
     
+    <dt class="tag-overrides">Overrides:</dt>
+    <dd class="tag-overrides"><ul class="dummy"><li>
+        <a href="CellRenderer.html#paint">CellRenderer#paint</a>
+    </li></ul></dd>
+    
 
     
 
@@ -292,28 +217,6 @@
 
 
 
-<h5>Returns:</h5>
-
-        
-<div class="param-desc">
-    <p>Preferred pixel width of content. The content may or may not be rendered at that width depending on whether or not <code>config.bounds</code> was respected and whether or not the grid renderer is using clipping. (Clipping is generally not used due to poor performance.)</p>
-</div>
-
-
-
-<dl>
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
-<span class="param-type">number</span>
-
-
-    </dd>
-</dl>
-
-    
 
 
 
@@ -560,6 +463,11 @@
 
     
 
+    
+    <dt class="inherited-from">Inherited From:</dt>
+    <dd class="inherited-from"><ul class="dummy"><li>
+        <a href="CellRenderer.html#roundRect">CellRenderer#roundRect</a>
+    </li></ul></dd>
     
 
     
@@ -1492,6 +1400,11 @@
 
     
 
+    
+    <dt class="inherited-from">Inherited From:</dt>
+    <dd class="inherited-from"><ul class="dummy"><li>
+        <a href="CellRenderer.html#renderConfig">CellRenderer#renderConfig</a>
+    </li></ul></dd>
     
 
     

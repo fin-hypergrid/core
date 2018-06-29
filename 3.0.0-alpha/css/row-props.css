@@ -18,7 +18,7 @@ input[type=checkbox] { outline: 0 }
 div#behind {
     position: absolute;
     visibility: hidden;
-    top: 150px;
+    top: 350px;
     left: 150px;
     width: 400px;
     height: 400px;

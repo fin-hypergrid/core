@@ -50,13 +50,6 @@ a:hover {
     width: 75%;
 }
 
-article dl:not(.details),
-div.description+h5, div.description+h5+ul,
-p+h5, p+h5+ul,
-h4.name+h5, h4.name+h5+ul {
-    display: none; /* This hides the "Type" section which seems to be redundant */
-}
-
 section
 {
     display: block;

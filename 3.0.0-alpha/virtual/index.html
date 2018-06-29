@@ -44,8 +44,8 @@
         <input type="checkbox" id="clear-cache" checked> Clear cache on every data fetch;
     </label>
 
-    <label title="Double-check that data still valid before rendering because next completion routine to be called (ie, next callback) may or may not have valid data available at that time because (a) fetches are lazy and may overlap when latency non-zero (such as when grid scrolled again before previous fetch completes) and (b) fetches may complete out of order when latency non-zero and fudge factor active (order is non-deterministic).">
-        <input type="checkbox" id="test-range" checked> Test "range" before rendering;
+    <label title="Lazy loading">
+        <input type="checkbox" id="fetchData" checked> fetchData;
     </label>
 
     Latency: <input type="text" id="latency" value="0" style="width: 30px"> msec ±
@@ -72,10 +72,10 @@
 </div>
 
 <script src="../build/fin-hypergrid.js"></script>
-<script src="datasaur-billions.js"></script>
+<script src="datasaur-virtual.js"></script>
 
 <script>
-    var grid = new fin.Hypergrid({ DataModel: fin.Hypergrid.require('DatasaurBillions') });
+    var grid = new fin.Hypergrid({ DataModel: fin.Hypergrid.require('datasaur-virtual') });
 
     grid.setData([], { schema: [] });
 
@@ -103,19 +103,18 @@
         grid.behavior.dataModel.clearCache = this.checked;
     });
 
-    document.getElementById('test-range').addEventListener('click', function(e) {
+    document.getElementById('fetchData').addEventListener('click', function(e) {
         if (this.checked) {
-            delete grid.behavior.dataModel.gotData; // reveal prototype method
+            delete grid.behavior.dataModel.fetchData; // reveal prototype method
         } else {
-            grid.behavior.dataModel.gotData = undefined; // hide prototype method
+            grid.behavior.dataModel.fetchData = undefined; // hide prototype method
         }
     });
-
 
     function fudgeClick() {
         var disabled = !this.checked;
         fudgeFactorEl.disabled = disabled;
-        document.querySelectorAll('.disableable').forEach(function(el) {
+        Array.prototype.forEach.call(document.querySelectorAll('.disableable'), function(el) {
             el.classList[disabled ? 'add' : 'remove']('disabled');
         });
         if (disabled) {
