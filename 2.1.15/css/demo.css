@@ -1,0 +1,163 @@
+body {
+    font-family: sans-serif;
+    margin:0;
+}
+#json-example div.finbar-vertical {
+    margin: 0px;
+    width: 17px;
+    background-color: rgba(237, 237, 237, 1);
+    box-shadow: 0 0 0px #000, 0 0 0px #000, 0 0 0px #000;
+}
+#json-example div.finbar-vertical div.thumb {
+    margin: 2px 0px 17px 0px;
+    width: 11px;
+    background-color: rgba(158, 158, 158, 1);
+    box-shadow: 0 0 0px #000, 0 0 0px #000, 0 0 0px #000;
+    border-radius: 0px;
+    border: 1px solid rgba(132, 132, 132, 1);
+    right: 3px;
+}
+#json-example div.finbar-horizontal {
+    margin: 0px;
+    height: 17px;
+    background-color: rgba(237, 237, 237, 1);
+    box-shadow: 0 0 0px #000, 0 0 0px #000, 0 0 0px #000;
+}
+#json-example div.finbar-horizontal div.thumb {
+    margin: 0px 2px;
+    height: 11px;
+    background-color: rgba(158, 158, 158, 1);
+    box-shadow: 0 0 0px #000, 0 0 0px #000, 0 0 0px #000;
+    border-radius: 0px;
+    border: 1px solid rgba(132, 132, 132, 1);
+    bottom: 3px;
+}
+div#tabs {
+    position: absolute;
+}
+div#tabs > div {
+    margin-top: 6px;
+    margin-bottom: 96px;
+    width: 100px;
+    height: 16px;
+    transform: translate(-1px,110px) rotate(-90deg);
+    transform-origin:0 0;
+    padding: 4px 0 2px 1px;
+    font-size: 8pt;
+    color:#aa9;
+    letter-spacing:1px;
+    text-align: center;
+    background-color: #eed;
+    border: 1px solid #d0d0c8;
+    box-shadow:-2px 2px 5px #bbb;
+    border-bottom-left-radius: 9px;
+    border-bottom-right-radius: 9px;
+    cursor: pointer;
+}
+div#tabs > div:hover {
+    color: black;
+}
+div#tabs > div#tab-fps {
+    width: 130px;
+    margin-top: 126px;
+}
+div#tabs > div#tab-grow-shrink {
+    width: 80px;
+    margin-top: -19px;
+}
+div#tabs > div#tab-fps > span {
+    position: relative;
+    letter-spacing: -1px;
+}
+div#tabs > div#tab-fps > span:nth-child(1) { /* background bars */
+    position: absolute;
+    margin-left: 4px;
+    color: #555;
+}
+div#tabs > div#tab-fps > span:nth-child(1):before { /* background bars */
+    content: 'IIIIIIIIIIIIIIIIIIIIIIIIIIIIII';
+}
+div#tabs > div#tab-fps > span:nth-child(2) {
+    position: absolute;
+    z-index: 2;
+    text-align: right;
+    right: 5px;
+    color: white;
+    font-weight: bold;
+    letter-spacing: 1px;
+}
+div#tabs > div#tab-fps > span:nth-child(3) {
+    margin-left: 4px;
+    color: #f77;
+}
+div#tabs > div#tab-fps > span:nth-child(4) {
+    color: #ee0;
+}
+div#tabs > div#tab-fps > span:nth-child(5) {
+    color: #0d0;
+}
+div#dashboard {
+    position: absolute;
+    font-size: 9pt;
+    margin: .5em 0 0 30px;
+    color: #666;
+    height: 100%;
+}
+div.twister {
+    cursor: pointer;
+}
+div.twister:hover {
+    color: black;
+}
+div.twister:before {
+    content: '▶ ';
+}
+/*
+div.twister:hover:before {
+    color: blue;
+}
+*/
+div.twister.open:before {
+    content: '▼ ';
+    margin-left: -1px;
+}
+div.choices {
+    display: none;
+    margin-left: 1.325em;
+}
+div.choices > label {
+    display: block;
+}
+div#dashboard > div {
+    position: relative;
+}
+div#buttons > button {
+    margin-bottom: .5em;
+    display: block;
+    white-space: nowrap;
+    width: 100%;
+    background-color:#ddd;
+    border-radius:99px;
+    border:0;
+    outline:0;
+}
+div#buttons > button:hover {
+    background-color:#ccc;
+}
+div#buttons > button:active {
+    background-color:#bbb;
+    color: white;
+}
+.ctrl-group {
+    position: static;
+    margin-bottom: .25em;
+}
+.ctrl-group > div.choices > label {
+    font-weight: normal;
+}
+.ctrl-group > div.choices > span {
+    font-style: italic;
+}
+.ctrl-group > div.choices > span:after {
+    content: ':';
+}
