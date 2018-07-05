@@ -996,6 +996,18 @@ var defaults = {
     selectionRegionOutlineColor: 'rgb(69, 69, 69)',
 
     /**
+     * @summary Whether to automatically expand column width to accommodate widest rendered value.
+     * @desc When truthy for a given column _and_ user has not manually resized it, column will expand to accommodate widest rendered value.
+     *
+     * What's actually happening is (`props` in the following refers to the column's properties):
+     * 1. On each grid render, for all visible columns:
+     *    1. The cell renderer reports back the width of each rendered cell contents.
+     *    2. The largest value for each column is saved (in `props.preferredWidth`).
+     * 2. At the conclusion of the grid render, the renderer calls `grid.gridRenderedNotification`, which calls `grid.behavior.checkColumnAutosizing`, which for all columns for which `props.columnAutosizing` is truthy, determines if the column needs to be widened subject to the following conditions:
+     *    1. If user has not already manually set column width (`props.columnAutosized` is still falsy)
+     *    2. If render width > current width (`props.preferredWidths > props.width`)
+     *    3. If column's max autosizing width is defined and it's greater than render width (`props.peferredWidths < props.columnAutosizingMax`)
+     * 3. If any column width has changed, re-shape the grid with the new column widths and re-render it. As this typically happens before the next monitor refresh, user only sees the final result.
      * @default
      * @type {boolean}
      * @memberOf module:defaults
@@ -1003,6 +1015,9 @@ var defaults = {
     columnAutosizing: true,
 
     /**
+     * @summary Whether to automatically expand row number column width to accommodate widest rendered row number
+     * @desc `grid.properties.rowNumberAutosizing` is the backing store for `grid.behavior.columns[-2].columnAutosizing`.
+     * Supports row number column styling via the `rowNumber_______` grid state properties.
      * @default
      * @type {boolean}
      * @memberOf module:defaults
@@ -1010,6 +1025,9 @@ var defaults = {
     rowNumberAutosizing: true,
 
     /**
+     * @summary Whether to automatically expand row number column width to accommodate widest rendered group label.
+     * @desc `grid.properties.treeColumnAutosizing` is the backing store for `grid.behavior.columns[-1].columnAutosizing`.
+     * Supports tree column styling via the `rowColumn_______` grid state properties.
      * @default
      * @type {boolean}
      * @memberOf module:defaults
@@ -1017,6 +1035,10 @@ var defaults = {
     treeColumnAutosizing: true,
 
     /**
+     * @summary The widest the column will be auto-sized to.
+     * @desc For no limit, set this property to a falsy value such as `undefined` or `0`.
+     *
+     * Note this property only specifies a maximum column width for _auto-sizing;_ it places no limit on manual resizing of column width.
      * @default
      * @type {boolean}
      * @memberOf module:defaults
@@ -1024,6 +1046,9 @@ var defaults = {
     columnAutosizingMax: 400,
 
     /**
+     * @summary The widest the tree column will be auto-sized to.
+     * @desc `grid.properties.treeColumnAutosizingMax` is the store for `grid.behavior.columns[-1].columnAutosizingMax`.
+     * Supports tree column styling via the `rowColumn_______` grid state properties.
      * @default
      * @type {boolean}
      * @memberOf module:defaults
@@ -1031,6 +1056,8 @@ var defaults = {
     treeColumnAutosizingMax: 400,
 
     /**
+     * @summary Whether text in header cells is wrapped.
+     * @desc For performance reasons, text in data cells is not wrapped. (This is a function of the supplied `SimpleCell` renderer. Override with a custom renderer if you must have wrapped text in data cells.)
      * @default
      * @type {boolean}
      * @memberOf module:defaults
