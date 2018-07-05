@@ -81,6 +81,10 @@ function paintCellsAsNeeded(gc) {
     }.bind(this));
 
     // gc.clipRestore(clipToGrid);
+
+    if (this.grid.properties.boxSizing === 'border-box') {
+        this.paintGridlines(gc);
+    }
 }
 
 paintCellsAsNeeded.key = 'by-cells';
