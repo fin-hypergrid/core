@@ -32,7 +32,34 @@ var EDGE_STYLES = ['top', 'bottom', 'left', 'right'],
  * @mixes themes.mixin
  * @mixes themes.sharedMixin
  * @constructor
- * @param {string|Element} [container] - CSS selector or Element
+ * @classdesc An object representing a Hypergrid.
+ * @desc The first parameter, `container`, is optional. If omitted, the `options` parameter is promoted to first position. (Note that the container can also be given in `options.container.`)
+ * #### `options.canvasContextAttributes` object (see below)
+ * The only currently meaningful property of this object is `alpha`:
+ *
+ * ```js
+ * var gridOptions = {
+ *     canvasContextAttributes: { alpha: false }
+ * };
+ * var myGrid = new Hypergrid(gridOptions);
+ * ```
+ *
+ * `alpha` is a boolean that indicates if the canvas contains an alpha channel. If set to `false`, the browser now knows that the backdrop is always opaque, which can speed up drawing of transparent content and images.
+ *
+ * This option was added by request although testing failed to show any measurable performance benefit.
+ *
+ * Use with caution. In particular, if the canvas is set to "opaque" (`{alpha: false}`), do _not_ also specify a transparent or translucent color for `grid.properties.backGround` because content may then be drawn with corrupt anti-aliasing (at lest in Chrome v67).
+ *
+ * Note that such an "opaque" canvas can still be made to appear translucent using the CSS `opacity` property — a different effect entirely.
+ *
+ * Although this option has no apparent performance gains (in Chrome v63), it does permit the graphics context to use [sub-pixel rendering](https://en.wikipedia.org/wiki/Subpixel_rendering) for sharper text as viewed on LCD or LED screens, especially black text on white backgrounds, and especially when viewed on a high-pixel-density display such as an [Apple retina display](https://en.wikipedia.org/wiki/Retina_Display).
+ *
+ * value | Canvas | Text | Sample
+ * ----- | :----: | :--: | ------
+ * `{ alpha: true } ` | transparent | regular<br>anti-aliasing | ![regular.png](https://cdn-pro.dprcdn.net/files/acc_645730/ZqurK3)
+ * `{ alpha: false }` | opaque | sub-pixel<br>rendering | ![sub-pixel.png](https://cdn-std.dprcdn.net/files/acc_645730/bf3VXh)
+ *
+ * @param {string|Element} [container] - CSS selector or Element. If omitted, Hypergrid first looks for an _empty_ element with an ID of `hypergrid`. If not found, it will create a new element. In either case, the container element has the class name `hypergrid-container` added to its class name list. Finally, if the there is more than one such element with that class name, the element's ID attribute is set to `hypergrid` + _n_ where n is an ordinal one less than the number of such elements.
  * @param {object} [options]
  * @param {function} [options.Behavior=behaviors.JSON] - A grid behavior constructor (extended from {@link Behavior}).
  * @param {function[]} [options.pipeline] - A list function constructors to use for passing data through a series of transforms to occur on reindex call
@@ -52,10 +79,12 @@ var EDGE_STYLES = ['top', 'bottom', 'left', 'right'],
  *
  * @param {string|Element} [options.container] - CSS selector or Element
  *
+ * @param {object} [options.canvasContextAttributes] - Passed to [`HTMLCanvasElement.getContext`](https://developer.mozilla.org/docs/Web/API/HTMLCanvasElement/getContext). _Please see discussion above._
+ *
  * @param {string} [options.localization=Hypergrid.localization]
- * @param {string|string[]} [options.localization.locale=Hypergrid.localization.locale] - The default locale to use when an explicit `locale` is omitted from localizer constructor calls. Passed to Intl.NumberFomrat` and `Intl.DateFomrat`. See {@ https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl#Locale_identification_and_negotiation|Locale identification and negotiation} for more information.
- * @param {string} [options.localization.numberOptions=Hypergrid.localization.numberOptions] - Options passed to `Intl.NumberFormat` for creating the basic "number" localizer.
- * @param {string} [options.localization.dateOptions=Hypergrid.localization.dateOptions] - Options passed to `Intl.DateFomrat` for creating the basic "date" localizer.
+ * @param {string|string[]} [options.localization.locale=Hypergrid.localization.locale] - The default locale to use when an explicit `locale` is omitted from localizer constructor calls. Passed to Intl.NumberFomrat` and `Intl.DateFomrat`. See {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl#Locale_identification_and_negotiation|Locale identification and negotiation} for more information.
+ * @param {string} [options.localization.numberOptions=Hypergrid.localization.numberOptions] - Options passed to [`Intl.NumberFormat`](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/NumberFormat) for creating the basic "number" localizer.
+ * @param {string} [options.localization.dateOptions=Hypergrid.localization.dateOptions] - Options passed to [`Intl.DateTimeFormat`](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/DateTimeFormat) for creating the basic "date" localizer.
  *
  * @param {object} [options.schema]
  *
@@ -126,7 +155,7 @@ var Hypergrid = Base.extend('Hypergrid', {
         this.cellEditors = Object.create(cellEditors);
         Object.defineProperty(this.cellEditors, 'create', { value: createCellEditor.bind(this) });
 
-        this.initCanvas();
+        this.initCanvas(options.canvasContextAttributes);
 
         if (this.options.Behavior) {
             this.setBehavior(this.options); // also sets this.options.pipeline and this.options.data
@@ -174,7 +203,7 @@ var Hypergrid = Base.extend('Hypergrid', {
     terminate: function() {
         document.removeEventListener('mousedown', this.mouseCatcher);
         this.canvas.stop();
-        Hypergrid.grids.splice(this.grids.indexOf(this), 1);
+        Hypergrid.grids.splice(Hypergrid.grids.indexOf(this), 1);
     },
 
 
@@ -1048,7 +1077,7 @@ var Hypergrid = Base.extend('Hypergrid', {
      * @summary Initialize drawing surface.
      * @private
      */
-    initCanvas: function() {
+    initCanvas: function(contextAttributes) {
         if (!this.divCanvas) {
             var divCanvas = document.createElement('div');
 
@@ -1056,7 +1085,7 @@ var Hypergrid = Base.extend('Hypergrid', {
 
             this.div.appendChild(divCanvas);
 
-            var canvas = new Canvas(divCanvas, this.renderer, this.options.canvas);
+            var canvas = new Canvas(divCanvas, this.renderer, contextAttributes);
             canvas.canvas.classList.add('hypergrid');
 
             this.divCanvas = divCanvas;

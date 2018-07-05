@@ -42,6 +42,7 @@ window.onload = function() {
             margin: { bottom: '17px', right: '17px'},
             schema: schema,
             plugins: require('fin-hypergrid-event-logger'),
+            // canvasContextAttributes: { alpha: false },
             state: { color: 'orange' }
         },
         grid = new Hypergrid('div#json-example', gridOptions),

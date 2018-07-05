@@ -22,7 +22,7 @@ var RESIZE_POLLING_INTERVAL = 200,
     resizeInterval,
     charMap = makeCharMap();
 
-function Canvas(div, component) {
+function Canvas(div, component, contextAttributes) {
     var self = this;
 
     // create the containing <div>...</div>
@@ -37,8 +37,8 @@ function Canvas(div, component) {
     this.div.appendChild(this.infoDiv);
 
     // create and append the canvas
-    this.gc = getCachedContext(this.canvas = document.createElement('canvas'));
-    this.bc = getCachedContext(this.buffer = document.createElement('canvas'));
+    this.gc = getCachedContext(this.canvas = document.createElement('canvas'), contextAttributes);
+    this.bc = getCachedContext(this.buffer = document.createElement('canvas'), contextAttributes);
 
     this.div.appendChild(this.canvas);
 
@@ -791,8 +791,8 @@ function makeCharMap() {
     return map;
 }
 
-function getCachedContext(canvasElement, type) {
-    var gc = canvasElement.getContext(type || '2d'),
+function getCachedContext(canvasElement, contextAttributes) {
+    var gc = canvasElement.getContext('2d', contextAttributes),
         props = {},
         values = {};
 
