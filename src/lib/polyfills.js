@@ -10,7 +10,7 @@
 
 /* eslint-disable no-extend-native */
 
-// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/sign#Polyfill
+// https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Math/sign#Polyfill
 // (Safari now supports Math.sign but IE still does not as of v11.)
 Math.sign = Math.sign = function(x) {
     x = +x; // convert to a number
@@ -20,7 +20,7 @@ Math.sign = Math.sign = function(x) {
     return x > 0 ? 1 : -1;
 };
 
-// Lite version of: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/findIndex#Polyfill
+// Lite version of: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Array/findIndex#Polyfill
 if (typeof Array.prototype.findIndex !== 'function') {
     Array.prototype.findIndex = function(predicate) {
         var context = arguments[1];
@@ -33,7 +33,7 @@ if (typeof Array.prototype.findIndex !== 'function') {
     };
 }
 
-// Simpler version of: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/fill#Polyfill
+// Simpler version of: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Array/fill#Polyfill
 if (typeof Array.prototype.fill !== 'function') {
     Array.prototype.fill = function(value, start, end) {
         start = start === undefined ? 0 : start < 0 ? this.length + start : start;
@@ -45,7 +45,7 @@ if (typeof Array.prototype.fill !== 'function') {
     };
 }
 
-// Lite version of: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/assign#Polyfill
+// Lite version of: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object/assign#Polyfill
 if (typeof Object.assign !== 'function') {
     Object.assign = function(target) {
         for (var index = 1; index < arguments.length; index++) {

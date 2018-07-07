@@ -3,42 +3,34 @@
 var CellRenderer = require('./CellRenderer');
 
 /**
+ * Renders a tree cell (presumably in the tree column).
  * @constructor
  * @extends CellRenderer
  */
 var TreeCell = CellRenderer.extend('TreeCell', {
-
-    /**
-     * @desc A simple implementation of a tree cell renderer for use mainly with the tree column.
-     * @memberOf TreeCell.prototype
-     */
     paint: function(gc, config) {
         var x = config.bounds.x,
             y = config.bounds.y,
-            width = config.bounds.width,
-            height = config.bounds.height;
+            val = config.value.data,
+            indent = config.value.indent,
+            icon = config.value.icon;
 
-        var val = config.value.data;
-        var indent = config.value.indent;
-        var icon = config.value.icon;
-
-        //fill background only if our bgColor is populated or we are a selected cell
+        // Fill background only if our bgColor is populated or we are a selected cell.
         if (config.backgroundColor || config.isSelected) {
             gc.cache.fillStyle = config.isSelected ? config.backgroundColor : config.backgroundColor;
-            gc.fillRect(x, y, width, height);
+            gc.fillRect(x, y, config.bounds.width, config.bounds.height);
         }
 
         if (!val || !val.length) {
             return;
         }
-        var valignOffset = Math.ceil(height / 2);
 
         gc.cache.fillStyle = config.isSelected ? config.backgroundColor : config.backgroundColor;
+
+        var valignOffset = Math.ceil(config.bounds.height / 2);
         gc.fillText(icon + val, x + indent, y + valignOffset);
 
-        var textWidth = gc.getTextWidth(icon + val);
-        var minWidth = x + indent + textWidth + 10;
-        config.minWidth = minWidth;
+        config.minWidth = x + indent + gc.getTextWidth(icon + val) + 10;
     }
 });
 

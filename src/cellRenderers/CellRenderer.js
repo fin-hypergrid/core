@@ -1,6 +1,7 @@
 'use strict';
 
 /** @typedef {object} CellRenderer#renderConfig
+ *
  * This is the renderer config object, which is:
  * 1. First passed to a {@link DataModel#getCell getCell} method implementation, which may override (most of) its values before returning.
  * 2. Then passed to the specified cell renderers' {@link CellRenderer#paint paint} function for rendering.
@@ -76,32 +77,29 @@
  * The renderer has available to it the `.formatValue()` function for formatting the value. The function comes from the localizer named in the `.format` property. If there is no localizer with that name, the function defaults to the `string` localizer's formatter (which simply invokes the value's `toString()` method).
  *
  * Typically a Local primitive value, values can be any type, including objects and arrays. The specified cell renderer is expected to know how to determine the value's type and render it.
-*/
+ */
 
 var Base = require('../Base');
 
-/** @typedef paintFunction
- * @type {function}
- * @this {CellEditor}
- * @param {CanvasRenderingContext2D} gc
- * @param {object} config
- * @param {Rectangle} config.bounds - The clipping rect of the cell to be rendered.
- * @param {number} config.x - the "translated" index into the `behavior.allColumns` array
- * @param {number} config.normalizedY - the vertical grid coordinate normalized to first data row
- * @param {number} config.untranslatedX - the horizontal grid coordinate measured from first data column
- * @param {number} config.y - the vertical grid coordinate measured from top header row
- */
-
 /** @constructor
- * @desc Instances of `CellRenderer` are used to render the 2D graphics context within the bound of a cell. Extend this base class to implement your own cell renderer
+ * @desc Instances of `CellRenderer` are used to render the 2D graphics context within the bound of a cell.
  *
+ * Extend this base class to implement your own cell renderer.
  *
- * See also {@tutorial cell-renderer}.
+ * @tutorial cell-renderer
  */
 var CellRenderer = Base.extend('CellRenderer', {
     /**
      * @desc An empty implementation of a cell renderer, see [the null object pattern](http://c2.com/cgi/wiki?NullObject).
-     * @implements paintFunction
+     *
+     * @this {CellEditor}
+     *
+     * @param {CanvasRenderingContext2D} gc
+     *
+     * @param {CellRenderer#renderConfig} config
+     *
+     * @returns {number} Preferred pixel width of content. The content may or may not be rendered at that width depending on whether or not `config.bounds` was respected and whether or not the grid renderer is using clipping. (Clipping is generally not used due to poor performance.)
+     *
      * @memberOf CellRenderer.prototype
      */
     paint: function(gc, config) {},
@@ -146,7 +144,5 @@ var CellRenderer = Base.extend('CellRenderer', {
         gc.closePath();
     }
 });
-
-CellRenderer.abstract = true; // don't instantiate directly
 
 module.exports = CellRenderer;

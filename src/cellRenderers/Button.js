@@ -3,15 +3,11 @@
 var CellRenderer = require('./CellRenderer');
 
 /**
+ * The default cell rendering function for a button cell.
  * @constructor
  * @extends CellRenderer
  */
 var Button = CellRenderer.extend('Button', {
-
-    /**
-     * @summary The default cell rendering function for a button cell.
-     * @memberOf Button.prototype
-     */
     paint: function(gc, config) {
         var val = config.value,
             bounds = config.bounds,

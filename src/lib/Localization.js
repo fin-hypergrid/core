@@ -7,7 +7,6 @@
 'use strict';
 
 var Base = require('../Base');
-var deprecated = require('./deprecated');
 
 
 /**
@@ -377,7 +376,6 @@ function Localization(locale, numberOptions, dateOptions) {
 Localization.prototype = {
     constructor: Localization.prototype.constructor,
     $$CLASS_NAME: 'Localization',
-    deprecated: deprecated,
 
     /** @summary Creates a localizer from a localizer factory object using the default locale.
      * @desc Performs the following actions:
@@ -430,10 +428,6 @@ Localization.prototype = {
         this[name] = localizer;
 
         return localizer;
-    },
-
-    set: function(name) {
-        return this.deprecated('set(name, localizer)', 'add(name, localizer)', '1.0.6', arguments);
     },
 
     /**

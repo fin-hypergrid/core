@@ -1,6 +1,6 @@
 'use strict';
 
-var expect = require('chai').expect;
+var assert = require('assert');
 
 var instance = [{
     name:'extend',
@@ -14,7 +14,7 @@ describe('Base', function(){
             var base = require('../src/Base');
 
             instance.forEach(function(key){
-                expect(typeof(base[key.name])).to.equal(key.type);
+                assert.equal(typeof(base[key.name]), key.type);
             });
         });
     });
@@ -24,7 +24,7 @@ describe('Base', function(){
             var base = require('../src/Base');
             var myConstructor = base.extend('myConstructor', {a:'a'});
 
-            expect(typeof(myConstructor)).to.equal('function');
+            assert.equal(typeof(myConstructor), 'function');
         });
 
         describe('Should extend with', function() {
@@ -36,15 +36,15 @@ describe('Base', function(){
             });
 
             it('Should extend with HypergridError', function() {
-                expect(typeof(myObject.HypergridError)).to.equal('function');
+                assert.equal(typeof(myObject.HypergridError), 'function');
             });
 
             it('Should extend with deprecated', function(){
-                expect(typeof(myObject.deprecated)).to.equal('function');
+                assert.equal(typeof(myObject.deprecated), 'function');
             });
 
             it('Should extend with unwrap', function(){
-                expect(typeof(myObject.unwrap)).to.equal('function');
+                assert.equal(typeof(myObject.unwrap), 'function');
             });
         });
 
@@ -58,7 +58,7 @@ describe('Base', function(){
             var myObject = new MyConstructor();
             var myError = new myObject.HypergridError(message);
 
-            expect(myError.message).to.equal(message);
+            assert.equal(myError.message, message);
 
         });
     });
