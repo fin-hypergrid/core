@@ -8,45 +8,6 @@ var images = require('../../images');
 var layerProps = require('./layer-props');
 var InclusiveRectangle = require('../lib/InclusiveRectangle');
 
-var visibleColumnPropertiesDescriptorFn = function(grid) {
-    return {
-        findWithNeg: {
-            // Like the Array.prototype version except searches the negative indexes as well.
-            value: function(iteratee, context) {
-                for (var i = grid.behavior.leftMostColIndex; i < 0; i++) {
-                    if (!this[i]) {
-                        continue;
-                    }
-                    if (iteratee.call(context, this[i], i, this)) {
-                        return this[i];
-                    }
-                }
-                return Array.prototype.find.call(this, iteratee, context);
-            }
-        },
-        forEachWithNeg: {
-            // Like the Array.prototype version except it iterates the negative indexes as well.
-            value: function(iteratee, context) {
-                for (var i = grid.behavior.leftMostColIndex; i < 0; i++) {
-                    if (!this[i]) {
-                        continue;
-                    }
-                    iteratee.call(context, this[i], i, this);
-                }
-                return Array.prototype.forEach.call(this, iteratee, context);
-            }
-
-        },
-
-        totalLength: {
-            get: function() {
-                return Math.abs(grid.behavior.leftMostColIndex) + this.length;
-            }
-        }
-    };
-};
-
-
 /**
  * @summary List of grid renderers available to new grid instances.
  * @desc Developer may augment this list with additional grid renderers before grid instantiation by calling @link {Renderer.registerGridRenderer}.
@@ -58,7 +19,7 @@ var paintCellsFunctions = [];
 
 
 /** @typedef {object} CanvasRenderingContext2D
- * @see [CanvasRenderingContext2D](https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D)
+ * @see [CanvasRenderingContext2D](https://developer.mozilla.org/docs/Web/API/CanvasRenderingContext2D)
  */
 
 /** @typedef {object} visibleColumnArray
@@ -72,7 +33,7 @@ var paintCellsFunctions = [];
 /** @typedef {object} visibleRowArray
  * @property {number} index - A back reference to the element's array index in {@link Renderer#visibleRows}.
  * @property {number} rowIndex - Local vertical row coordinate within the subgrid to which the row belongs, adjusted for scrolling.
- * @property {dataModelAPI} subgrid - A reference to the subgrid to which the row belongs.
+ * @property {DataModel} subgrid - A reference to the subgrid to which the row belongs.
  * @property {number} top - Pixel coordinate of the top edge of this row, rounded to nearest integer.
  * @property {number} bottom - Pixel coordinate of the bottom edge of this row, rounded to nearest integer.
  * @property {number} height - Height of this row in pixels, rounded to nearest integer.
@@ -131,7 +92,7 @@ var Renderer = Base.extend('Renderer', {
          * 3. An n-based list of consecutive of integers representing the scrollable columns (where n = number of fixed columns + the number of columns scrolled off to the left).
          * @type {visibleColumnArray}
          */
-        this.visibleColumns = Object.defineProperties([], visibleColumnPropertiesDescriptorFn(this.grid));
+        this.visibleColumns = this.grid.decorateColumnArray();
 
         /**
          * Represents the ordered set of visible rows. Array size is always the exact number of visible rows.
@@ -227,17 +188,6 @@ var Renderer = Base.extend('Renderer', {
     },
 
     /**
-     * Previously used by fin-canvas.
-     * @memberOf Renderer.prototype
-     * @returns {Object} a property value at a key, delegates to the grid
-     * @deprecated
-     */
-    resolveProperty: function(key) {
-        this.deprecated('resolveProperty', 'The .resolveProperty(key) method is deprecated as of v1.2.10 in favor of the .grid.properties object dereferenced with [key]. (Will be removed in a future release.)');
-        return this.properties[key];
-    },
-
-    /**
      * @memberOf Renderer.prototype
      * @summary Notify the fin-hypergrid every time we've repainted.
      * @desc This is the entry point from fin-canvas.
@@ -269,28 +219,10 @@ var Renderer = Base.extend('Renderer', {
 
     /**
      * @memberOf Renderer.prototype
-     * @returns {number[]} Rows we just rendered.
-     */
-    getVisibleRows: function() {
-        this.deprecated('getVisibleRows', 'The getVisibleRows() method has been deprecated as of v1.2.0. (Will be removed in a future version.) Previously returned the this.visibleRows array but because this.visibleRows is no longer a simple array of integers but is now an array of objects, it now returns an array mapped to this.visibleRows[*].rowIndex. Note however that this mapping is not equivalent to what this method previously returned because while each object\'s .rowIndex property is still adjusted for scrolling within the data subgrid, the index is now local to (zero-based within) each subgrid');
-        return this.visibleRows.map(function(vr) { return vr.rowIndex; });
-    },
-
-    /**
-     * @memberOf Renderer.prototype
      * @returns {number} Number of columns we just rendered.
      */
     getVisibleColumnsCount: function() {
         return this.visibleColumns.length - 1;
-    },
-
-    /**
-     * @memberOf Renderer.prototype
-     * @returns {number} Columns we just rendered.
-     */
-    getVisibleColumns: function() {
-        this.deprecated('visibleColumns', 'The getVisibleColumns() method has been deprecated as of v1.2.0. (Will be removed in a future version.) Previously returned the this.visibleColumns but because this.visibleColumns is no longer a simple array of integers but is now an array of objects, it now returns an array mapped to the equivalent visibleColumns[*].columnIndex.');
-        return this.visibleColumns.map(function(vc) { return vc.columnIndex; });
     },
 
     /**
@@ -373,7 +305,9 @@ var Renderer = Base.extend('Renderer', {
             isPseudoCol = true;
         }
 
-        result.cellEvent = Object.create(this.findCell(new this.grid.behavior.CellEvent(vc.columnIndex, vr.index)));
+        var cellEvent = new this.grid.behavior.CellEvent(vc.columnIndex, vr.index),
+            cellEventFromPool = this.findCell(cellEvent);
+        result.cellEvent = cellEventFromPool ? Object.create(cellEventFromPool) : cellEvent;
         result.cellEvent.mousePoint = this.grid.newPoint(x - vc.left, y - vr.top);
 
         if (isPseudoCol || isPseudoRow) {
@@ -382,6 +316,23 @@ var Renderer = Base.extend('Renderer', {
         }
 
         return result;
+    },
+
+    /**
+     * Matrix of unformatted values of visible cells.
+     * @returns {Array<Array>}
+     */
+    getVisibleCellMatrix: function() {
+        var rows = Array(this.visibleRows.length);
+        var adjust = this.grid.behavior.hasTreeColumn() ? 1 : 0;
+        for (var y = 0; y < rows.length; ++y) { rows[y] = Array(this.visibleColumns.length); }
+        this.cellEventPool.forEach(function(cell) {
+            var x = cell.gridCell.x + adjust;
+            if (x >= 0) {
+                rows[cell.gridCell.y][x] = cell.value;
+            }
+        });
+        return rows;
     },
 
     /**
@@ -536,7 +487,7 @@ var Renderer = Base.extend('Renderer', {
      * @memberOf Renderer.prototype
      * @summary Determines visibility of a row.
      * @param {number} rowIndex - The data row index.
-     * @param {dataModelAPI} [subgrid=this.behavior.subgrids.data]
+     * @param {DataModel} [subgrid=this.behavior.subgrids.data]
      * @returns {boolean} The given row is visible.
      */
     isDataRowVisible: function(rowIndex, subgrid) {
@@ -549,11 +500,11 @@ var Renderer = Base.extend('Renderer', {
      * @memberOf Renderer.prototype
      * @summary Find a visible row object.
      * @param {number} rowIndex - The data row index within the given subgrid.
-     * @param {dataModelAPI} [subgrid=this.behavior.subgrids.data]
+     * @param {DataModel} [subgrid=this.behavior.subgrids.data]
      * @returns {object|undefined} The given row if visible or `undefined` if not.
      */
     getVisibleDataRow: function(rowIndex, subgrid) {
-        subgrid = subgrid || this.grid.behavior.subgrids.lookup.data;
+        subgrid = subgrid || this.grid.behavior.dataModel;
         return this.visibleRows.find(function(vr) {
             return vr.subgrid === subgrid && vr.rowIndex === rowIndex;
         });
@@ -573,14 +524,18 @@ var Renderer = Base.extend('Renderer', {
     /**
      * @memberOf Renderer.prototype
      * @desc This is the main forking of the renderering task.
+     *
+     * `dataModel.fetchData` callback renders the grid. Note however that this is not critical when the clock is
+     * running as it will be rendered on the next tick. We let it call it anyway in case (1) fetch returns quickly
+     * enough to be rendered on this tick rather than next or (2) clock isn't running (for debugging purposes).
      * @param {CanvasRenderingContext2D} gc
      */
     renderGrid: function(gc) {
-        this.grid.deferredBehaviorChange();
+        var grid = this.grid;
 
-        gc.beginPath();
+        grid.deferredBehaviorChange();
 
-        var rowCount = this.grid.getRowCount();
+        var rowCount = grid.getRowCount();
         if (rowCount !== this.lastKnowRowCount) {
             var newWidth = resetRowHeaderColumnWidth.call(this, gc, rowCount);
             if (newWidth !== this.handleColumnWidth) {
@@ -593,15 +548,17 @@ var Renderer = Base.extend('Renderer', {
         if (this.needsComputeCellsBounds) {
             computeCellsBounds.call(this);
             this.needsComputeCellsBounds = false;
+
+            // Pre-fetch data if supported by data model
+            if (grid.behavior.dataModel.fetchData) {
+                grid.behavior.dataModel.fetchData(getSubrects.call(this), fetchCompletion.bind(this, gc));
+                return; // skip refresh renderGrid call below
+            }
         }
 
         this.gridRenderer.paintCells.call(this, gc);
-
         this.renderOverrides(gc);
-
         this.renderLastSelection(gc);
-
-        gc.closePath();
     },
 
     renderLastSelection: function(gc) {
@@ -763,16 +720,6 @@ var Renderer = Base.extend('Renderer', {
         return this.grid.getHScrollValue();
     },
 
-    getColumnEdges: function() {
-        this.deprecated('columnEdges', 'The getColumnEdges() mehtod has been deprecated as of version 1.2.0 in favor of visibleColumns[*].top. (Will be removed in a future version.) Note however that columnEdges had one additional element (representing the right edge of the last visible column) which visibleColumns lacks. Instead you can reference visibleColumns[*].bottom.');
-        return this.visibleColumns.map(function(vc) { return vc.left; }).concat([this.visibleColumns[this.visibleColumns.length - 1].right]);
-    },
-
-    getRowEdges: function() {
-        this.deprecated('rowEdges', 'The getRowEdges() method has been deprecated as of version 1.2.0 in favor of visibleRows[*].top. (Will be removed in a future version.) Note however that rowEdges had one additional element (representing the bottom edge of the last visible row) which visibleRows lacks. Instead you can reference visibleRows[*].bottom.');
-        return this.visibleRows.map(function(vr) { return vr.top; }).concat([this.visibleRows[this.visibleRows.length - 1].bottom]);
-    },
-
     /**
      * @memberOf Renderer.prototype
      * @returns {boolean} The last col was rendered (is visible)
@@ -819,14 +766,6 @@ var Renderer = Base.extend('Renderer', {
 
     /**
      * @memberOf Renderer.prototype
-     * @returns {fin-canvas} my [fin-canvas](https://github.com/stevewirts/fin-canvas)
-     */
-    getCanvas: function() {
-        return this.deprecated('getCanvas()', 'grid.canvas', '1.2.2');
-    },
-
-    /**
-     * @memberOf Renderer.prototype
      * @returns {boolean} User is currently dragging a column for reordering.
      */
     isDraggingColumn: function() {
@@ -854,7 +793,7 @@ var Renderer = Base.extend('Renderer', {
      * @returns {number} The row to goto for a page down.
      */
     getPageDownRow: function() {
-        return this.dataWindow.corner.y - this.properties.fixedRowCount + 1;
+        return this.dataWindow.corner.y - this.properties.fixedRowCount;
     },
 
     renderErrorCell: function(err, gc, vc, vr) {
@@ -974,23 +913,6 @@ var Renderer = Base.extend('Renderer', {
     },
 
     /**
-     * @memberOf Renderer.prototype
-     * @param {CanvasRenderingContext2D} gc
-     * @param x
-     * @param y
-     */
-    paintCell: function(gc, x, y) {
-        gc.moveTo(0, 0);
-
-        var c = this.visibleColumns[x].index, // todo refac
-            r = this.visibleRows[y].index;
-
-        if (c) { //something is being viewed at at the moment (otherwise returns undefined)
-            this._paintCell(gc, c, r);
-        }
-    },
-
-    /**
      * @summary Render a single cell.
      * @param {CanvasRenderingContext2D} gc
      * @param {CellEvent} cellEvent
@@ -1002,7 +924,6 @@ var Renderer = Base.extend('Renderer', {
     _paintCell: function(gc, cellEvent, prefillColor) {
         var grid = this.grid,
             selectionModel = grid.selectionModel,
-            behavior = grid.behavior,
 
             isHandleColumn = cellEvent.isHandleColumn,
             isTreeColumn = cellEvent.isTreeColumn,
@@ -1023,7 +944,7 @@ var Renderer = Base.extend('Renderer', {
             x = (config.gridCell = cellEvent.gridCell).x,
             r = (config.dataCell = cellEvent.dataCell).y,
 
-            format,
+            value,
             isSelected;
 
         if (isHandleColumn) {
@@ -1034,34 +955,30 @@ var Renderer = Base.extend('Renderer', {
             config.halign = 'left';
         } else if (isDataRow) {
             isSelected = isCellSelected || isRowSelected || isColumnSelected;
+        } else if (isFilterRow) {
+            isSelected = false;
+        } else if (isColumnSelected) {
+            isSelected = true;
         } else {
-            format = cellEvent.subgrid.format; // subgrid format can override column format
-            if (isFilterRow) {
-                isSelected = false;
-            } else if (isColumnSelected) {
-                isSelected = true;
-            } else {
-                isSelected = selectionModel.isCellSelectedInColumn(x); // header or summary or other non-meta
-            }
+            isSelected = selectionModel.isCellSelectedInColumn(x); // header or summary or other non-meta
         }
 
         // Set cell contents:
         // * For all cells: set `config.value` (writable property)
         // * For cells outside of row handle column: also set `config.dataRow` for use by valOrFunc
+        // * For non-data row tree column cells, do nothing (these cells render blank so value is undefined)
         if (!isHandleColumn) {
-            //Including hierarchyColumn
+            // including tree column
             config.dataRow = cellEvent.dataRow;
-            config.value = cellEvent.value;
-        } else {
-            if (isDataRow) {
-                // row handle for a data row
-                if (config.rowHeaderNumbers) {
-                    config.value = r + 1; // row number is 1-based
-                }
-            } else if (isHeaderRow) {
-                // row handle for header row: gets "master" checkbox
-                config.allRowsSelected = selectionModel.areAllRowsSelected();
+            value = cellEvent.value;
+        } else if (isDataRow) {
+            // row handle for a data row
+            if (config.rowHeaderNumbers) {
+                value = r + 1; // row number is 1-based
             }
+        } else if (isHeaderRow) {
+            // row handle for header row: gets "master" checkbox
+            config.allRowsSelected = selectionModel.areAllRowsSelected();
         }
 
         config.isSelected = isSelected;
@@ -1081,38 +998,61 @@ var Renderer = Base.extend('Renderer', {
         config.isColumnSelected = isColumnSelected;
         config.isInCurrentSelectionRectangle = selectionModel.isInCurrentSelectionRectangle(x, r);
         config.prefillColor = prefillColor;
-        config.mouseDown = grid.mouseDownState && grid.mouseDownState.gridCell.equals(cellEvent.gridCell);
 
-        // compute value if a calculator
-        if (isUserDataArea && !(config.value && config.value.constructor === Array)) { // fastest array determination
-            config.value = config.exec(config.value);
+        if (grid.mouseDownState) {
+            config.mouseDown = grid.mouseDownState.gridCell.equals(cellEvent.gridCell);
         }
 
-        // This call's dataModel.getCell which developer can override to:
-        // * mutate the (writable) properties of `config`
-        // * mutate cell renderer choice (instance of which is returned)
-        var cellRenderer = behavior.dataModel.getCell(config, config.renderer);
+        config.subrow = 0;
 
-        behavior.cellPropertiesPrePaintNotification(config);
+        // subrow logic - coded for efficiency when no subrows (!value.subrows)
+        var isArray = isUserDataArea && value && value.constructor === Array, // fastest array determination
+            subrows = isArray && value.subrows && value.length;
 
-        config.formatValue = grid.getFormatter(format || config.format);
-
-        // Following supports partial render>
-        config.snapshot = cellEvent.snapshot;
-        config.minWidth = cellEvent.minWidth; // in case `paint` aborts before setting `minWidth`
-
-        // Render the cell
-        if (cellRenderer.forEach) {
-            cellRenderer.forEach(function(subrenderer) {
-                subrenderer.paint(gc, config);
-            });
+        if (subrows) {
+            var bounds = config.bounds = Object.assign({}, config.bounds);
+            bounds.height /= subrows;
+            config.subrows = subrows;
+            config.value = config.exec(value[0]);
         } else {
-            cellRenderer.paint(gc, config);
+            subrows = 1;
+            config.value = !isArray && isUserDataArea ? config.exec(value) : value;
         }
 
-        // Following supports partial render:
-        cellEvent.snapshot = config.snapshot;
-        cellEvent.minWidth = config.minWidth;
+        while (true) { // eslint-disable-line
+            // This call's dataModel.getCell which developer can override to:
+            // * mutate the (writable) properties of `config` (including config.value)
+            // * mutate cell renderer choice (instance of which is returned)
+            var cellRenderer = cellEvent.subgrid.getCell(config, config.renderer);
+
+            config.formatValue = grid.getFormatter(config.format);
+
+            config.snapshot = cellEvent.snapshot[config.subrow]; // supports partial render
+
+            config.minWidth = cellEvent.minWidth; // in case `paint` aborts before setting `minWidth`
+
+            // Render the cell
+            if (cellRenderer.forEach) {
+                cellRenderer.forEach(function(subrenderer) {
+                    subrenderer.paint(gc, config);
+                });
+            } else {
+                cellRenderer.paint(gc, config);
+            }
+
+            cellEvent.snapshot[config.subrow] = config.snapshot; // supports partial render
+
+            if (cellEvent.minWidth === undefined || config.minWidth > cellEvent.minWidth) {
+                cellEvent.minWidth = config.minWidth;
+            }
+
+            if (++config.subrow === subrows) {
+                break;
+            }
+
+            bounds.y += bounds.height;
+            config.value = config.exec(value[config.subrow]);
+        }
 
         // Following supports clicking in a renderer-defined Rectangle of a cell (in the cell's local coordinates)
         cellEvent.clickRect = config.clickRect;
@@ -1130,7 +1070,7 @@ var Renderer = Base.extend('Renderer', {
     /**
      * @param {number|CellEvent} colIndexOrCellEvent - This is the "data" x coordinate.
      * @param {number} [rowIndex] - This is the "data" y coordinate. Omit if `colIndexOrCellEvent` is a `CellEvent`.
-     * @param {dataModelAPI} [dataModel=this.grid.behavior.dataModel] Omit if `colIndexOrCellEvent` is a `CellEvent`.
+     * @param {DataModel} [dataModel=this.grid.behavior.dataModel] Omit if `colIndexOrCellEvent` is a `CellEvent`.
      * @returns {CellEvent} The matching `CellEvent` object from the renderer's pool. Returns `undefined` if the requested cell is not currently visible (due to being scrolled out of view).
      */
     findCell: function(colIndexOrCellEvent, rowIndex, dataModel) {
@@ -1168,7 +1108,7 @@ var Renderer = Base.extend('Renderer', {
      * Resets the cell properties cache in the matching `CellEvent` object from the renderer's pool. This will insure that a new cell properties object will be known to the renderer. (Normally, the cache is not reset until the pool is updated by the next call to {@link Renderer#computeCellBounds}).
      * @param {number|CellEvent} xOrCellEvent
      * @param {number} [y]
-     * @param {dataModelAPI} [dataModel=this.grid.behavior.dataModel]
+     * @param {DataModel} [dataModel=this.grid.behavior.dataModel]
      * @returns {CellEvent} The matching `CellEvent` object.
      */
     resetCellPropertiesCache: function(xOrCellEvent, y, dataModel) {
@@ -1200,6 +1140,16 @@ var Renderer = Base.extend('Renderer', {
     }
 });
 
+function fetchCompletion(gc, fetchError) {
+    if (!fetchError) {
+        // STEP 1: Render the grid immediately (before next refresh) just to get column widths
+        // (for better performance this could be done off-screen but this works fine as is)
+        this.gridRenderer.paintCells.call(this, gc);
+        // STEP 2: Re-render upon next refresh with proper column widths
+        this.grid.repaint();
+    }
+}
+
 /**
  * This function creates several data structures:
  * * {@link Renderer#visibleColumns}
@@ -1213,8 +1163,6 @@ var Renderer = Base.extend('Renderer', {
  * @this {Renderer}
  */
 function computeCellsBounds() {
-    //var startTime = Date.now();
-
     var scrollTop = this.getScrollTop(),
         scrollLeft = this.getScrollLeft(),
 
@@ -1459,7 +1407,12 @@ function computeCellsBounds() {
         editorCellEvent._bounds = null;
     }
 
-    this.dataWindow = new InclusiveRectangle(firstVX, firstVY, lastVX - firstVX + 1, lastVY - firstVY + 1);
+    this.dataWindow = new InclusiveRectangle(
+        firstVX,
+        firstVY,
+        Math.min(lastVX - firstVX + 1, this.visibleColumns.length),
+        Math.min(lastVY - firstVY + 1, this.visibleRows.length)
+    );
 
     // Resize CellEvent pool
     var pool = this.cellEventPool,
@@ -1477,6 +1430,41 @@ function computeCellsBounds() {
 }
 
 /**
+ * @summary Create a list of `Rectangle`s representing visible cells.
+ * @desc When `grid.properties.fetchSubregions` is true, this function needs to handle:
+ * 1. unordered columns
+ * 2. column gaps (hidden columns)
+ * 3. the single row gap that results when there are fixed rows and remaining rows are scrolled down
+ *
+ * @ToDo This function currently only handles (1) above; needs (2) (multiple rectangles for multiple contiguous column regions) and (3) (double each region for above and below the fixed boundary when scrolled down) as well. In its present form, it will "fetch" all cells from upper left of fixed area to lower right of scrollable area. (Yikes.)
+ *
+ * When `grid.properties.fetchSubregions` is falsy, this function merely returns `this.dataWindow` as the only rectangle.
+ * This is way more efficient than calling `getSubrects` (as it is currently implemented) and is fine so long as there are no fixed columns or rows and column re-ordering is disabled.
+ * (If tree column in use, it is a fixed column, but this is workable so long as the data model knows to always return it regardless of rectangle.)
+ * Hidden columns within the range of visible columns will be fetched anyway.
+ * Column scrolling is ok.
+ *
+ * @ToDo This function is too slow for practical use due to map and sort.
+ *
+ * @this {Renderer}
+ */
+function getSubrects() {
+    var dw = this.dataWindow;
+    if (!this.grid.properties.fetchSubregions) {
+        var rect = this.grid.newRectangle(dw.left, dw.top, dw.width, dw.height); // convert from InclusiveRect
+        return [rect];
+    }
+
+    var orderedColumnIndexes = this.visibleColumns.map(function(vc) { return vc.column.index; }).sort(intComparator),
+        xMin = orderedColumnIndexes[0],
+        width = orderedColumnIndexes[orderedColumnIndexes.length - 1] - xMin + 1;
+
+    return [this.grid.newRectangle(xMin, dw.top, width, dw.height)];
+}
+
+function intComparator(a, b){ return a - b; }
+
+/**
  * @summary Resize the handle column.
  * @desc Handle column width is sum of:
  * * Width of text the maximum row number, if visible, based on handle column's current font
@@ -1484,8 +1472,8 @@ function computeCellsBounds() {
  * * Some padding
  *
  * @this {Renderer}
- * @param gc
- * @param rowCount
+ * @param {CanvasRenderingContext2D} gc
+ * @param {number} rowCount
  */
 function resetRowHeaderColumnWidth(gc, rowCount) {
     var columnProperties = this.grid.behavior.getColumnProperties(this.grid.behavior.rowColumnIndex),

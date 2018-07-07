@@ -1,22 +1,15 @@
 'use strict';
 
-var pkgjson     = require('./package.json'),
-    gulp        = require('gulp'),
+var gulp        = require('gulp'),
     $$          = require('gulp-load-plugins')(),
-    browserify  = require('browserify'),
-    source      = require('vinyl-source-stream'),
-    buffer      = require('vinyl-buffer'),
     runSequence = require('run-sequence'),
-    browserSync = require('browser-sync').create(),
     exec        = require('child_process').exec,
     path        = require('path'),
-    pipe        = require('multipipe');
+    pkg         = require('./package.json');
 
 var srcDir      = './src/',
     testDir     = './test/',
-    jsFiles     = '**/*.js',
-    demoDir     = './demo/',
-    buildDir    = demoDir + 'build/';
+    jsFiles     = '**/*.js';
 
 //  //  //  //  //  //  //  //  //  //  //  //
 
@@ -24,19 +17,6 @@ gulp.task('lint', lint);
 gulp.task('test', test);
 gulp.task('doc', doc);
 gulp.task('images', swallowImages);
-gulp.task('browserify', bundleUp.bind(null,
-    pkgjson.name,
-    srcDir,
-    buildDir
-));
-gulp.task('browserify-demo', bundleUp.bind(null,
-    'index',
-    './demo/js/demo/',
-    './demo/js/demo/build/'
-));
-
-gulp.task('reloadBrowsers', reloadBrowsers);
-gulp.task('serve', browserSyncLaunchServer);
 
 gulp.task('css-templates', function() {
     return templates('./css/*.css', 'css');
@@ -49,45 +29,21 @@ gulp.task('build', function(callback) {
         'images',
         'css-templates',
         'test',
-        'browserify',
-        'browserify-demo',
         //'doc',
         callback
     );
 });
 
-gulp.task('watch', function () {
-    gulp.watch([
-        srcDir + '**', '!' + srcDir + 'jsdoc/**',
-        './css/*.css',
-        './html/*.html',
-        demoDir + 'js/' + jsFiles, '!' + demoDir + 'js/demo/build/' + jsFiles,
-        testDir + '**'
-    ], [
-        'build'
-    ]);
-
-    gulp.watch([
-        demoDir + '*.html',
-        demoDir + 'css/demo.css',
-        buildDir + '*'
-    ], [
-        'reloadBrowsers'
-    ]);
-});
-
-gulp.task('default', ['build', 'watch'], browserSyncLaunchServer);
+gulp.task('default', ['build']);
 
 //  //  //  //  //  //  //  //  //  //  //  //
 
 function lint() {
     return gulp.src([
         'index.js',
-        srcDir + jsFiles, '!' + srcDir + '**/old/**/',
-        demoDir + 'js/' + jsFiles, '!' + demoDir + 'js/demo/build/' + jsFiles,
-        testDir + jsFiles,
+        srcDir + jsFiles,
+        testDir + jsFiles
     ])
-        .pipe($$.excludeGitignore())
         .pipe($$.eslint())
         .pipe($$.eslint.format())
         .pipe($$.eslint.failAfterError());
@@ -98,50 +54,12 @@ function test(cb) {
         .pipe($$.mocha({reporter: 'spec'}));
 }
 
-function bundleUp(destName, srcDir, buildDir) {
-    var options = {
-        entries: srcDir + 'index.js',
-        debug: true
-    };
-
-    return browserify(options)
-        .bundle()
-        .pipe(source(options.entries)).on('error', $$.util.log)
-        .pipe(buffer())
-        .pipe(
-            $$.mirror(
-                pipe(
-                    $$.rename(destName + '.js')
-                ),
-                pipe(
-                    $$.rename(destName + '.min.js'),
-                    $$.uglify().on('error', $$.util.log)
-                )
-            )
-        )
-        .pipe(gulp.dest(buildDir));
-}
-
 function doc(cb) {
-    exec(path.resolve('jsdoc.sh'), function (err, stdout, stderr) {
+    exec(path.resolve('jsdoc.sh; sed -E "s/Hypergrid API Documentation/Hypergrid ' + pkg.version + ' API Documentation/" <doc/index.html >tmp; mv tmp doc/index.html'), function (err, stdout, stderr) {
         console.log(stdout);
         console.log(stderr);
         cb(err);
     });
-}
-
-function browserSyncLaunchServer() {
-    browserSync.init({
-        server: {
-            // Serve up our build folder
-            baseDir: demoDir
-        },
-        port: 9000
-    });
-}
-
-function reloadBrowsers() {
-    browserSync.reload();
 }
 
 function clearBashScreen() {

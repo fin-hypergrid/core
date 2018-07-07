@@ -93,7 +93,7 @@ function paintCellsByColumnsAndRows(gc) {
 
         // For each row of each subgrid (of each column)...
         for (preferredWidth = r = 0; r < R; r++, p++) {
-            if (!pool[p].disabled) {
+            // if (!pool[p].disabled) {
                 if (rowPrefillColors) {
                     prefillColor = rowPrefillColors[r];
                 }
@@ -103,13 +103,13 @@ function paintCellsByColumnsAndRows(gc) {
                 } catch (e) {
                     this.renderErrorCell(e, gc, vc, pool[p].visibleRow);
                 }
-            }
+            // }
         }
 
         gc.clipRestore(columnClip);
 
         cellEvent.column.properties.preferredWidth = Math.round(preferredWidth);
-    }.bind(this));
+    }, this);
 
     // gc.clipRestore(clipToGrid);
 

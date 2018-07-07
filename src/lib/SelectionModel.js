@@ -4,6 +4,7 @@ var RangeSelectionModel = require('sparse-boolean-array');
 
 var InclusiveRectangle = require('./InclusiveRectangle');
 
+
 /**
  *
  * @constructor
@@ -482,7 +483,7 @@ SelectionModel.prototype = {
         var set = {};
         this.selections.forEach(function(selection) {
             var top = selection.origin.y;
-            var size = selection.extent.y + 1;
+            var size = selection.height;
             for (var r = 0; r < size; r++) {
                 var ti = r + top;
                 if (!set[ti]) {

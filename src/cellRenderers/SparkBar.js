@@ -3,15 +3,11 @@
 var CellRenderer = require('./CellRenderer');
 
 /**
+ * Renders a bar chart sparkline, hence the name.
  * @constructor
  * @extends CellRenderer
  */
 var SparkBar = CellRenderer.extend('SparkBar', {
-
-    /**
-     * @desc A simple implementation of a sparkline, because it's a barchart we've changed the name ;).
-     * @memberOf SparkBar.prototype
-     */
     paint: function(gc, config) {
         var x = config.bounds.x,
             y = config.bounds.y,

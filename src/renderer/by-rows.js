@@ -91,7 +91,7 @@ function paintCellsByRows(gc) {
             }
 
             gc.clipRestore(columnClip);
-        }.bind(this));
+        }, this);
     }
 
     // gc.clipRestore(clipToGrid);

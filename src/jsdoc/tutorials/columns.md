@@ -21,7 +21,7 @@ Notes:
 1. In the above, "fields" is synonymous with "columns."
 2. The `fields[]` array can be explicitly specified when the data source is instantiated. If not specified, the `fields[]` array is automatically derived from the keys of the first data row's hash (`data[0]`). This ensures that the `fields[]` array will always be defined.
 3. When automatically derived from the data, the order of the columns should be considered arbitrary, and not necessarily reflecting the order of the columns in the result set coming from the database. The reason for this is that the order of the members of a hash in JavaScript is inherently undefined.
-4. Hypergrid does not in fact specify an array on instantiation (see `setData()` in dataModels/JSON.js). Therefore, Hypergrid uses the derived list.
+4. Hypergrid does not in fact specify an array on instantiation (see `setData()` in dataModels/Local.js). Therefore, Hypergrid uses the derived list.
 5. The `fields[]` array can also be explicitly (re)set later with `setFields()`, although again, this is not used by Hypergrid and is not needed. The only reason for specifying a `fields[]` array would be to specify an ordered subset of the columns in the data rows. However, Hypergrid now accomplishes this function at a higher level, so the order of the columns in the low-level `fields[]` array is simply unimportant.
 
 ### Column object arrays

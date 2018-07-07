@@ -1,21 +1,22 @@
 'use strict';
 
 var CellRenderer = require('./CellRenderer');
-var images = require('../../images/index');
+var images = require('../../images');
 
 var WHITESPACE = /\s\s+/g;
 
 /**
  * @constructor
+ * @summary The default cell renderer for a vanilla cell.
+ * @desc Great care has been taken in crafting this function as it needs to perform extremely fast.
+ *
+ * Use `gc.cache` instead which we have implemented to cache the graphics context properties. Reads on the graphics context (`gc`) properties are expensive but not quite as expensive as writes. On read of a `gc.cache` prop, the actual `gc` prop is read into the cache once and from then on only the cache is referenced for that property. On write, the actual prop is only written to when the new value differs from the cached value.
+ *
+ * Clipping bounds are not set here as this is also an expensive operation. Instead, we employ a number of strategies to truncate overflowing text and content.
+ *
  * @extends CellRenderer
  */
 var SimpleCell = CellRenderer.extend('SimpleCell', {
-
-    /**
-     * @summary The default cell rendering function for rendering a vanilla cell.
-     * @desc Great care has been taken in crafting this function as it needs to perform extremely fast. Reads on the gc object are expensive but not quite as expensive as writes to it. We do our best to avoid writes, then avoid reads. Clipping bounds are not set here as this is also an expensive operation. Instead, we truncate overflowing text and content by filling a rectangle with background color column by column instead of cell by cell.  This column by column fill happens higher up on the stack in a calling function from fin-hypergrid-renderer.  Take note we do not do cell by cell border rendering as that is expensive.  Instead we render many fewer gridlines after all cells are rendered.
-     * @memberOf SimpleCell.prototype
-     */
     paint: function(gc, config) {
         var val = config.value,
             bounds = config.bounds,

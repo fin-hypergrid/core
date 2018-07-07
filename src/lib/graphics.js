@@ -68,7 +68,7 @@ var ELLIPSIS = '\u2026'; // The "…" (dot-dot-dot) character
  * @param {CanvasRenderingContext2D} gc
  * @param {string} string - Text to measure.
  * @param {number} width - Width of target cell; overflow point.
- * @param {boolean|null|undefined} truncateTextWithEllipsis - See {@link module:defaults.truncateTextWithEllipsis}.
+ * @param {boolean|null|undefined} truncateTextWithEllipsis - _Per {@link module:defaults.truncateTextWithEllipsis}._
  * @param {boolean} [abort=false] - Abort measuring upon overflow. Returned `width` sum will reflect truncated string rather than untruncated string. Note that returned `string` is truncated in either case.
  * @returns {{string:string,width:number}}
  * * `object.string` - `undefined` if it fits; truncated version of provided `string` if it does not.

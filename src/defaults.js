@@ -1,12 +1,8 @@
 'use strict';
 
 var version = require('../package.json').version;
-var graphics = require('./lib/graphics');
 var HypergridError = require('./lib/error');
 
-var COLUMN_ONLY_PROPERTY = 'Attempt to set column-only property on a non-column properties object.';
-
-var warned = {};
 
 var propClassEnum = {
     COLUMNS: 1,
@@ -14,10 +10,12 @@ var propClassEnum = {
     ROWS: 3,
     CELLS: 4
 };
+
 var propClassLayersMap = {
     DEFAULT: [propClassEnum.COLUMNS, propClassEnum.STRIPES, propClassEnum.ROWS, propClassEnum.CELLS],
     NO_ROWS: [propClassEnum.COLUMNS, propClassEnum.CELLS]
 };
+
 
 /**
  * This module lists the properties that can be set on a {@link Hypergrid} along with their default values.
@@ -34,13 +32,6 @@ var defaults = {
      * @memberOf module:defaults
      */
     themeName: 'default',
-
-    set name(x) { throw new HypergridError(COLUMN_ONLY_PROPERTY); },
-    set type(x) { throw new HypergridError(COLUMN_ONLY_PROPERTY); },
-    set header(x) { throw new HypergridError(COLUMN_ONLY_PROPERTY); },
-    set calculator(x) { throw new HypergridError(COLUMN_ONLY_PROPERTY); },
-
-    mixIn: require('overrider').mixIn,
 
     /**
      * The default message to display in front of the canvas when there are no grid rows.
@@ -215,6 +206,14 @@ var defaults = {
      */
     columnHeaderRenderer: 'SimpleCell',
 
+    /**
+     * There is no standard format called "header"; unless defined, defaults to "string" (pass-thru formatter).
+     * @default
+     * @type {string}
+     * @memberOf module:defaults
+     */
+    columnHeaderFormat: 'header',
+
 
     /********** SECTION: ROW HEADER COLORS **********/
 
@@ -368,7 +367,7 @@ var defaults = {
      * @type {string}
      * @memberOf module:defaults
      */
-    filterEditor: undefined,
+    filterEditor: 'TextField',
 
     /**
      * @default
@@ -427,6 +426,7 @@ var defaults = {
     hScrollbarClassPrefix: '',
 
     /**
+     * Horizontal alignment of each cell as interpreted by it's cell renderer.
      * @default
      * @type {string}
      * @memberOf module:defaults
@@ -462,8 +462,9 @@ var defaults = {
 
     /**
      * @summary Name of image to appear at right of cell.
-     * Must be a key from {@link module:images|images}.
-     * @desc Used by {@link SimpleCell} cell renderer.
+     * @desc Must be a key from {@link module:images|images}.
+     *
+     * Used by {@link SimpleCell} cell renderer.
      * @see {@link module:defaults.centerIcon|centerIcon}
      * @see {@link module:defaults.rightIcon|rightIcon}
      * @see {@link module:defaults.iconPadding|iconPadding}
@@ -475,8 +476,9 @@ var defaults = {
 
     /**
      * @summary Name of image to appear at right of cell.
-     * Must be a key from {@link module:images|images}.
-     * @desc Used by {@link SimpleCell} cell renderer.
+     * @desc Must be a key from {@link module:images|images}.
+     *
+     * Used by {@link SimpleCell} cell renderer.
      * @see {@link module:defaults.leftIcon|leftIcon}
      * @see {@link module:defaults.rightIcon|rightIcon}
      * @see {@link module:defaults.iconPadding|iconPadding}
@@ -488,8 +490,9 @@ var defaults = {
 
     /**
      * @summary Name of image to appear at right of cell.
-     * Must be a key from {@link module:images|images}.
-     * @desc Used by {@link SimpleCell} cell renderer.
+     * @desc Must be a key from {@link module:images|images}.
+     *
+     * Used by {@link SimpleCell} cell renderer.
      * @see {@link module:defaults.leftIcon|leftIcon}
      * @see {@link module:defaults.centerIcon|centerIcon}
      * @see {@link module:defaults.iconPadding|iconPadding}
@@ -508,6 +511,21 @@ var defaults = {
     renderFalsy: false,
 
     /**
+     * The name of a transformer function defined in require('synonomous/transformers').
+     *
+     * If the named headerify function is defined, whenever the schema array changes, it is applied each element
+     * (column schema) for each column that does not already have an explicitly defined `header` property.
+     *
+     * When this property does not name a defined headerify function, undefined column headers default to their column names.
+     *
+     * @see lib/headerifiers.js
+     * @default
+     * @type {string}
+     * @memberOf module:defaults
+     */
+    headerify: 'toTitle',
+
+    /**
      * Enable rendering of horizontal grid lines.
      * @default
      * @type {boolean}
@@ -520,7 +538,7 @@ var defaults = {
      * @type {number}
      * @default
      * @memberOf module:defaults
-     * @see {@link module:dynamicPropertyDescriptors.lineWidth}
+     * @see {@link module:dynamicProperties.lineWidth lineWidth}
      */
     gridLinesHWidth: 1,
 
@@ -529,7 +547,7 @@ var defaults = {
      * @type {string}
      * @default
      * @memberOf module:defaults
-     * @see {@link module:dynamicPropertyDescriptors.lineColor}
+     * @see {@link module:dynamicProperties.lineColor lineColor}
      */
     gridLinesHColor: 'rgb(199, 199, 199)',
 
@@ -546,7 +564,7 @@ var defaults = {
      * @type {number}
      * @default
      * @memberOf module:defaults
-     * @see {@link module:dynamicPropertyDescriptors.lineWidth}
+     * @see {@link module:dynamicProperties.lineWidth lineWidth}
      */
     gridLinesVWidth: 1,
 
@@ -555,7 +573,7 @@ var defaults = {
      * @type {string}
      * @default
      * @memberOf module:defaults
-     * @see {@link module:dynamicPropertyDescriptors.lineColor}
+     * @see {@link module:dynamicProperties.lineColor lineColor}
      */
     gridLinesVColor: 'rgb(199, 199, 199)',
 
@@ -584,9 +602,15 @@ var defaults = {
     gridLinesUserDataArea: true,
 
     /**
-     * Set canvas's CSS border to this string as well as `gridBorderLeft`, `gridBorderRight`, `gridBorderTop`, and `gridBorderBottom`.
-     * If set to `true`, uses current `lineWidth` and `lineColor`.
-     * If set to `false`, uses null.
+     * Set canvas's CSS border to this string as well as:
+     * * {@link module:dynamicProperties.gridBorderLeft gridBorderLeft}
+     * * {@link module:dynamicProperties.gridBorderRight gridBorderRight}
+     * * {@link module:dynamicProperties.gridBorderTop gridBorderTop}
+     * * {@link module:dynamicProperties.gridBorderBottom gridBorderBottom}.
+     *
+     * If set to:
+     * `true`: uses current {@link module:dynamicProperties.lineWidth lineWidth} and {@link module:dynamicProperties.lineColor lineColor}
+     * `false`: uses null
      *
      * Caveat: The use of `grid.canvas.canvas.style.boxSizing = 'border-box'` is _not_ recommended due to
      * the fact that the canvas is squashed slightly to accommodate the border resulting in blurred text.
@@ -599,8 +623,10 @@ var defaults = {
 
     /**
      * Set canvas's left CSS border to this string.
-     * If set to `true`, uses current `lineWidth` and `lineColor`.
-     * If set to `false`, uses null.
+     *
+     * If set to:
+     * * `true`: uses current {@link module:dynamicProperties.lineWidth lineWidth} and {@link module:dynamicProperties.lineColor lineColor}
+     * * `false`: uses null
      * @default
      * @type {boolean|string}
      * @memberOf module:defaults
@@ -609,8 +635,10 @@ var defaults = {
 
     /**
      * Set canvas's right CSS border to this string.
-     * If set to `true`, uses current `lineWidth` and `lineColor`.
-     * If set to `false`, uses null.
+     *
+     * If set to:
+     * * `true`: uses current {@link module:dynamicProperties.lineWidth lineWidth} and {@link module:dynamicProperties.lineColor lineColor}
+     * * `false`: uses null
      * @default
      * @type {boolean}
      * @memberOf module:defaults
@@ -619,8 +647,10 @@ var defaults = {
 
     /**
      * Set canvas's top CSS border to this string.
-     * If set to `true`, uses current `lineWidth` and `lineColor`.
-     * If set to `false`, uses null.
+     *
+     * If set to:
+     * * `true`: uses current {@link module:dynamicProperties.lineWidth lineWidth} and {@link module:dynamicProperties.lineColor lineColor}
+     * * `false`: uses null
      * @default
      * @type {boolean}
      * @memberOf module:defaults
@@ -629,8 +659,10 @@ var defaults = {
 
     /**
      * Set canvas's bottom CSS border to this string.
-     * If set to `true`, uses current `lineWidth` and `lineColor`.
-     * If set to `false`, uses null.
+     *
+     * If set to:
+     * * `true`: uses current {@link module:dynamicProperties.lineWidth lineWidth} and {@link module:dynamicProperties.lineColor lineColor}
+     * * `false`: uses null
      * @default
      * @type {boolean}
      * @memberOf module:defaults
@@ -638,7 +670,7 @@ var defaults = {
     gridBorderBottom: false,
 
     /**
-     * Define this property to style rule lines between non-scrollable rows AND scrollable rows differently from `lineWidth`.
+     * Define this property to style rule lines between non-scrollable rows and scrollable rows differently from {@link module:defaults.gridLinesHWidth gridLinesHWidth}.
      * Undefine it to show normal grid line in that position.
      * @default
      * @type {number}
@@ -647,7 +679,9 @@ var defaults = {
     fixedLinesHWidth: 2,
 
     /**
-     * Define this property to render just the edges of the lines between fixed rows & scrollable rows, creating a double-line effect. The value is the thickness of the edges. Typical definition would be `1` in tandem with setting `fixedLinesWidth` to `3`.
+     * Define this property to render just the edges of the lines between non-scrollable rows & scrollable rows, creating a double-line effect.
+     * The value is the thickness of the edges.
+     * Typical definition would be `1` in tandem with setting {@link module:defaults.fixedLinesHWidth fixedLinesHWidth} to `3`.
      * @default
      * @type {number}
      * @memberOf module:defaults
@@ -655,15 +689,15 @@ var defaults = {
     fixedLinesHEdge: undefined, // undefined means no edge effect
 
     /**
-     * Define this property to style rule lines between fixed & scolling rows differently from `lineColor`.
+     * Define this property to style rule lines between fixed & scolling rows differently from {@link module:defaults.gridLinesHColor}.
      * @default
      * @type {cssColor}
      * @memberOf module:defaults
      */
-    fixedLinesHColor: 'rgb(164,164,164)', // ~21% darker than `lineColor` default
+    fixedLinesHColor: 'rgb(164,164,164)', // ~21% darker than {@link module:defaults.gridLinesHColor} default
 
     /**
-     * Define this property to style rule lines between non-scrollable columns AND scrollable columns differently from `lineWidth`.
+     * Define this property to style rule lines between non-scrollable columns and scrollable columns differently from {@link module:defaults.gridLinesVWidth gridLinesVWidth}.
      * Undefine it to show normal grid line in that position.
      * @default
      * @type {number}
@@ -672,7 +706,10 @@ var defaults = {
     fixedLinesVWidth: 2,
 
     /**
-     * Define this property to render just the edges of the lines between fixed & scolling columns, creating a double-line effect. The value is the thickness of the edges. Typical definition would be `1` in tandem with setting `fixedLinesWidth` to `3`.
+     * Define this property to render just the edges of the lines between fixed & scrolling columns, creating a double-line effect.
+     * The value is the thickness of the edges.
+     * Typical definition would be `1` in tandem with setting {@link module:defaults.fixedLinesVWidth fixedLinesVWidth} to `3`.
+     * @see {@link module:defaults.fixedLinesVWidth}
      * @default
      * @type {number}
      * @memberOf module:defaults
@@ -680,12 +717,12 @@ var defaults = {
     fixedLinesVEdge: undefined, // undefined means no edge effect
 
     /**
-     * Define this property to style rule lines between fixed & scolling columns differently from `lineColor`.
+     * Define this property to style rule lines between fixed & scolling columns differently from {@link module:defaults.gridLinesVColor}.
      * @default
      * @type {cssColor}
      * @memberOf module:defaults
      */
-    fixedLinesVColor: 'rgb(164,164,164)', // ~21% darker than `lineColor` default
+    fixedLinesVColor: 'rgb(164,164,164)', // ~21% darker than {@link module:defaults.gridLinesVColor} default
 
     /**
      * Analogous to CSS {@link https://developer.mozilla.org/docs/Web/CSS/box-sizing `box-sizing`} property:
@@ -824,44 +861,6 @@ var defaults = {
         TABSHIFT: 'LEFT'
     },
 
-    /**
-     * Returns any value of `keyChar` that passes the following logic test:
-     * 1. If a non-printable, white-space character, then nav key.
-     * 2. If not (i.e., a normal character), can still be a nav key if not editing on key down.
-     * 3. If not, can still be a nav key if CTRL key is down.
-     *
-     * Note: Callers are typcially only interested in the following values of `keyChar` and will ignore all others:
-     * * `'LEFT'` and `'LEFTSHIFT'`
-     * * `'RIGHT'` and `'RIGHTSHIFT'`
-     * * `'UP'` and `'UPSHIFT'`
-     * * `'DOWN'` and `'DOWNSHIFT'`
-     *
-     * @param {string} keyChar - A value from Canvas's `charMap`.
-     * @param {boolean} [ctrlKey=false] - The CTRL key was down.
-     * @returns {undefined|string} `undefined` means not a nav key; otherwise returns `keyChar`.
-     * @memberOf module:defaults
-     */
-    navKey: function(keyChar, ctrlKey) {
-        var result;
-        if (keyChar.length > 1 || !this.editOnKeydown || ctrlKey) {
-            result = keyChar; // return the mapped value
-        }
-        return result;
-    },
-
-    /**
-     * Returns only values of `keyChar` that, when run through {@link module:defaults.navKeyMap|navKeyMap}, pass the {@link module:defaults.navKey|navKey} logic test.
-     *
-     * @param {string} keyChar - A value from Canvas's `charMap`, to be remapped through {@link module:defaults.navKeyMap|navKeyMap}.
-     * @param {boolean} [ctrlKey=false] - The CTRL key was down.
-     * @returns {undefined|string} `undefined` means not a nav key; otherwise returns `keyChar`.
-     * @memberOf module:defaults
-     */
-    mappedNavKey: function(keyChar, ctrlKey) {
-        keyChar = this.navKeyMap[keyChar];
-        return keyChar && this.navKey(keyChar);
-    },
-
     /** @summary Validation failure feedback.
      * @desc Validation occurs on {@link CellEditor#stopEditing}, normally called on commit (`TAB`, `ENTER`, or any other keys listed in `navKeyMap`).
      *
@@ -900,47 +899,6 @@ var defaults = {
      */
     readOnly: false,
 
-    // inherited by cell renderers
-
-    /**
-     * This function is referenced here so it will be available to the renderer and cell renderers.
-     * @default {@link module:defaults.getTextWidth|getTextWidth}
-     * @type {function}
-     * @memberOf module:defaults
-     */
-    getTextWidth: function(gc, string) {
-        if (!warned.getTextWidth) {
-            warned.getTextWidth = true;
-            console.warn('getTextWidth(gc, string) has been deprecated on the properties (or config) object as of v1.2.4 in favor of the graphics context (aka gc) object and will be removed from the properties object in a future release. Please change your calling context to gc.getTextWidth(string), excluding the first parameter (gc) from your call.');
-        }
-        return graphics.getTextWidth.apply(gc, string);
-    },
-
-    /**
-     * This function is referenced here so it will be available to the renderer and cell renderers.
-     * @default {@link module:defaults.getTextHeight|getTextHeight}
-     * @type {function}
-     * @memberOf module:defaults
-     */
-    getTextHeight: function(font) {
-        if (!warned.getTextHeight) {
-            warned.getTextHeight = true;
-            console.warn('getTextHeight(font) has been deprecated on the properties (or config) object as of v1.2.4 in favor of the graphics context (aka gc) object and will be removed from the properties object in a future release. Please change your calling context to gc.getTextHeight(font).');
-        }
-        return graphics.getTextHeight(font);
-    },
-
-    /**
-     * @summary Execute value if "calculator" (function) or if column has calculator.
-     * @desc This function is referenced here so:
-     * 1. it will be available to the cell renderers.
-     * 2. Its context will naturally be the `config` object
-     * @default {@link module:defaults.exec|exec}
-     * @type {function}
-     * @memberOf module:defaults
-     */
-    exec: exec,
-
     /**
      * @default
      * @type {number}
@@ -959,7 +917,7 @@ var defaults = {
      * @default
      * @type {boolean}
      * @memberOf module:defaults
-     * @see {@link module:dynamicPropertyDescriptors.showRowNumbers}
+     * @see {@link module:dynamicProperties.showRowNumbers}
      */
     rowHeaderNumbers: true,
 
@@ -967,7 +925,7 @@ var defaults = {
      * @default
      * @type {boolean}
      * @memberOf module:defaults
-     * @see {@link module:dynamicPropertyDescriptors.showRowNumbers}
+     * @see {@link module:dynamicProperties.showRowNumbers}
      */
     rowHeaderCheckboxes: true,
 
@@ -1038,6 +996,18 @@ var defaults = {
     selectionRegionOutlineColor: 'rgb(69, 69, 69)',
 
     /**
+     * @summary Whether to automatically expand column width to accommodate widest rendered value.
+     * @desc When truthy for a given column _and_ user has not manually resized it, column will expand to accommodate widest rendered value.
+     *
+     * What's actually happening is (`props` in the following refers to the column's properties):
+     * 1. On each grid render, for all visible columns:
+     *    1. The cell renderer reports back the width of each rendered cell contents.
+     *    2. The largest value for each column is saved (in `props.preferredWidth`).
+     * 2. At the conclusion of the grid render, the renderer calls `grid.gridRenderedNotification`, which calls `grid.behavior.checkColumnAutosizing`, which for all columns for which `props.columnAutosizing` is truthy, determines if the column needs to be widened subject to the following conditions:
+     *    1. If user has not already manually set column width (`props.columnAutosized` is still falsy)
+     *    2. If render width > current width (`props.preferredWidths > props.width`)
+     *    3. If column's max autosizing width is defined and it's greater than render width (`props.peferredWidths < props.columnAutosizingMax`)
+     * 3. If any column width has changed, re-shape the grid with the new column widths and re-render it. As this typically happens before the next monitor refresh, user only sees the final result.
      * @default
      * @type {boolean}
      * @memberOf module:defaults
@@ -1045,6 +1015,9 @@ var defaults = {
     columnAutosizing: true,
 
     /**
+     * @summary Whether to automatically expand row number column width to accommodate widest rendered row number
+     * @desc `grid.properties.rowNumberAutosizing` is the backing store for `grid.behavior.columns[-2].columnAutosizing`.
+     * Supports row number column styling via the `rowNumber_______` grid state properties.
      * @default
      * @type {boolean}
      * @memberOf module:defaults
@@ -1052,6 +1025,9 @@ var defaults = {
     rowNumberAutosizing: true,
 
     /**
+     * @summary Whether to automatically expand row number column width to accommodate widest rendered group label.
+     * @desc `grid.properties.treeColumnAutosizing` is the backing store for `grid.behavior.columns[-1].columnAutosizing`.
+     * Supports tree column styling via the `rowColumn_______` grid state properties.
      * @default
      * @type {boolean}
      * @memberOf module:defaults
@@ -1059,6 +1035,29 @@ var defaults = {
     treeColumnAutosizing: true,
 
     /**
+     * @summary The widest the column will be auto-sized to.
+     * @desc For no limit, set this property to a falsy value such as `undefined` or `0`.
+     *
+     * Note this property only specifies a maximum column width for _auto-sizing;_ it places no limit on manual resizing of column width.
+     * @default
+     * @type {boolean}
+     * @memberOf module:defaults
+     */
+    columnAutosizingMax: 400,
+
+    /**
+     * @summary The widest the tree column will be auto-sized to.
+     * @desc `grid.properties.treeColumnAutosizingMax` is the store for `grid.behavior.columns[-1].columnAutosizingMax`.
+     * Supports tree column styling via the `rowColumn_______` grid state properties.
+     * @default
+     * @type {boolean}
+     * @memberOf module:defaults
+     */
+    treeColumnAutosizingMax: 400,
+
+    /**
+     * @summary Whether text in header cells is wrapped.
+     * @desc For performance reasons, text in data cells is not wrapped. (This is a function of the supplied `SimpleCell` renderer. Override with a custom renderer if you must have wrapped text in data cells.)
      * @default
      * @type {boolean}
      * @memberOf module:defaults
@@ -1295,7 +1294,7 @@ var defaults = {
      *   * _field name_ - Fetches the string from the named field in the same row, assumed to be a URL ready for decorating. (May contain only alphanumerics and underscore; no spaces or other punctuation.)
      *   * _otherwise_ Assumed to contains a URL ready for decorating.
      * * `function` - A function to execute to get the URL ready for decorating. The function is passed a single parameter, `cellEvent`, from which you can get the field `name`, `dataRow`, _etc._
-     * * `Array` - An array to "apply" to {@link https://developer.mozilla.org/en-US/docs/Web/API/Window/open window.open} in its entirety. The first element is interpreted as above for `string` or `function`.
+     * * `Array` - An array to "apply" to {@link https://developer.mozilla.org/docs/Web/API/Window/open window.open} in its entirety. The first element is interpreted as above for `string` or `function`.
      *
      * In the case of `string` or `Array`, the link is further unpacked by {@link module:CellClick.openLink|openLink} and then sent to `grid.windowOpen`.
      *
@@ -1390,19 +1389,6 @@ var defaults = {
      */
     columnsReorderable: true,
 
-    /** @summary Reapply cell properties after `getCell`.
-     * @type {boolean}
-     * @default
-     * @memberOf module:defaults
-     */
-    set reapplyCellProperties(value) {
-        if (!warned.reapplyCellProperties) {
-            console.warn('The `.reapplyCellProperties` property has been deprecated as of v2.1.3 in favor of using the new `.propClassLayers` property. (May be removed in a future version.) This property is now a setter which sets `.propClassLayers` to `.propClassLayersMap.DEFAULT` (grid ← columns ← stripes ← rows ← cells) on truthy or `propClassLayersMap.NO_ROWS` (grid ← columns ← cells) on falsy, which is what you will see on properties stringification. This will give the same effect in most cases as the former property implementation, but not in all cases due to it no longer being applied dynamically. Developers should discontinue use of this property and start specifying `.propClassLayers` instead.');
-            warned.reapplyCellProperties = true;
-        }
-        this.propClassLayers = value ? propClassLayersMap.NO_ROWS : propClassLayersMap.DEFAULT;
-    },
-
     /** @summary Column grab within this number of pixels from top of cell.
      * @type {number}
      * @default
@@ -1450,8 +1436,6 @@ var defaults = {
     rowStripes: undefined,
 
     // for Renderer.prototype.assignProps
-    propClassEnum: propClassEnum,
-    propClassLayersMap: propClassLayersMap,
     propClassLayers: propClassLayersMap.DEFAULT,
 
     /**
@@ -1502,10 +1486,12 @@ var defaults = {
 };
 
 
+var warned = {};
+
 function rowPropertiesDeprecationWarning() {
     if (!warned.rowProperties) {
         warned.rowProperties = true;
-        console.warn('The `rowProperties` property has been deprecated as of v3.0.0 in favor of `rowStripes`. (Will be removed in a future release.)');
+        console.warn('The `rowProperties` property has been deprecated as of v2.1.0 in favor of `rowStripes`. (Will be removed in a future release.)');
     }
 }
 
@@ -1522,22 +1508,120 @@ Object.defineProperties(defaults, {
     }
 });
 
+function columnOnlyError() {
+    throw new HypergridError('Attempt to set/get column-only property on a non-column properties object.');
+}
+
+['name', 'type', 'header', 'calculator'].forEach(function(key) {
+    Object.defineProperty(defaults, key, {
+        set: columnOnlyError
+    });
+});
 
 /** @typedef {string} cssColor
- * @see https://developer.mozilla.org/en-US/docs/Web/CSS/color_value
+ * @see https://developer.mozilla.org/docs/Web/CSS/color_value
  */
 /** @typedef {string} cssFont
- * @see https://developer.mozilla.org/en-US/docs/Web/CSS/font
+ * @see https://developer.mozilla.org/docs/Web/CSS/font
  */
 
+
+/**
+ * Returns any value of `keyChar` that passes the following logic test:
+ * 1. If a non-printable, white-space character, then nav key.
+ * 2. If not (i.e., a normal character), can still be a nav key if not editing on key down.
+ * 3. If not, can still be a nav key if CTRL key is down.
+ *
+ * Note: Callers are typcially only interested in the following values of `keyChar` and will ignore all others:
+ * * `'LEFT'` and `'LEFTSHIFT'`
+ * * `'RIGHT'` and `'RIGHTSHIFT'`
+ * * `'UP'` and `'UPSHIFT'`
+ * * `'DOWN'` and `'DOWNSHIFT'`
+ *
+ * @param {string} keyChar - A value from Canvas's `charMap`.
+ * @param {boolean} [ctrlKey=false] - The CTRL key was down.
+ * @returns {undefined|string} `undefined` means not a nav key; otherwise returns `keyChar`.
+ * @memberOf module:defaults
+ */
+function navKey(keyChar, ctrlKey) {
+    var result;
+    if (keyChar.length > 1 || !this.editOnKeydown || ctrlKey) {
+        result = keyChar; // return the mapped value
+    }
+    return result;
+}
+
+/**
+ * Returns only values of `keyChar` that, when run through {@link module:defaults.navKeyMap|navKeyMap}, pass the {@link module:defaults.navKey|navKey} logic test.
+ *
+ * @param {string} keyChar - A value from Canvas's `charMap`, to be remapped through {@link module:defaults.navKeyMap|navKeyMap}.
+ * @param {boolean} [ctrlKey=false] - The CTRL key was down.
+ * @returns {undefined|string} `undefined` means not a nav key; otherwise returns `keyChar`.
+ * @memberOf module:defaults
+ */
+function mappedNavKey(keyChar, ctrlKey) {
+    keyChar = this.navKeyMap[keyChar];
+    return keyChar && this.navKey(keyChar);
+}
+
+/** @summary Reapply cell properties after `getCell`.
+ * @type {boolean}
+ * @default
+ * @memberOf module:defaults
+ */
+function reapplyCellProperties(value) {
+    if (!warned.reapplyCellProperties) {
+        console.warn('The `.reapplyCellProperties` property has been deprecated as of v2.1.3 in favor of using the new `.propClassLayers` property. (May be removed in a future release.) This property is now a setter which sets `.propClassLayers` to `.propClassLayersMap.DEFAULT` (grid ← columns ← stripes ← rows ← cells) on truthy or `propClassLayersMap.NO_ROWS` (grid ← columns ← cells) on falsy, which is what you will see on properties stringification. This will give the same effect in most cases as the former property implementation, but not in all cases due to it no longer being applied dynamically. Developers should discontinue use of this property and start specifying `.propClassLayers` instead.');
+        warned.reapplyCellProperties = true;
+    }
+    this.propClassLayers = value ? propClassLayersMap.NO_ROWS : propClassLayersMap.DEFAULT;
+}
+
+function deleteProp(propName) {
+    var descriptor = Object.getOwnPropertyDescriptor(this, propName);
+    if (!descriptor) {
+        return false; // own property not found
+    } else if (!descriptor.get) {
+        return delete this[propName]; // non-accessor property found (returns !descriptor.configurable)
+    } else if (descriptor.get.toString().indexOf('.var.')) {
+        this.var[propName] = Object.getPrototypeOf(this)[propName];
+    } else {
+        return true; // property not deletable
+    }
+    this.grid.repaint();
+    return false; // delete was successful
+}
+
+/**
+ * @summary Execute value if "calculator" (function) or if column has calculator.
+ * @desc This function is referenced here so:
+ * 1. It will be available to the cell renderers
+ * 2. Its context will naturally be the `config` object
+ * @default {@link module:defaults.exec|exec}
+ * @method
+ * @param vf - Value or function.
+ * @memberOf module:defaults
+ */
 function exec(vf) {
     if (this.dataRow) {
         var calculator = (typeof vf)[0] === 'f' && vf || this.calculator;
         if (calculator) {
-            vf = calculator(this.dataRow, this.name);
+            vf = calculator(this.dataRow, this.name, this.subrow);
         }
     }
     return vf;
 }
+
+// Add "utility" props so they will be available wherever props are available but make them non-enumerable because they are not real props.
+Object.defineProperties(defaults, {
+    mixIn: { value: require('overrider').mixIn },
+    delete: { value: deleteProp },
+    propClassEnum: { value: propClassEnum },
+    propClassLayersMap: { value: propClassLayersMap },
+    navKey: { value: navKey },
+    mappedNavKey: { value: mappedNavKey },
+    reapplyCellProperties: { set: reapplyCellProperties },
+    exec: { value: exec }
+});
 
 module.exports = defaults;

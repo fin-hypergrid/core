@@ -1,10 +1,7 @@
 /** @typedef Point
- * @see http://openfin.github.io/rectangular/Point.html
+ * @see http://fin-hypergrid.github.io/rectangular/doc/Point.html
  */
 
 /** @typedef Rectangle
- * @see http://openfin.github.io/rectangular/Rectangle.html
- */
-
-/** @typedef {object} dataRowObject
+ * @see http://fin-hypergrid.github.io/rectangular/doc/Rectangle.html
  */

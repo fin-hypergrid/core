@@ -8,7 +8,8 @@ It also highlights a DOM-based custom external editor triggered via hypergrid ev
 <img src="images/README/gridshot04.gif">
 
 ## Table of Contents
-* [Current Release](#current-release-2115---29-june-2018)
+* [Current Release](#current-release-300---7-july-2018)
+* [Distribution](#distribution)
 * [Demos](#demos)
 * [Features](#features)
 * [Testing](#testing)
@@ -16,23 +17,45 @@ It also highlights a DOM-based custom external editor triggered via hypergrid ev
 * [Roadmap](#roadmap)
 * [Contributing](#contributors)
 
-### Current Release (2.1.15 - 29 June 2018)
+### Current Release (3.0.0 - 7 July 2018)
 
-**Hypergrid 2.1.15** includes bug fixes and new features.
+**Hypergrid 3.0.0 includes a revised data model with some breaking changes.**
 
 _For a complete list of changes, see the [release notes](https://github.com/fin-hypergrid/core/releases)._
 
-### Demos
+### Distribution
 
-##### Sample demo
+#### npm module
+Published as a CommonJS module to npmjs.org. Specify SEMVER `"fin-hypergrid": "3.0.0"` (or `"^3.0.0"`) in your package.json file, issue the `npm install` command, and let your bundler (wepback, Browserify) do the rest.
 
-Our [dev testbed](https://fin-hypergrid.github.io/core) demos various features.
+#### Build file
+Published as a pre-bundled build file, which contains a JavaScript [IIFE](https://en.wikipedia.org/wiki/Immediately-invoked_function_expression) that creates (as needed) the global namespace `window.fin` and populates `window.fin.Hypergrid`. See the [CDN index](https://fin-hypergrid.github.io#index) for links.
+
+### Hypergrid demos
+
+The [`fin-hypergrid/build`](https://github.com/fin-hypergrid/build) repo imports (via `require`) Hypergrid to generate the build files. It also hosts the demo source files that test and show off various Hypergrid features. Some of these use the npm module while others use the build file. Working versions of all demos are published to the CDN ([list of links](https://fin-hypergrid.github.io#demos)).
+
+#### Testbench
+
+The [default](https://fin-hypergrid.github.io/core) demo is the Hypergrid [dev testbench](https://fin-hypergrid.github.io/core/demo/index.html) ([source](https://github.com/fin-hypergrid/build/tree/master/testbench)).
+
+#### Simple example
+
+See `example.html` for a very simple example ([repo](https://github.com/fin-hypergrid/build/blob/master/demo/example.html), [demo](https://fin-hypergrid.github.io/core/demo/example.html)):
+
+![](images/README/simple.png)
+
+#### Who else is using Hypergrid?
+
+##### Perspective
+
+The [Perspective](https://github.com/jpmorganchase/perspective) open source project uses Hypergrid v3 (demo links in the README) and does a lot more than Hypergrid alone, such as table pivots and charting.
+
+![](images/README/perspective.png)
 
 ##### Hyperblotter
 
-Hyperblotter is a demo app that shows the capabilities of both OpenFin and Hypergrid.
-
-Check out the Table view on Hyperblotter on a Windows machine via [this installer](https://dl.openfin.co/services/download?fileName=Hyperblotter&config=http://cdn.openfin.co/demos/hyperblotter/app.json).
+[Openfin](http://openfin.co)'s Hyperblotter ([installer](https://dl.openfin.co/services/download?fileName=Hyperblotter&config=http://cdn.openfin.co/demos/hyperblotter/app.json)) is a demo app that shows the capabilities of both OpenFin and Hypergrid.
 
 ![](images/README/Hyperblotter%20Tabled%20Reduced%20Rows.png)
 
