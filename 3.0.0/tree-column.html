@@ -7,7 +7,7 @@
 </head>
 <body>
 
-    <button onclick="grid.plugins.computeEngine.toggleGroups()">Toggle Groups</button>
+    <input type="button" value="Toggle Groups" onclick="grid.plugins.computeEngine.toggleGroups()"><br><br>
     <script src="build/fin-hypergrid.js"></script>
     <script>
         /*
@@ -82,7 +82,7 @@
                 },
 
                 isTreeCol : function (x) {
-                    return x === this.grid.behavior.treeColumnIndex;
+                    return x === grid.behavior.treeColumnIndex;
                 },
 
                 isLeafNode: function (y){
@@ -101,11 +101,11 @@
                   return self.view.length;
                 },
                 //Clicking the drilldown column
-                toggleRow: function (y, expand, event) {
+                toggleRow: function (y, x) {
                     var changed = false,
                         view;
-                    if (this.isTree(event.dataCell.x) && !this.isLeafNode(event.dataCell.y)){
-                        view = self.view[event.dataCell.y];
+                    if (this.isTree(x) && !this.isLeafNode(y)){
+                        view = self.view[y];
                         self.groups[view.key].__EXPANDED = !self.groups[view.key].__EXPANDED;
                         self.buildView();
                         changed = true;
@@ -116,12 +116,12 @@
                 // Not necessary to override cellEditors, up to the user
                 getCellEditorAt : function(x, y, declaredEditorName, cellEvent) {
 
-                    if (cellEvent.isDataCell && !this.grid.behavior.dataModel.isLeafNode(cellEvent.dataCell.y)) {
+                    if (cellEvent.isDataCell && !this.isLeafNode(cellEvent.dataCell.y)) {
                         // Override renderer on parent rows
-                        cellEditor = undefined;
+                        return undefined;
                     }
 
-                    return cellEditor;
+                    return cellEvent.grid.cellEditors.create(declaredEditorName, cellEvent);
                 }
             });
         }
@@ -179,7 +179,7 @@
         };
 
 
-        var grid = new fin.Hypergrid({ Behavior: fin.Hypergrid.require('fin-hypergrid/src/behaviors/JSON') });
+        var grid = new fin.Hypergrid({ Behavior: fin.Hypergrid.require('fin-hypergrid/src/behaviors/Local') });
 
         grid.installPlugins([ComputeEngine]);
         //Passing the underlying data allows the grid to build Column Schema build

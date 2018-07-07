@@ -185,6 +185,6 @@ function add10(dataRow, columnName, subrow) {
     if (val.constructor === Array) { val = val[subrow]; }
     return val + 10;
 }
-})(fin.Hypergrid.require, fin.Hypergrid.modules, fin.$x = {}, fin.Hypergrid);
-fin.Hypergrid.modules.setState = fin.$x;
-delete fin.$x;
+})(fin.Hypergrid.require, fin.$$ = { exports: {} }, fin.$$.exports, fin.Hypergrid);
+fin.Hypergrid.modules.setState = fin.$$.exports;
+delete fin.$$;

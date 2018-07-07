@@ -85,6 +85,6 @@ module.exports = function() {
     return grid;
 
 };
-})(fin.Hypergrid.require, fin.Hypergrid.modules, fin.$x = {}, fin.Hypergrid);
-fin.Hypergrid.modules.formatters = fin.$x;
-delete fin.$x;
+})(fin.Hypergrid.require, fin.$$ = { exports: {} }, fin.$$.exports, fin.Hypergrid);
+fin.Hypergrid.modules.formatters = fin.$$.exports;
+delete fin.$$;

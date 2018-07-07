@@ -205,12 +205,47 @@ Renders all cells over consolidated row backgrounds, if any. Unsuitable as a cli
     </div>
     <label>
         Row height: <input type="range" min="15" max="75" value="34" oninput="nextElementSibling.innerHTML=grid.properties.defaultRowHeight=Number(this.value);grid.behavior.changed()"> (<span>34</span>)
+</label>
+    <div class="radio-group">
+        Horiz. rules:
+        <input type="checkbox" checked oninput="grid.properties.gridLinesH=this.checked;grid.behavior.shapeChanged()">
+        <input type="color" value="brown" onchange="grid.properties.gridLinesHColor=this.value;grid.behavior.shapeChanged()">
+        <input type="range" min="0" max="8" value="1" style="width:24px" oninput="nextElementSibling.innerHTML=grid.properties.gridLinesHWidth=Number(this.value);grid.behavior.shapeChanged()"> (<span>1</span>)
+        Vert. rules:
+        <input type="checkbox" checked oninput="grid.properties.gridLinesV=this.checked;grid.behavior.shapeChanged()">
+        <input type="color" value="brown" onchange="grid.properties.gridLinesVColor=this.value;grid.behavior.shapeChanged()">
+        <input type="range" min="0" max="8" value="1" style="width:24px" oninput="nextElementSibling.innerHTML=grid.properties.gridLinesVWidth=Number(this.value);grid.behavior.shapeChanged()"> (<span>1</span>)
+        Box model:
+        <label title="grid.properties.backgroundColor='white'">
+            <input type="radio" name="box-sizing" value="border-box" onclick="grid.properties.boxSizing=this.value;grid.behavior.shapeChanged()" checked>
+            border-box
+        </label>
+        <label title="grid.properties.backgroundColor='transparent'">
+            <input type="radio" name="box-sizing" value="content-box" onclick="grid.properties.boxSizing=this.value;grid.behavior.shapeChanged()">
+            content-box
+        </label>
+    </div>
+    <label>
+        Fixed columns:
+        <input type="range" min="0" max="4" value="0" style="width:24px" oninput="nextElementSibling.innerHTML=grid.properties.fixedColumnCount=Number(this.value);grid.behavior.shapeChanged()"> (<span>0</span>)
+        Fixed rows:
+        <input type="range" min="0" max="11" value="0" style="width:24px" oninput="nextElementSibling.innerHTML=grid.properties.fixedRowCount=Number(this.value);grid.behavior.shapeChanged()"> (<span>0</span>)
+    </label>
+    <label>
+        Horiz. divider:
+        <input type="color" value="#a4a4a4" onchange="grid.properties.fixedLinesHColor=this.value;grid.behavior.shapeChanged()">
+        <input type="range" min="0" max="12" value="1" style="width:24px" oninput="nextElementSibling.innerHTML=grid.properties.fixedLinesHWidth=Number(this.value);grid.behavior.shapeChanged()"> (<span>1</span>)
+        edge: <input type="range" min="0" max="5" value="0" style="width:22px" oninput="nextElementSibling.innerHTML=grid.properties.fixedLinesHEdge=Number(this.value);grid.behavior.shapeChanged()"> (<span>0</span>)
+        Vert. divider:
+        <input type="color" value="#a4a4a4" onchange="grid.properties.fixedLinesVColor=this.value;grid.behavior.shapeChanged()">
+        <input type="range" min="0" max="12" value="1" style="width:24px" oninput="nextElementSibling.innerHTML=grid.properties.fixedLinesVWidth=Number(this.value);grid.behavior.shapeChanged()"> (<span>1</span>)
+        edge: <input type="range" min="0" max="5" value="0" style="width:22px" oninput="nextElementSibling.innerHTML=grid.properties.fixedLinesVEdge=Number(this.value);grid.behavior.shapeChanged()"> (<span>0</span>)
     </label>
     <label>
         Columns:   <input type="range" id="COLUMNS"   title="" min="1"  max="100" oninput="fixAll()"> (<span></span>) &nbsp;
         Rows:      <input type="range" id="ROWS"      title="" min="10" max="9999" step="10" oninput="fixAll()"> (<span></span>) &nbsp;
-        Precision: <input type="range" id="PRECISION" title="Number of digits." min="1"  max="30" oninput="fixAll()"> (<span></span>) &nbsp;
-        Scale:     <input type="range" id="SCALE"     title="Number of digits to right of decimal point." min="0"  max="10" oninput="fixAll()"> (<span></span>) &nbsp;
+        Precision: <input type="range" id="PRECISION" title="Number of digits." min="1"  max="30" style="width:29px" oninput="fixAll()"> (<span></span>) &nbsp;
+        Scale:     <input type="range" id="SCALE"     title="Number of digits to right of decimal point." min="0"  max="10" style="width:10px" oninput="fixAll()"> (<span></span>) &nbsp;
         <input type="button" value="Reset Data" title="Recreate data using slider values." onclick="init()">
         <input type="button" value="Benchmark Data" title="Set sliders to 100, 9999, 5, 2 and recreate data" onclick="benchmark()">
     </label>
@@ -513,7 +548,7 @@ function change() {
 function simulate(checked) {
     var paintRadioButtons = document.querySelectorAll('[name=paint]'),
         paintOnFlagSetRadioButton = paintRadioButtons[0],
-        paintBlastRadioButton = paintRadioButtons[2]
+        paintBlastRadioButton = paintRadioButtons[2],
         paintBlastLabel = paintBlastRadioButton.parentElement;
 
     if (!checked && paintBlastRadioButton.checked) {

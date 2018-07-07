@@ -1007,7 +1007,28 @@ cell rects are contiguous.</li>
 <h4 class="name" id=".columnAutosizing"><span class="type-signature">(static) </span>columnAutosizing<span class="type-signature"> :boolean</span></h4>
 
 
+<p class="summary"><p>Whether to automatically expand column width to accommodate widest rendered value.</p></p>
 
+
+
+<div class="description">
+    <p>When truthy for a given column <em>and</em> user has not manually resized it, column will expand to accommodate widest rendered value.</p>
+<p>What's actually happening is (<code>props</code> in the following refers to the column's properties):</p>
+<ol>
+<li>On each grid render, for all visible columns:<ol>
+<li>The cell renderer reports back the width of each rendered cell contents.</li>
+<li>The largest value for each column is saved (in <code>props.preferredWidth</code>).</li>
+</ol>
+</li>
+<li>At the conclusion of the grid render, the renderer calls <code>grid.gridRenderedNotification</code>, which calls <code>grid.behavior.checkColumnAutosizing</code>, which for all columns for which <code>props.columnAutosizing</code> is truthy, determines if the column needs to be widened subject to the following conditions:<ol>
+<li>If user has not already manually set column width (<code>props.columnAutosized</code> is still falsy)</li>
+<li>If render width &gt; current width (<code>props.preferredWidths &gt; props.width</code>)</li>
+<li>If column's max autosizing width is defined and it's greater than render width (<code>props.peferredWidths &lt; props.columnAutosizingMax</code>)</li>
+</ol>
+</li>
+<li>If any column width has changed, re-shape the grid with the new column widths and re-render it. As this typically happens before the next monitor refresh, user only sees the final result.</li>
+</ol>
+</div>
 
 
 
@@ -1075,7 +1096,14 @@ cell rects are contiguous.</li>
 <h4 class="name" id=".columnAutosizingMax"><span class="type-signature">(static) </span>columnAutosizingMax<span class="type-signature"> :boolean</span></h4>
 
 
+<p class="summary"><p>The widest the column will be auto-sized to.</p></p>
 
+
+
+<div class="description">
+    <p>For no limit, set this property to a falsy value such as <code>undefined</code> or <code>0</code>.</p>
+<p>Note this property only specifies a maximum column width for <em>auto-sizing;</em> it places no limit on manual resizing of column width.</p>
+</div>
 
 
 
@@ -5580,7 +5608,13 @@ Renderer must have been registered.</p>
 <h4 class="name" id=".headerTextWrapping"><span class="type-signature">(static) </span>headerTextWrapping<span class="type-signature"> :boolean</span></h4>
 
 
+<p class="summary"><p>Whether text in header cells is wrapped.</p></p>
 
+
+
+<div class="description">
+    <p>For performance reasons, text in data cells is not wrapped. (This is a function of the supplied <code>SimpleCell</code> renderer. Override with a custom renderer if you must have wrapped text in data cells.)</p>
+</div>
 
 
 
@@ -8067,7 +8101,14 @@ Format is HTML.</p>
 <h4 class="name" id=".rowNumberAutosizing"><span class="type-signature">(static) </span>rowNumberAutosizing<span class="type-signature"> :boolean</span></h4>
 
 
+<p class="summary"><p>Whether to automatically expand row number column width to accommodate widest rendered row number</p></p>
 
+
+
+<div class="description">
+    <p><code>grid.properties.rowNumberAutosizing</code> is the backing store for <code>grid.behavior.columns[-2].columnAutosizing</code>.
+Supports row number column styling via the <code>rowNumber_______</code> grid state properties.</p>
+</div>
 
 
 
@@ -9332,7 +9373,14 @@ It is not referenced in core.</strong></p>
 <h4 class="name" id=".treeColumnAutosizing"><span class="type-signature">(static) </span>treeColumnAutosizing<span class="type-signature"> :boolean</span></h4>
 
 
+<p class="summary"><p>Whether to automatically expand row number column width to accommodate widest rendered group label.</p></p>
 
+
+
+<div class="description">
+    <p><code>grid.properties.treeColumnAutosizing</code> is the backing store for <code>grid.behavior.columns[-1].columnAutosizing</code>.
+Supports tree column styling via the <code>rowColumn_______</code> grid state properties.</p>
+</div>
 
 
 
@@ -9400,7 +9448,14 @@ It is not referenced in core.</strong></p>
 <h4 class="name" id=".treeColumnAutosizingMax"><span class="type-signature">(static) </span>treeColumnAutosizingMax<span class="type-signature"> :boolean</span></h4>
 
 
+<p class="summary"><p>The widest the tree column will be auto-sized to.</p></p>
 
+
+
+<div class="description">
+    <p><code>grid.properties.treeColumnAutosizingMax</code> is the store for <code>grid.behavior.columns[-1].columnAutosizingMax</code>.
+Supports tree column styling via the <code>rowColumn_______</code> grid state properties.</p>
+</div>
 
 
 

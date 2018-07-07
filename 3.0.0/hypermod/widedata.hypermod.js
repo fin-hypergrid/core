@@ -173,6 +173,6 @@ for (var i = 0; i < numRows/2; i++) {
 exports.states = states;
 exports.firstNames = firstNames;
 exports.lastNames = lastNames;
-})(fin.Hypergrid.require, fin.Hypergrid.modules, fin.$x = {}, fin.Hypergrid);
-fin.Hypergrid.modules.widedata = fin.$x;
-delete fin.$x;
+})(fin.Hypergrid.require, fin.$$ = { exports: {} }, fin.$$.exports, fin.Hypergrid);
+fin.Hypergrid.modules.widedata = fin.$$.exports;
+delete fin.$$;

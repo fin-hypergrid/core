@@ -115,6 +115,6 @@ Demo.prototype = {
 };
 
 module.exports = Demo;
-})(fin.Hypergrid.require, fin.Hypergrid.modules, fin.$x = {}, fin.Hypergrid);
-fin.Hypergrid.modules.Demo = fin.$x;
-delete fin.$x;
+})(fin.Hypergrid.require, fin.$$ = { exports: {} }, fin.$$.exports, fin.Hypergrid);
+fin.Hypergrid.modules.Demo = fin.$$.exports;
+delete fin.$$;
