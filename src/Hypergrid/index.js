@@ -964,7 +964,7 @@ var Hypergrid = Base.extend('Hypergrid', {
         var canvas = this.canvas;
         if (canvas) {
             if (this.properties.repaintImmediately) {
-                canvas.paintNow();
+                this.paintNow();
             } else {
                 canvas.repaint();
             }
@@ -976,7 +976,9 @@ var Hypergrid = Base.extend('Hypergrid', {
      * @desc Paint immediately in this microtask.
      */
     paintNow: function() {
-        this.canvas.paintNow();
+        if (this.behavior.columnsCreated) {
+            this.canvas.paintNow();
+        }
     },
 
     /**
