@@ -181,7 +181,7 @@ exports.mixin = {
     },
 
     fireSyntheticRowHeaderClickedEvent: function(event) {
-        return dispatchEvent.call(this, 'fin-row-header-clicked', true, {}, event);
+        return dispatchGridEvent.call(this, 'fin-row-header-clicked', true, {}, event);
     },
 
     /**
