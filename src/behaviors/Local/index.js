@@ -200,6 +200,7 @@ function createColumns() {
     this.columnEnumSynchronize();
 }
 
-Local.prototype.mixIn(require('../columnEnum').mixin);
+Local.prototype.mixIn(require('./columnEnum').mixin);
+Local.prototype.mixIn.call(Local, require('./columnEnum').mixInShared);
 
 module.exports = Local;
