@@ -3,6 +3,7 @@
 'use strict';
 
 var dispatchGridEvent = require('../lib/dispatchGridEvent');
+var Button = require('../cellRenderers/Button');
 
 /**
  * @summary Grid event support.
@@ -248,7 +249,7 @@ exports.mixin = {
      * @returns {boolean} Proceed; event was not [canceled](https://developer.mozilla.org/docs/Web/API/EventTarget/dispatchEvent#Return_Value `EventTarget.dispatchEvent`).
      */
     fireSyntheticButtonPressedEvent: function(event) {
-        if (event.properties.renderer === 'button') {
+        if (event.cellRenderer instanceof Button) { // Button or subclass thereof?
             if (event.value && event.value.subrows) {
                 var y = event.primitiveEvent.detail.mouse.y - event.bounds.y,
                     subheight = event.bounds.height / event.value.subrows;
@@ -500,18 +501,15 @@ exports.mixin = {
             }
             handleMouseEvent(e, function(mouseEvent) {
                 var isMouseDownCell = this.mouseDownState && this.mouseDownState.gridCell.equals(mouseEvent.gridCell);
-                if (
-                    isMouseDownCell &&
-                    isMousePointInClickRect(mouseEvent)
-                ) {
+                if (isMouseDownCell && mouseEvent.mousePointInClickRect) {
                     mouseEvent.keys = e.detail.keys; // todo: this was in fin-tap but wasn't here
                     if (this.mouseDownState) {
                         this.fireSyntheticButtonPressedEvent(this.mouseDownState);
-                        this.mouseDownState = null;
                     }
                     this.fireSyntheticClickEvent(mouseEvent);
                     this.delegateClick(mouseEvent);
                 }
+                this.mouseDownState = null;
             });
         });
 
@@ -691,7 +689,3 @@ exports.mixin = {
         this.behavior.onKeyUp(this, event);
     },
 };
-
-function isMousePointInClickRect(e) {
-    return !e.clickRect || e.clickRect.contains(e.mousePoint);
-}

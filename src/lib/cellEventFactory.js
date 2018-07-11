@@ -275,6 +275,22 @@ var cellEventProperties = Object.defineProperties({}, { // all props non-enumera
         }
     },
 
+    mousePointInClickRect: {
+        get: function() {
+            var clickRect = 'clickRect' in this ? this.clickRect : this.properties.clickRect;
+            if (!clickRect) {
+                return true;
+            } else if (typeof clickRect.contains === 'function') {
+                return clickRect.contains(this.mousePoint);
+            } else {
+                return (
+                    clickRect.x <= this.mousePoint.x && this.mousePoint.x < clickRect.x + clickRect.width &&
+                    clickRect.y <= this.mousePoint.y && this.mousePoint.y < clickRect.y + clickRect.height
+                );
+            }
+        }
+    },
+
     /** "Visible" means scrolled into view.
      * @type {boolean}
      * @memberOf CellEvent#
