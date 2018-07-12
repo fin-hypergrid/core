@@ -67,7 +67,10 @@ var RowSelection = Feature.extend('RowSelection', {
      */
     handleMouseDown: function(grid, event) {
         var leftClick = !event.primitiveEvent.detail.isRightClick,
-            rowNumberClick = leftClick && grid.properties.showRowNumbers && event.isHandleColumn;
+            rowNumberClick = leftClick &&
+                grid.properties.showRowNumbers &&
+                event.isHandleColumn &&
+                event.mousePointInClickRect;
 
         if (rowNumberClick && !grid.fireSyntheticRowHeaderClickedEvent(event)) {
             return;
@@ -435,7 +438,6 @@ function moveCellSelection(grid) {
         grid.selectionModel.select(x, y, width, height, fireSelectionChangedEvent);
         grid.repaint();
     }
-
 }
 
 module.exports = RowSelection;

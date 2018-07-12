@@ -240,6 +240,8 @@ var Behavior = Base.extend('Behavior', {
             tc = this.treeColumnIndex,
             rc = this.rowColumnIndex;
 
+        this.columnsCreated = false;
+
         schema[tc] = schema[tc] || {};
         schema[tc].index = tc;
         if (schema[tc].name === undefined) { schema[tc].name = this.treeColumnNameDefault; }
@@ -324,6 +326,8 @@ var Behavior = Base.extend('Behavior', {
         if (realImplementation) {
             realImplementation.call(this);
         }
+
+        this.columnsCreated = true;
 
         this.changed();
 
