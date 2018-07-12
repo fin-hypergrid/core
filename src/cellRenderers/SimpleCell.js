@@ -1,6 +1,7 @@
 'use strict';
 
 var CellRenderer = require('./CellRenderer');
+var Rectangle = require('rectangular').Rectangle;
 var images = require('../../images');
 
 var WHITESPACE = /\s\s+/g;
@@ -134,24 +135,34 @@ var SimpleCell = CellRenderer.extend('SimpleCell', {
             valWidth = config.isHeaderRow && config.headerTextWrapping
                 ? renderMultiLineText(gc, config, val, leftPadding, rightPadding)
                 : renderSingleLineText(gc, config, val, leftPadding, rightPadding);
-        } else if (centerIcon) {
+        }
+
+        if (centerIcon) {
             // Measure & draw center icon
             iyoffset = Math.round((height - centerIcon.height) / 2);
-            ixoffset = Math.round((width - centerIcon.width) / 2);
-            gc.drawImage(centerIcon, x + width - ixoffset - centerIcon.width, y + iyoffset);
+            ixoffset = width - Math.round((width - centerIcon.width) / 2) - centerIcon.width;
+            gc.drawImage(centerIcon, x + ixoffset, y + iyoffset);
             valWidth = iconPadding + centerIcon.width + iconPadding;
+            if (config.hotIcon === 'center') {
+                config.clickRect = new Rectangle(ixoffset, iyoffset, centerIcon.width, centerIcon.height);
+            }
         }
+
 
         if (leftIcon) {
             // Draw left icon
             iyoffset = Math.round((height - leftIcon.height) / 2);
             gc.drawImage(leftIcon, x + iconPadding, y + iyoffset);
+            if (config.hotIcon === 'left') {
+                config.clickRect = new Rectangle(iconPadding, iyoffset, leftIcon.width, leftIcon.height);
+            }
         }
 
         if (rightIcon) {
             // Repaint background before painting right icon, because text may have flowed under where it will be.
             // This is a work-around to clipping which is too expensive to perform here.
-            var rightX = x + width - (rightIcon.width + iconPadding);
+            ixoffset = width - (rightIcon.width + iconPadding);
+            var rightX = x + ixoffset;
             if (inheritsBackgroundColor) {
                 foundationColor = true;
                 colors.unshift(config.backgroundColor);
@@ -161,6 +172,9 @@ var SimpleCell = CellRenderer.extend('SimpleCell', {
             // Draw right icon
             iyoffset = Math.round((height - rightIcon.height) / 2);
             gc.drawImage(rightIcon, rightX, y + iyoffset);
+            if (config.hotIcon === 'right') {
+                config.clickRect =  new Rectangle(ixoffset, iyoffset, rightIcon.width, rightIcon.height);
+            }
         }
 
         if (config.cellBorderThickness) {

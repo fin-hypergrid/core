@@ -8,7 +8,7 @@ It also highlights a DOM-based custom external editor triggered via hypergrid ev
 <img src="images/README/gridshot04.gif">
 
 ## Table of Contents
-* [Current Release](#current-release-300---7-july-2018)
+* [Current Release](#current-release-301---10-july-2018)
 * [Distribution](#distribution)
 * [Demos](#demos)
 * [Features](#features)
@@ -17,16 +17,16 @@ It also highlights a DOM-based custom external editor triggered via hypergrid ev
 * [Roadmap](#roadmap)
 * [Contributing](#contributors)
 
-### Current Release (3.0.0 - 7 July 2018)
+### Current Release (3.0.1 - 10 July 2018)
 
-**Hypergrid 3.0.0 includes a revised data model with some breaking changes.**
+**Hypergrid 3.0 includes a revised data model with some breaking changes.**
 
 _For a complete list of changes, see the [release notes](https://github.com/fin-hypergrid/core/releases)._
 
 ### Distribution
 
 #### npm module
-Published as a CommonJS module to npmjs.org. Specify SEMVER `"fin-hypergrid": "3.0.0"` (or `"^3.0.0"`) in your package.json file, issue the `npm install` command, and let your bundler (wepback, Browserify) do the rest.
+Published as a CommonJS module to npmjs.org. Specify SEMVER `"fin-hypergrid": "3.0.1"` (or `"^3.0.1"`) in your package.json file, issue the `npm install` command, and let your bundler (wepback, Browserify) do the rest.
 
 #### Build file
 Published as a pre-bundled build file, which contains a JavaScript [IIFE](https://en.wikipedia.org/wiki/Immediately-invoked_function_expression) that creates (as needed) the global namespace `window.fin` and populates `window.fin.Hypergrid`. See the [CDN index](https://fin-hypergrid.github.io#index) for links.
