@@ -4,6 +4,7 @@ var Behavior = require('../Behavior');
 
 /** @memberOf Local~
  * @default require('datasaur-local')
+ * @type {function|function[]}
  * @summary Default data model.
  * @desc The default data model for newly instantiated `Hypergrid` objects without `DataModel` or `dataModel` options specified. Scheduled for eventual deprecation at which point one of the options will be required.
  */
@@ -91,24 +92,24 @@ var Local = Behavior.extend('Local', {
      * Create a new data model
      * @param {object} [options]
      * @param {DataModel} [options.dataModel] - A fully instantiated data model object.
-     * @param {function} [options.DataModel=require('datasaur-local')] - Data model will be instantiated from this constructor unless `options.dataModel` was given.
+     * @param {function|function[]} [options.DataModel=DefaultDataModel] - Data model constructor, or array of data model constructors for a multi-stage data model, to be used to instantiate the data model unless a fully instantiated `options.dataModel` was given.
      * @returns {boolean} `true` if the data model has changed.
      * @memberOf Local#
      */
     getNewDataModel: function(options) {
-        var newDataModel;
+        var dataModel;
 
         options = options || {};
 
         if (options.dataModel) {
-            newDataModel = options.dataModel;
-        } else if (options.DataModel) {
-            newDataModel = new options.DataModel;
+            dataModel = options.dataModel;
         } else {
-            newDataModel = new DefaultDataModel;
+            [].concat(options.DataModel || DefaultDataModel).forEach(function(DataModel) {
+                dataModel = new DataModel(dataModel);
+            });
         }
 
-        return newDataModel;
+        return dataModel;
     },
 
     /**
