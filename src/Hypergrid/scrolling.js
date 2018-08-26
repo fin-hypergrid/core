@@ -230,6 +230,7 @@ exports.mixin = {
             orientation: 'vertical',
             deltaYFactor: this.constructor.defaults.wheelVFactor,
             onchange: self.setVScrollValue.bind(self),
+            cssStylesheetReferenceElement: this.div,
             paging: {
                 up: self.pageUp.bind(self),
                 down: self.pageDown.bind(self)
