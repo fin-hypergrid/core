@@ -174,8 +174,13 @@ var Renderer = Base.extend('Renderer', {
         this.lastKnowRowCount = undefined;
     },
 
-    computeCellsBounds: function() {
-        this.needsComputeCellsBounds = true;
+    computeCellsBounds: function(immediate) {
+        if (immediate) {
+            computeCellsBounds.call(this);
+            this.needsComputeCellsBounds = false;
+        } else {
+            this.needsComputeCellsBounds = true;
+        }
     },
 
     /**
