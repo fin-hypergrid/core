@@ -160,15 +160,14 @@ var ColumnMoving = Feature.extend('ColumnMoving', {
     handleMouseDown: function(grid, event) {
         if (
             grid.properties.columnsReorderable &&
-            !event.isColumnFixed
+            !event.primitiveEvent.detail.isRightClick &&
+            !event.isColumnFixed &&
+            event.isHeaderCell
         ) {
-            if (event.isHeaderCell) {
-                this.dragArmed = true;
-                this.cursor = GRABBING;
-                grid.clearSelections();
-            }
-        }
-        if (this.next) {
+            this.dragArmed = true;
+            this.cursor = GRABBING;
+            grid.clearSelections();
+        } else if (this.next) {
             this.next.handleMouseDown(grid, event);
         }
     },
