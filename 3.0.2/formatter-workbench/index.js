@@ -1,6 +1,6 @@
 'use strict';
 
-var grid, tabBars, tutorial;
+var grid, tabBar, tutorial;
 
 window.onload = function() {
     var NEW = '(New)';
@@ -29,9 +29,9 @@ window.onload = function() {
 
     grid = new fin.Hypergrid();
 
-    tabBars = document.querySelectorAll('.curvy-tabs-container');
+    var tabBars = document.querySelectorAll('.curvy-tabs-container');
 
-    var tabBar = new CurvyTabs(tabBars[0]);
+    tabBar = new CurvyTabs(tabBars[0]);
     tabBar.paint();
 
     tutorial = new Tutorial(tabBars[1], 'tutorial/', 19);
