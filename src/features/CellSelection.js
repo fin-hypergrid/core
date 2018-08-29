@@ -108,9 +108,10 @@ var CellSelection = Feature.extend('CellSelection', {
         if (handler) {
             handler.call(this, grid, detail);
 
-            // STEP 2: Open the cell editor at the new position if it has `editOnNextCell` and is `editable`
-            cellEvent = grid.getGridCellFromLastSelection(true); // new cell
+            // STEP 2: Open the cell editor at the new position if `editable` AND edited cell had `editOnNextCell`
             if (cellEvent.properties.editOnNextCell) {
+                grid.renderer.computeCellsBounds(true); // moving selection may have auto-scrolled
+                cellEvent = grid.getGridCellFromLastSelection(); // new cell
                 grid.editAt(cellEvent); // succeeds only if `editable`
             }
 

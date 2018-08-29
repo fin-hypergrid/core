@@ -174,8 +174,13 @@ var Renderer = Base.extend('Renderer', {
         this.lastKnowRowCount = undefined;
     },
 
-    computeCellsBounds: function() {
-        this.needsComputeCellsBounds = true;
+    computeCellsBounds: function(immediate) {
+        if (immediate) {
+            computeCellsBounds.call(this);
+            this.needsComputeCellsBounds = false;
+        } else {
+            this.needsComputeCellsBounds = true;
+        }
     },
 
     /**
@@ -285,7 +290,7 @@ var Renderer = Base.extend('Renderer', {
             vrs = this.visibleRows,
             vcs = this.visibleColumns,
             firstColumn = vcs[this.grid.behavior.leftMostColIndex],
-            inFirstColumn = x < firstColumn.right,
+            inFirstColumn = firstColumn && x < firstColumn.right,
             vc = inFirstColumn ? firstColumn : vcs.findWithNeg(function(vc) { return x < vc.right; }),
             vr = vrs.find(function(vr) { return y < vr.bottom; }),
             result = {fake: false};
@@ -833,31 +838,46 @@ var Renderer = Base.extend('Renderer', {
                 gridLinesHColor = gridProps.gridLinesHColor,
                 borderBox = gridProps.boxSizing === 'border-box';
 
-            if (gridProps.gridLinesV && (gridProps.gridLinesColumnHeader || gridProps.gridLinesUserDataArea)) {
+            if (
+                gridProps.gridLinesV && ( // drawing vertical grid lines?
+                    gridProps.gridLinesUserDataArea || // drawing vertical grid lines between data columns?
+                    gridProps.gridLinesColumnHeader // drawing vertical grid lines between header columns?
+                )
+            ) {
                 var gridLinesVWidth = gridProps.gridLinesVWidth,
                     headerRowCount = this.grid.getHeaderRowCount(),
-                    userDataAreaTop = visibleRows[headerRowCount].top,
+                    lastHeaderRow = visibleRows[headerRowCount - 1], // any header rows?
+                    firstDataRow = visibleRows[headerRowCount], // any data rows?
+                    userDataAreaTop = firstDataRow && firstDataRow.top,
                     top = gridProps.gridLinesColumnHeader ? 0 : userDataAreaTop,
-                    bottom = gridProps.gridLinesUserDataArea ? viewHeight : visibleRows[headerRowCount - 1].bottom;
+                    bottom = gridProps.gridLinesUserDataArea ? viewHeight : lastHeaderRow && lastHeaderRow.bottom;
 
-                gc.cache.fillStyle = gridLinesVColor;
+                if (top !== undefined && bottom !== undefined) { // either undefined means nothing to draw
+                    gc.cache.fillStyle = gridLinesVColor;
 
-                visibleColumns.forEachWithNeg(function(vc, c) {
-                    if (
-                        vc && // tree column may not be defined
-                        c < C1 // don't draw rule after last column
-                    ) {
-                        var x = vc.right,
-                            lineTop = Math.max(top, vc.top || 0), // vc.top may be set by grouped headers plug-in
-                            height = Math.min(bottom, vc.bottom || Infinity) - lineTop;
-                        if (borderBox) { x -= gridLinesVWidth; }
-                        gc.fillRect(x, lineTop, gridLinesVWidth, height);
+                    visibleColumns.forEachWithNeg(function(vc, c) {
+                        if (
+                            vc && // tree column may not be defined
+                            c < C1 // don't draw rule after last column
+                        ) {
+                            var x = vc.right,
+                                lineTop = Math.max(top, vc.top || 0), // vc.top may be set by grouped headers plug-in
+                                height = Math.min(bottom, vc.bottom || Infinity) - lineTop; // vc.bottom may be set by grouped headers plug-in
 
-                        if (gridProps.gridLinesUserDataArea && vc.bottom < userDataAreaTop) {
-                            gc.fillRect(x, userDataAreaTop, gridLinesVWidth, bottom - userDataAreaTop);
+                            if (borderBox) {
+                                x -= gridLinesVWidth;
+                            }
+
+                            // draw a single vertical grid line between both header and data cells OR a line segment in header only
+                            gc.fillRect(x, lineTop, gridLinesVWidth, height);
+
+                            // when above drew a line segment in header (vc.bottom defined AND higher up), draw a second vertical grid line between data cells
+                            if (gridProps.gridLinesUserDataArea && vc.bottom < userDataAreaTop) {
+                                gc.fillRect(x, userDataAreaTop, gridLinesVWidth, bottom - userDataAreaTop);
+                            }
                         }
-                    }
-                });
+                    });
+                }
             }
 
             if (
@@ -875,7 +895,9 @@ var Renderer = Base.extend('Renderer', {
                 visibleRows.forEach(function(vr, r) {
                     if (r < R1) { // don't draw rule below last row
                         var y = vr.bottom;
-                        if (borderBox) { y -= gridLinesHWidth; }
+                        if (borderBox) {
+                            y -= gridLinesHWidth;
+                        }
                         gc.fillRect(left, y, right - left, gridLinesHWidth);
                     }
                 });
