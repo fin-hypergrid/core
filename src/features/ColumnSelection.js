@@ -421,7 +421,7 @@ var ColumnSelection = Feature.extend('ColumnSelection', {
 
     isColumnDragging: function(grid) {
         var dragger = grid.lookupFeature('ColumnMoving');
-        return dragger && dragger.dragging && !this.dragging;
+        return dragger && (dragger.dragging || dragger.dragArmed); //&& !this.dragging;
     }
 
 });

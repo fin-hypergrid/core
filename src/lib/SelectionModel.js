@@ -154,9 +154,7 @@ SelectionModel.prototype = {
         }
         this.setLastSelectionType('cell');
 
-        if (!silent) {
-            this.grid.selectionChanged();
-        }
+        this.grid.selectionChanged(silent);
     },
 
     /**
@@ -168,17 +166,14 @@ SelectionModel.prototype = {
      */
     toggleSelect: function(ox, oy, ex, ey) {
 
-        var selected, index;
-
-        selected = this.selections.find(function(selection, idx) {
-            index = idx;
+        var index = this.selections.findIndex(function(selection) {
             return (
                 selection.origin.x === ox && selection.origin.y === oy &&
                 selection.extent.x === ex && selection.extent.y === ey
             );
         });
 
-        if (selected) {
+        if (index >= 0) {
             this.selections.splice(index, 1);
             this.flattenedX.splice(index, 1);
             this.flattenedY.splice(index, 1);
@@ -335,6 +330,8 @@ SelectionModel.prototype = {
             this.rowSelectionModel.clear();
         } else if (this.lastSelectionType.indexOf('row') >= 0) {
             this.lastSelectionType = ['row'];
+        } else {
+            this.lastSelectionType.length = 0;
         }
         //this.getGrid().selectionChanged();
     },

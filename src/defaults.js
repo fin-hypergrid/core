@@ -761,6 +761,26 @@ var defaults = {
      */
     minimumColumnWidth: 5,
 
+    /**
+     * Resizing a column through the UI (by clicking and dragging on the column's
+     * right border in the column header row) normally affects the width of the whole grid.
+     *
+     * Set this new property to truthy to inversely resize the next column.
+     * In other words, if user expands (say) the third column, then the fourth column will contract —
+     * and _vice versa_ — without therefore affecting the width of the grid.
+     *
+     * This is a _column propert_ and may be set for selected columns (`myColumn.properties.resizeColumnInPlace`)
+     * or for all columns by setting it at the grid level. (`myGrid.properties.resizeColumnInPlace`).
+     *
+     * Note that the implementation of this property does not allow expanding a
+     * column beyond the width it can borrow from the next column.
+     * The last column, however, is unconstrained and resizing it will affect the total grid width.
+     * @default
+     * @type {boolean}
+     * @memberOf module:defaults
+     */
+    resizeColumnInPlace: false,
+
     //for immediate painting, set these values to 0, true respectively
 
     /**

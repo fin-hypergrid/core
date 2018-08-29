@@ -9,8 +9,6 @@ var transformers = require('synonomous/transformers');
 
 var warned = {};
 
-var columnEnumKey = function() {};
-
 function warnColumnEnumDeprecation(method, msg) {
     if (!warned[method]) {
         console.warn('.' + method + ' has been deprecated as of v3.0.0. (Will be removed in a future release.) ' + (msg || ''));
@@ -62,14 +60,14 @@ exports.mixin = {
                 if (transformer === 'passThrough') {
                     transformer = 'verbatim';
                 } else if (!(transformer in transformers)) {
-                    throw new this.HypergridError('Expected registered transformer for .columnEnumKey value from: ' + keys)
+                    throw new this.HypergridError('Expected registered transformer for .columnEnumKey value from: ' + keys);
                 }
                 this._columnEnumKey = transformer;
                 break;
             case 'function':
                 this._columnEnumKey = keys.find(function(key) { return transformer === transformers[key]; });
                 if (!this._columnEnumKey) {
-                    throw new this.HypergridError('.columnEnumKey has been deprecated as of v3.0.0 and now accepts a function reference (or string key) from require("synonmous/transformers"): ' + keys)
+                    throw new this.HypergridError('.columnEnumKey has been deprecated as of v3.0.0 and now accepts a function reference (or string key) from require("synonmous/transformers"): ' + keys);
                 }
                 break;
             default:

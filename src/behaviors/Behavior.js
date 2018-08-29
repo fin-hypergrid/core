@@ -349,7 +349,8 @@ var Behavior = Base.extend('Behavior', {
      * @memberOf Hypergrid#
      */
     setColumnWidth: function(columnOrIndex, width) {
-        var column = columnOrIndex >= -2 ? this.getActiveColumn(columnOrIndex) : columnOrIndex;
+        var column = columnOrIndex >= -2 ? // relation operator tests for number (index) vs column (object)
+            this.getActiveColumn(columnOrIndex) : columnOrIndex;
         column.setWidth(width);
         this.stateChanged();
     },

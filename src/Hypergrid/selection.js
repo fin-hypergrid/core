@@ -537,17 +537,18 @@ exports.mixin = {
      * @memberOf Hypergrid#
      * @desc Synthesize and dispatch a `fin-selection-changed` event.
      */
-    selectionChanged: function() {
+    selectionChanged: function(silent) {
         // Project the cell selection into the rows
         this.selectRowsFromCells();
 
         // Project the cell selection into the columns
         this.selectColumnsFromCells();
 
-        var selectionEvent = new CustomEvent('fin-selection-changed', {
-            detail: this.selectionDetailGetters
-        });
-        this.canvas.dispatchEvent(selectionEvent);
+        if (!silent) {
+            this.canvas.dispatchEvent(new CustomEvent('fin-selection-changed', {
+                detail: this.selectionDetailGetters
+            }));
+        }
     },
 
     isColumnOrRowSelected: function() {
