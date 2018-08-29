@@ -17,7 +17,7 @@ It also highlights a DOM-based custom external editor triggered via hypergrid ev
 * [Roadmap](#roadmap)
 * [Contributing](#contributors)
 
-### Current Release (3.0.1 - 10 July 2018)
+### Current Release (3.0.2 - 29 August 2018)
 
 **Hypergrid 3.0 includes a revised data model with some breaking changes.**
 
@@ -25,19 +25,35 @@ _For a complete list of changes, see the [release notes](https://github.com/fin-
 
 ### Distribution
 
-#### npm module
-Published as a CommonJS module to npmjs.org. Specify SEMVER `"fin-hypergrid": "3.0.1"` (or `"^3.0.1"`) in your package.json file, issue the `npm install` command, and let your bundler (wepback, Browserify) do the rest.
+#### npm module _(recommended)_
+Published as a CommonJS module to npmjs.org.
+Specify a <a href="https://semver.org/">SEMVER</a> of `"fin-hypergrid": "3.0.2"` (or `"^3.0.2"`) in your package.json file,
+issue the `npm install` command, and let your bundler (<a target="webpack" href="https://webpack.js.org/">wepback</a>,
+<a target="browserify" href="http://browserify.org/">Browserify</a>) create a single file containing both Hypergrid and your application.
 
-#### Build file
-Published as a pre-bundled build file, which contains a JavaScript [IIFE](https://en.wikipedia.org/wiki/Immediately-invoked_function_expression) that creates (as needed) the global namespace `window.fin` and populates `window.fin.Hypergrid`. See the [CDN index](https://fin-hypergrid.github.io#index) for links.
+#### Build files _(for small and informal examples and proofs-of-concept)_
+Also published as pre-bundled build files (`fin-hypergrid.js` and `fin-hypergrid.min.js`) to the GitHub CDN.
+See the [CDN index](https://fin-hypergrid.github.io#index) for links.
 
-### Hypergrid demos
+Contains a JavaScript [IIFE](https://en.wikipedia.org/wiki/Immediately-invoked_function_expression)
+that creates (as needed) the global namespace `window.fin` and populates `window.fin.Hypergrid`.
+Your application would load one of these pre-bundled build files (in a `<script>` tag),
+plus each of its own modules (or a single bundled build of all of its own its own modules).
 
-The [`fin-hypergrid/build`](https://github.com/fin-hypergrid/build) repo imports (via `require`) Hypergrid to generate the build files. It also hosts the demo source files that test and show off various Hypergrid features. Some of these use the npm module while others use the build file. Working versions of all demos are published to the CDN ([list of links](https://fin-hypergrid.github.io#demos)).
+### Demos
+
+_The [`fin-hypergrid/build`](https://github.com/fin-hypergrid/build) repo generates the build files.
+It also hosts the demo source files that test and show off various Hypergrid features.
+Some of these use the npm module while others use the bundled build file.
+Working versions of all demos are published to the CDN ([list of links](https://fin-hypergrid.github.io#demos))._
 
 #### Testbench
 
 The [default](https://fin-hypergrid.github.io/core) demo is the Hypergrid [dev testbench](https://fin-hypergrid.github.io/core/demo/index.html) ([source](https://github.com/fin-hypergrid/build/tree/master/testbench)).
+
+(This app bundles the npm module plus all of its own modules together into a single file (`testbench.js`).
+For illustrative purposes, [this alternate version](https://fin-hypergrid.github.io/core/demo/hypermods.html) loads
+the pre-bundled build file `fin-hypergrid.js` plus specially IIFE-wrapped versions of each its own modules discretely.)
 
 #### Simple example
 
