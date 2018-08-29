@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" href="tutorial.css">
+  <script src="index.js"></script>
+</head>
+<body>
+
+<h2 class="continued">State tab</h2>
+
+This page reviews some Hypergrid properties basics, including:
+<ul>
+  <li>Using a grid state object to declaratively set properties on other objects (column properties, row properties, cell properties)</li>
+  <li>The properties cascade</li>
+</ul>
+
+<h3>Setting column properties declaratively</h3>
+
+<p>In addition to properties on the grid proper, properties on individual columns can also be set declaratively (that is, through grid state), keyed by column name.</p>
+
+To set properties on a column using a state object, for example the <code>prevclose</code> column:
+<pre>{
+    columns: {
+        prevclose: {
+            propName: 'value'
+        }
+    }
+}</pre>
+
+<div class="note">
+  <code>columns</code> is a dynamic property (a setter) and actually sets individual column's <code>properties</code> objects.
+  That is, <code>columns</code> is not an object of grid properties;
+  there is no such thing as <code style="text-decoration:line-through">grid.properties.columns</code>.
+</div>
+
+<h3>Setting row and cell properties declaratively</h3>
+
+<p>
+  Similarly, we can also set properties on rows and cells through grid state.
+  In these cases, you also need to specify the subgrid (usually <code>data</code>), as row numbers are local to subgrids.
+</p>
+
+To set properties on a data row using a state object, for example on the fourth data row:
+<pre>{
+    rows: {
+        data: {
+            3: {
+                propName: 'value'
+            }
+        }
+    }
+}</pre>
+
+<p>
+  To set properties on a data cell using a state object, for example the cell at the intersection of the fourth data row and the <code>prevclose</code> column:
+</p>
+<pre>{
+    cells: {
+        data: {
+            3: {
+                prevclose: {
+                    propName: 'value'
+                }
+            }
+        }
+    }
+}</pre>
+
+<div clas="note">
+  Although column (or row, or cell) properties can be set via <code>grid.setState</code>, this method is not appropriate when your app’s columns (or rows, or cells) are not static. When you don’t know about the columns in advance, you can set column properties by other means, such as programmatically, or by loading and setting column properties objects, <i>etc.</i>
+</div>
+
+<h3>Properties cascade</h3>
+Hypergrid's property objects have useful prototype chains. For example:
+<ul>
+  <li>A property set on a specific cell would override the same property set on the cell’s column.</li>
+  <li>A property set on a specific column would override the same property set on the grid.</li>
+  <li>A property set on the grid would override the same property set on an active theme or the property's default value.</li>
+</ul>
+
+For example, in the following all cells use the <code>currency</code> localizer <em>except</em> cells in column <code>prevclose</code> which use the <code>pct</code> localizer:
+<pre>grid.setState({
+  format: 'currency', // grid property that affects all cells
+  columns: {
+    prevclose: {
+      format: 'pct' // affects specific column, overriding above
+    }
+  }
+});</pre>
+
+See the <a target="prop-wiki" href="https://github.com/fin-hypergrid/core/wiki/Grid-Properties" style="font-style:italic">Grid Properties</a> wiki for details.
+
+<div class="note">
+  For rendering purposes, the order of the cascade can differ from the natural prototype chain order.
+  The precise order of the properties cascade can be overridden at rendering time on a cell-by-cell basis through the <code>propClassLayers</code> property,
+  whose default setting includes row properties, normally not part of the prototype chain.
+</div>
+
+</body>
+</html>

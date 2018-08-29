@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" href="tutorial.css">
+  <script src="index.js"></script>
+</head>
+
+<body>
+<h2 class="continued"><em>Cell Editors</em> tab</h2>
+
+<h3 class="continued">Validation</h3>
+
+The one-stage approach uses just the <code>parse</code> method.
+
+<h4>Regular expressions</h4>
+If you’re not already familiar with <a target="mdn" href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_Expressions">regular expressions</a>, this may be a good opportunity to get started. It may seem like a deep subject, but it’s really not. It is however beyond the scope of this tutorial to teach regular expressions, but here are a few recommendations:
+<ol>
+  <li>
+    <strong>Make use of the <code>match(regex)</code> string method</strong><br>
+    Use <a target="mdn" target="mdn" href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String/match" class="code">String.prototype.match</a> with <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_Expressions#special-capturing-parentheses">capture groups</a>.
+  </li>
+  <li>
+    <strong>Be sure to test the <em>whole</em> input string</strong><br>
+    Begin your "regex" with <a target="mdn" href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_Expressions#special-caret" class="code">^</a> and end it with <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_Expressions#special-dollar" target="mdn" class="code">$</a>. This is important in this context, for it restricts the regex to matching the <em>entire</em> input; without this the search could get a positive hit <em>within</em> the input.
+  </li>
+</ol>
+
+<pre>function parse(s) {
+  var n, m = s.match(/^(\d+)°$/);
+  if (!m || isNaN(n = Number(m[1])) {
+    throw new SyntaxError; // or throw true
+  }
+  return n;
+}</pre>
+
+Here’s a brute force approach that takes advantage of the fact that <code>Number</code> requires the whole input to be parseable (unlike <code>pareseInt</code>); but then you do need to make sure the user didn't include a fractional part becuase this accepts all number formats, including floating point, but also including exponential notation, and hex and octal. So really not good for validating integers!
+
+<pre>function parse(s) {
+  var i, j = s.length - 1, n = 0, digit;
+  if (s[j] == '°') {
+    throw true;
+  }
+  for (i = j; --i) {
+    digit = s.charCodeAt(i) - 48;
+    if (0 > i || i > 9) {
+      throw true;
+    }
+    n = n * 10 + digit;;
+  }
+  return parseInt(s);
+}</pre>
+
+If <code>Number</code> threw an error rather than returning <code>NaN</code> that would simplify things:
+
+<pre>function getNumber(s)
+  var n = Number(s);
+  if (isNaN(n)) {
+    throw new SyntaxError;
+  }
+  return n;
+}
+function parse(s) {
+  s = s.replace(/°$/, '');
+  var n = getNumber(s);
+  n = Math.floor(n);
+  return n;
+}</pre>
+
+Or since all these statements are now assignments:
+
+<pre>function parse(s) {
+  return Math.floor(getNumber(s.replace(/°$/, '')));
+}</pre>
+
+The following shows how the two-stage approach can often be the simplest:
+
+<pre>function invalid(s) {
+  return !/^\d+°$/.test(s); // note no capture group needed here
+}
+function parse(s) {
+  return parseInt(s);
+}</pre>
+
+You can combine the two stages into parse, but this will get messier as the complexity of the syntax being parsed grows:
+
+<pre>function parse(s) {
+  if (!/^\d+°$/.test(s)) throw new SyntaxError;
+  return parseInt(s);
+}</pre>
+
+Without regular expressions, you can implement your own FSM or take a brute force approach, such as the following.
+
+<pre>function invalid(s) {
+  var j = s.length - 1;
+  if (s[j] !== '°') {
+    return false;
+  }
+  for (var i = 0; i < j ; ++i) {
+    if ('0' > i || i > '9') {
+      return false;
+    }
+  }
+  return true;
+}</pre>
+
+As you can see, this is a lot of code that needs to be debugged and tested. On a practical level, this is a very simple syntax. For anything more complicated, this kind of brute force approach would quickly get out of hand. It's also very difficult to expand.
+
+
+
+</body>
+</html>

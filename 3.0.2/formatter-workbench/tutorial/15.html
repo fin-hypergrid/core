@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" href="tutorial.css">
+  <script src="index.js"></script>
+</head>
+
+<body>
+<h2>Cell Editors tab</h2>
+
+Cell editors allow the user to edit cell values.
+
+<p>
+  Editing is enabled when the cell is <em>both</em>:
+</p>
+<ol>
+  <li>
+    <strong>Editable</strong><br>
+    The cell’s <code>editable</code> property must be truthy.<br>
+    <div style="margin-top:.5em; font-style:italic">and</div>
+  </li>
+  <li>
+    <strong>Bound to a cell editor</strong><br>
+    The cell’s <code>editor</code> property must name a registered cell editor.
+  </li>
+</ol>
+
+While the default for <code>editable</code> is <code>true</code>, for <code>editor</code> it’s <code>undefined</code>.
+However, our state object (see <a class="tab">State</a> tab) sets <code>editor</code> to <code>'<a href="https://github.com/fin-hypergrid/core/blob/master/src/cellEditors/Textfield.js">Textfield</a>'</code>,
+a very simple cell editor included with Hypergrid for editing string data.
+Because <code>editor</code> is set at the grid level, <em>all</em> cells editable as simple text strings.
+
+<p>So we’re good to go…</p>
+
+<article class="activity">
+  <header><div>9</div> Edit a cell</header>
+  <section>
+
+    <p>
+      Before we try cell editors, we’ll remove all localizer bindings.
+      Cell editors can function with or without localizers; we want to try it without localizers first.
+    </p>
+    <ol>
+      <li>Switch to the <a class="tab">State</a> tab</li>
+      <li>Click the <span class="button">Reset</span> button to restore state to the default (no localizers)</li>
+    </ol>
+
+    Okay, now we’re ready.
+
+    <ol start="3">
+      <li>Open a cell editor by double-clicking any cell</li>
+      <li>An editor is superimposed over the cell</li>
+      <li>Edit the value</li>
+      <li>Save the edited value by pressing the <span class="button">enter</span> or <span class="button">tab</span> keys</li>
+      <li class="observe">
+        <ol>
+          <li>the edited value is saved to the data model</li>
+          <li>the editor is removed</li>
+          <li>the grid is re-rendered to display the new value</li>
+        </ol>
+      </li>
+    </ol>
+    Or instead of saving the edit, try repeating steps 3 through 5 and then:
+    <ol start="6">
+      <li>Abort the edit by pressing the <span class="button">esc</span> key</li>
+      <li class="observe">
+        <ol>
+          <li>the editor is removed</li>
+          <li>the grid retains the old value</li>
+        </ol>
+      </li>
+    </ol>
+  </section>
+</article>
+
+On the next page we explore how cell editors work together with localizers, when available.
+
+</body>
+</html>

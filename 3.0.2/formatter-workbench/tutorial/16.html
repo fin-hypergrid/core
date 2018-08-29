@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" href="tutorial.css">
+  <script src="index.js"></script>
+</head>
+
+<body>
+<h2 class="continued"><em>Cell Editors</em> tab</h2>
+
+As noted, cell editors can function with or without a localizer.
+
+<h3>Cell editors + localizers</h3>
+
+When an editable cell is bound to a localizer, the cell editor will use it to format and deformat the value:
+<ol>
+  <li>On open, the cell editor invokes <a target="doc" href="https://fin-hypergrid.github.io/core/doc/localizerInterface.html#format" class="code">localizer.format</a> to format the value</li>
+  <li>On save, the cell editor invokes <a target="doc" href="https://fin-hypergrid.github.io/core/doc/localizerInterface.html#parse" class="code">localizer.parse</a> on the edited value to convert it back to its native type</li>
+</ol>
+
+<article class="activity">
+  <header><div>10</div> Edit a cell with a localizer</header>
+  <section>
+    <ol>
+      <li>In the <a class="tab">State</a> tab, bind the <code>deg</code> to the <code>prevclose</code> column (Activity 7)</li>
+      <li>Open the cell for editing</li>
+      <li class="observe">The value presented for editing is formatted the same way it was formatted for display in the grid</li>
+      <li>Edit the value.</li>
+      <li>Save the value by pressing <span class="button">enter</span></li>
+      <li class="observe">In the <a class="tab">Data</a> tab, the value has been updated, not with the formatted value, but with a "raw" (unformatted) value. The cell editor called the localizer’s <code>parse</code> method to transform the edited value back into a raw data value.</li>
+    </ol>
+  </section>
+</article>
+
+On the next page, we will discuss input validation.
+
+</body>
+</html>

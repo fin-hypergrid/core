@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=utf-8" >
+  <meta http-equiv="Cache-Control" content="must-revalidate" />
+  <link rel="icon" type="image/png" href="img/hypergrid-icon.png">
+</head>
+<body>
+
+<h1 style="margin:.5em; color:lightgrey; font-family: sans-serif"> Hypergrid <span id="version"></span> clickRect demo </h1>
+<ul>
+  <li>Display the dev console.</li>
+  <li>Note that clicks on right side of cells do nothing while clicks on left side of cells print "click in rect!"</li>
+  <li>This demo also sets <code>grid.properties.hotIcon = 'left'</code> which (as of 3.0.1) automatically sets the clickRect to that of left image rect (for example, the row number cell's checkbox). This overrides the above. (Note that 3.0.0 had a regression which threw an error on row number clicks so you can try this without 3.0.1.)</li>
+  <li>See the view source to see how this is done.</li>
+  <li>See also the notes at the bottom of the source for more information and alternative coding.<br></li>
+</ul>
+<br>
+<script src="build/fin-hypergrid.js"></script>
+
+<script>
+    var data = [
+        { symbol: 'APPL', name: 'Apple Inc.', prevclose: 93.13 },
+        { symbol: 'MSFT', name: 'Microsoft Corporation', prevclose: 51.91 },
+        { symbol: 'TSLA', name: 'Tesla Motors Inc.', prevclose: 196.40 },
+        { symbol: 'IBM', name: 'International Business Machines Corp', prevclose: 155.35 }
+    ];
+    var grid = new fin.Hypergrid();
+
+    document.getElementById('version').innerHTML = grid.version;
+
+    grid.setData(data);
+
+    var Rectangle = fin.Hypergrid.require('rectangular').Rectangle;
+    grid.cellRenderers.add(grid.cellRenderers.BaseClass.extend('LeftSider', {
+        paint: function(gc, config) {
+            if (!config.clickRect) { // don't reset if already set by SimpleCell
+                config.clickRect = new Rectangle(0, 0, Math.round(config.bounds.width / 2), config.bounds.height);
+            }
+        }
+    }));
+
+    // add LeftSider as a second "sub-renderer"
+    grid.properties.renderer = [grid.properties.renderer, 'LeftSider'];
+
+    // set clickRect
+    grid.properties.hotIcon = 'left';
+
+    // we don't want cell or column selection to interfere visually with clicks
+    grid.properties.cellSelection = grid.properties.columnSelection = false;
+
+    // indicate in console when a click in rect happens
+    grid.addEventListener('fin-click', function() { console.log('click in rect!') });
+
+/*
+Notes:
+
+• As of 3.0.1 clickRect no longer needs to be a Rectangle but could just be a plain object:
+
+    config.clickRect = { x: 0, y: 0, width: Math.round(config.bounds.width/2), height: config.bounds.height };
+
+• As of 3.0.1 clickRect can also be set as a property. Sometimes only the renderer can determine the click rect coords,
+  but if you know ahead of time what it should be you can set it programmatically. For example to set it just for 3rd
+  data column's cells:
+
+    grid.behaviors.getActiveColumn(2).properties.clickRect = { ... };
+
+  This is effective unless also set by cell renderer which would override it.
+  (Reminder that "property" can be set at various levels, on a cell, a column, a row, or the entire grid.)
+
+  And of course most properties can be set declaratively in a "state" object, such as from a JSON datagram.
+  (Even column props can be set this way but I not going to go into that here.)
+
+• As an alternative to a sub-renderer, extend from SimpleCell and make this the only renderer:
+
+    grid.cellRenderers.add(grid.cellRenderers.get('SimpleCell').constructor.extend('LeftSider', {
+        paint: function(gc, config) {
+            this.super.paint.call(this, gc, config);
+            if (!config.hasOwnProperty('clickRect')) { // don't reset if already set by SimpleCell
+                config.clickRect = new Rectangle(0, 0, Math.round(config.bounds.width/2), config.bounds.height);
+            }
+        }
+    }));
+
+    grid.properties.renderer = 'LeftSider';
+*/
+</script>
+
+</body>
+</html>

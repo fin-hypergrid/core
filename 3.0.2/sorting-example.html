@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script src="build/fin-hypergrid.js"></script>
+    <script src="http://fin-hypergrid.github.io/datasaur-indexed/3.0.0/build/datasaur-indexed.js"></script>
+    <script src="http://fin-hypergrid.github.io/datasaur-simple-sort/3.0.1/build/datasaur-simple-sort.js"></script>
+    <script>
+        var grid;
+
+        window.onload = function() {
+
+            grid = new fin.Hypergrid({
+                DataModel: [
+                    fin.Hypergrid.require('datasaur-local'),
+                    fin.Hypergrid.require('datasaur-indexed'),
+                    fin.Hypergrid.require('datasaur-simple-sort'),
+                ],
+                data: [
+                    { symbol: 'APPL', name: 'Apple Inc.', prevclose: 93.13 },
+                    { symbol: 'MSFT', name: 'Microsoft Corporation', prevclose: 51.91 },
+                    { symbol: 'TSLA', name: 'Tesla Motors Inc.', prevclose: 196.40 },
+                    { symbol: 'IBM', name: 'International Business Machines Corp', prevclose: 155.35 }
+                ]
+            });
+
+            // Respond to sort click on header cell, rotating through: asc, desc, unsorted
+            grid.sortState = {};
+            grid.addEventListener('fin-column-sort', function(event) {
+                var sort = grid.sortState,
+                    columnIndex = event.detail.column;
+
+                if (sort.columnIndex !== columnIndex) {
+                    sort = grid.sortState = { columnIndex: columnIndex };
+                }
+
+                switch (sort.dir) {
+                    case 'asc': sort.dir = 'desc'; break;
+                    case 'desc': delete sort.dir; break;
+                    default: sort.dir = 'asc';
+                }
+
+                grid.behavior.dataModel.sort(columnIndex, sort);
+            });
+
+            // Prepend sort arrow before header text
+            var arrow = {
+                'asc': '↑',
+                'desc': '↓'
+            };
+            grid.localization.header = {
+                format: function(value, config) {
+                    if (grid.sortState.dir && grid.sortState.columnIndex === config.dataCell.x) {
+                        value = arrow[grid.sortState.dir] + value;
+                    }
+                    return value;
+                }
+            };
+            grid.properties.columnHeaderFormat = 'header';
+        };
+    </script>
+
+    <p>Double-click a column header to sort it; again to reverse sort it; again to unsort it.</p>
+
+    <p>
+        To fully understand this example, study up on
+        <a href="https://github.com/fin-hypergrid/datasaur-indexed">datasaur-indexed</a> and
+        <a href="https://github.com/fin-hypergrid/datasaur-simple-sort">datasaur-simple-sort</a>.
+    </p>
+</head>
+<body>
+
+
+</body>
+</html>

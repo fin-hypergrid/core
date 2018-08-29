@@ -1,0 +1,70 @@
+body {
+    font: 9pt sans-serif;
+    margin: 8px;
+}
+table {
+    border-spacing: 12px 6px;
+}
+textarea {
+    font: 8pt monospace;
+    background-color: transparent;
+    height: calc(100% - 43px);
+    border: 0;
+    border-top: 1px dashed grey;
+    padding: 6px 0 0 0;
+    width: 100%;
+    display: block;
+    resize: none;
+}
+label {
+    white-space: nowrap;
+    font: normal 9pt sans-serif;
+}
+select, input, textarea {
+    outline: 0;
+}
+span.feedback {
+    float: right;
+    margin-top: 12px;
+    display: none;
+}
+input[type=button].locals {
+    background-color: grey;
+    color: white;
+    cursor: help;
+    margin: 9px;
+    border-radius: 5px;
+}
+input[type=button].api {
+    background-color: grey;
+    color: white;
+    font: 12px monospace;
+    border-radius: 6px;
+    padding: 4px 7px;
+    margin: 6px;
+    float: right;
+}
+input[type=button].locals:hover, input[type=button].api:hover {
+    background-color: #555;
+}
+input[type=button].locals:active, input[type=button].api:active {
+    color: #555;
+    background-color: white;
+    border-color: grey;
+}
+input[type=button].danger {
+    color: red;
+    border-color: red;
+    margin: 9px;
+    border-radius: 5px;
+    background-color: transparent;
+}
+input[type=button].danger:hover {
+    color: white;
+    background-color: red;
+}
+
+input[type=button].danger:active {
+    color: red;
+    background-color: yellow;
+}

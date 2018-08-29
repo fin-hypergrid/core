@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" href="tutorial.css">
+  <script src="index.js"></script>
+</head>
+<body>
+<h2>Localizers tab</h2>
+
+Value formatting in Hypergrid is controlled by <em>localizers,</em> objects with the following shape:
+
+<pre>{
+  name: "optional string",
+  format: function(str), // required method that returns value
+  parse: function(value), // required method that returns string
+  invalid: function(value), // optional helper function for `parse`
+  expectation: 'optional error message describing expected syntax'
+}</pre>
+
+As you can see, the minimum required interface is the <code>format</code> and <code>parse</code> methods.
+
+<p>Formatting grid cell values is purely a text string manipulation. Any other graphical effects are the purview of cell renderers (not covered here). Cell editors can include fancy controls for manipulating the string, but the result needs to be a formatted string, parsable into a serializable value for storing into the data model.
+
+<h4><a target="doc" href="https://fin-hypergrid.github.io/core/doc/localizerInterface.html#format" class="code">format</a></h4>
+<em>Required.</em>
+Formats raw data values for display in the grid.
+
+<h4><a target="doc" href="https://fin-hypergrid.github.io/core/doc/localizerInterface.html#parse" class="code">parse</a></h4>
+<em>Required.</em>
+Parses values in the displayed format, converting them back into raw data values. Used by cell editors to store results back to data model, or by search algorithms to compare a formatted value to other cells' raw values (without having to format all the other cells), <i>etc.</i>
+
+<p>
+  The <a target="doc" href="https://fin-hypergrid.github.io/core/doc/localizerInterface.html#parse" class="code">parse</a> method is only invoked by Hypergrid when a formatted cell is edited.
+  While it may be tempting to supply a no-op function you believe it will never be invoked because cell editing on the target cells is disabled,
+  <em>it is always a good practice to code a functional <code>parse</code> method.</em>
+  Can you be certain it will never be made editable in the future?
+  Consider also that plug-ins may need to invoke this method for interpreting sort and filter expressions.
+</p>
+
+<h4><a target="doc" href="https://fin-hypergrid.github.io/core/doc/localizerInterface.html#invalid" class="code">invalid</a></h4>
+<em>Optional.</em>
+Validates the syntax.
+Usually implemented with a <Code>RegExp</code>. For example (replace <code>regex</code> with an actual regex):
+<pre>  invalid: function(str) { return !/^regex$/.test(); }</pre>
+Should be implemented when <a target="doc" href="https://fin-hypergrid.github.io/core/doc/localizerInterface.html#parse" class="code">parse</a> is not bulletproof (when it would jam unexpectedly on bad syntax). When implemented, <a target="doc" href="https://fin-hypergrid.github.io/core/doc/localizerInterface.html#invalid" class="code">invalid</a> is called first; <a target="doc" href="https://fin-hypergrid.github.io/core/doc/localizerInterface.html#parse" class="code">parse</a> is only called if the syntax is valid (<a target="doc" href="https://fin-hypergrid.github.io/core/doc/localizerInterface.html#invalid" class="code">invalid</a> returns falsy; that is, “not invalid”).
+
+<h4><a target="doc" href="https://fin-hypergrid.github.io/core/doc/localizerInterface.html#expectation" class="code">expectation</a></h4>
+<em>Optional.</em>
+A friendly description of the expected syntax. Used for error feedback; also helpful for self-documenting the localizer.

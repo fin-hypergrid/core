@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" href="tutorial.css">
+  <script src="index.js"></script>
+</head>
+<body>
+
+<h2 class="continued">State tab</h2>
+
+<article class="activity">
+  <header><div>5</div>Edit a column property in the <a class="tab">State</a> tab</header>
+  <section>
+    Set a property on the <code>prevclose</code> column:
+
+    <ol>
+      <li>Switch to the <a class="tab">State</a> tab</li>
+      <li class="observe">
+        This overrides the default value (<code>'center'</code>):
+<pre>prevclose: {
+    halign: 'right'
+}</pre>
+      </li>
+      <li>Edit the value to make it <code>'left'</code></li>
+      <li>Click the <code class="button">grid.setState(…)</code> button</li>
+      <li class="observe">The values in this column are now left-justified</li>
+      <li>Click the <span class="button">Reset</span> button to undo our changes</li>
+    </ol>
+  </section>
+</body>
+</html>
