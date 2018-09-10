@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" href="index.css">
+  <script src="index.js"></script>
+  <style>
+    ul {
+      padding-left: 1em;
+      margin-right: 2em;
+      overflow-x: hidden;
+      list-style: none;
+    }
+    body > ul {
+      margin-top: 1em;
+      font-weight: bold;
+    }
+    ul ul {
+      font-weight: normal;
+    }
+    li {
+      margin-top: .75em;
+      cursor: pointer;
+    }
+    ul > ul > li {
+      margin-top: .25em;
+    }
+    li > span {
+      background-color: #f4f4f4;
+    }
+    li > span:first-child {
+      padding-right: .5em;
+    }
+    li > span:last-child {
+      float: right;
+      padding-left: .5em;
+    }
+    li:before {
+      float: left;
+      width: 0;
+      white-space: nowrap;
+      content: ' . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . ';
+    }
+  </style>
+  <script>
+      window.addEventListener('load', function() {
+          var n = 1;
+          walk(document.body, [window.top.tutTOC]);
+          document.body.addEventListener('click', function(e) {
+              var el = e.target;
+              while (el.tagName !== 'LI' && el.parentElement) { el = el.parentElement; }
+              if (el.tagName === 'LI') {
+                  var pageNumber = el.lastElementChild.innerText, path = '';
+                  window.top.tutorial.page(pageNumber, path);
+              }
+          });
+          function walk(parentEl, list) {
+              list.forEach(function(filename) {
+                  if (Array.isArray(filename)) {
+                      var ul = document.createElement('ul');
+                      parentEl.appendChild(ul);
+                      walk(ul, filename);
+                  } else {
+                      filename = filename.substr(0, filename.length - 5);
+                      if (filename !== 'Table of Contents') {
+                          var li = document.createElement('li');
+                          li.innerHTML = '<span>' +
+                              filename.replace(/\.html$/, '') +
+                              '</span><span class="p">' + n + '</span>';
+                          parentEl.appendChild(li);
+                      }
+                      n += 1;
+                  }
+              });
+          }
+      });
+  </script>
+</head>
+<body>
+<h2>Table of Contents</h2>
+
+
+</body>
+</html>

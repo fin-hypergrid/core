@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" href="index.css">
+  <script src="index.js"></script>
+</head>
+<body>
+<h2>Data tab</h2>
+
+This tab provides an editor for the grid’s data source.
+
+<ul>
+  <li>The data is structured as an array of <code>dataRow</code> objects.</li>
+  <li>The grid data reflects the initial contents of this tab.</li>
+  <li>After editing the data in this tab, bind it to the grid by clicking <span class="api-button">grid.setData(…)</span>.</li>
+  <li>This Workbench app implements two-way binding: That is, the grid is bound back to the Data tab so any edits made in the grid itself are automatically reflected in the Data tab.</li>
+</ul>
+
+<div class="note">
+  In actual practice, the data object passed to <code>setData</code> has typically been parsed from a character string in JSON format (by <code>JSON.parse</code>).
+  <p>
+    To make editing easier, this editor uses <code>eval</code> to parse straight JavaScript, not JSON.
+    You do not need to concern yourself with strict adherence to the JSON standard (double quotes, primitive types, _etc._).
+    And you can also comment out lines, which is not allowed in JSON.
+  </p>
+</div>
+
+On the next page, we’ll edit a cell directly in the hypergrid, and see how it affects the data object.
+
+<div class="sidebar">
+  Click the <span class="button" onclick="this.nextElementSibling.style.backgroundColor='yellow'">&#x25ba;</span> button <em>(above)</em> to go to the next page for the first Activity.
+</div>
+
+</body>
+</html>

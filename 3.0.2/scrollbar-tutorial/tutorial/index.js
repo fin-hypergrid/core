@@ -15,7 +15,7 @@ window.onload = function() {
     setTabLinks();
     setTitleAttribs();
 
-    if (!window.top.tabBars) {
+    if (!window.top.tabBar) {
         return;
     }
 
@@ -50,7 +50,7 @@ function setTabLinks() {
 }
 
 function tab() {
-    Array.prototype.find.call(window.top.tabBars, function(tabBar) {
+    [window.top.tabBar, window.top.tutorial.tabBar].find(function(tabBar) {
         var contentEl = tabBar.contents.querySelector('[name="' + this.innerText + '"]');
         if (contentEl) {
             tabBar.selected = contentEl;

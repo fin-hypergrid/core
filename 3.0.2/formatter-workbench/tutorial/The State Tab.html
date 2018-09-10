@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <link rel="stylesheet" href="tutorial.css">
+  <link rel="stylesheet" href="index.css">
   <script src="index.js"></script>
 </head>
 <body>
@@ -18,7 +18,7 @@ This tab provides an editor for <em>grid state</em>.
 </ul>
 
 <div class="note">
-  As with the <a class="tab">Data</a> tab’s editor, to make editing easier, this editor also uses <code>eval</code> to parse straight JavaScript, not JSON.
+  To make editing easier, this editor, like the Data tab’s editor, uses <code>eval</code> to parse straight JavaScript, not JSON.
   You do not need to concern yourself with strict adherence to the JSON standard (double quotes, primitive types, _etc._).
   And you can also comment out lines, which is not allowed in JSON.
 </div>
@@ -29,24 +29,11 @@ To set grid properties with the <a class="code" href="https://fin-hypergrid.gith
     propName: propValue
 }</pre>
 
-<article class="activity">
-  <header><div>4</div>Edit a grid property in the <a class="tab">State</a> tab</header>
-  <section>
+We will try this on the next page.
 
-    Show the grid row numbers:
-
-    <ol>
-      <li>Switch to the <a class="tab">State</a> tab</li>
-      <li>Edit the value of the value of the <code>showRowNumbers</code> property to be <code>true</code> rather than <code>false</code></li>
-      <li>Click the <code class="button">grid.setState(…)</code> button</li>
-      <li class="observe">The grid is now rendered with row numbers</li>
-    </ol>
-  </section>
-</article>
-
-<p>
-  Click the <span class="button">&#x25ba;</span> button <em>(above)</em> to go to the next page.
-</p>
+<div class="sidebar">
+  Click the <span class="button" onclick="this.nextElementSibling.style.backgroundColor='yellow'">&#x25ba;</span> button <em>(above)</em> to go to the next page for the next Activity.
+</div>
 
 </body>
 </html>

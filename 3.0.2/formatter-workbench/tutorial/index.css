@@ -1,0 +1,237 @@
+body {
+    margin: 8px;
+    font: 11pt/1.4 serif;
+}
+p:first-child {
+    margin-top: 0;
+}
+p:last-child {
+    margin-bottom: 0;
+}
+.curvy-tab-conditional {
+    display: none;
+}
+h1, h2, h3, h4, h5 {
+    font-family: sans-serif;
+}
+li {
+    margin-top: .65em;
+}
+pre {
+    font: 8pt monospace;
+    background-color: #eee;
+    border: 1px solid #aaa;
+    padding: .8em;
+    white-space: pre-wrap;
+    margin: 1em 0;
+}
+span.api-button {
+    font-family: monospace;
+    font-size: smaller;
+    background-color: grey;
+    color: white;
+    border-radius: .5em;
+    padding: .33em .66em;
+    margin: 0 2px;
+}
+span.keycap {
+    font-family: sans-serif;
+    font-size: smaller;
+    letter-spacing: 1px;
+    background-color: #555;
+    color: #eee;
+    border-radius: .5em;
+    padding: .22em .66em;
+    min-width: 2em;
+    margin: 0 2px;
+}
+span.button {
+    font-family: sans-serif;
+    background-color: #eee;
+    border: 1px solid black;
+    border-radius: 3px;
+    padding: 1px 4px;
+    margin: 0 2px;
+    font-size: 8pt;
+}
+span.button.danger {
+    padding: 1px 4px 2px;
+    font-family: sans-serif;
+    background-color: transparent;
+    border: 1px solid red;
+    color: red;
+}
+a.code, code {
+    font-family: verdana, monospace;
+    font-size: 77%;
+    color: #555;
+    background-color: #ddd;
+    padding: 0 4px;
+    border-radius: 4px;
+    /* border: 1px solid #bbb; */
+    font-weight: bold;
+    white-space: nowrap;
+}
+a.code:hover {
+    text-decoration: none;
+    background-color: blue;
+    color: white;
+    /*border: 1px solid transparent;*/
+}
+p {
+    margin: .6em 0;
+}
+h2 {
+    font-size: 14pt;
+    border-bottom: 2px solid black;
+    /*letter-spacing: 1px;*/
+}
+.continued:after {
+    content: '(continued)';
+    font-style: italic;
+    font-size: 9pt;
+    font-weight: normal;
+    margin-left: 1em;
+    letter-spacing: 0;
+}
+h3 {
+    color: #686868;
+    margin-bottom: .3em;
+}
+h4 {
+    color: #747474;
+    margin-bottom: .3em;
+}
+h5 {
+    color: #808080;
+    margin-bottom: .3em;
+}
+div.note {
+    font-size: 9pt;
+    margin: .9em 1em;
+    padding: .4em 1em;
+    border-left: 8px solid #ccc;
+}
+div.note:before {
+    content: 'Note: ';
+    font-weight: bold;
+}
+div.sidebar {
+    margin: 2em 15%;
+    padding: .75em;
+    border: 2px solid black;
+    background-color: #eef;
+    text-align: center;
+}
+
+/* FOOTNOTES */
+
+a.superscript {
+    color: #44f;
+    text-decoration: none;
+}
+table.footnote {
+    margin-top: 1.5em;
+}
+table.footnote > caption {
+    text-align: left;
+}
+table.footnote > caption > div {
+    vertical-align: super;
+    width: 6em;
+    border-bottom: 1px solid black;
+}
+table.footnote td {
+    font-size: smaller;
+    text-align: justify;
+    vertical-align: top;
+}
+
+/* ACTIVITIES */
+article.activity > section > ol {
+    font: 10pt / 1.4 sans-serif;
+    border: 1px dashed #aaa;
+    background-color: ivory;
+    padding: 0.5em 1em 0.5em 45px;
+    border-radius: 10px;
+}
+article.activity > section > ol > li {
+    margin: .75em 0 .75em -1em;
+}
+article.activity > section > ol ul,
+article.activity > section > ol ol {
+    padding-left: 20px;
+}
+article.activity > section > ol ul > li,
+article.activity > section > ol ol > li {
+    font-size: 90%;
+    margin-top: .25em;
+}
+.observe {
+    background: no-repeat 2px -6px url('eye.png');
+}
+.observe:before {
+    content: 'Observe:';
+    padding-left: 33px;
+    padding-right: 9px;
+    font-style: italic;
+}
+article.activity > header:first-child {
+    position: relative;
+    margin: 1.5em 0;
+    background-color: #ccc;
+    padding: .75em 1em .75em 105px;
+    font: 13pt sans-serif;
+    font-weight: bold;
+}
+article.activity > header:first-child > div:first-child {
+    position: absolute;
+    left: .75em;
+    font-weight: normal;
+}
+article.activity > header:first-child > div:first-child:before {
+    content: 'Activity ';
+}
+article.activity > header:first-child > div:first-child:after {
+    content: ':';
+}
+fieldset {
+    background-color: ivory;
+    border: 1px solid grey;
+    margin: 1em .5em;
+}
+fieldset > legend {
+    margin-bottom: .6em;
+    font: bold 12pt sans-serif;
+    border-radius: 9px;
+    background-color: ivory;
+    padding: .5em 1em .4em;
+    border: 1px solid grey;
+}
+span.activity {
+    font-family: sans-serif;
+    font-weight: bold;
+    font-size: smaller;
+}
+span.tab {
+    border-top: 1px solid grey;
+    border-right: 1px solid grey;
+    border-top-right-radius: .5em;
+    border-left: 1px solid grey;
+    border-top-left-radius: .5em;
+    padding: .25em .5em .1em .45em;
+    font-family: sans-serif;
+    color: black;
+    font-size: smaller;
+    text-decoration: none;
+    cursor: default;
+    white-space: nowrap;
+}
+span.tab:hover {
+    box-shadow: 0.15em 0.15em 0.3em #666;
+}
+span.svg-reset > svg {
+     color: #cb2431;
+     fill: currentColor;
+     vertical-align: middle;
+}

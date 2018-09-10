@@ -3,7 +3,7 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8" >
     <title>Instructions &mdash; Hypergrid Cell Formatter &amp; Editor Workbench</title>
-    <link rel="stylesheet" href="tutorial/tutorial.css">
+    <link rel="stylesheet" href="tutorial/index.css">
 </head>
 <body>
 
@@ -34,7 +34,7 @@ Be careful therefore to cut &amp; paste anything you want to keep!</p>
 <div style="page-break-inside: avoid">
     <h3>Data pane</h3>
     A data pane is provided to adjust the data to suit the needs of your localizers and cell editors.
-    Bind the data to the grid by clicking <code class="button">grid.setData(…)</code> button.
+    Bind the data to the grid by clicking <code class="api-button">grid.setData(…)</code> button.
     The grid in turn is bound to the data window for any edits made to cells using cell editors.
 </div>
 
@@ -59,7 +59,7 @@ Be careful therefore to cut &amp; paste anything you want to keep!</p>
 }</pre>
     <ol>
         <li>Edit the state pane to make the <code>prevclose</code> column use the <code>ft-in</code> (“foot-inch”) localizer rather than the <code>trend</code> localizer.</li>
-        <li>Click the <code class="button">grid.addState(…)</code> button.</li>
+        <li>Click the <code class="api-button">grid.addState(…)</code> button.</li>
         <li>Notice how these values are now formatted as feet and inches.</li>
         <li>Double click one of these formatted values in the grid. Cell editing is enabled because:
             <ul>
@@ -123,8 +123,8 @@ Formatting grid cell values is purely a text string manipulation. Any other grap
         <li>Add additional local variables by declaring them at the top, as needed.</li>
         <li>Code your localizer referring to examples and the <a href="https://fin-hypergrid.github.io/core/doc/localizerInterface.html" target="localizer-docs">localizer interface</a> documentation.</li>
         <li>Be sure to assign your localizer to <code>module.exports</code>.</li>
-        <li>Click the <span class="button">grid.localization.add(…)</span> button.</li>
-        <li><em>Optional:</em> Edit the localizer and click <span class="button">grid.localization.add(…)</span> again to update it.</li>
+        <li>Click the <span class="api-button">grid.localization.add(…)</span> button.</li>
+        <li><em>Optional:</em> Edit the localizer and click <span class="api-button">grid.localization.add(…)</span> again to update it.</li>
     </ol>
 </div>
 
@@ -138,7 +138,7 @@ For example, here’s a localizer to show a “degrees” unit:
     There are many ways to do this programmatically from the console with the various property setting methods.
 </div>
 
-<p>From this interface, edit the state and click the <span class="button">grid.addState(…)</span> button:</p>
+<p>From this interface, edit the state and click the <span class="api-button">grid.addState(…)</span> button:</p>
 <ul>
     <li>State object to set grid <a href="https://fin-hypergrid.github.io/core/doc/localizerInterface.html#format" class="code">format</a> property to <code>'deg'</code>: <pre>{ format: 'deg' }</pre></li>
     <li>To set column property: <pre>{ columns: { data: { prevclose: { format: 'deg' } } } }</pre></li>
@@ -152,7 +152,7 @@ For example, here’s a localizer to show a “degrees” unit:
     <ul>
         <li>Select a localizer to edit from the <em>Load localizer</em> drop-down.</li>
         <li>Edit the localizer.</li>
-        <li>Click the <span class="button">grid.localization.add(…)</span> button to replace the existing cell editor with your changes.</li>
+        <li>Click the <span class="api-button">grid.localization.add(…)</span> button to replace the existing cell editor with your changes.</li>
     </ul>
 </div>
 
@@ -161,7 +161,7 @@ For example, here’s a localizer to show a “degrees” unit:
     <ul>
         <li>Select a localizer to edit from the <em>Load localizer</em> drop-down.</li>
         <li>Rename it with a new unique name by editing the <a href="https://fin-hypergrid.github.io/core/doc/localizerInterface.html#name" class="code">name</a> field.</li>
-        <li>Click the <span class="button">grid.localization.add(…)</span> button to save it under the new name.</li>
+        <li>Click the <span class="api-button">grid.localization.add(…)</span> button to save it under the new name.</li>
     </ul>
 </div>
 
@@ -174,7 +174,7 @@ For example, here’s a localizer to show a “degrees” unit:
         <li>Hover over (or click) <span class="button">Locals</span> button to see defined local variables.</li>
         <li>Refer to the <a href="https://fin-hypergrid.github.io/core/doc/CellEditor.html" target="cell-editor-docs">API documentation</a>
             and the code (<a href="https://github.com/fin-hypergrid/core/blob/master/src/cellEditors/CellEditor.js" target="cell-editor-code">CellEditor.js</a>).</li>
-        <li>Use the <span class="button">grid.cellEditors.add(…)</span> button (rather than <span class="button">grid.localization.add(…)</span>.</li>
+        <li>Use the <span class="api-button">grid.cellEditors.add(…)</span> button (rather than <span class="api-button">grid.localization.add(…)</span>.</li>
         <li>Be sure to define the <a href="https://fin-hypergrid.github.io/core/doc/localizerInterface.html#parse" class="code">parse</a> function, which is required for editing, as well as the <a href="https://fin-hypergrid.github.io/core/doc/localizerInterface.html#format" class="code">format</a> funciton.</li>
     </ul>
 </div>
@@ -211,7 +211,7 @@ For example, here’s a localizer to show a “degrees” unit:
     <h4>Edit the cell value in the data pane</h4>
     <ol>
         <li>In the data pane, change a couple of the <code>prevclose</code> values to negative numbers.</li>
-        <li>Click the <code class="button">grid.setData(…)</code> button.</li>
+        <li>Click the <code class="api-button">grid.setData(…)</code> button.</li>
         <li>Notice how these values are now formatted with down-arrows in the grid.</li>
     </ol>
 </div>
@@ -250,7 +250,7 @@ For example, here’s a localizer to show a “degrees” unit:
     <ol>
         <li>In the Localizer pane, select the <code>trend</code> localizer.</li>
         <li>Uncomment the <code><i>if</i></code> statement with the <code><i>throw</i></code> statement within it.</li>
-        <li>Click the <span class="button">grid.localization.add(…)</span> button to update it.</li>
+        <li>Click the <span class="api-button">grid.localization.add(…)</span> button to update it.</li>
         <li>Edit another cell, again setting the contents to some invalid value.</li>
         <li>Press the <strong>enter</strong> key.</li>
         <li>The parser cannot convert the value.</li>
@@ -287,10 +287,10 @@ For example, here’s a localizer to show a “degrees” unit:
 
 <ol>
     <li>In the State pane, add <code>editor: "Trend"</code> to the <code>prevclose</code> column.</li>
-    <li>Click the <span class="button">grid.addState(…)</span> button.</li>
+    <li>Click the <span class="api-button">grid.addState(…)</span> button.</li>
     <li>Double-click a cell in the <code>prevclose</code> column.</li>
     <li>Click the arrow and notice how it flips.</li>
-    <li>Press the <span class="button">enter</span> key to save the change or <span class="button">esc</span> key to cancel it.</li>
+    <li>Press the <span class="keycap">enter</span> key to save the change or <span class="keycap">esc</span> key to cancel it.</li>
 </ol>
 
 This cell editor makes toggling the arrow a simple matter of clicking on it. This usually would not be worth writing a cell editor for — except that in this case, the Unicode arrows are not on the keyboard so they're impossible to type.
@@ -302,15 +302,15 @@ This cell editor makes toggling the arrow a simple matter of clicking on it. Thi
     <ol>
         <li>In the Cell Editor pane, select "Trend" from the drop-down.</li>
         <li>Uncomment the <code>keypress</code> event handler.</li>
-        <li>Click the <span class="button">grid.cellEditors.add(…)</span> button.</li>
+        <li>Click the <span class="api-button">grid.cellEditors.add(…)</span> button.</li>
         <li>Double-click a cell in the <code>prevclose</code> column.</li>
-        <li>Type <span class="button">&plus;</span> or <span class="button">&minus;</span> and notice how the arrow flips.</li>
+        <li>Type <span class="keycap">&plus;</span> or <span class="keycap">&minus;</span> and notice how the arrow flips.</li>
     </ol>
 </div>
 
 This <code>keypress</code> handler does two things:
 <ol>
-    <li>The <code>case '+'</code> and <code>case '-'</code> cases let the user "type" in the arrows at any time during editing by pressing the <span class="button">&plus;</span> or <span class="button">&minus;</span> keys for up-arrow or down-arrow, respectively.</li>
+    <li>The <code>case '+'</code> and <code>case '-'</code> cases let the user "type" in the arrows at any time during editing by pressing the <span class="keycap">&plus;</span> or <span class="keycap">&minus;</span> keys for up-arrow or down-arrow, respectively.</li>
     <li>The <code>default</code> case discards unexpected key presses, triggering an error feedback animation.</li>
 </ol>
 

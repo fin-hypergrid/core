@@ -2,24 +2,32 @@
 <html>
 <head>
   <meta http-equiv="Content-Type" content="text/html;charset=utf-8" >
-  <title>Hypergrid Cell Formatter &amp; Editor Workbench</title>
+  <title>Cell Formatter &amp; Editor Workbench - Hypergrid</title>
+
   <link rel="stylesheet" href="index.css">
-  <link rel="stylesheet" href="../tutorial/index.css">
+
   <!--<script src="../../../curvy-tabs/build/curvy-tabs.js"></script>-->
-  <script src="https://joneit.github.io/curvy-tabs/2.1.0/build/curvy-tabs.js"></script>
+  <script src="https://joneit.github.io/curvy-tabs/2.3.1/build/curvy-tabs.js"></script>
+
+  <script src="../build/fin-hypergrid.js"></script>
+
+  <script>var exports = {}, module = {exports:exports};</script>
+  <script src="curvy-tabs-pager.js"></script>
+  <script>var CurvyTabsPager = module.exports; delete window.exports; delete window.module;</script>
+
+  <script src="index.js"></script>
+
 </head>
 <body>
 
-<h1 style="margin:.5em; color:lightgrey">
-  Hypergrid Cell Formatter &amp; Editor Workbench
-</h1>
+<h1 style="margin:.5em; color:lightgrey">Cell Formatter &amp; Editor Workbench</h1>
 
 <div id="hypergrid" style="height:145px; width:calc(50% - 8px)"></div>
 
-<div class="curvy-tabs-container" style="position:absolute; height:calc(100% - 250px); width:calc(50% - 16px); bottom:8px;">
+<div id="tab-bar-editors" class="curvy-tabs-container" style="position:absolute; height:calc(100% - 250px); width:calc(50% - 16px); bottom:8px;">
   <div style="background-color:#dff" name="Data">
-    <input id="reset-data" type="button" value="Reset" class="danger">
-    <input type="button" class="api" value="grid.setData(…)" onclick="callApi('setData', 'data', 'Data has been set')"
+    <span id="reset-data" class="svg-reset dangerous-button" title="Reset data to default. (This icon is only enabled when data have been edited.)"></span>
+    <input type="button" class="api" value="grid.setData(…)" onclick="callApi('data', 'Data has been set')"
      title="Note: Actually called with options in a 2nd parameter to reset schema on every call:
 grid.setData(…, { schema: [] })">
     <span class="feedback"></span>
@@ -27,10 +35,10 @@ grid.setData(…, { schema: [] })">
   </div>
 
   <div style="background-color:#fdf" name="State">
-    <input id="reset-state" type="button" value="Reset" class="danger">
+    <span id="reset-state" class="svg-reset dangerous-button" title="Reset this state object to default. (This icon is only enabled when state has been edited.)"></span>
     <!--<input type="button" class="api" value="grid.addState(…)" onclick="callApi('addState', 'state', 'State has been added')"
            title="addState() assigns the members of the state object defined below to grid.properties *without* clearing it first.">-->
-    <input type="button" class="api" value="grid.setState(…)" onclick="callApi('setState', 'state', 'State has been set')"
+    <input type="button" class="api" value="grid.setState(…)" onclick="callApi('state', 'State has been set')"
      title="setState() deletes all grid.properites’s members and then assigns the members of the state object defined below to it.">
     <span class="feedback"></span>
     <textarea id="state"></textarea>
@@ -39,10 +47,8 @@ grid.setData(…, { schema: [] })">
   <div style="background-color:#ffd" name="Localizers">
     <input type="button" value="Locals" class="locals">
     Load: <select id="localizer-dropdown"></select>
-    <input id="reset-localizer" type="button" value="Reset" class="danger"
-     title="Reset this localizer to its default.
-
-(This button only appears for localizers with workbench-supplied defaults.)">
+    <span id="reset-localizer" class="svg-reset dangerous-button" title="Reset this localizer to its default. (This icon is only enabled for built in localizers that have been edited.)"></span>
+    <span id="delete-localizer" class="svg-delete dangerous-button" title="Delete this localizer. (This icon only appears for custom localizers you added yourself.)"></span>
     <input type="button" class="api" value="grid.localization.add(…)">
     <span class="feedback">Saved</span>
     <textarea id="localizer-script"></textarea>
@@ -51,10 +57,8 @@ grid.setData(…, { schema: [] })">
   <div style="background-color:#ddf" name="Cell Editors">
     <input type="button" value="Locals" class="locals">
     Load: <select id="editor-dropdown"></select>
-    <input id="reset-editor" type="button" value="Reset" class="danger"
-     title="Reset this cell editor to its default.
-
-(This button only appears for cell editors with workbench-supplied defaults.)">
+    <span id="reset-editor" class="svg-reset dangerous-button" title="Reset this cell editor to its default. (This icon is only enabled for built in cell editors that have been edited.)"></span>
+    <span id="delete-editor" class="svg-delete dangerous-button" title="Delete this cell editor. (This icon is only enabled for custom cell editors you added yourself.)"></span>
     <input type="button" class="api" value="grid.cellEditors.add(…)">
     <span class="feedback">Saved</span>
     <textarea id="editor-script"></textarea>
@@ -64,44 +68,33 @@ grid.setData(…, { schema: [] })">
     <h2 style="color: red; text-shadow: 1px 1px 0 yellow;">Danger Zone</h2>
     <table><tr>
       <td><input id="reset-all" type="button" value="Reset All" class="danger"></td>
-      <td>This will reset all tabs to their default values, removing all edits, including new custom localizers and cell editors.</td>
+      <td>This will reset all tabs to their default values, removing all edits, including all custom localizers and custom cell editors.</td>
     </tr></table>
   </div>
 </div>
 
 <div class="divider"></div>
 
-<div class="curvy-tabs-container" style="position:absolute; height:calc(100% - 58px); width:calc(50% - 12px); bottom:8px; right:8px">
+<div id="tab-bar-tutorial" class="curvy-tabs-container" style="position:absolute; height:calc(100% - 58px); width:calc(50% - 12px); bottom:8px; right:8px">
   <div style="background-color:#f4f4f4" name="Tutorial">
-    <iframe src="tutorial/1.html" style="position:absolute; top:0; left:0; width:100%; height:100%; border:0"></iframe>
+    <iframe></iframe>
   </div>
 
-  <div style="background-color:#ffc" name="Code Snippets">
-    <iframe src="tutorial/code-snippets.html" style="position:absolute; top:0; left:0; width:100%; height:100%; border:0"></iframe></div>
+  <!-- start conditional tabs all of which must have display:none and an html file of its own for its iframe -->
+
+  <div style="background-color:#ffd; display:none" name="Code Snippets">
+    <iframe src="tutorial/code-snippets.html"></iframe>
+  </div>
+
+  <!-- end conditional tabs -->
 </div>
 
 <div id="page-panel" style="position:absolute; top:50px; right:24px; font: 10pt sans-serif;">
-  <div id="scroll-warning" style="position:absolute; top:-28px; font-size:8pt; color:#d00; text-align:center; left:0; right:0">
+  <div id="scroll-warning" style="position:absolute; top:-28px; font-size:8pt; color:#d00; text-align:center; left:0; right:0; opacity:0">
     Scroll tutorial to bottom before<br>
     proceeding to next page.
   </div>
-  <span id="page-prev" class="page-button page-button-enabled">&#x25c0;</span>
-  Page
-  <input id="page-control" type="range" style="width:50px; margin-left:.5em" min="1" max="3" value="1">
-  <b id="page-number" class="page-num">1</b>
-  of
-  <b id="page-max" class="page-num">n</b>
-  <span id="page-next" class="page-button page-button-enabled">&#x25ba;</span>
 </div>
-
-<script src="../build/fin-hypergrid.js"></script>
-
-<script>var exports = {}, module = {exports:exports};</script>
-<script src="scripts.js"></script>
-<script>var scripts = module.exports; delete window.exports; delete window.module;</script>
-
-<script src="../tutorial/index.js"></script>
-<script src="index.js"></script>
 
 </body>
 </html>

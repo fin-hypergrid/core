@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" href="index.css">
+  <script src="index.js"></script>
+</head>
+<body>
+<h2 class="continued">Localizers tab</h2>
+
+In the previous activity, we referenced a custom localizer supplied with this app.
+Now we’re going to create a simple localizer from scratch.
+
+<h3>Adding a new localizer</h3>
+
+For a grid cell to use a localizer to format its value, three coding steps are required:
+<ol>
+  <li>
+    <strong><em>Define</em> the localizer</strong><br>
+    Code the localizer in the <span class="tab">Localizers</span> tab's editor.
+  </li>
+  <li>
+    <strong><em>Register</em> the localizer with the grid</strong><br>
+    Use the <span class="tab">Localizers</span> tab’s <span class="api-button">grid.localization.add(…)</span> button.
+  </li>
+  <li>
+    <strong><em>Bind</em> the localizer to some cells</strong><br>
+    Cells are loosely bound to the localizer, by name, through their <code>format</code> property.*
+    To set the property declaratively, use the <span class="tab">State</span> tab's editor.
+  </li>
+</ol>
+
+<p>In the activity on the next page we’ll perform these three steps.</p>
+
+<table class="footnote">
+  <caption><div></div></caption>
+  <tr><td>*</td><td>For historical reasons, the property name is <code>format</code> rather than <code>localizer</code>.</td></tr>
+</table>

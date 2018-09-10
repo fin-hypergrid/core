@@ -2,6 +2,14 @@ body {
     font: 9pt sans-serif;
     margin: 8px;
 }
+.curvy-tabs-container iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: calc(100% + 16px); /* 16px is to ignore the 8px left and right padding of the container */
+    border: 0;
+}
 table {
     border-spacing: 12px 6px;
 }
@@ -33,14 +41,14 @@ input[type=button].locals {
     color: white;
     cursor: help;
     margin: 9px;
-    border-radius: 5px;
+    border-radius: .5em;
 }
 input[type=button].api {
     background-color: grey;
     color: white;
     font: 12px monospace;
-    border-radius: 6px;
-    padding: 4px 7px;
+    border-radius: .5em;
+    padding: .33em .66em;
     margin: 6px;
     float: right;
 }
@@ -56,7 +64,7 @@ input[type=button].danger {
     color: red;
     border-color: red;
     margin: 9px;
-    border-radius: 5px;
+    border-radius: .5em;
     background-color: transparent;
 }
 input[type=button].danger:hover {
@@ -84,4 +92,23 @@ input[type=button].danger:active {
 }
 .divider:active {
     border-top: 4px solid #888;
+}
+span.dangerous-button > svg {
+    color: #cb2431;
+    fill: currentColor;
+    vertical-align: middle;
+    cursor: pointer;
+}
+span.dangerous-button.disabled > svg {
+    color: #aaa;
+    cursor: no-drop;
+}
+span.dangerous-button:not(.disabled):hover > svg {
+    color: red;
+    background-color: yellow;
+    border-radius: 1em;
+}
+sup {
+    font-size: 45%;
+    font-weight: normal
 }

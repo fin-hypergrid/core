@@ -2,6 +2,12 @@ body {
     margin: 8px;
     font: 11pt/1.4 serif;
 }
+p:first-child {
+    margin-top: 0;
+}
+p:last-child {
+    margin-bottom: 0;
+}
 .snippet {
     display: none;
 }
@@ -19,6 +25,26 @@ pre {
     white-space: pre-wrap;
     margin: 1em 0;
 }
+span.api-button {
+    font-family: monospace;
+    font-size: smaller;
+    background-color: grey;
+    color: white;
+    border-radius: .5em;
+    padding: .33em .66em;
+    margin: 0 2px;
+}
+span.keycap {
+    font-family: sans-serif;
+    font-size: smaller;
+    letter-spacing: 1px;
+    background-color: #555;
+    color: #eee;
+    border-radius: .5em;
+    padding: .22em .66em;
+    min-width: 2em;
+    margin: 0 2px;
+}
 span.button {
     font-family: sans-serif;
     background-color: #eee;
@@ -28,19 +54,29 @@ span.button {
     margin: 0 2px;
     font-size: 8pt;
 }
+span.button.danger {
+    padding: 1px 4px 2px;
+    font-family: sans-serif;
+    background-color: transparent;
+    border: 1px solid red;
+    color: red;
+}
 a.code, code {
-    font-family: monospace;
-    font-size: smaller;
-    background-color: #d4d4d4;
+    font-family: verdana, monospace;
+    font-size: 77%;
+    color: #555;
+    background-color: #ddd;
     padding: 0 4px;
     border-radius: 4px;
-    border: 1px solid #bbb;
+    /* border: 1px solid #bbb; */
+    font-weight: bold;
+    white-space: nowrap;
 }
 a.code:hover {
     text-decoration: none;
     background-color: blue;
     color: white;
-    border: 1px solid transparent;
+    /*border: 1px solid transparent;*/
 }
 p {
     margin: .6em 0;
@@ -59,15 +95,15 @@ h2 {
     letter-spacing: 0;
 }
 h3 {
-    border-bottom: 1px solid grey;
-    margin-bottom: .6em;
+    color: #666;
+    margin-bottom: .3em;
 }
 h4 {
-    color: #333;
+    color: #888;
     margin-bottom: .3em;
 }
 h5 {
-    color: #666;
+    color: #aaa;
     margin-bottom: .3em;
 }
 div.note {
@@ -80,6 +116,13 @@ div.note:before {
     content: 'Note: ';
     font-weight: bold;
 }
+div.sidebar {
+    margin: 2em 15%;
+    padding: .75em;
+    border: 2px solid black;
+    background-color: #eef;
+    text-align: center;
+}
 
 /* FOOTNOTES */
 
@@ -88,14 +131,14 @@ a.superscript {
     text-decoration: none;
 }
 table.footnote {
-    margin: 1.5em .6em 0 .6em;
+    margin-top: 1.5em;
 }
 table.footnote > caption {
     text-align: left;
 }
 table.footnote > caption > div {
     vertical-align: super;
-    width: 10em;
+    width: 6em;
     border-bottom: 1px solid black;
 }
 table.footnote td {
@@ -121,10 +164,10 @@ article.activity > section > ol ol {
 }
 article.activity > section > ol ul > li,
 article.activity > section > ol ol > li {
-    font-size: smaller;
+    font-size: 90%;
     margin-top: .25em;
 }
-article.activity > section > ol > li.observe:before {
+.observe:before {
     content: 'Observe: ';
     font-style: italic;
 }
@@ -160,6 +203,25 @@ fieldset > legend {
     padding: .5em 1em .4em;
     border: 1px solid grey;
 }
-a.tab {
-    font-style: italic;
+span.tab {
+    border-top: 1px solid grey;
+    border-right: 1px solid grey;
+    border-top-right-radius: .5em;
+    border-left: 1px solid grey;
+    border-top-left-radius: .5em;
+    padding: .25em .5em .1em .45em;
+    font-family: sans-serif;
+    color: black;
+    font-size: smaller;
+    text-decoration: none;
+    cursor: default;
+    white-space: nowrap;
 }
+span.tab:hover {
+    box-shadow: 0.15em 0.15em 0.3em #666;
+}
+svg.dangerous-button {
+     color: #cb2431;
+     fill: currentColor;
+     vertical-align: middle;
+ }

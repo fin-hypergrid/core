@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" href="index.css">
+  <script src="index.js"></script>
+</head>
+<body>
+
+<h2>Workbench interface: Tutorial section</h2>
+The tutorial content area has multiple pages.
+Every page has a Tutorial tab, with some pages also having a <em>Code Snippets</em> tab.
+
+<h3>Tutorial tab</h3>
+This is the tab you’re reading from right now.
+<p>
+  The tutorial is split into easily digestible, page-size chunks.
+  Depending on your window size, you may need to scroll down to see the whole page.
+</p>
+To move from page to page:
+<ul style="margin-top:.3em">
+  <li>Click the <span class="button">&#x25c0;</span> or <span class="button">&#x25ba;</span> buttons above to go to the previous or next page, respectively</li>
+  <li>Press the <span class="keycap">&#x2190;</span> or <span class="keycap">&#x2192;</span> keys on your keyboard which also go to the previous page and next page, respectively<a class="superscript" href="#note">*</a></li>
+  <li>Drag the slider found between the page buttons for random access to any page</li>
+</ul>
+
+<h3><em>Code Snippets</em> tab</h3>
+This tab contains code snippets for cutting-and-pasting and only appears when the current tutorial page has such content.
+
+<div class="sidebar">
+  Click the <span class="button" onclick="this.nextElementSibling.style.backgroundColor='yellow'">&#x25ba;</span> button <em>(above)</em> to go to the next page.
+</div>
+
+<table id="note" class="footnote">
+  <caption><div></div></caption> <!--separator line-->
+  <tr>
+    <td>*</td>
+    <td>
+      Note however that these arrow keys cannot be used for paging when a text field has the focus because in that case they are used for editing.
+    </td>
+  </tr>
+</table>
+
+</body>
+</html>

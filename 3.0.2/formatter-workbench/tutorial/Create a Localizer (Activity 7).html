@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" href="index.css">
+  <script src="index.js"></script>
+</head>
+<body>
+<h2 class="continued">Localizers tab</h2>
+
+The following Activity creates a simple localizer from scratch.
+
+<p>Be sure to see the <span class="tab">Code Snippets</span> tab for insights into how to do this <em>programmatically</em> (in code, outside of this workbench).</p>
+
+<article class="activity">
+  <header><div>7</div>Define, register, and bind a new localizer</header>
+  <section>
+    <h3>7.1: Define</h3>
+    <ol>
+      <li>Switch to the <span class="tab">Localizers</span> tab</li>
+      <li>Select <strong>(New)</strong> from the <em>Load localizer</em> drop-down</li>
+      <li>Rename it with a unique name by editing the <a target="doc" href="https://fin-hypergrid.github.io/core/doc/localizerInterface.html#name" class="code">name</a> property</li>
+      <li>Code your localizer by referring to examples and the <a target="doc" href="https://fin-hypergrid.github.io/core/doc/localizerInterface.html">localizer interface</a> documentation</li>
+      <li>
+        You are editing a <a target="web" href="https://thejsguy.com/javascript/browserify/2015/01/05/browserify-getting-started.html">CommonJS</a>-style module so:
+        <ul>
+          <li>Be sure to assign your localizer to <code>module.exports</code></li>
+          <li>You may add local variable declarations at the root level (<i>i.e.,</i> outside any function)</li>
+        </ul>
+      </li>
+    </ol>
+
+    For example, here’s a file containing a localizer to show a “degrees” unit:
+    <pre>module.exports = {
+    name: 'deg',
+    format: function(val) { return val + '°' },
+    parse: function(str) { return parseFloat(str); }
+}</pre>
+
+    <h3>7.3: Register</h3>
+    Now register your new localizer with the grid:
+    <ol start="6">
+      <li>Click the <span class="api-button">grid.localization.add(…)</span> button.</li>
+    </ol>
+    Your code is evaluated. If there is an error with your code, an error message will be shown in an alert. Fix the problem and try again.
+
+    <p>A localizer can also be registered programmatically by calling <code>add</code> in your code. (See the <span class="tab">Code Snippets</span> tab.)</p>
+
+    <h3>7.3: Bind</h3>
+
+    Once a localizer is registered in the grid, it can be bound to a cell (or column, <i>etc.</i>), by name, through its
+    <a target="doc" href="https://fin-hypergrid.github.io/core/doc/localizerInterface.html#format" class="code">format</a> property.
+    This property can be set declaratively in a grid state object:
+
+    <ol start="7">
+      <li>Go back to the <span class="tab">State</span> tab</li>
+      <li>
+        <em>Edit the state object:</em><br>
+        Add a <code>format</code> property to the <code>prevclose</code> column with a value of <code>'deg'</code> (<i>i.e.,</i> in parallel with the existing <code>halign</code> property)
+      </li>
+      <li>Click the <span class="api-button">grid.setState(…)</span> button</li>
+      <li>Observe: The values in the grid are now rendered with a degrees symbol</li>
+    </ol>
+
+    The property can also be set programmatically. (See the <span class="tab">Code Snippets</span> tab.)
+
+    <h3>7.4: Update</h3>
+    The <span class="api-button">grid.localization.add(…)</span> button can also be used to update a localizer already known to the grid.
+    <p>For example, to line up the figures in the <code>prevclose</code> column, adjust the formatter:
+
+    <ol start="11">
+      <li>Switch back to the <span class="tab">Localizers</span> tab</li>
+      <li>
+        <em>Edit the <code>format</code> method:</em><br>
+        Change <code>return val + '°'</code> to <code>return val.toFixed(1) + '°'</code>
+      </li>
+      <li>Click the <span class="api-button">grid.localization.add(…)</span> button again</li>
+    </ol>
+  </section>
+</article>
+
+Because we’re using <em>loose binding</em>, the cell’s <code>format</code> property remains bound even when the referenced object is subsequently updated (as above) or replaced.
+
+<p>In general, note the following regarding Hypergrid properties that bind cells to objects:</p>
+<ul>
+  <li>Cells are bound with a string containing the name of a <em>registered</em> object</li>
+  <li>The strings are <em>not</em> case sensitive</li>
+  <li>Each property refers to items in a specific <em>registry,</em> each with its own namespace</li>
+  <li>Invalid references (<i>i.e.,</i> to items not found in the registry) are ignored</li>
+</ul>
+
+On the next page we discuss cell editors.
+
+<div class="curvy-tab-conditional" data-tab-name="Code Snippets">
+  <h2 class="continued">Localizers tab</h2>
+
+  The code snippets below accomplish <em>programmatically</em> the same objective as <span class="activity">Activity 7</span> in the <span class="tab">Tutorial</span> tab.
+
+  <p>This time, we’ll define a localizer that we’ll call <code>pct</code> to format the <code>change</code> column as percentages.</p>
+
+  <h3>Define, register, and bind a localizer Programmatically</h3>
+
+  <h4>Define</h4>
+  <pre>var localizer = {
+    name: 'pct',
+    format: function(n) { return (n * 100).toFixed(3) + '%'; },
+    parse: function(s) { return parseInt(s, 10) / 100; }
+};</pre>
+
+  The above <code>format</code> method performs a calculation before appending the percent sign (%).
+  This is perfectly acceptable, although another approach might be to use a <em>computed column</em> (an entirely separate topic).
+
+  <h4>Register</h4>
+  To register a cell editor with the grid instance:
+  <pre>grid.localization.add(pct);</pre>
+
+  Localizers are not actually required to have a <a class="code" target="doc" href="https://fin-hypergrid.github.io/core/doc/localizerInterface.html#name">name</a> property.
+  They can alternatively be named at registration time with an optional first parameter:
+  <pre>grid.localization.add('pct', localizer);</pre>
+  When specified, the optional first parameter overrides the given localizer’s <code>name</code> property (if present).
+
+  <h4>Bind</h4>
+  To bind the localizer, we reference it by name in the <code>format</code> property.
+  <p>For example, here we set the <code>format</code> property for the entire <code>change</code> column with an API call to get the column object:</p>
+  <pre>var column = grid.behavior.getActiveColumn('change');
+column.properties.format = 'PCT'; // case-insensitive</pre>
+
+  <h5>Data columns <i>vs.</i> grid columns</h5>
+  The difference between the <code>getColumn</code> and <code>getActiveColumn</code> methods is that the latter (<em>grid columns</em>) accesses a subset of the former (<em>data columns</em>):
+  <ul>
+    <li>
+      <code>getColumn</code> accesses the <em>data columns</em> in <code>behavior.allColumns</code>, a list of column objects ordered per the column schema array <code>grid.behavior.dataModel.getSchema()</code> (shortcut <code>grid.behavior.schema</code>).
+    </li>
+    <li>
+      <code>getActiveColumn</code> accesses the "active" <em>grid columns</em> in <code>behavior.columns</code>, a list of column objects representing the subset of data columns currently <em>active</em> in the grid, ordered from left to right (including columns that may be scrolled out of view) per <code>grid.properties.columnIndexes</code> or <code>grid.properties.columnNames</code>.
+    </li>
+  </ul>
+  Both these methods are overloaded to accept either column names or column indexes:
+  <ul>
+    <li>
+      Reference a column by name:
+      <ol>
+        <li>To reference an <em>active column</em> by name, it is not critical which method you use</li>
+        <li>To reference an <em>inactive column</em> by name, however, you must use <code>getColumn(name)</code></li>
+      </ol>
+    </li>
+    <li>
+      Reference a column by data index or grid index:
+      <ol>
+        <li>The <em>data index</em> a zero-based index of data columns (all the columns in the data set)</li>
+        <li>The <em>grid index</em> a zero-based index of the "active" grid columns subset of data columns.</li>
+      </ol>
+      Therefore, when referencing a column by index the choice is critical:
+      <ol>
+        <li>To reference an <em>active column</em> by index, use <code>getActiveColumn(gridColumnIndex)</code></li>
+        <li>To reference an <em>inactive column</em> by index, use <code>getColumn(dataColumnIndex)</code></li>
+      </ol>
+    </li>
+  </ul>
+
+  <h5>An alterative binding methodology</h5>
+  A hybrid approach that mixes declarative and programmatic styles is also available using the
+  <a target="doc" href="https://fin-hypergrid.github.io/core/doc/Hypergrid.html#addState" class="code">addState(state)</a> method:
+  <pre>var additionalState = { columns: { change: { format: 'PCT' } } };
+grid.addState(additionalState);</pre>
+  The above snippet sets additional state non-destructively, <i>i.e.,</i> without removing previously set state.
+  Because it mixes the declarative and programmatic of thinking, however, <em>this methodology is generally not recommended.</em>
+  Setting state is generally intended to happen when the grid is initially loaded.
+
+  <h4>Examples</h4>
+  Following are additional examples of programmatic bindings, using direct API calls.
+
+  <h5>Example: Setting a grid property programmatically</h5>
+  <pre>var propName = 'format'; // for example
+var propValue = 'pct'; // for example
+grid.properties[propName] = propValue;</pre>
+
+  <h5>Example: Setting a column property programmatically</h5>
+  Set a column property directly on the <code>column.properties</code> object.
+  To get a column object, you need either its index or its name:
+  <pre>var columnIndex = 3; // fourth column
+var column = grid.behavior.getActiveColumn(columnIndex);
+
+// or:
+var columnName = 'change';
+var column = grid.behavior.getActiveColumn(columnName);
+
+column.properties[propName] = propValue;</pre>
+
+  Once you have the column object, you have access to both <code>column.index</code> and <code>column.name</code> (among other props).
+
+  <h5>Example: Setting a row property programmatically</h5>
+  <pre>var rowIndex = 5; // the sixth row, for example
+grid.behavior.setRowProperty(rowIndex, propName, propValue);</pre>
+
+  <h5>Example: Setting a cell property programmatically</h5>
+  Cell properties can be set when you already have a <code>column</code> object:
+  <pre>column.setCellProperty(rowIndex, propName, propValue);</pre>
+  Or when you just have a <code>columnIndex</code>:
+  <pre>grid.behavior.setCellProperty(columnIndex, rowIndex, propName, propValue);</pre>
+</div>

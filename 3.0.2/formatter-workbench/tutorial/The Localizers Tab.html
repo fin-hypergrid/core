@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <link rel="stylesheet" href="tutorial.css">
+  <link rel="stylesheet" href="index.css">
   <script src="index.js"></script>
 </head>
 <body>
@@ -32,10 +32,11 @@ Parses values in the displayed format, converting them back into raw data values
 
 <p>
   The <a target="doc" href="https://fin-hypergrid.github.io/core/doc/localizerInterface.html#parse" class="code">parse</a> method is only invoked by Hypergrid when a formatted cell is edited.
-  While it may be tempting to supply a no-op function you believe it will never be invoked because cell editing on the target cells is disabled,
+  If cell editing on the target cells is disabled, the `parse` function will never be invoked.
+  While it may be tempting to supply a no-op function in such a case,
   <em>it is always a good practice to code a functional <code>parse</code> method.</em>
   Can you be certain it will never be made editable in the future?
-  Consider also that plug-ins may need to invoke this method for interpreting sort and filter expressions.
+  Consider also that sorting and filtering plug-ins will want to invoke this method to parse their input.
 </p>
 
 <h4><a target="doc" href="https://fin-hypergrid.github.io/core/doc/localizerInterface.html#invalid" class="code">invalid</a></h4>

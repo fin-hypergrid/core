@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <link rel="stylesheet" href="tutorial.css">
+  <link rel="stylesheet" href="index.css">
   <script src="index.js"></script>
 </head>
 
@@ -27,14 +27,14 @@ Cell editors allow the user to edit cell values.
 </ol>
 
 While the default for <code>editable</code> is <code>true</code>, for <code>editor</code> it’s <code>undefined</code>.
-However, our state object (see <a class="tab">State</a> tab) sets <code>editor</code> to <code>'<a href="https://github.com/fin-hypergrid/core/blob/master/src/cellEditors/Textfield.js">Textfield</a>'</code>,
+However, our state object (see <span class="tab">State</span> tab) sets <code>editor</code> to <code>'<a href="https://github.com/fin-hypergrid/core/blob/master/src/cellEditors/Textfield.js">Textfield</a>'</code>,
 a very simple cell editor included with Hypergrid for editing string data.
 Because <code>editor</code> is set at the grid level, <em>all</em> cells editable as simple text strings.
 
 <p>So we’re good to go…</p>
 
 <article class="activity">
-  <header><div>9</div> Edit a cell</header>
+  <header><div>8</div> Edit a cell</header>
   <section>
 
     <p>
@@ -42,8 +42,10 @@ Because <code>editor</code> is set at the grid level, <em>all</em> cells editabl
       Cell editors can function with or without localizers; we want to try it without localizers first.
     </p>
     <ol>
-      <li>Switch to the <a class="tab">State</a> tab</li>
-      <li>Click the <span class="button">Reset</span> button to restore state to the default (no localizers)</li>
+      <li>Switch to the <span class="tab">State</span> tab</li>
+      <li>Click the
+        <span title="Reset" class="svg-reset"></span>
+        button to restore state to the default (no localizers)</li>
     </ol>
 
     Okay, now we’re ready.
@@ -52,7 +54,7 @@ Because <code>editor</code> is set at the grid level, <em>all</em> cells editabl
       <li>Open a cell editor by double-clicking any cell</li>
       <li>An editor is superimposed over the cell</li>
       <li>Edit the value</li>
-      <li>Save the edited value by pressing the <span class="button">enter</span> or <span class="button">tab</span> keys</li>
+      <li>Save the edited value by pressing the <span class="keycap">enter</span> or <span class="keycap">tab</span> keys</li>
       <li class="observe">
         <ol>
           <li>the edited value is saved to the data model</li>
@@ -63,7 +65,7 @@ Because <code>editor</code> is set at the grid level, <em>all</em> cells editabl
     </ol>
     Or instead of saving the edit, try repeating steps 3 through 5 and then:
     <ol start="6">
-      <li>Abort the edit by pressing the <span class="button">esc</span> key</li>
+      <li>Abort the edit by pressing the <span class="keycap">esc</span> key</li>
       <li class="observe">
         <ol>
           <li>the editor is removed</li>

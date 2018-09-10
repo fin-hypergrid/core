@@ -2,20 +2,19 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <link rel="stylesheet" href="tutorial.css">
+  <link rel="stylesheet" href="index.css">
   <script src="index.js"></script>
 </head>
 
 <body>
-<h2 class="continued"><em>Cell Editors</em> tab</h2>
+<h2 class="continued">Validation</h2>
 
-<h3>Validation</h3>
 Validation is the responsibility of the <code>localizer.parse</code> method.
 (Though technically part of the localizer, we’re discussing it here becuase it comes into play during cell editing.)
 
 <p>All localizers should be coded to ensure edited values are completely valid.</p>
 
-<p>Consider, for example, the <code>deg</code> localizer, which you can examine in the <a class="tab">Localizers</a> tab, but here it is:</p>
+<p>Consider, for example, the <code>deg</code> localizer, which you can examine in the <span class="tab">Localizers</span> tab, but here it is:</p>
 <pre>module.exports = {
     name: 'deg',
     format: function(s) { return s + '&deg;' },

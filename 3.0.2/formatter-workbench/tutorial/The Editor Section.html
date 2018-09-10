@@ -2,44 +2,38 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <link rel="stylesheet" href="tutorial.css">
+  <link rel="stylesheet" href="index.css">
   <script src="index.js"></script>
 </head>
 <body>
 
-<h2>Editor pane</h2>
-The four tabs in the lower left pane are for editing data, grid state, and code.
+<h2>Workbench interface: Editor section</h2>
+The tabbed section at the lower left hosts editors for grid data, grid state, localizer code, and cell editor code.
 <ul>
   <li>Apply your edits by clicking the grey <em>action button</em> in the upper right of each tab.</li>
   <li>The button’s label indicates the API call involved.</li>
   <li>The API is called with the <code>eval</code>’d editor text as the first and only parameter (represented in the button label by an elipsis).</li>
 </ul>
 
-<h3>Synopsis</h3>
-
-<h4>Data tab</h4>
-The <a class="tab">Data</a> tab contains a JavaScript representation of the grid’s data source.
+<h3>Data tab</h3>
+The <span class="tab">Data</span> tab contains a JavaScript representation of the grid’s data source.
 This tab lets you edit the grid data to suit the needs of your localizer and cell editor development.
 
-<h4>State tab</h4>
+<h3>State tab</h3>
 A Hypergrid <em>state</em> object contains grid property settings affecting look, feel, and behavior of a grid.
-This tab lets you edit a state object and <em>load</em> it into the grid.
+The <span class="tab">State</span> lets you edit a state object and <em>load</em> it into the grid.
 
-<h4>Localizer tab</h4>
+<h3>Localizers tab</h3>
 Hypergrid <em>localizers</em> control how strings are formatted for display.
-This tab lets you select an existing localizer for editing, or create and save<a class="superscript" href="#note">*</a> a new localizer.
+The <span class="tab">Localizers</span> lets you select an existing localizer for editing, or create and save<a class="superscript" href="#note">*</a> a new localizer.
 
-<h4>Cell Editor tab</h4>
+<h3>Cell Editors tab</h3>
 Hypergrid <em>cell editors</em>
 This tab lets you select an existing cell editor for editing, or create and save<a class="superscript" href="#note">*</a> a new localizer.
 
-<h3>Details</h3>
-<p>
-  Let’s take these one at a time.
-</p>
-<p>
-  Click the <span class="button">&#x25ba;</span> button <em>(above)</em> to go to the next page.
-</p>
+<div class="sidebar">
+  <p>Now let’s take these one at a time.<br></p>
+  <p>Click the <span class="button" onclick="this.nextElementSibling.style.backgroundColor='yellow'">&#x25ba;</span> button <em>(above)</em> to go to the next page.</p>
 </div>
 
 <table id="note" class="footnote">

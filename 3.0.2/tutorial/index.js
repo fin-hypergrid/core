@@ -1,7 +1,7 @@
-function Tutorial(tabContainer, pagesPath, maxPages) {
+function Tutorial(tabContainer, pagesPath, toc) {
     this.container = tabContainer;
     this.path = pagesPath;
-    this.maxPages = maxPages;
+    this.toc = toc;
 
     this.tabBar = new CurvyTabs(tabContainer);
     this.tabBar.paint();
@@ -14,31 +14,38 @@ Tutorial.prototype = {
 
     initPagingControls: function() {
         var m = document.cookie.match(/\btutorial=(\d+)/);
-        this.pageNum = m ? Number(m[1]) : 1;
+        var tut = this;
+        tut.pageNum = m ? Number(m[1]) : 1;
 
-        document.getElementById('page-max').innerText = document.getElementById('page-control').max = this.maxPages;
+        document.getElementById('page-max').innerText = document.getElementById('page-control').max = tut.toc.length;
 
-        this.page(this.pageNum, 0);
+        tut.page(tut.pageNum);
 
-        document.getElementById('page-control').oninput = function() { this.page(Number(this.value)); }.bind(this);
-        document.getElementById('page-prev').onclick = function() { this.page(this.pageNum - 1); }.bind(this);
-        document.getElementById('page-next').onclick = function() { this.page(this.pageNum + 1); }.bind(this);
+        document.getElementById('page-control').oninput = function() { tut.page(this.value); };
+        document.getElementById('page-prev').onclick = function() { tut.page(tut.pageNum - 1); };
+        document.getElementById('page-next').onclick = function() { tut.page(tut.pageNum + 1); };
 
         document.addEventListener('keydown', function(e) {
             var el = document.activeElement;
             var editingText = el.tagName === 'TEXTAREA' || el.tagName === 'INPUT' && el.type === 'text';
-            var isTutorial = !editingText && this.tabBar.selected.getAttribute('name') === 'Tutorial';
+            var isTutorial = !editingText && tut.tabBar.selected.getAttribute('name') === 'Tutorial';
             if (isTutorial) {
                 switch (e.key) {
-                    case 'ArrowLeft': if (this.pageNum > 1) { this.page(--this.pageNum); } break;
-                    case 'ArrowRight': if (this.pageNum < this.maxPages) { this.page(++this.pageNum); } break;
+                    case 'ArrowLeft': if (tut.pageNum > 1) { tut.page(--tut.pageNum); } break;
+                    case 'ArrowRight': if (tut.pageNum < tut.toc.length) { tut.page(++tut.pageNum); } break;
                 }
             }
-        }.bind(this));
+        });
     },
 
-    page: function(n) {
-        if (1 > n || n > this.maxPages) {
+    page: function(n, path) {
+        n = Number(n);
+
+        if (path === undefined) {
+            path = this.path;
+        }
+
+        if (1 > n || n > this.toc.length) {
             return;
         }
 
@@ -49,20 +56,18 @@ Tutorial.prototype = {
         // save page number in a cookie for next visit or reload
         var d = new Date;
         d.setYear(d.getFullYear() + 1);
-        document.cookie = 'src=' + this.pageNum + '; expires=' + d.toUTCString();
+        document.cookie = 'tutorial=' + this.pageNum + '; expires=' + d.toUTCString();
 
         // page transition
-        this.container.querySelector('iframe').contentWindow.location.href = this.path + this.pageNum + '.html';
+        this.container.querySelector('iframe').contentWindow.location.href = path + this.toc[this.pageNum - 1];
 
         // adjust page panel
         document.getElementById('page-number').innerText = document.getElementById('page-control').value = this.pageNum;
 
-        var classList = document.getElementById('page-prev').classList;
-        var method = this.pageNum === 1 ? 'remove' : 'add';
-        classList[method]('page-button-enabled'); classList[method]('page-button-enabled-prev');
+        // hide the prev button on next page
+        document.getElementById('page-prev').classList.toggle('page-button-enabled-prev', this.pageNum !== 1);
 
-        classList = document.getElementById('page-next').classList;
-        method = this.pageNum === this.maxPages ? 'remove' : 'add';
-        classList[method]('page-button-enabled'); classList[method]('page-button-enabled-next');
+        // hide the next button on last page
+        document.getElementById('page-next').classList.toggle('page-button-enabled-next', this.pageNum !== this.toc.length);
     }
 };

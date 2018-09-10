@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" href="index.css">
+  <script src="index.js"></script>
+</head>
+<body>
+
+<h2 class="continued">State tab</h2>
+
+<h3>Properties cascade</h3>
+
+Hypergrid's property objects have useful prototype chains. For example:
+
+<ul>
+  <li>A property set on a specific cell would override the same property set on the cell’s column.</li>
+  <li>A property set on a specific column would override the same property set on the grid.</li>
+  <li>A property set on the grid would override the same property set on an active theme or the property's default value.</li>
+</ul>
+
+For example, in the following all cells use the <code>currency</code> localizer <em>except</em> cells in column <code>prevclose</code> which use the <code>pct</code> localizer:
+<pre>grid.setState({
+  format: 'currency', // grid property that affects all cells
+  columns: {
+    prevclose: {
+      format: 'pct' // affects specific column, overriding above
+    }
+  }
+});</pre>
+
+See the <a target="prop-wiki" href="https://github.com/fin-hypergrid/core/wiki/Grid-Properties" style="font-style:italic">Grid Properties</a> wiki for details.
+
+<div class="note">
+  For rendering purposes, the order of the cascade can differ from the natural prototype chain order.
+  The precise order of the properties cascade can be overridden at rendering time on a cell-by-cell basis through the <code>propClassLayers</code> property,
+  whose default setting includes row properties, normally not part of the prototype chain.
+</div>
+
+</body>
+</html>

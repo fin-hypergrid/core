@@ -1,0 +1,512 @@
+[
+  {
+    "name": "Alabama",
+    "code": "AL",
+    "capital": "Montgomery",
+    "city": "Birmingham",
+    "founded": "December 14, 1819",
+    "population": 4858979,
+    "area": 52420,
+    "reps": 7
+  },
+  {
+    "name": "Alaska",
+    "code": "AK",
+    "capital": "Juneau",
+    "city": "Anchorage",
+    "founded": "January 3, 1959",
+    "population": 738432,
+    "area": 665384,
+    "reps": 1
+  },
+  {
+    "name": "Arizona",
+    "code": "AZ",
+    "capital": "Phoenix",
+    "city": "Phoenix",
+    "founded": "February 14, 2012",
+    "population": 6828065,
+    "area": 113990,
+    "reps": 9
+  },
+  {
+    "name": "Arkansas",
+    "code": "AR",
+    "capital": "Little Rock",
+    "city": "Little Rock",
+    "founded": "June 15, 1836",
+    "population": 2978204,
+    "area": 53179,
+    "reps": 4
+  },
+  {
+    "name": "California",
+    "code": "CA",
+    "capital": "Sacramento",
+    "city": "Los Angeles",
+    "founded": "September 9, 1850",
+    "population": 39144818,
+    "area": 163695,
+    "reps": 53
+  },
+  {
+    "name": "Colorado",
+    "code": "CO",
+    "capital": "Denver",
+    "city": "Denver",
+    "founded": "August 1, 1876",
+    "population": 5456574,
+    "area": 104094,
+    "reps": 7
+  },
+  {
+    "name": "Connecticut",
+    "code": "CT",
+    "capital": "Hartford",
+    "city": "Atlanta",
+    "founded": "January 9, 1788",
+    "population": 3590886,
+    "area": 5543,
+    "reps": 5
+  },
+  {
+    "name": "Delaware",
+    "code": "DE",
+    "capital": "Dover",
+    "city": "Wilmington",
+    "founded": "December 7, 1787",
+    "population": 945934,
+    "area": 2489,
+    "reps": 1
+  },
+  {
+    "name": "District of Columbia",
+    "code": "DC",
+    "capital": "Washington",
+    "city": "Washington",
+    "founded": "July 16, 1790",
+    "population": 672228,
+    "area": 68,
+    "reps": 1
+  },
+  {
+    "name": "Florida",
+    "code": "FL",
+    "capital": "Tallahassee",
+    "city": "Jacksonville",
+    "founded": "March 3, 1845",
+    "population": 20271272,
+    "area": 65758,
+    "reps": 27
+  },
+  {
+    "name": "Georgia",
+    "code": "GA",
+    "capital": "Atlanta",
+    "city": "Atlanta",
+    "founded": "January 2, 1788",
+    "population": 10214860,
+    "area": 59425,
+    "reps": 14
+  },
+  {
+    "name": "Hawaii",
+    "code": "HI",
+    "capital": "Honolulu",
+    "city": "Honolulu",
+    "founded": "August 21, 1959",
+    "population": 1431603,
+    "area": 10932,
+    "reps": 2
+  },
+  {
+    "name": "Idaho",
+    "code": "ID",
+    "capital": "Boise",
+    "city": "Boise",
+    "founded": "July 3, 1890",
+    "population": 1654930,
+    "area": 83569,
+    "reps": 2
+  },
+  {
+    "name": "Illinois",
+    "code": "IL",
+    "capital": "Springfield",
+    "city": "Chicago",
+    "founded": "December 3, 1818",
+    "population": 12859995,
+    "area": 57914,
+    "reps": 18
+  },
+  {
+    "name": "Indiana",
+    "code": "IN",
+    "capital": "Indianapolis",
+    "city": "Indianapolis",
+    "founded": "December 11, 1816",
+    "population": 6619680,
+    "area": 36420,
+    "reps": 9
+  },
+  {
+    "name": "Iowa",
+    "code": "IA",
+    "capital": "Des Moines",
+    "city": "Des Moines",
+    "founded": "December 28, 1846",
+    "population": 3123899,
+    "area": 56273,
+    "reps": 4
+  },
+  {
+    "name": "Kansas",
+    "code": "KS",
+    "capital": "Topeka",
+    "city": "Wichita",
+    "founded": "January 29, 1861",
+    "population": 2911641,
+    "area": 82278,
+    "reps": 4
+  },
+  {
+    "name": "Kentucky[D]",
+    "code": "KY",
+    "capital": "Frankfort",
+    "city": "Louisville",
+    "founded": "June 1, 1792",
+    "population": 4425092,
+    "area": 40408,
+    "reps": 6
+  },
+  {
+    "name": "Louisiana",
+    "code": "LA",
+    "capital": "Baton Rouge",
+    "city": "New Orleans",
+    "founded": "April 30, 1812",
+    "population": 4670724,
+    "area": 52378,
+    "reps": 6
+  },
+  {
+    "name": "Maine",
+    "code": "ME",
+    "capital": "Augusta",
+    "city": "Portland",
+    "founded": "March 15, 1820",
+    "population": 1329328,
+    "area": 35380,
+    "reps": 2
+  },
+  {
+    "name": "Maryland",
+    "code": "MD",
+    "capital": "Annapolis",
+    "city": "Baltimore",
+    "founded": "April 28, 1788",
+    "population": 6006401,
+    "area": 12406,
+    "reps": 8
+  },
+  {
+    "name": "Massachusetts[E]",
+    "code": "MA",
+    "capital": "Boston",
+    "city": "Boston",
+    "founded": "February 6, 1788",
+    "population": 6794422,
+    "area": 10554,
+    "reps": 9
+  },
+  {
+    "name": "Michigan",
+    "code": "MI",
+    "capital": "Lansing",
+    "city": "Detroit",
+    "founded": "January 26, 1837",
+    "population": 9922576,
+    "area": 96714,
+    "reps": 14
+  },
+  {
+    "name": "Minnesota",
+    "code": "MN",
+    "capital": "St. Paul",
+    "city": "Minneapolis",
+    "founded": "May 11, 1858",
+    "population": 5489594,
+    "area": 86936,
+    "reps": 8
+  },
+  {
+    "name": "Mississippi",
+    "code": "MS",
+    "capital": "Jackson",
+    "city": "Jackson",
+    "founded": "December 10, 1817",
+    "population": 2992333,
+    "area": 48432,
+    "reps": 4
+  },
+  {
+    "name": "Missouri",
+    "code": "MO",
+    "capital": "Jefferson City",
+    "city": "Kansas City",
+    "founded": "August 10, 1821",
+    "population": 6083672,
+    "area": 69707,
+    "reps": 8
+  },
+  {
+    "name": "Montana",
+    "code": "MT",
+    "capital": "Helena",
+    "city": "Billings",
+    "founded": "November 8, 1889",
+    "population": 1032949,
+    "area": 147040,
+    "reps": 1
+  },
+  {
+    "name": "Nebraska",
+    "code": "NE",
+    "capital": "Lincoln",
+    "city": "Omaha",
+    "founded": "March 1, 1867",
+    "population": 1896190,
+    "area": 77348,
+    "reps": 3
+  },
+  {
+    "name": "Nevada",
+    "code": "NV",
+    "capital": "Carson City",
+    "city": "Las Vegas",
+    "founded": "October 31, 1864",
+    "population": 2890845,
+    "area": 110572,
+    "reps": 4
+  },
+  {
+    "name": "New Hampshire",
+    "code": "NH",
+    "capital": "Concord",
+    "city": "Manchester",
+    "founded": "June 21, 1788",
+    "population": 1330608,
+    "area": 9349,
+    "reps": 2
+  },
+  {
+    "name": "New Jersey",
+    "code": "NJ",
+    "capital": "Trenton",
+    "city": "Newark",
+    "founded": "December 18, 1787",
+    "population": 8958013,
+    "area": 8723,
+    "reps": 12
+  },
+  {
+    "name": "New Mexico",
+    "code": "NM",
+    "capital": "Santa Fe",
+    "city": "Albuquerque",
+    "founded": "January 6, 2012",
+    "population": 2085109,
+    "area": 121590,
+    "reps": 3
+  },
+  {
+    "name": "New York",
+    "code": "NY",
+    "capital": "Albany",
+    "city": "New York",
+    "founded": "July 26, 1788",
+    "population": 19795791,
+    "area": 54555,
+    "reps": 27
+  },
+  {
+    "name": "North Carolina",
+    "code": "NC",
+    "capital": "Raleigh",
+    "city": "Charlotte",
+    "founded": "November 21, 1789",
+    "population": 10042802,
+    "area": 53819,
+    "reps": 13
+  },
+  {
+    "name": " North Dakota",
+    "code": "ND",
+    "capital": "Bismarck",
+    "city": "Fargo",
+    "founded": "November 2, 1889",
+    "population": 756927,
+    "area": 70698,
+    "reps": 1
+  },
+  {
+    "name": "Ohio",
+    "code": "OH",
+    "capital": "Columbus",
+    "city": "Columbus",
+    "founded": "March 1, 1803",
+    "population": 11613423,
+    "area": 44826,
+    "reps": 16
+  },
+  {
+    "name": "Oklahoma",
+    "code": "OK",
+    "capital": "Oklahoma City",
+    "city": "Oklahoma City",
+    "founded": "November 16, 2007",
+    "population": 3911338,
+    "area": 69899,
+    "reps": 5
+  },
+  {
+    "name": "Oregon",
+    "code": "OR",
+    "capital": "Salem",
+    "city": "Portland",
+    "founded": "February 14, 1859",
+    "population": 4028977,
+    "area": 98379,
+    "reps": 5
+  },
+  {
+    "name": "Pennsylvania[F]",
+    "code": "PA",
+    "capital": "Harrisburg",
+    "city": "Philadelphia",
+    "founded": "December 12, 1787",
+    "population": 12802503,
+    "area": 46054,
+    "reps": 18
+  },
+  {
+    "name": "Rhode Island[G]",
+    "code": "RI",
+    "capital": "Providence",
+    "city": "Providence",
+    "founded": "May 29, 1790",
+    "population": 1056298,
+    "area": 1545,
+    "reps": 2
+  },
+  {
+    "name": "South Carolina",
+    "code": "SC",
+    "capital": "Columbia",
+    "city": "Columbia",
+    "founded": "May 23, 1788",
+    "population": 4896146,
+    "area": 32020,
+    "reps": 7
+  },
+  {
+    "name": "South Dakota",
+    "code": "SD",
+    "capital": "Pierre",
+    "city": "Sioux Falls",
+    "founded": "November 2, 1889",
+    "population": 858469,
+    "area": 77116,
+    "reps": 1
+  },
+  {
+    "name": "Tennessee",
+    "code": "TN",
+    "capital": "Nashville",
+    "city": "Memphis",
+    "founded": "June 1, 1796",
+    "population": 6600299,
+    "area": 42144,
+    "reps": 9
+  },
+  {
+    "name": "Texas",
+    "code": "TX",
+    "capital": "Austin",
+    "city": "Houston",
+    "founded": "December 29, 1845",
+    "population": 27469114,
+    "area": 268596,
+    "reps": 36
+  },
+  {
+    "name": "Utah",
+    "code": "UT",
+    "capital": "Salt Lake City",
+    "city": "Salt Lake City",
+    "founded": "January 4, 1896",
+    "population": 2995919,
+    "area": 84897,
+    "reps": 4
+  },
+  {
+    "name": "Vermont",
+    "code": "VT",
+    "capital": "Montpelier",
+    "city": "Burlington",
+    "founded": "March 4, 1791",
+    "population": 626042,
+    "area": 9616,
+    "reps": 1
+  },
+  {
+    "name": "Virginia[H]",
+    "code": "VA",
+    "capital": "Richmond",
+    "city": "Virginia Beach",
+    "founded": "June 25, 1788",
+    "population": 8382993,
+    "area": 42775,
+    "reps": 11
+  },
+  {
+    "name": "Washington",
+    "code": "WA",
+    "capital": "Olympia",
+    "city": "Seattle",
+    "founded": "November 11, 1889",
+    "population": 7170351,
+    "area": 71298,
+    "reps": 10
+  },
+  {
+    "name": "West Virginia",
+    "code": "WV",
+    "capital": "Charleston",
+    "city": "Charleston",
+    "founded": "June 20, 1863",
+    "population": 1844128,
+    "area": 24230,
+    "reps": 3
+  },
+  {
+    "name": "Wisconsin",
+    "code": "WI",
+    "capital": "Madison",
+    "city": "Milwaukee",
+    "founded": "May 29, 1848",
+    "population": 5771337,
+    "area": 65496,
+    "reps": 8
+  },
+  {
+    "name": "Wyoming",
+    "code": "WY",
+    "capital": "Cheyenne",
+    "city": "Cheyenne",
+    "founded": "July 10, 1890",
+    "population": 586107,
+    "area": 97813,
+    "reps": 1
+  }
+]

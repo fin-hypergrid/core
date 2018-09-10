@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" href="index.css">
+  <script src="index.js"></script>
+</head>
+<body>
+
+<h2 class="continued">State tab</h2>
+
+<h3>Setting row and cell properties declaratively via grid state</h3>
+
+<p>
+  We can also set row and cell proertiess through grid state, as shown for column properties on the previous page.
+  In these cases, you also need to specify the subgrid (usually <code>data</code>), as row numbers and cell coordinates are local to subgrids.
+</p>
+
+<div class="note">
+  <code>state.rows</code> and <code>state.cells</code> (like <code>state.columns</code>, discussed on the previous page)
+  are a <em>dynamic properties</em> (or <em>pseudo-properties</em>).
+  They are not actually a grid properties; there is are such things as
+  <code style="text-decoration:line-through">grid.properties.rows</code>
+  and <code style="text-decoration:line-through">grid.properties.cells</code>.
+  Dynamic properties are implemented as accessors.
+  In these cases, <code>state.rows</code> and <code>state.cells</code> have write-only implementations (just setters)
+  that set properties on individual rowss and cells rather than in <code>grid.properties</code>.
+</div>
+
+To set properties on a data row using a state object, for example on the fourth data row (row index 3):
+<pre>{
+    rows: {
+        data: {
+            3: {
+                propName: 'value'
+            }
+        }
+    }
+}</pre>
+
+To set properties on a data cell using a state object, for example the cell at the intersection of the fourth data row and the <code>prevclose</code> column:
+
+<pre>{
+    cells: {
+        data: {
+            3: {
+                prevclose: {
+                    propName: 'value'
+                }
+            }
+        }
+    }
+}</pre>
+
+It is worth repeating that both of the above constructs are only useful in static grids, when you know the row numbers in advance.
+Otherwise, consider programmatic API calls or row metadata to set row and cell properties.
+
+</body>
+</html>

@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <link rel="stylesheet" href="tutorial.css">
+  <link rel="stylesheet" href="index.css">
   <script src="index.js"></script>
 </head>
 
@@ -72,41 +72,6 @@ Or since all these statements are now assignments:
 <pre>function parse(s) {
   return Math.floor(getNumber(s.replace(/°$/, '')));
 }</pre>
-
-The following shows how the two-stage approach can often be the simplest:
-
-<pre>function invalid(s) {
-  return !/^\d+°$/.test(s); // note no capture group needed here
-}
-function parse(s) {
-  return parseInt(s);
-}</pre>
-
-You can combine the two stages into parse, but this will get messier as the complexity of the syntax being parsed grows:
-
-<pre>function parse(s) {
-  if (!/^\d+°$/.test(s)) throw new SyntaxError;
-  return parseInt(s);
-}</pre>
-
-Without regular expressions, you can implement your own FSM or take a brute force approach, such as the following.
-
-<pre>function invalid(s) {
-  var j = s.length - 1;
-  if (s[j] !== '°') {
-    return false;
-  }
-  for (var i = 0; i < j ; ++i) {
-    if ('0' > i || i > '9') {
-      return false;
-    }
-  }
-  return true;
-}</pre>
-
-As you can see, this is a lot of code that needs to be debugged and tested. On a practical level, this is a very simple syntax. For anything more complicated, this kind of brute force approach would quickly get out of hand. It's also very difficult to expand.
-
-
 
 </body>
 </html>

@@ -1,6 +1,6 @@
 'use strict';
 
-var grid, tabBars, tutorial;
+var grid, tabBar, tutorial;
 
 window.onload = function() {
     var NEW = '(New)';
@@ -9,27 +9,29 @@ window.onload = function() {
         localizer: saveLocalizer
     };
     var defaults = {
-        data: data,
+        data: [
+            { symbol: 'APPL', name: 'Apple Inc.', prevclose: 93.13, change: .0725 },
+            { symbol: 'MSFT', name: 'Microsoft Corporation', prevclose: 51.91, change: .0125 },
+            { symbol: 'TSLA', name: 'Tesla Motors Inc.', prevclose: 196.40, change: .08 },
+            { symbol: 'IBM', name: 'International Business Machines Corp', prevclose: 155.35, change: .02375 }
+        ],
         state: {
-            backgroundColor: 'white',
-            columnHeaderBackgroundColor: 'ivory',
-            rowHeaderBackgroundColor: 'ivory',
+            showRowNumbers: false, // override the default (true)
+            editable: true, // included here for clarity; this is the default value
+            editor: 'Textfield', // override the default (undefined)
             columns: {
-                name: { header: 'State' },
-                population: { format: 'number', halign: 'right' },
-                area: { format: 'number', halign: 'right' },
-                reps: { format: 'number', halign: 'right' },
+                prevclose: {
+                    halign: 'right'
+                }
             }
         }
     };
 
-    window.callApi = callApi;
-
     grid = new fin.Hypergrid();
 
-    tabBars = document.querySelectorAll('.curvy-tabs-container');
+    var tabBars = document.querySelectorAll('.curvy-tabs-container');
 
-    var tabBar = new CurvyTabs(tabBars[0]);
+    tabBar = new CurvyTabs(tabBars[0]);
     tabBar.paint();
 
     tutorial = new Tutorial(tabBars[1], 'tutorial/', 19);
@@ -51,6 +53,41 @@ window.onload = function() {
 
     grid.addEventListener('fin-after-cell-edit', function (e) {
         putJSON('data', grid.behavior.getData());
+    });
+
+    var dragger, divider = document.querySelector('.divider');
+    divider.addEventListener('mousedown', function(e) {
+        dragger = {
+            delta: e.clientY - divider.getBoundingClientRect().top,
+            gridHeight: grid.div.getBoundingClientRect().height,
+            tabHeight: tabBar.container.getBoundingClientRect().height
+        }
+        e.stopPropagation(); // no other element needs to handle
+    });
+    document.addEventListener('mousemove', function(e) {
+        if (dragger) {
+            var newDividerTop = e.clientY - dragger.delta,
+                oldDividerTop = divider.getBoundingClientRect().top,
+                topDelta = newDividerTop - oldDividerTop,
+                newGridHeight = dragger.gridHeight + topDelta,
+                newTabHeight = dragger.tabHeight - topDelta;
+
+            if (newGridHeight >= 65 && newTabHeight >= 130) {
+                divider.style.borderTopStyle = divider.style.borderTopColor = null;
+                divider.style.top = newDividerTop + 'px';
+                grid.div.style.height = (dragger.gridHeight = newGridHeight) + 'px';
+                tabBar.container.style.height = (dragger.tabHeight = newTabHeight) + 'px';
+            } else {
+                divider.style.borderTopStyle = 'double';
+                divider.style.borderTopColor = '#444';
+            }
+
+            e.stopPropagation(); // no other element needs to handle
+            e.preventDefault(); // no other drag effects, please
+        }
+    });
+    document.addEventListener('mouseup', function(e) {
+        dragger = undefined;
     });
 
     function initTextEditor(type) {

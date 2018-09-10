@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" href="index.css">
+  <script src="index.js"></script>
+</head>
+<body>
+
+<h2 class="continued">State tab</h2>
+
+<h3>Setting column properties declaratively via grid state</h3>
+
+The <code>state</code> object can also be used to set column, row, and cell properties declaratively, as shown below.
+
+<div class="note">
+  Setting such properties via <code>grid.setState</code> is only appropriate for static columns, rows, or cells.
+  When you don’t know in advance about the columns, you can set column properties programmatically at run-time.
+  Row and cell properties can also be set programmatically; they can also be set declaratively in row metadata.
+</div>
+
+<p>In addition to properties on the grid proper, properties on individual columns can also be set declaratively in a <code>state</code> object, keyed by column name.</p>
+
+To set properties on a column using a state object, for example the <code>prevclose</code> column:
+<pre>{
+    columns: {
+        prevclose: {
+            propName: 'value'
+        }
+    }
+}</pre>
+
+You can see this construct being used in the <span class="tab">State</span> tab for the <code>halign</code> (horizontal alignment) property, to right-justify the numbers in the column. We will try this in <span class="activity">Activity 5</span>, a few pages hence.
+
+<div class="note">
+  <code>state.columns</code> (like <code>state.rows</code> and <code>state.cells</code>, discussed below)
+  is a <em>dynamic property</em> (or <em>pseudo-property</em>).
+  It is not actually a grid property; there is no such thing as <code style="text-decoration:line-through">grid.properties.columns</code>.
+  Dynamic properties are implemented as accessors.
+  In this case, <code>state.columns</code> is a write-only implementation (just a setter)
+  that sets properties in individual column's <code>properties</code> objects rather than in <code>grid.properties</code>.
+</div>
+
+Setting column properties can also be accomplished programmatically with API calls.
+
+</body>
+</html>
