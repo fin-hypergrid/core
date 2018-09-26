@@ -411,7 +411,7 @@ var Behavior = Base.extend('Behavior', {
     },
 
     /**
-     *
+     * @memberOf Behavior#
      * @param {Object} properties - assignable grid properties
      * @param {boolean} [settingState] - Clear properties object before assignments.
      */
