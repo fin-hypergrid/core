@@ -817,13 +817,17 @@ var defaults = {
 
     /**
      * @summary Mappings for cell navigation keys.
-     * @desc Cell navigation is handled in the {@link CellSelection} "feature". This property gives you control over which keypresses the built-in mechanism will respond to.
+     * @desc Cell navigation is handled in the {@link CellSelection} "feature".
+     * This property gives you control over which key presses the built-in mechanism will respond to.
      *
-     * (If this built-in cell selection logic is insufficient for your needs, you can also listen for the various "fin-key" events and carry out more complex operations in your listeners.)
+     * (If this built-in cell selection logic is insufficient for your needs, you can also listen for
+     * the various "fin-key" events and carry out more complex operations in your listeners.)
      *
-     * The keypress names used here are defined in Canvas.js. Note that all keypresses actually have two names, a normal name and a shifted name. The latter name is used when either **shift** is depressed.
+     * The key press names used here are defined in Canvas.js.
+     * Note that all key presses actually have two names, a normal name and a shifted name.
+     * The latter name is used when **shift** is depressed.
      *
-     * The built-in nav keypresses are as follows:
+     * The built-in nav key presses are as follows:
      * * **`UP`** _(up-arrow key)_ - Replace all selections with a single cell, one row up from the last selection.
      * * **`DOWN`** _(down-arrow key)_ - Replace all selections with a single cell, one row down from the last selection.
      * * **`LEFT`** _(left-arrow key)_ - Replace all selections with a single cell, one column to the left of the last selection.
@@ -835,13 +839,18 @@ var defaults = {
      *
      * To alter these or add other mappings see the examples below.
      *
-     * A note regarding the other meta keys (**trl**, **option**, and **command**): Although these meta keys can be detected, they do not modify the key names as **shift** does. This is because they are more for system use and generally (with the possibly exception fo **ctrl**) should not be depended upon, as system functions will take priority and your app will never see these key presses.
+     * A note regarding the other meta keys (**ctrl**, **option**, and **command**):
+     * Although these meta keys can be detected, they do not modify the key names as **shift** does.
+     * This is because they are more for system use and generally (with the possibly exception fo **ctrl**) should not
+     * be depended upon, as system functions will take priority and your app will never see these key presses.
      *
      * A special accommodation has been made to the {@link module:defaults.editOnKeydown|editOnKeydown} property:
-     * * If `editOnKeydown` truthy AND mapped character is an actual (non-white-space) character (as opposed to say **tab** or **return**), then navigation requires **ctrl** key to distinguish between nav and data.
+     * * If `editOnKeydown` truthy AND mapped character is an actual (non-white-space) character, as opposed to (say)
+     * **tab** or **return**, then navigation requires the **ctrl** key to distinguish between nav and data.
      * * If `editOnKeydown` falsy, the **ctrl** key is ignored.
      *
-     * So in the last example, if `editOnKeydown` is ON, then `a` (without **ctrl**) would start editing the cell and **ctrl** + `a` would move the selection one column to the left.
+     * So if (say) `a` is mapped to `LEFT` as in the last example below, if `editOnKeydown` is ON, then `a` (without
+     * **ctrl**) would start editing the cell but **ctrl** + `a` would move the selection one column to the left.
      *
      * @example
      * // To void the above build-ins:
@@ -853,7 +862,7 @@ var defaults = {
      * }
      *
      * @example
-     * // To map alternative nav keypresses to RETURN and TAB (default mapping):
+     * // To map alternative nav key presses to RETURN and TAB (default mapping):
      * navKeyMap: {
      *     RETURN: 'DOWN',
      *     RETURNSHIFT: 'UP',
@@ -862,7 +871,7 @@ var defaults = {
      * }
      *
      * @example
-     * // To map alternative nav keypresses to a/w/d/s and extend select to A/W/D/S:
+     * // To map alternative nav key presses to a/w/d/s and extend select to A/W/D/S:
      * navKeyMap: {
      *     a: 'LEFT', A: 'LEFTSHIFT',
      *     w: 'UP', W: 'UPSHIFT',
@@ -882,13 +891,13 @@ var defaults = {
     },
 
     /** @summary Validation failure feedback.
-     * @desc Validation occurs on {@link CellEditor#stopEditing}, normally called on commit (`TAB`, `ENTER`, or any other keys listed in `navKeyMap`).
+     * @desc Validation occurs on {@link CellEditor#stopEditing|stopEditing}, normally called on commit (`TAB`, `ENTER`, or any other keys listed in `navKeyMap`).
      *
      * On successful validation, the value is saved back to the data source and the editor is closed.
      *
      * On validation failure, feedback is shown to the user in the form of an "error effect" possibly followed by an "end effect" containing a detailed explanation.
      *
-     * The error effect to use is named in `feedbackEffect
+     * The error effect to use is named in {@link module:defaults.feedbackEffect|feedbackEffect}.
      *
      * The value of this property is the number of times to show the "error effect" on validation failure before showing the detailed explanation.
      *
@@ -909,6 +918,7 @@ var defaults = {
      * @default
      * @type {{name:string,options:object}|string}
      * @memberOf module:defaults
+     * @see {@link module:defaults.feedbackCount|feedbackCount}
      */
     feedbackEffect: 'shaker',
 
