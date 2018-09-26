@@ -20,7 +20,7 @@ window.onload = getSmart.bind(null, {
     };
 
     // Append version numbers to <h1> header
-    document.querySelector('body > h1:first-child').innerHTML += ' <sup>(rev. 11)</sup> — Hypergrid <sup>(v' + fin.Hypergrid.prototype.version + ')</sup>';
+    document.querySelector('body > h1:first-child').innerHTML += ' <sup>(rev. 13)</sup> — Hypergrid <sup>(v' + fin.Hypergrid.prototype.version + ')</sup>';
 
     function injectSVG(el, svg) {
         var svgElement = /<svg[^]*<\/svg>/;
@@ -64,9 +64,9 @@ window.onload = getSmart.bind(null, {
     }
 
     // If there is a page number cookie value, use it!
-    var match = document.cookie.match(/\bp=(\d+)/);
+    var match = location.search.match(/[?&]p=([^?&]+)/) || document.cookie.match(/\bp=([^?&]+)/);
     if (match) {
-        pagerOptions.startPage = match[1];
+        pagerOptions.startPage = decodeURIComponent(match[1]);
     }
 
     tutorial = new CurvyTabsPager(
