@@ -293,6 +293,7 @@ var CellEditor = Base.extend('CellEditor', {
         this.hideEditor();
         this.grid.cellEditor = null;
         this.el.remove();
+        this.grid.takeFocus();
 
         return true;
     },
