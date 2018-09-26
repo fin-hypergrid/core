@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" href="index.css">
+  <script src="index.js"></script>
+</head>
+<body>
+
+<h2>Workbench interface: Editor section</h2>
+The tabbed section at the lower left hosts editors for grid data, grid state, localizer code, and cell editor code.
+<ul>
+  <li>Apply your edits by clicking the grey <em>action button</em> in the upper right of each tab.</li>
+  <li>The button’s label indicates the API call involved.</li>
+  <li>The API is called with the <code>eval</code>’d editor text as the first and only parameter (represented in the button label by an elipsis).</li>
+</ul>
+
+<h3>Data tab</h3>
+The <span class="tab">Data</span> tab contains a JavaScript representation of the grid’s data source.
+This tab lets you edit the grid data to suit the needs of your localizer and cell editor development.
+
+<h3>State tab</h3>
+A Hypergrid <em>state</em> object contains grid property settings affecting look, feel, and behavior of a grid.
+This tab lets you edit a state object and <em>load</em> it into the grid.
+
+<h3>Localizer tab</h3>
+Hypergrid <em>localizers</em> control how strings are formatted for display.
+This tab lets you select an existing localizer for editing, or create and save<a class="superscript" href="#note">*</a> a new localizer.
+
+<h3>Cell Editor tab</h3>
+Hypergrid <em>cell editors</em>
+This tab lets you select an existing cell editor for editing, or create and save<a class="superscript" href="#note">*</a> a new localizer.
+
+<div class="sidebar">
+  <p>Now let’s take these one at a time.<br></p>
+  <p>Click the <span class="button clickable" onclick="window.top.tutorial.page(window.top.tutorial.num + 1, '')">&#x25ba;</span> button <em>(above)</em> to go to the next page.</p>
+</div>
+
+<table id="note" class="footnote">
+  <caption><div></div></caption> <!--separator line-->
+  <tr>
+    <td>*</td>
+    <td>
+      This app persists data between sessions using <a target="mdn" href="https://developer.mozilla.org/docs/Web/API/Storage/LocalStorage">LocalStorage</a> only.
+      To save your work per&shy;ma&shy;nent&shy;ly, cut &amp; paste to a file.
+    </td>
+  </tr>
+</table>
+
+</body>
+</html>

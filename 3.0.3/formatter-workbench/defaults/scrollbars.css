@@ -1,0 +1,28 @@
+/* scrollbar style */
+div.finbar-vertical, div.finbar-horizontal {
+
+}
+/* thumb style */
+div.finbar-vertical > .thumb, div.finbar-horizontal > .thumb {
+
+}
+/* thumb hover style */
+div.finbar-vertical > .thumb.hover, div.finbar-horizontal > .thumb.hover {
+
+}
+
+/* vertical-specific styles */
+div.finbar-vertical {
+
+}
+div.finbar-vertical > .thumb {
+
+}
+
+/* horizontal-specific styles */
+div.finbar-horizontal {
+
+}
+div.finbar-horizontal > .thumb {
+
+}

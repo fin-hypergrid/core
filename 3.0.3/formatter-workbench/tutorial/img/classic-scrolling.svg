@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0" y="0" width="455" height="405" viewBox="0, 0, 455, 405">
+  <g id="Layer_1">
+    <path d="M60.648,76 L442.648,76 L442.648,295 L60.648,295 L60.648,76 z" fill="#BCBCBC"/>
+    <path d="M85.5,113.5 L229.5,113.5 L229.5,185.5 L85.5,185.5 L85.5,113.5 z" fill-opacity="0" stroke="#000000" stroke-width="2"/>
+    <path d="M221,114 L228,114 L228,184 L221,184 L221,114 z" fill="#DEDEDE"/>
+    <path d="M221,133 L228,133 L228,147 L221,147 L221,133 z" fill="#ACACAC"/>
+    <path d="M220.5,176.5 L220.5,184 L86.5,184 L86.5,176.5 L220.5,176.5 z" fill="#DEDEDE"/>
+    <path d="M154.5,176.5 L154.5,184 L86.5,184 L86.5,176.5 L154.5,176.5 z" fill="#ACACAC"/>
+    <path d="M85.5,1.5 L373.5,1.5 L373.5,401.5 L85.5,401.5 L85.5,1.5 z" fill-opacity="0" stroke="#000000" stroke-width="1" stroke-dasharray="3,2"/>
+    <g>
+      <path d="M73.984,163.074 C53.528,167.574 46.348,170.846 39.5,214.5" fill-opacity="0" stroke="#000000" stroke-width="2" stroke-dasharray="6,4"/>
+      <path d="M74.769,166.588 L83.352,160.98 L73.198,159.561 M73.984,163.074 L83.352,160.98" fill-opacity="0" stroke="#000000" stroke-width="2" stroke-opacity="1"/>
+    </g>
+    <g>
+      <path d="M238.129,123.557 C354.534,101.775 309.909,35.581 385.5,38.111" fill-opacity="0" stroke="#000000" stroke-width="2" stroke-dasharray="6,4"/>
+      <path d="M237.535,120.006 L228.66,125.139 L238.722,127.107 M238.129,123.557 L228.66,125.139" fill-opacity="0" stroke="#000000" stroke-width="2" stroke-opacity="1"/>
+    </g>
+    <g>
+      <path d="M73.861,357.785 C70.731,357.295 64.484,356.599 50.608,355.5" fill-opacity="0" stroke="#000000" stroke-width="2" stroke-dasharray="6,4"/>
+      <path d="M73.336,361.347 L83.359,359.185 L74.386,354.224 M73.861,357.785 L83.359,359.185" fill-opacity="0" stroke="#000000" stroke-width="2" stroke-opacity="1"/>
+    </g>
+    <text transform="matrix(1, 0, 0, 1, 28.824, 255.5)">
+      <tspan x="-22.342" y="-31.5" font-family="Helvetica" font-size="12" fill="#000000">viewport</tspan>
+      <tspan x="-18.331" y="-16.5" font-family="Helvetica" font-size="12" fill="#000000">(HTML</tspan>
+      <tspan x="-21.346" y="-1.5" font-family="Helvetica" font-size="12" fill="#000000">element </tspan>
+      <tspan x="-21.009" y="13.5" font-family="Helvetica" font-size="12" fill="#000000">as posi-</tspan>
+      <tspan x="-24.688" y="28.5" font-family="Helvetica" font-size="12" fill="#000000">tioned on </tspan>
+    </text>
+    <text transform="matrix(1, 0, 0, 1, 27.054, 370.902)">
+      <tspan x="-22.008" y="-28" font-family="Helvetica" font-size="12" fill="#000000">scrolling</tspan>
+      <tspan x="-16.011" y="-13" font-family="Helvetica" font-size="12" fill="#000000">object</tspan>
+      <tspan x="-19.008" y="2" font-family="Helvetica" font-size="12" fill="#000000">(logical</tspan>
+      <tspan x="-12.003" y="17" font-family="Helvetica" font-size="12" fill="#000000">grid)</tspan>
+    </text>
+    <g>
+      <path d="M50.02,94.439 C36.367,96.442 30.5,121.619 30.5,130.5" fill-opacity="0" stroke="#000000" stroke-width="2" stroke-dasharray="6,4"/>
+      <path d="M49.065,97.91 L59.276,96.985 L50.975,90.968 M50.02,94.439 L59.276,96.985" fill-opacity="0" stroke="#000000" stroke-width="2" stroke-opacity="1"/>
+    </g>
+    <text transform="matrix(1, 0, 0, 1, 28.054, 138)">
+      <tspan x="-21.01" y="3.5" font-family="Helvetica" font-size="14" fill="#000000">screen</tspan>
+    </text>
+    <text transform="matrix(1, 0, 0, 1, 421.554, 39.175)">
+      <tspan x="-28.554" y="3.674" font-family="Helvetica" font-size="14" fill="#000000">scrollbar</tspan>
+    </text>
+    <g>
+      <path d="M238.151,138.569 C354.528,117.132 309.914,56.581 385.5,59.111" fill-opacity="0" stroke="#000000" stroke-width="2" stroke-dasharray="6,4"/>
+      <path d="M237.562,135.018 L228.68,140.139 L238.739,142.121 M238.151,138.569 L228.68,140.139" fill-opacity="0" stroke="#000000" stroke-width="2" stroke-opacity="1"/>
+    </g>
+    <text transform="matrix(1, 0, 0, 1, 421.554, 59.826)">
+      <tspan x="-28.554" y="3.674" font-family="Helvetica" font-size="14" fill="#000000">“thumb”</tspan>
+    </text>
+  </g>
+</svg>

@@ -1,0 +1,10 @@
+{
+  "showRowNumbers": false,
+  "editable": true,
+  "editor": "Textfield",
+  "columns": {
+    "prevclose": {
+      "halign": "right"
+    }
+  }
+}

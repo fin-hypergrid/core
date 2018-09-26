@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" href="index.css">
+  <script src="index.js"></script>
+</head>
+
+<body>
+<h2>Cell Editors tab</h2>
+
+Cell editors allow the user to edit cell values.
+
+<p>
+  Editing is enabled when the cell is <em>both</em>:
+</p>
+<ol>
+  <li>
+    <strong>Editable</strong><br>
+    The cell’s <code>editable</code> property must be truthy.<br>
+    <div style="margin-top:.5em; font-style:italic">and</div>
+  </li>
+  <li>
+    <strong>Bound to a cell editor</strong><br>
+    The cell’s <code>editor</code> property must name a registered cell editor.
+  </li>
+</ol>
+
+While the default for <code>editable</code> is <code>true</code>, for <code>editor</code> it’s <code>undefined</code>.
+However, our state object (see <span class="tab">State</span> tab) sets <code>editor</code> to <code>'<a href="https://github.com/fin-hypergrid/core/blob/master/src/cellEditors/Textfield.js">Textfield</a>'</code>,
+a very simple cell editor included with Hypergrid for editing string data.
+Because <code>editor</code> is set at the grid level, <em>all</em> cells in this grid are editable as simple text strings.
+
+<p>So we’re good to go: On the next page we explore how cell editors work together with localizers.</p>
+
+</body>
+</html>

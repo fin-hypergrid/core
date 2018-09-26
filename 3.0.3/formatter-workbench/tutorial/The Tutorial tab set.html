@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" href="index.css">
+  <script src="index.js"></script>
+</head>
+<body>
+
+<h2>Workbench interface: Tutorial section</h2>
+The tutorial content area has multiple pages.
+Every page has content in the <span class="tab">Tutorial</span> tab, with some pages also a <span class="tab">Code Snippets</span> tab.
+
+<h3><span class="tab">Tutorial</span> tab</h3>
+You are reading this from the <span class="tab">Tutorial</span> tab.
+<ul>
+  <li>The tutorial is split into easily digestible, page-size chunks.</li>
+  <li>Depending on your window size, you may need to scroll down to see the whole page.</li>
+  <li>To move from page to page:
+    <ul style="margin-top:.3em">
+      <li>
+        Click the <span class="button">&#x25c0;</span> or
+        <span class="button">&#x25ba;</span> buttons above
+      </li>
+      <li>
+        Drag the slider for random access to any page
+      </li>
+      <li>
+        Press the <span class="keycap">&#x2190;</span> or
+        <span class="keycap">&#x2192;</span> keys on your keyboard
+        (blocked when a text field has the focus)
+      </li>
+    </ul>
+  </li>
+</ul>
+
+<h3><em>Code Snippets</em> tab</h3>
+This tab contains code snippets for cutting-and-pasting and only appears when the current tutorial page has such content.
+
+<div class="sidebar">
+  Click the <span class="button clickable" onclick="window.top.tutorial.page(window.top.tutorial.num + 1, '')">&#x25ba;</span> button <em>(above)</em> to go to the next page.
+</div>
+</body>
+</html>

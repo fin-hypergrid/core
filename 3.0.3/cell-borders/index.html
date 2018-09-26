@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" >
+    <meta http-equiv="Cache-Control" content="must-revalidate">
+    <title>Cell Borders demo - Hypergrid 3.0.2</title>
+    <link rel="icon" type="image/png" href="../img/hypergrid-icon.png">
+    <link rel="stylesheet" href="index.css">
+    <script src="../build/fin-hypergrid.js"></script>
+    <script src="Borders.js"></script>
+    <script src="OpaqueBorders.js"></script>
+    <script src="index.js"></script>
+</head>
+<body>
+
+<h1>cell-borders demo</h1>
+
+<p style="font-size:12pt">
+    This demo contains sample code showing how to paint custom cell borders as an alterative to using Hypergrid's grid lines feature.
+</p>
+
+<div class="example">
+    <h2>Example 1.</h2>
+    <p>
+        This example uses the default grid lines feature, where grid rule lines are painted between cells after each grid render.
+    </p>
+</div>
+<div class="annotation">grid.addProperties({ // add properties to grid.properties object
+    showRowNumbers: false,
+    gridLinesH: true, gridLinesV: true // (these are the default settings)
+});</div>
+<div class="hypergrid-container"></div>
+
+<div class="example">
+    <h2>Example 2.</h2>
+    <p>
+        This example uses the <code>Borders</code> overlay cell renderer, defined herein, which is controlled by optionally defined properties <code>borderTop</code>, <code>borderTop</code>, <code>borderBottom</code>, and <code>borderLeft</code>, all of which take a CSS color spec. Defining the bottom and right of each cell produces the following result, which is very similar to the default grid lines feature. (These are defined on the <code>grid.properties</code> object, which each cell has in its properties scope.)
+    </p>
+</div>
+<div class="annotation">var GREY = '#bbb', renderer = ['SimpleCell', '<a target="borders-js" href="Borders.js">Borders</a>'];
+grid.addProperties({
+    showRowNumbers: false,
+    gridLinesH: false, gridLinesV: false,
+    renderer: renderer, columnHeaderRenderer: renderer,
+    borderBottom: GREY, borderRight: GREY
+});</div>
+<div class="hypergrid-container"></div>
+
+<div class="example">
+    <h2>Example 3.</h2>
+    <p>
+        This example also uses the <code>Borders</code> cell renderer but only defines some borders on selected cells.
+    </p>
+</div>
+<div class="annotation">grid.addProperties({
+    showRowNumbers: false,
+    gridLinesH: false, gridLinesV: false,
+    cells: <a target="rect" href="https://github.com/fin-hypergrid/build/blob/master/demo/cell-borders/index.js#L16-L27">rect</a>
+});</div>
+<div class="hypergrid-container"></div>
+
+<div class="example">
+    <h2>Example 4.</h2>
+    <p>
+        This example again uses the <code>Borders</code> cell renderer, combining examples 2 and 3 above by setting the the properties set by both.
+    </p>
+</div>
+<div class="annotation">grid.addProperties({
+    gridLinesH: false, gridLinesV: false,
+    renderer: renderer, columnHeaderRenderer: renderer,
+    borderBottom: GREY, borderRight: GREY,
+    cells: <a target="rect" href="https://github.com/fin-hypergrid/build/blob/master/demo/cell-borders/index.js#L16-L27">rect</a>
+});</div>
+<div class="hypergrid-container"></div>
+
+<div class="example">
+    <h2>Example 5.</h2>
+    <p>
+        This example uses a different cell renderer, <code>OpaqueBorders</code>, controlled by a single property, <code>border</code> whose properties are "opaque" (have no scope). See the discussion <a href="#about-renderers">below</a> for more details.
+    </p>
+</div>
+<div class="annotation">renderer = ['SimpleCell', '<a target="borders-js" href="OpaqueBorders.js">OpaqueBorders</a>'];
+grid.addProperties({
+    gridLinesH: false, gridLinesV: false,
+    renderer: renderer, columnHeaderRenderer: renderer,
+    border: { bottom: GREY, right: GREY },
+    cells: <a target="rect" href="https://github.com/fin-hypergrid/build/blob/master/demo/cell-borders/index.js#L28-L39">opaqueRect</a>
+});</div>
+<div class="hypergrid-container"></div>
+
+<p class="annotation">var RED = 'red';
+
+var rect = { // cell properties for use with Borders cell renderer
+    data: { // subgrid key
+        1: { // row index
+            prevclose: { borderLeft: RED, borderTop: RED },
+            name: { borderTop: RED, borderRight: RED }
+        },
+        2: { // row index
+            prevclose: { borderLeft: RED, borderBottom: RED },
+            name: { borderBottom: RED, borderRight: RED }
+        }
+    }
+};
+
+var opaqueRect = { // cell properties for use with OpaqueBorders cell renderer
+    data: { // subgrid key
+        1: { // row index
+            prevclose: { border: { left: RED, top: RED } },
+            name: { border: { top: RED, right: RED } }
+        },
+        2: { // row index
+            prevclose: { border: { left: RED, bottom: RED } },
+            name: { border: { bottom: RED, right: RED } }
+        }
+    }
+};</p>
+
+<h3>About <code>cells</code> grid property</h3>
+<p>
+    The <code>cells</code> grid property is a dynamic property (an accessor),
+    implemented specifically for use with setState/addState calls.
+    This is not however the only way to set cell properties; they can also be set programmatically.
+    Both methods set the cell metadata for you.
+    Another way is to load the metadata directly.
+</p>
+<p>
+    The definitions used herein, <code>rect</code> and <code>opaqueRect</code> are excerpted at <em>right</em> (or see
+    <a target="rect" href="https://github.com/fin-hypergrid/build/blob/master/demo/cell-borders/index.js#L16-L39">GitHub</a>).
+</p>
+
+<h3 id="about-renderers">About <code>Borders</code> <em>vs.</em> <code>OpaqueBorders</code></h3>
+<p>
+    It is worth studying the cell renderer examples provided here.
+    These are both <em>overlay</em> cell renderers in that they perform additional rendering after an initial <em>background</em> cell renderer (in this case <code>SimpleCell</code>, the default cell renderer).
+</p>
+<p>
+    <em>Disclaimer:</em> As the saying goes, there are "many ways to skin a cat." Likewise, there are many ways to implement cell borders and to write cell renderers. The examples given here are just that: examples. In particular, as with all Hypergrid coding, performance is always in issue. In general, cell borders are never going to be anywhere as performant as Hypergrid's grid lines feature — which renders grid rule lines after all the cells have been rendered.
+</p>
+<p>
+    The <code>Borders</code> overlay cell renderer
+    (<a target="cell-renderer" href="Borders.js">file</a> or
+    <a target="cell-renderer" href="https://github.com/fin-hypergrid/build/blob/master/demo/cell-borders/Borders.js">GitHub</a>)
+    uses flat properties <code>borderTop</code>, <code>borderRight</code>, <code>borderBottom</code>, and <code>borderLeft</code>, which have scope up the prototype chain of <code>properties</code> objects (which typically looks like <code>grid.properties</code> ← <code>column.properties</code> ← <code>cell.properties</code>) and will "cascade" when a more local definition is lacking.
+</p>
+<p>
+    The <code>OpaqueBorders</code> overlay cell renderer
+    (<a target="cell-renderer" href="OpaqueBorders.js">file</a> or
+    <a target="cell-renderer" href="https://github.com/fin-hypergrid/build/blob/master/demo/cell-borders/OpaqueBorders.js">GitHub</a>)
+    uses a complex (nested) property called <code>border</code> which may have <code>top</code>, <code>right</code>, <code>bottom</code>, and/or <code>left</code> properties. But because the <code>border</code> property itself has no prototype chain, these properties have no scope and will <em>not</em> cascade. The implication of this is that the most local definition of <code>border</code> must fully describe the cell's borders. This is best explained by observing the difference between the final two examples above (examples 4 and 5). (Note how the <code>grid.properties.border</code> object is obscured by the cell's <code>border</code> object.)
+</p>
+<p>
+    A final note: If we <em>were to</em> properly set up the prototype chain of these <code>border</code> objects (with <code>Object.create</code> or <code>Object.setPrototypeOf</code>), then the <code>OpaqueBorders</code> renderer would produce the same results as the <code>Borders</code> and we wouldn't need both. However, although this can be demonstrated, doing so in practice would be unmanageable (not to mention subtle and obscure).
+</p>
+
+<h3>Regarding right-most rule line</h3>
+<p>
+    Hypergrid's grid lines feature does not paint a grid line at the right of the final column but the cell border is appearing there. To avoid painting this line, we could have "undefined" the final column's <code>borderRight</code> property to obscure the underlying <code>grid.properties.borderRight</code> property value, for example by including the <code>columns</code> dynamic grid property in the <code>addState</code> call, like this: <code>columns: { name: { borderRight: undefine } }</code>
+</p>
+
+<h3>A note about this demo's modules</h3>
+<p>
+    Module standards in JavaScript are all over the place. There are many ways to split up code into separate files, both at build time as well as in the server. For this demo, I wanted to split up the code into distinctly served <code>.js</code> files so I could link to them here. To avoid a build just to bundle them, I've defined a <code>window.onload</code> handler in each, called in the order referenced in `index.html` when the page is loaded.
+</p>
+</body>
+</html>

@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" href="index.css">
+  <script src="https://joneit.github.io/get-smart/1.0.2/build/get-smart.js"></script>
+  <script src="index.js"></script>
+</head>
+
+<body>
+<h2 class="continued">The Scrollbars tab</h2>
+
+<h3>Styling the scrollbars</h3>
+
+<p>For custom scrollbar styling, you have two choices:</p>
+<ol>
+  <li><strong>Override some styles in the default scrollbars stylesheet</strong>
+    <ul>
+      <li>Create your own “scrollbars.css” stylesheet with rules that override selected styles, <strong>or</strong> add the rules to your app’s general stylesheet</li>
+      <li>Be sure to locate your stylesheet <em>below</em> the default stylesheet within the DOM so your rules will override the default rules</li>
+      <li>(Leave <code>finbars</code>’s default stylesheet in place)</li>
+    </ul>
+  </li>
+  <li><strong>Replace the default scrollbars stylesheet</strong>
+    <ul>
+      <li>Create your own “scrollbars.css” stylesheet with rules that completely describe the scrollbars, <strong>or</strong> add the rules to your app’s general stylesheet</li>
+      <li>Be sure to include the two “DO NOT TOUCH” styles documented in finbars.css, <i>i.e.,</i> <code>position: absolute</code> for both gutters and thumbs</li>
+      <li>Remove or disable <code>finbars</code>’s default stylesheet (in this workbench, just click the “Replace” checkbox in the <span class="tab">Scrollbars</span> tab)</li>
+      <li>(In this case your stylesheet location within the DOM is not important)</li>
+    </ul>
+  </li>
+</ol>
+
+<article class="activity">
+  <header><div>SB-2</div>Darken the scrollbar thumbs</header>
+  <section>
+    <p>In this activity, we shall take the first of the two approaches discussed above and override the thumb rule’s <code>background-color</code> style established in the default scrollbars stylesheet.</p>
+    <ol>
+      <li>Open the default scrollbars stylesheet, <a target="github" href="https://github.com/fin-hypergrid/finbars/blob/master/src/finbars.css">finbars.css</a>, containing the styles we want to override, and place the window off to the side</li>
+      <li class="observe"> In the stylesheet, the default thumb background color in the “thumb style” rule is <code>lightgrey</code> (<code>#d3d3d3</code>)</li>
+      <li>Switch to the <span class="tab">Scrollbars</span> tab and click its reset icon, if red (<span class="reset-button danger"></span>), to reload the empty custom stylesheet, which consists of all the commented selectors from the default stylesheet, except with all the CSS rules emptied (so, so far it’s overriding nothing)</li>
+      <li>
+        Add a <code>background-color</code> override to the additional “thumb style” rule here (in the editor) with a darker color, such as medium <code>black</code>, so it looks like this:
+        <pre>/* thumb style */
+div.finbar-vertical > .thumb, div.finbar-horizontal > .thumb {
+    background-color: black;
+}</pre>
+        <div class="note">This is a stylesheet. We use CSS syntax here, not JSON or JavaScript. That is, do not use quotes; do not use camelCase.</div>
+      </li>
+      <li>Click the <span class="api-button">injectCSS('custom', …)</span> button to inject this text into a <code class="tag">style</code> element, which is appended to the DOM just below the default scrollbars stylesheet <code class="tag">style</code> element</li>
+      <li class="observe"> Thumbs are now darker.</li>
+    </ol>
+  </section>
+</article>
+
+<p><strong>On the next page,</strong> we’ll play with some more scrollbar styles.</p>
+
+<!--
+<table class="footnote">
+  <caption><div></div></caption>
+  <tr><td>*</td><td></td></tr>
+</table>
+-->
+
+</body>
+</html>

@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" href="index.css">
+  <script src="index.js"></script>
+</head>
+<body>
+<h2>The State tab</h2>
+
+This tab provides an editor for <em>grid state</em>.
+
+<ul>
+  <li>The state is stored as a plain object</li>
+  <li>This object is used to set grid properties <em>declaratively</em></li>
+  <li>Hypergrid has API calls for loading and saving state</li>
+  <li>Grid properties are generally own members of the <code>grid.properties</code> object (that is, not including its prototype chain, which contains defaults, theming, <i>etc.</i>)</li>
+</ul>
+
+<div class="note">
+  As with the <span class="tab">Data</span> tab,
+  the <span class="tab">State</span> tab too uses
+  <code>eval</code> to parse their editors as straight JavaScript,
+  rather than <code>JSON.parse</code> which requires strict JSON.
+  This is intended to make editing easier as you do not need to concern yourself with
+  strict adherence to the JSON standard (double quotes, primitive types, no comments, _etc._).
+</div>
+
+To set grid properties with the <a class="code" href="https://fin-hypergrid.github.io/core/doc/Hypergrid.html#setState">grid.setState(state)</a> method is simply a matter of adding members to the root of your <code>state</code> object:
+
+<pre>state = {
+    propName: propValue
+}</pre>
+
+<div class="sidebar">
+  Click the <span class="button clickable" onclick="window.top.tutorial.page(window.top.tutorial.num + 1, '')">&#x25ba;</span> button <em>(above)</em> to go to the next page
+  to try editing the grid state object.
+</div>
+
+</body>
+</html>

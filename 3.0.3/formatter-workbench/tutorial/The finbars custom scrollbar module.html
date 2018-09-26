@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" href="index.css">
+  <script src="index.js"></script>
+</head>
+
+<body>
+<h2 class="continued">The Scrollbars tab</h2>
+
+<h3>The <code>finbars</code> custom scrollbar module</h3>
+
+<p>Hypergrid uses custom scrollbars (<a target="npm" href="https://www.npmjs.com/package/finbars">finbars</a>) which can be fully styled and which are not subject to limitations of the various browsers’ coordinate systems.</p>
+
+<h3>Implementation</h3>
+<p>The Hypergrid scrollbars (“finbars”) are simple HTML, styled with CSS:</p>
+
+<pre><span class="tag">div class="finbar-horizontal"</span><span class="tag">div class="thumb"</span><span class="close-tag">div</span><span class="close-tag">div</span>
+<span class="tag">div class="finbar-vertical"</span><span class="tag">div class="thumb"</span><span class="close-tag">div</span><span class="close-tag">div</span></pre>
+
+<img src="img/trackpad-scrollbars-circa-2015.png" style="float:right; margin-left:1em; margin-bottom:.3em">
+
+<h3 style="margin-top:0">Default scrollbar style</h3>
+<p>
+  The default stylesheet for the scrollbars
+  (<a target="github" href="https://github.com/fin-hypergrid/finbars/blob/master/src/finbars.css">finbars.css</a>, automatically injected into the DOM by the <code>Finbar</code> constructor) mimics the <span class="macOS"></span> trackpad system scrollbars, c. 2015, which looked something like the screenshot at right:</p>
+
+<p>
+  <strong>Scrollbar positioning:</strong>
+  The scrollbars are superimposed over the content, near the edges.
+</p>
+<p>
+  <strong>Gutter style:</strong>
+  The scrollbars’ gutters are completely hidden; just their <em>thumbs</em> are visible.
+</p>
+<p>
+  <strong>Thumb style:</strong>
+  The thumbs are capsule shaped and filled with a light grey color. This color works well enough over this photo. Over a white background they are much harder to see (even with their slightly darker borders).
+</p>
+<p>
+  <strong>Thumb opacity:</strong>
+  The vertical scrollbar thumb is shown at 40% opacity (<i>i.e.,</i> translucent), further reducing its brightness, making it even harder to see. The horizontal scrollbar thumb is shown here at 100% opacity only because the mouse was hovering over it when the screenshot was taken (the mouse pointer was not captured in the screenshot).
+</p>
+
+<h3><span class="macOS"></span> has moved on</h3>
+
+<p>Apple has since improved on their system scrollbar style, while the default <code>finbars</code> stylesheet has remained a fossil from 2015.</p>
+
+<p>The following observations are of <span class="macOS"></span> 10.13 (High Sierra):</p>
+
+<p><span class="macOS"></span> trackpad scrollbars, c. 2018:</p>
+<table style="margin-left:1.5em"><tr style="vertical-align:top">
+  <td><img src="img/trackpad-scrollbars.png" height="100" width="100"></td>
+  <td><ul style="margin-top:0">
+     <li style="margin-top:0">The capsule’s fill and stroke colors are now reversed: The fill is now dark grey and the edge is now light, which seems to work better over a wider variety of content</li>
+    <li>The scrollbars are now hidden until the user tries to scroll (using a two-finger drag on the trackpad)</li>
+  </ul></td>
+</tr></table>
+
+<p><span class="macOS"></span> mouse scrollbars, c. 2018 (<i>i.e.,</i> when a mouse is plugged into the Mac):</p>
+<table style="margin-left:1.5em"><tr style="vertical-align:top">
+  <td><img src="img/mouse-scrollbars.png" height="100" width="100"></td>
+  <td><ul style="margin-top:0">
+    <li style="margin-top:0">The gutters are now shown all the time</li>
+    <li>The the content area is reduced to accommodate the scrollbars</li>
+    <li>The thumbs are now wider</li>
+  </ul></td>
+</tr></table>
+
+<p><strong>Go to the next page</strong> for a discussion on the specifics of the default <code>finbars</code> stylesheet.</p>
+
+</body>
+</html>

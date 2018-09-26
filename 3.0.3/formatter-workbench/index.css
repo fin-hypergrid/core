@@ -1,0 +1,114 @@
+body {
+    font: 9pt sans-serif;
+    margin: 8px;
+}
+table {
+    border-spacing: 12px 6px;
+}
+textarea {
+    font: 8pt monospace;
+    background-color: transparent;
+    height: calc(100% - 43px);
+    border: 0;
+    border-top: 1px dashed grey;
+    padding: 6px 0 0 0;
+    width: 100%;
+    display: block;
+    resize: none;
+}
+label {
+    white-space: nowrap;
+    font: normal 9pt sans-serif;
+}
+select, input, textarea {
+    outline: 0;
+}
+span.feedback {
+    float: right;
+    margin-top: 12px;
+    display: none;
+}
+input[type=button].locals {
+    background-color: grey;
+    color: white;
+    cursor: help;
+    margin: 9px;
+    border: 1px solid transparent;
+    border-radius: .5em;
+}
+input[type=button].api {
+    background-color: grey;
+    color: white;
+    font: 12px monospace;
+    border: 1px solid transparent;
+    border-radius: .5em;
+    padding: .33em .66em;
+    margin: 6px;
+    float: right;
+}
+input[type=button].locals:hover, input[type=button].api:hover {
+    background-color: #444;
+}
+input[type=button].locals:active, input[type=button].api:active {
+    color: #444;
+    background-color: white;
+    border-color: grey;
+}
+input[type=button].danger {
+    color: red;
+    border-color: red;
+    margin: 9px;
+    border-radius: .5em;
+    background-color: transparent;
+}
+input[type=button].danger:hover {
+    color: white;
+    background-color: red;
+}
+
+input[type=button].danger:active {
+    color: red;
+    background-color: yellow;
+}
+#hypergrid > div:first-child {
+    box-shadow: 3px 3px 15px grey;
+}
+
+.divider {
+    position: absolute;
+    width: calc(50% - 15px);
+    border-top: 4px double #ccc;
+    top: 218px;
+}
+.divider:hover {
+    border-top: 4px double #444;
+    cursor: row-resize;
+}
+.divider:active {
+    border-top: 4px solid #888;
+}
+span.reset-button > svg {
+    position: relative;
+    top: 7px;
+}
+span.delete-button > svg {
+    position: relative;
+    top: 3px;
+}
+span.danger > svg {
+    color: #cb2431;
+    fill: currentColor;
+}
+span.danger > svg.disabled {
+    color: #aaa;
+    cursor: no-drop;
+}
+span.danger > svg:not(.disabled):hover {
+    background-color: yellow;
+    border-radius: 1em;
+    cursor: pointer;
+}
+sup {
+    font-size: 45%;
+    font-weight: normal
+}

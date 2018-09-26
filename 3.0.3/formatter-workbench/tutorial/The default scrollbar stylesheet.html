@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" href="index.css">
+  <script src="index.js"></script>
+</head>
+
+<body>
+<h2 class="continued">The Scrollbars tab</h2>
+
+<h3>The default scrollbar stylesheet</h3>
+
+<p>Before proceeding, it is worth studying the default scrollbar stylesheet, <a target="github" href="https://github.com/fin-hypergrid/finbars/blob/master/src/finbars.css">finbars.css</a>, which is instructive for whichever approach you decide to take.</p>
+
+<p>From <code>finbars.css</code>, we can see that CSS styles for scrollbars can control the following (defaults in <b>bold</b>):
+<ul>
+  <li>Scrollbar position
+    <ul>
+      <li><b>over</b> content <i>vs.</i> adjacent to content</li>
+      <li><em>vertical scrollbar:</em> <b>right</b> of content <i>vs.</i> left</li>
+      <li><em>horizontal scrollbar:</em> <b>below</b> content <i>vs.</i> above</li>
+    </ul>
+  </li>
+  <li>Gutters
+    <ul>
+      <li>size<sup>1</sup> <b>(11px)</b></li>
+      <li>margins relative to grid rect <b>(3px all around)</b></li>
+      <li>background color <b>(none, <i>i.e.,</i> transparent)</b></li>
+      <li>border color and thickness <b>(none)</b></li>
+    </ul>
+  </li>
+  <li>Thumbs
+    <ul>
+      <li>size<sup>1</sup> <b>(7px)</b></li>
+      <li>margins relative to gutter rect <b>(2px all around)</b></li>
+      <li>position within gutter <b>(centered*)</b></li>
+      <li>shape: square <i>vs.</i> <b>rounded</b></li>
+      <li>background color <b>(lightgrey, or #d3d3d3)</b></li>
+      <li>border color and thickness <b>(none)</b></li>
+      <li>shadow<sup>2</sup> <b>(black, 1px)</b></li>
+    </ul>
+  </li>
+  <li>Hover styles
+    <ul>
+      <li>All of the above can be modified during mouse hover <b>(thumb opacity: 1.0)</b></li>
+      <li>Transition time for selected styles between hover <i>vs.</i> non-hover <b>(thumb opacity: &frac12; second)</b></li>
+    </ul>
+  </li>
+</ul>
+
+<p><strong>Go to the next page</strong> for the next scrollbar Activity, in which we’ll make a minor modification to the scrollbar styles to bring the scrollbars up to date.</p>
+
+<table class="footnote">
+  <caption><div></div></caption>
+  <tr><td><sup>1</sup></td><td><em>Size</em> refers to the <em>width</em> of the vertical scrollbar and its thumb; or to the <em>height</em> of the horizontal scrollbar and its thumb. <strong><em>Important note:</em></strong> Never attempt to set the size of the other axis as this is programmatically determined and set by the code, based on the size of the logical grid within its currently sized viewport.</td></tr>
+  <tr><td><sup>2</sup></td><td>The <code>box-shadow</code> style with offsets of 0px can be used as a subtler alternative to a border. You should use either border <em>or</em> shadow, <em>or</em> neither, but not both. If you prefer to use <code>border</code>, you will need to fiddle with <code>margin</code> and/or <code>box-sizing</code> to keep the thumb positioned properly within the gutter.</em> </td></tr>
+</table>
+
+
+
+
+</body>
+</html>

@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" href="index.css">
+  <script src="index.js"></script>
+</head>
+
+<body>
+<h2 class="continued">Validation</h2>
+
+Validation is the responsibility of the <code>localizer.parse</code> method.
+(Though technically part of the localizer, we’re discussing it here becuase it comes into play during cell editing.)
+
+<p>All localizers should be coded to ensure edited values are completely valid.</p>
+
+<p>Consider, for example, the <code>deg</code> localizer, which you can examine in the <span class="tab">Localizers</span> tab, but here it is:</p>
+<pre>module.exports = {
+    name: 'deg',
+    format: function(s) { return s + '&deg;' },
+    parse: function(s) { return parseInt(s, 10); }
+}</pre>
+The input is assumed to be an integer followed by a degrees symbol (&deg;). This localizer’s simple <code>parse</code> method uses <code>parseInt</code>, which (as you may know) parses <em>until</em> it encounters a character it doesn’t understand and then returns whatever it has so far, without complaint. When <code>parseInt</code> sees the degrees symbol, it stops parsing. The result is that it returns the integer part. This seems to be what we want.
+
+<p>However, <em>this is insufficient validation!</em> It works well for <em>valid</em> inputs, but does not reject invalid inputs (which after all is what validation is all about). Specifically:</p>
+<ul>
+  <li>It would (seem to) work equally well with <em>any</em> symbol suffixed to the value (not just &deg;), which is invalid</li>
+  <li>It would also (seem to) work equally well with no symbol at all, which is also technically invalid (although convenient in practice not to have to type the unit symbol — which in this case is obscure)</li>
+  <li>If the input has no digits at all, <code>parseInt</code> returns <code>NaN</code> (not a number), which we’re not checking for, so we just store <em>that,</em> which we should not be doing</li>
+</ul>
+
+There are two approaches to validation:
+<ol>
+  <li>One-stage approach:
+    <ul>
+      <li>Build validation into a complex "bullet-proof" <code>parse</code> method</li>
+    </ul>
+  </li>
+  <li>Two-stage approach:
+    <ul>
+      <li>Validate the syntax in an <code>invalid</code> method</li>
+      <li>Scan the input in a casual <code>parse</code> method that requires clean input</li>
+    </ul>
+  </li>
+</ol>
+
+The one-stage approach can prove to be very complex, requiring an FSM (finite state machine) design, or an AST (abstract syntax tree) approach, <i>etc.,</i> whereas splitting validation into two stages is often a lot simpler, allowing a more casual approach that might otherwise quickly get out of hand if were to be implemented in a single stage. Both approaches can benefit from the use of regular expressions (a kind of FSM); the one-stage approach in particular can often be implemented easily with this way.
+
+<p>On the next page, we’ll explore what is involved in implementing both approaches in our <code>deg</code> localizer.</p>
+
+</body>
+</html>

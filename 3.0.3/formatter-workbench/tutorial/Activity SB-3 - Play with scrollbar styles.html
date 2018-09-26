@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" href="index.css">
+  <script src="https://joneit.github.io/get-smart/1.0.2/build/get-smart.js"></script>
+  <script src="index.js"></script>
+</head>
+
+<body>
+<h2 class="continued">The Scrollbars tab</h2>
+
+<h3 class="continued">Styling the scrollbars</h3>
+
+<article class="activity">
+  <header><div>SB-3</div>Play with some more scrollbar styles</header>
+  <section>
+    <p>Let’s see what other scrollbar styles we can override...</p>
+    <ol>
+      <li>
+        In the <span class="tab">Scrollbars</span> tab, make the gutters visible by setting their background color to something other than <code>transparent</code>. Add the following the the previous Activity’s thumb rule:
+        <pre>/* scrollbar style */
+div.finbar-vertical, div.finbar-horizontal {
+    /* gutter style when mouse somewhere else */
+    background-color: white;
+    opacity: 0;
+    transition: opacity .5s;
+}
+div.finbar-vertical:hover, div.finbar-horizontal:hover {
+    /* gutter style when mouse hovered over scrollbar */
+    opacity: .5;
+    transition: opacity .5s;
+}</pre>
+        We make the gutters translucent so the grid content can still be seen through them.
+      </li>
+      <li>Click the <span class="api-button">injectCSS('custom', …)</span> button to update the custom <code class="tag">style</code> element</li>
+      <li class="observe">Scrollbars now have visible gutters when hovered over.</li>
+    </ol>
+    <p>There are many other possibilities. For some more examples, go back to the <a href="javascript:window.top.tutorial.page('The Scrollbars tab (Activity SB-1 - Reveal the scrollbars).html', '')">first page of this section</a> and take a look at its <span class="tab">Code Snippets</span> tab.</p>
+  </section>
+</article>
+
+<p><strong>On the next page,</strong> we’ll learn how to move the scrollbars off the grid content.</p>
+
+<!--
+<table class="footnote">
+  <caption><div></div></caption>
+  <tr><td>*</td><td></td></tr>
+</table>
+-->
+
+</body>
+</html>

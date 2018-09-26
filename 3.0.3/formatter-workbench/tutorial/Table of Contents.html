@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" href="index.css">
+  <script src="https://joneit.github.io/get-smart/1.0.2/build/get-smart.js"></script>
+  <script src="index.js"></script>
+  <style>
+    ul {
+      list-style: none;
+      margin: .25em 1.5em;
+      padding: 0;
+      overflow-x: hidden;
+    }
+    body > ul {
+      overflow-x: hidden;
+    }
+    body > ul > li {
+      margin-top: .75em;
+      font: bold 13pt sans-serif;
+    }
+    li {
+      margin: .25em 0;
+      cursor: pointer;
+    }
+    li > span {
+      background-color: #f4f4f4;
+    }
+    li > span:first-child {
+      padding-right: .5em;
+    }
+    li > span:last-child {
+      float: right;
+      padding-left: .5em;
+    }
+    li:before {
+      float: left;
+      width: 0;
+      white-space: nowrap;
+      content: ' . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . ';
+    }
+  </style>
+  <script>
+  window.addEventListener('load', function() {
+      var isJSON = /^[[{]/;
+
+      getSmart('../defaults/table-of-contents.js', function(toc) {
+          var n = 1;
+          walk(document.body, [toc]);
+          document.body.addEventListener('click', function(e) {
+              var li = e.path.find(function(el) { return el.tagName === 'LI'; });
+              if (li) {
+                  var pageNumber = li.lastElementChild.innerText, path = '';
+                  window.top.tutorial.page(pageNumber, path);
+              }
+          });
+          function walk(parentEl, list) {
+              list.forEach(function(filename) {
+                  if (Array.isArray(filename)) {
+                      var ul = document.createElement('ul');
+                      parentEl.appendChild(ul);
+                      walk(ul, filename);
+                  } else {
+                      filename = filename.substr(0, filename.length - 5);
+                      if (filename !== 'Table of Contents') {
+                          var li = document.createElement('li');
+                          li.innerHTML = '<span>' +
+                              filename.replace(/\.html$/, '') +
+                              '</span><span class="p">' + n + '</span>';
+                          parentEl.appendChild(li);
+                      }
+                      n += 1;
+                  }
+              });
+          }
+      });
+  });
+  </script>
+</head>
+<body>
+<h2>Table of Contents</h2>
+
+<ul></ul>
+
+</body>
+</html>

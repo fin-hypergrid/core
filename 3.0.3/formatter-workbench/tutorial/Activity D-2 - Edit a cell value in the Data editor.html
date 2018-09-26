@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" href="index.css">
+  <script src="index.js"></script>
+</head>
+<body>
+<h2 class="continued">The Data tab</h2>
+
+<article class="activity">
+  <header><div>D-2</div>Edit a value in the <span class="tab">Data</span> editor and watch the grid update</header>
+  <section>
+    <p>Remove the comma from the grid cell:</p>
+
+    <ol>
+      <li>Click the <b>Data</b> tab.</li>
+      <li>Edit the <code>name</code> property in the first (<code>dataRow</code>) object.</li>
+      <li>Click the <span class="api-button">grid.setData(…)</span> button.</li>
+      <li class="observe"> The grid cell updates.</li>
+    </ol>
+  </section>
+</article>
+
+<div class="note">
+  In actual practice, the data object you pass to <code>setData</code> will typically be <code>JSON.parse</code>’d from a character string in JSON format.
+  <p>
+    The <span class="tab">Data</span> tab uses
+    <code>eval</code> to parse their editors as straight JavaScript,
+    rather than <code>JSON.parse</code> which requires strict JSON.
+    This is intended to make editing easier as you do not need to concern yourself with
+    strict adherence to the JSON standard (double quotes, primitive types, no comments, _etc._).
+  </p>
+</div>
+
+<div class="sidebar">
+  Click the <span class="button clickable" onclick="window.top.tutorial.page(window.top.tutorial.num + 1, '')">&#x25ba;</span> button <em>(above)</em> to go to the next page.
+</div>
+
+</body>
+</html>
