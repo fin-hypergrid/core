@@ -584,8 +584,8 @@ var Hypergrid = Base.extend('Hypergrid', {
 
     /**
      * @memberOf Hypergrid#
-     * @desc Set the state object to return to the given user configuration.
-     * @param {object} state - A memento object.
+     * @desc Set the state object to return to the given user configuration; then re-render the grid.
+     * @param {object} state - A grid state object.
      * @see [Memento pattern](http://en.wikipedia.org/wiki/Memento_pattern)
      */
     setState: function(state) {
@@ -594,8 +594,9 @@ var Hypergrid = Base.extend('Hypergrid', {
 
     /**
      * @memberOf Hypergrid#
-     * @desc Add to the state object.
-     * @param {object} state
+     * @desc Add to the state object; then re-render the grid.
+     * @param {object} state - A grid state object.
+     * @param {boolean} [settingState=false] - Clear state first (_i.e.,_ perform a set state operation).
      */
     addState: function(state, settingState) {
         this.behavior.addState(state, settingState);
