@@ -57,39 +57,6 @@
 
 <div class="description">
     <p>The first parameter, <code>container</code>, is optional. If omitted, the <code>options</code> parameter is promoted to first position. (Note that the container can also be given in <code>options.container.</code>)</p>
-<h4><code>options.canvasContextAttributes</code> object (see below)</h4><p>The only currently meaningful property of this object is <code>alpha</code>:</p>
-<pre class="prettyprint source lang-js"><code>var gridOptions = {
-    canvasContextAttributes: { alpha: false }
-};
-var myGrid = new Hypergrid(gridOptions);</code></pre><p><code>alpha</code> is a boolean that indicates if the canvas contains an alpha channel. If set to <code>false</code>, the browser now knows that the backdrop is always opaque, which can speed up drawing of transparent content and images.</p>
-<p>This option was added by request although testing failed to show any measurable performance benefit.</p>
-<p>Use with caution. In particular, if the canvas is set to &quot;opaque&quot; (<code>{alpha: false}</code>), do <em>not</em> also specify a transparent or translucent color for <code>grid.properties.backGround</code> because content may then be drawn with corrupt anti-aliasing (at lest in Chrome v67).</p>
-<p>Note that such an &quot;opaque&quot; canvas can still be made to appear translucent using the CSS <code>opacity</code> property — a different effect entirely.</p>
-<p>Although this option has no apparent performance gains (in Chrome v63), it does permit the graphics context to use <a href="https://en.wikipedia.org/wiki/Subpixel_rendering">sub-pixel rendering</a> for sharper text as viewed on LCD or LED screens, especially black text on white backgrounds, and especially when viewed on a high-pixel-density display such as an <a href="https://en.wikipedia.org/wiki/Retina_Display">Apple retina display</a>.</p>
-<table>
-<thead>
-<tr>
-<th>value</th>
-<th style="text-align:center">Canvas</th>
-<th style="text-align:center">Text</th>
-<th>Sample</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>{ alpha: true }</code></td>
-<td style="text-align:center">transparent</td>
-<td style="text-align:center">regular<br>anti-aliasing</td>
-<td><img src="https://cdn-pro.dprcdn.net/files/acc_645730/ZqurK3" alt="regular.png"></td>
-</tr>
-<tr>
-<td><code>{ alpha: false }</code></td>
-<td style="text-align:center">opaque</td>
-<td style="text-align:center">sub-pixel<br>rendering</td>
-<td><img src="https://cdn-std.dprcdn.net/files/acc_645730/bf3VXh" alt="sub-pixel.png"></td>
-</tr>
-</tbody>
-</table>
 </div>
 
 
@@ -594,7 +561,7 @@ var myGrid = new Hypergrid(gridOptions);</code></pre><p><code>alpha</code> is a 
 
         <tr>
             
-                <td class="name"><code>options.canvasContextAttributes</code></td>
+                <td class="name"><code>options.contextAttributes</code></td>
             
 
             <td class="type">
@@ -621,10 +588,35 @@ var myGrid = new Hypergrid(gridOptions);</code></pre><p><code>alpha</code> is a 
             
                 <td class="default">
                 
+                    { alpha: true }
+                
                 </td>
             
 
-            <td class="description last"><p>Passed to <a href="https://developer.mozilla.org/docs/Web/API/HTMLCanvasElement/getContext"><code>HTMLCanvasElement.getContext</code></a>. <em>Please see discussion above.</em></p></td>
+            <td class="description last"><p>Passed to <a href="https://developer.mozilla.org/docs/Web/API/HTMLCanvasElement/getContext"><code>HTMLCanvasElement.getContext</code></a>. Although the MDN docs say setting this to <code>{alpha: false}</code> (opaque canvas) can &quot;can speed up drawing of transparent content and images,&quot; our testing (with Chrome v63) failed to show any measurable performance gain.</p>
+<p><em>An opaque canvas does have an important advantage, however!</em> It permits the graphics context to use <a href="https://en.wikipedia.org/wiki/Subpixel_rendering">sub-pixel rendering</a> for sharper text as viewed on LCD or LED screens, especially black text on white backgrounds, and especially when viewed on a high-pixel-density display such as an <a href="https://en.wikipedia.org/wiki/Retina_Display">Apple retina display</a>.</p>
+<p>Zoom in on the following samples images to see the difference in rendering.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">Value</th>
+<th style="text-align:center">Sample</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center"><code>{ alpha: true }</code><br>Transparent canvas,<br>renders text using<br><em>regular anti-aliasing</em></td>
+<td style="text-align:center"><img src="https://cdn-pro.dprcdn.net/files/acc_645730/ZqurK3" alt="regular.png"></td>
+</tr>
+<tr>
+<td style="text-align:center"><code>{ alpha: false }</code><br>Opaque canvas,<br>renders text using<br><em>sub-pixel rendering</em></td>
+<td style="text-align:center"><img src="https://cdn-std.dprcdn.net/files/acc_645730/bf3VXh" alt="sub-pixel.png">.</td>
+</tr>
+</tbody>
+</table>
+<p>Use with caution, however. In particular, if the canvas is set to &quot;opaque&quot; (<code>{alpha: false}</code>), do <em>not</em> also specify a transparent or translucent color for <code>grid.properties.backGround</code> because content may then be drawn with corrupt anti-aliasing (at lest as of Chrome v67).</p>
+<p>To clarify, the default setting (<code>{ alpha: true }</code>) is a transparent canvas, meaning that elements rendered underneath the <code>&lt;canvas&gt;</code> element can be seen through any non-opaque pixels (pixels with alpha channel &lt; 1.0). Hypergrids that set their background color to non-opaque can see this effect.</p>
+<p>Note: An opaque canvas can still be made <em>to appear</em> translucent using the CSS <code>opacity</code> property. But that is a different effect entirely, setting the entire rendered canvas to translucent, not just so all pixels become translucent.</p></td>
         </tr>
 
     
