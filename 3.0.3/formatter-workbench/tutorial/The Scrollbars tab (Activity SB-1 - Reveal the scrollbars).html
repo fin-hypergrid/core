@@ -104,29 +104,27 @@ document.getElementById('injected-stylesheet-finbar-base').disabled = true;</pre
 }</pre>
 
   <h4>C. Move the scrollbars off the grid</h4>
-  The default position is superimposed along the bottom and right edges of the grid <code class="tag">canvas</code> (with transparent scrollbar gutters, styled after the <span class="macOS"></span> trackpad scrollbars). The following simple strategy shrinks the grid slightly from the its container size, leaving the scrollbars outside the grid:
+  The default position is superimposed along the bottom and right edges of the grid <code class="tag">canvas</code> (with transparent scrollbar gutters, styled after the <span class="macOS"></span> trackpad scrollbars). The following simple strategy shrinks the grid content slightly from its container size, leaving the scrollbars where they were but now outside the grid:
   <pre>div.hypergrid-container > div:first-child {
-    bottom: 13px;
-    right: 11px;
-    box-shadow: none !important; /* remove workbench style */
+    bottom: 15px;
+    right: 15px;
 }</pre>
   <div class="note">The above selector is not found in <code>finbars.css</code>.</div>
   More examples of repositioning the scrollbars can be found at the bottom of the page.
 
-  <h4>E. Make the scrollbar gutter backgrounds visible</h4>
+  <h4>D. Make the scrollbar gutter backgrounds visible</h4>
   <pre>div.finbar-vertical, div.finbar-horizontal {
     background-color: yellow;
     margin: 0;
 }
 /* Move the now-visible gutters off the grid so they don’t obscure grid content: */
 div.hypergrid-container > div:first-child {
-    bottom: 17px; /* why not 15px? */
+    bottom: 15px;
     right: 15px;
-    box-shadow: none !important; /* remove workbench style */
 }</pre>
 
-<h4>F. Make the scrollbar gutter borders visible</h4>
-<pre>div.finbar-vertical, div.finbar-horizontal {
+  <h4>E. Make the scrollbar gutter borders visible</h4>
+  <pre>div.finbar-vertical, div.finbar-horizontal {
     <span style="background-color:yellow">border: 1px solid black;</span>
     background-color: white;
     box-sizing: border-box;
@@ -140,19 +138,21 @@ div.finbar-horizontal > .thumb {
 }
 /* Move the now-visible gutters off the grid so they don’t obscure grid content: */
 div.hypergrid-container > div:first-child {
-    bottom: 13px; /* why not 11px? */
+    bottom: 11px;
     right: 11px;
-    box-shadow: none !important; /* remove workbench style */
 }</pre>
 The <code style="background-color:yellow">border</code> style setting is the salient point here; the rest are cosmetic tweaks to the default styles.
 
-  <h4>G. Combine all of the above</h4>
+  <h4>F. Combine all of the above</h4>
   Darker, square thumbs over white scrollbars with dark borders, repositioned off the grid:
 <pre>div.finbar-vertical, div.finbar-horizontal {
     border: 1px solid black;
     background-color: white;
     box-sizing: border-box;
     margin: 0;
+}
+div.finbar-horizontal {
+    border-right: 0;
 }
 div.finbar-vertical > .thumb, div.finbar-horizontal > .thumb {
     border-radius: 0;
@@ -166,12 +166,11 @@ div.finbar-horizontal > .thumb {
     margin: 1px 2px;
 }
 div.hypergrid-container > div:first-child {
-    bottom: 13px;
+    bottom: 11px;
     right: 11px;
-    box-shadow: none !important; /* remove workbench style */
 }</pre>
 
-  <h4>H. Move the scrollbars to the left and top</h4>
+  <h4>G. Move the scrollbars to the left and top</h4>
   <pre>div.finbar-vertical {
     left: 0;
 }
@@ -180,11 +179,10 @@ div.finbar-horizontal {
     margin-left: 14px;
 }</pre>
 
-  <h4>I. Move the scrollbars off the grid to the left and top</h4>
+  <h4>H. Move the scrollbars off the grid to the left and top</h4>
   <pre>div.hypergrid-container > div:first-child {
     top: 15px;
     left: 15px;
-    box-shadow: none !important; /* remove workbench style */
 }
 div.finbar-vertical {
     left: 0;

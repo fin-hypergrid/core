@@ -13,7 +13,7 @@ window.addEventListener('load', function() {
 
     if (typeof getSmart === 'function') {
         getSmart('../img/reset.svg', function(svg) {
-            Array.prototype.forEach.call(document.getElementsByClassName('reset-button'), function (el) {
+            forEachElement(document.getElementsByClassName('reset-button'), function (el) {
                 el.setAttribute('title', 'Reset');
                 injectSVG(el, svg)
             });
@@ -36,7 +36,7 @@ window.addEventListener('load', function() {
     }
 
     function setTabLinks() {
-        document.querySelectorAll('span.tab').forEach(function(el) {
+        forEachElement(document.querySelectorAll('span.tab'), function(el) {
             el.href = 'javascript:void(0)';
             el.onclick = goToTab;
             el.style.backgroundColor = findTab.call(el).content.style.backgroundColor;
@@ -75,11 +75,15 @@ window.addEventListener('load', function() {
     }
 
     function setTitleAttribs() {
-        document.querySelectorAll('a[target=doc]').forEach(function (el) {
+        forEachElement(document.querySelectorAll('a[target=doc]'), function (el) {
             el.title = 'Click to open the API documentation for "' + el.innerText + '" in another window.';
         });
-        document.querySelectorAll('a[target=mdn]').forEach(function (el) {
+        forEachElement(document.querySelectorAll('a[target=mdn]'), function (el) {
             el.title = 'Click to open the Mozilla Developer Network page for "' + el.innerText + '" in another window.';
         });
+    }
+
+    function forEachElement(elements, iterator, context) {
+        Array.prototype.forEach.call(elements, iterator, context);
     }
 });

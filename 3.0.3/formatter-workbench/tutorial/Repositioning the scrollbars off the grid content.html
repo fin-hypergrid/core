@@ -22,16 +22,15 @@ Rather than move the scrollbars into “uncharted” screen real estate, this st
   <section>
     <ol>
       <li>
-        In the <span class="tab">Scrollbars</span> tab, shrink the grid by applying borders:
+        In the <span class="tab">Scrollbars</span> tab, shrink the grid away from the the scrollbars enough to leave the scrollbar thumbs completely outside the grid content:
         <pre>div.hypergrid-container > div:first-child {
-    bottom: 13px;
-    right: 11px;
-    box-shadow: none !important; /* remove workbench style */
+    bottom: 15px;
+    right: 15px;
 }</pre>
         The <code>box-shadow</code> setting would not be needed normally; it just undoes the fuzzy shadow around the grid that this workbench applies, and which was interfering visually with the new scrollbar positioning.
       </li>
       <li>Click the <span class="api-button">injectCSS('custom', …)</span> button to update the custom <code class="tag">style</code> element</li>
-      <li class="observe">ALthough the scrollbars have not actually moved, they no longer overlay the grid because we’ve made the grid a little smaller.</li>
+      <li class="observe">Although the scrollbars have not actually moved, they no longer overlay the grid because we’ve made the grid a little smaller.</li>
     </ol>
     <p>Again, we urge you to go back to the <a href="javascript:window.top.tutorial.page('The Scrollbars tab (Activity SB-1 - Reveal the scrollbars).html', '')">first page of this section</a> and take a look at its <span class="tab">Code Snippets</span> tab. There you will find examples of gutter borders and of moving the scrollbars to the opposite edges of the grid.</p>
   </section>

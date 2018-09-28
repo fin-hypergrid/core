@@ -71,6 +71,9 @@ input[type=button].danger:active {
     background-color: yellow;
 }
 #hypergrid > div:first-child {
+    transition: box-shadow 2s;
+}
+#hypergrid > div:first-child:hover {
     box-shadow: 3px 3px 15px grey;
 }
 
