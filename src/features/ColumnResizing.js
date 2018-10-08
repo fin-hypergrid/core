@@ -63,17 +63,23 @@ var ColumnResizing = Feature.extend('ColumnResizing', {
      */
     handleMouseDrag: function(grid, event) {
         if (this.dragColumn) {
-            var delta = this.getMouseValue(event) - this.dragStart;
-            var dragWidth = this.dragStartWidth + delta;
-            if (!this.nextColumn) {
+            var delta = this.getMouseValue(event) - this.dragStart,
+                dragWidth = this.dragStartWidth + delta,
+                nextWidth = this.nextStartWidth - delta;
+            if (!this.nextColumn) { // nextColumn et al instance vars defined when resizeColumnInPlace (by handleMouseDown)
                 grid.behavior.setColumnWidth(this.dragColumn, dragWidth);
-            } else if (
-                0 < delta && delta <= (this.nextStartWidth - this.nextColumn.properties.minimumColumnWidth) ||
-                0 > delta && delta >= -(this.dragStartWidth - this.dragColumn.properties.minimumColumnWidth)
-            ) {
-                var nextWidth = this.nextStartWidth - delta;
-                grid.behavior.setColumnWidth(this.dragColumn, dragWidth);
-                grid.behavior.setColumnWidth(this.nextColumn, nextWidth);
+            } else {
+                var np = this.nextColumn.properties, dp = this.dragColumn.properties;
+                if (
+                    0 < delta && delta <= (this.nextStartWidth - np.minimumColumnWidth) &&
+                    (!dp.maximumColumnWidth || dragWidth <= dp.maximumColumnWidth)
+                    ||
+                    0 > delta && delta >= -(this.dragStartWidth - dp.minimumColumnWidth) &&
+                    (!np.maximumColumnWidth || nextWidth < np.maximumColumnWidth)
+                ) {
+                    grid.behavior.setColumnWidth(this.dragColumn, dragWidth);
+                    grid.behavior.setColumnWidth(this.nextColumn, nextWidth);
+                }
             }
         } else if (this.next) {
             this.next.handleMouseDrag(grid, event);
