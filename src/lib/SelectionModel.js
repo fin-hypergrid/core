@@ -444,11 +444,10 @@ SelectionModel.prototype = {
      */
     getSelectedRows: function() {
         if (this.areAllRowsSelected()) {
-            var headerRows = this.grid.getHeaderRowCount();
-            var rowCount = this.grid.getRowCount() - headerRows;
+            var rowCount = this.grid.getRowCount();
             var result = new Array(rowCount);
             for (var i = 0; i < rowCount; i++) {
-                result[i] = i + headerRows;
+                result[i] = i;
             }
             return result;
         }
