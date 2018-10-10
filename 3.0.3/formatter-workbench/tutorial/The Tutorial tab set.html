@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <link rel="stylesheet" href="index.css">
+  <script src="polyfills.js"></script>
   <script src="index.js"></script>
 </head>
 <body>
@@ -38,7 +39,7 @@ You are reading this from the <span class="tab">Tutorial</span> tab.
 This tab contains code snippets for cutting-and-pasting and only appears when the current tutorial page has such content.
 
 <div class="sidebar">
-  Click the <span class="button clickable" onclick="window.top.tutorial.page(window.top.tutorial.num + 1, '')">&#x25ba;</span> button <em>(above)</em> to go to the next page.
+  Click the <span class="clickable page-next" onclick="window.top.tutorial.page(window.top.tutorial.num + 1, '')"></span> button above to go to the next page.
 </div>
 </body>
 </html>

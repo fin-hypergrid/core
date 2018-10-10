@@ -67,8 +67,21 @@ span.button.danger {
     border: 1px solid red;
     color: red;
 }
-span.button.clickable {
+span.clickable {
     cursor: pointer;
+}
+span.page-next {
+    vertical-align: middle;
+    padding: 0 .35em;
+}
+span.page-next:hover, span.page-next:active {
+    color: red;
+}
+span.page-next::before {
+    content: '\25ba';
+}
+html[data-platform*='Win32'] span.page-next::before {
+    font-size: 180%;
 }
 a.code, code {
     font-family: verdana, monospace;
@@ -280,4 +293,7 @@ span.delete-button > svg {
 span.danger > svg {
     color: #cb2431;
     fill: currentColor;
+}
+li.current-page, li.current-page > span {
+    background-color: yellow;
 }

@@ -1,0 +1,26 @@
+[
+  {
+    "symbol": "APPL",
+    "name": "Apple Inc.",
+    "prevclose": 93.13,
+    "change": -0.0725
+  },
+  {
+    "symbol": "MSFT",
+    "name": "Microsoft Corporation",
+    "prevclose": 51.91,
+    "change": 0.0125
+  },
+  {
+    "symbol": "TSLA",
+    "name": "Tesla Motors Inc.",
+    "prevclose": 196.40,
+    "change": 0.08
+  },
+  {
+    "symbol": "IBM",
+    "name": "International Business Machines Corp",
+    "prevclose": 155.35,
+    "change": -0.02375
+  }
+]

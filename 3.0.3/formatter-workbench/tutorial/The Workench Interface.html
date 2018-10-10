@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <link rel="stylesheet" href="index.css">
+  <script src="polyfills.js"></script>
   <script src="index.js"></script>
 </head>
 <body>
@@ -17,7 +18,7 @@ Before we begin the tutorial proper, let’s look at the interface, which consis
   Let’s go over these one at a time.
 </p>
 <div class="sidebar">
-  Click the <span class="button clickable" onclick="window.top.tutorial.page(window.top.tutorial.num + 1, '')">&#x25ba;</span> button <em>(above)</em> to go to the next page.
+  Click the <span class="clickable page-next" onclick="window.top.tutorial.page(window.top.tutorial.num + 1, '')"></span> button above to go to the next page.
 </div>
 
 

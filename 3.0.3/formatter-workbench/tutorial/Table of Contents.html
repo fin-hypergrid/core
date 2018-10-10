@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <link rel="stylesheet" href="index.css">
-  <script src="https://joneit.github.io/get-smart/1.0.2/build/get-smart.js"></script>
-  <script src="index.js"></script>
+  <script src="polyfills.js"></script>
+  <script src="https://unpkg.com/get-smart@1.0/umd/get-smart.js"></script>
   <style>
     ul {
       list-style: none;
@@ -16,15 +16,15 @@
       overflow-x: hidden;
     }
     body > ul > li {
-      margin-top: .75em;
-      font: bold 13pt sans-serif;
+      margin-top: .5em;
+      font: bold 11pt sans-serif;
     }
     li {
-      margin: .25em 0;
+      margin: .15em 0;
       cursor: pointer;
     }
     li > span {
-      background-color: #f4f4f4;
+      background-color: white;
     }
     li > span:first-child {
       padding-right: .5em;
@@ -42,18 +42,20 @@
   </style>
   <script>
   window.addEventListener('load', function() {
-      var isJSON = /^[[{]/;
-
-      getSmart('../defaults/table-of-contents.js', function(toc) {
+      getSmart('../data/table-of-contents.js', function(toc) {
           var n = 1;
+
           walk(document.body, [toc]);
+
           document.body.addEventListener('click', function(e) {
-              var li = e.path.find(function(el) { return el.tagName === 'LI'; });
-              if (li) {
-                  var pageNumber = li.lastElementChild.innerText, path = '';
-                  window.top.tutorial.page(pageNumber, path);
+              for (var el = e.target; el !== document.body; el = el.parentElement) {
+                  if (el.tagName === 'LI') {
+                      var pageNumber = el.lastElementChild.innerText, path = '';
+                      window.top.tutorial.page(pageNumber, path);
+                  }
               }
           });
+
           function walk(parentEl, list) {
               list.forEach(function(filename) {
                   if (Array.isArray(filename)) {
@@ -62,13 +64,14 @@
                       walk(ul, filename);
                   } else {
                       filename = filename.substr(0, filename.length - 5);
-                      if (filename !== 'Table of Contents') {
-                          var li = document.createElement('li');
-                          li.innerHTML = '<span>' +
-                              filename.replace(/\.html$/, '') +
-                              '</span><span class="p">' + n + '</span>';
-                          parentEl.appendChild(li);
+                      var li = document.createElement('li');
+                      if (window.top.tutorial && window.top.tutorial.num === n) {
+                          li.classList.add('current-page');
                       }
+                      li.innerHTML = '<span>' +
+                          filename.replace(/\.html$/, '') +
+                          '</span><span class="p">' + n + '</span>';
+                      parentEl.appendChild(li);
                       n += 1;
                   }
               });
@@ -78,8 +81,22 @@
   </script>
 </head>
 <body>
-<h2>Table of Contents</h2>
 
+<h2>Welcome</h2>
+<p>
+  This <em>workbench</em> is for learning about Hypergrid cell formatting using <em>localizers</em> and editing using <em>cell editors</em>.
+</p>
+<p>
+  You can also use it for actual development and testing of such objects, cutting-and-pasting the final results to your own app.
+</p>
+<p>
+  For your convenience, the app persists your work between sessions to <em>local storage</em> (which does not expire).
+</p>
+<div class="sidebar">
+  Click an entry below to go directly to that page in the <span class="tab" style="background-color:#f4f4f4" onclick="window.top.tutorial.tabBar.select('Tutorial')">Tutorial</span> tab.
+</div>
+
+<h2>Table of Contents</h2>
 <ul></ul>
 
 </body>

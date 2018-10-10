@@ -1,12 +1,10 @@
 'use strict';
 
 module.exports = [
-    "Table of Contents.html",
-    "Welcome.html",
     "The Workench Interface.html",
     [
         "The Hypergrid.html",
-        "The Editor tab set.html",
+        "The Editors tab set.html",
         "The Tutorial tab set.html"
     ],
     "The Data tab.html",

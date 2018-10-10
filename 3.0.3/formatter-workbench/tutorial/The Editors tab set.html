@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <link rel="stylesheet" href="index.css">
+  <script src="polyfills.js"></script>
   <script src="index.js"></script>
 </head>
 <body>
@@ -33,7 +34,7 @@ This tab lets you select an existing cell editor for editing, or create and save
 
 <div class="sidebar">
   <p>Now let’s take these one at a time.<br></p>
-  <p>Click the <span class="button clickable" onclick="window.top.tutorial.page(window.top.tutorial.num + 1, '')">&#x25ba;</span> button <em>(above)</em> to go to the next page.</p>
+  <p>Click the <span class="clickable page-next" onclick="window.top.tutorial.page(window.top.tutorial.num + 1, '')"></span> button above to go to the next page.</p>
 </div>
 
 <table id="note" class="footnote">

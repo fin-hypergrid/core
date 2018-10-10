@@ -3,12 +3,12 @@
 var grid, tabBar, tutorial, callApi;
 
 window.onload = getSmart.bind(null, {
-    data: '../data/four-stocks.json',
-    state: 'defaults/state.json',
-    scrollbars: 'defaults/scrollbars.css;txt', // ;txt forces get as text rather than style element
-    localizer: 'defaults/localizers.js;snippets', // ;snippets forces get as text snippets array rather excuted code
-    editor: 'defaults/cell-editors.js;snippets',
-    toc: 'defaults/table-of-contents.js',
+    data: 'data/four-stocks.json',
+    state: 'data/state.json',
+    scrollbars: 'data/scrollbars.css;txt', // ;txt forces get as text rather than style element
+    localizer: 'data/localizers.js;snippets', // ;snippets forces get as text snippets array rather excuted code
+    editor: 'data/cell-editors.js;snippets',
+    toc: 'data/table-of-contents.js',
     'reset-svg': 'img/reset.svg',
     'delete-svg': 'img/delete.svg'
 }, function(defaults) {
@@ -20,7 +20,7 @@ window.onload = getSmart.bind(null, {
     };
 
     // Append version numbers to <h1> header
-    document.querySelector('body > h1:first-child').innerHTML += ' <sup>(rev. 14)</sup> — Hypergrid <sup>(v' + fin.Hypergrid.prototype.version + ')</sup>';
+    document.querySelector('body > h1:first-child').setAttribute('title', 'Hypergrid v' + fin.Hypergrid.prototype.version + ', Tutorial v16');
 
     function injectSVG(el, svg) {
         var svgElement = /<svg[^]*<\/svg>/;
@@ -49,7 +49,10 @@ window.onload = getSmart.bind(null, {
 
     initLocalsButtons();
 
-    var pagerOptions = {path: 'tutorial/', toc: []};
+    var pagerOptions = {
+        path: 'tutorial/',
+        toc: [], // built by walk below
+    };
 
     // flatten the hierarchical defaults.toc into pagerOptions.toc
     walk(defaults.toc);
@@ -75,6 +78,17 @@ window.onload = getSmart.bind(null, {
         pagerOptions
     );
 
+    tutorial.goFirstEl.style.display = tutorial.goLastEl.style.display = 'none';
+
+    // listen for page events to highlight the current page's line in the TOC
+    document.addEventListener('curvy-tabs-pager-paged', function(e) {
+        var pageIndex = e.detail.pager.num - 1;
+        var tocLineEls = tutorial.tabBar.container.querySelector('[name="TOC"] > iframe').contentDocument.querySelectorAll('li');
+        Array.prototype.forEach.call(tocLineEls, function(el, index) {
+            el.classList.toggle('current-page', index === pageIndex);
+        });
+    });
+
     callApi('data'); // inits both 'data' and 'state' editors
     callApi('scrollbars');
 
@@ -94,10 +108,13 @@ window.onload = getSmart.bind(null, {
 
     var dragger, divider = document.querySelector('.divider');
     divider.addEventListener('mousedown', function(e) {
+        var div = document.querySelector('#hypergrid > div:first-child');
+        div.classList.add('resizing');
         dragger = {
             delta: e.clientY - divider.getBoundingClientRect().top,
             gridHeight: grid.div.getBoundingClientRect().height,
-            tabHeight: tabBar.container.getBoundingClientRect().height
+            tabHeight: tabBar.container.getBoundingClientRect().height,
+            div: div
         };
         e.stopPropagation(); // no other element needs to handle
     });
@@ -122,10 +139,30 @@ window.onload = getSmart.bind(null, {
 
             e.stopPropagation(); // no other element needs to handle
             e.preventDefault(); // no other drag effects, please
+
+            if (e.buttons ^ 1) {
+                e.target.dispatchEvent(new CustomEvent('mouseup', e));
+            }
         }
     });
     document.addEventListener('mouseup', function(e) {
-        dragger = undefined;
+        if (dragger) {
+            dragger.div.classList.remove('resizing');
+            dragger = undefined;
+        }
+    });
+
+    // Handle window resizing (CSS calc() only performed at initial load for some reason)
+    window.addEventListener('resize', function() {
+        var width = window.innerWidth * .50,
+            height = window.innerHeight,
+            divY = document.querySelector('.divider').getBoundingClientRect().top;
+
+        tabBar.container.style.width = width - 16 + 'px';
+        tabBar.container.style.height = height - (divY + 32) + 'px';
+
+        tutorial.tabBar.container.style.width = width - 12 + 'px';
+        tutorial.tabBar.container.style.height = height - 58 + 'px';
     });
 
     function callApi(methodName, type, confirmation) {
@@ -140,7 +177,7 @@ window.onload = getSmart.bind(null, {
         var resetEl = document.getElementById('reset-' + type);
 
         textEl.oninput = function() {
-            resetEl.firstElementChild.classList.toggle('disabled', textEl.value === stringifyAndUnquoteKeys(defaults[type]));
+            resetEl.classList.toggle('disabled', textEl.value === stringifyAndUnquoteKeys(defaults[type]));
         };
 
         if (textEl.value) {
@@ -208,9 +245,8 @@ window.onload = getSmart.bind(null, {
         }
     }
 
-    function isDisabled(el) {
-        var svg = el.firstElementChild;
-        return svg.classList.contains('disabled');
+    function isDisabled(el) {d
+        return el.classList.contains('disabled');
     }
 
     function capitalize(str) {
@@ -307,11 +343,11 @@ window.onload = getSmart.bind(null, {
             var defaultScript = getDefaultScript(type, name);
             var editedScript = document.getElementById(type + '-script').value;
             var alteredFromDefault = defaultScript && defaultScript !== editedScript;
-            resetEl.firstElementChild.classList.toggle('disabled', !alteredFromDefault);
-            deleteEl.firstElementChild.classList.toggle('disabled', !!defaultScript);
+            resetEl.classList.toggle('disabled', !alteredFromDefault);
+            deleteEl.classList.toggle('disabled', !!defaultScript);
         } else {
-            resetEl.firstElementChild.classList.add('disabled');
-            deleteEl.firstElementChild.classList.add('disabled');
+            resetEl.classList.add('disabled');
+            deleteEl.classList.add('disabled');
         }
     }
 

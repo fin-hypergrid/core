@@ -2,32 +2,33 @@
 <html>
 <head>
   <meta http-equiv="Content-Type" content="text/html;charset=utf-8" >
-  <title>Hypergrid Cell Formatter &amp; Editor Workbench</title>
+  <title>Hypergrid Tutorial</title>
   <link rel="stylesheet" href="index.css">
 
-  <script src='https://fin-hypergrid.github.io/core/3.0.2/build/fin-hypergrid.js'></script>
+  <script src="tutorial/polyfills.js"></script>
 
-  <script src="https://joneit.github.io/get-smart/1.0.2/build/get-smart.js"></script>
+  <!--<script src='../build/fin-hypergrid.js'></script>-->
+  <script src='https://fin-hypergrid.github.io/core/3.0.3/build/fin-hypergrid.js'></script>
+
+  <script src="https://unpkg.com/get-smart@1.0/umd/get-smart.js"></script>
   <script src="index.js"></script>
 
-  <!--<script src="../../../curvy-tabs/build/curvy-tabs.js"></script>-->
-  <script src="https://joneit.github.io/curvy-tabs/2.3.3/build/curvy-tabs.js"></script>
+  <!--<script src="../../../curvy-tabs/umd/curvy-tabs.js"></script>-->
+  <script src="https://unpkg.com/curvy-tabs@2.3/umd/curvy-tabs.js"></script>
 
-  <!--<script src="../../../curvy-tabs-pager/build/curvy-tabs-pager.js"></script>-->
-  <script src="https://joneit.github.io/curvy-tabs-pager/2.0.2/build/curvy-tabs-pager.js"></script>
+  <!--<script src="../../../curvy-tabs-pager/umd/curvy-tabs-pager.js"></script>-->
+  <script src="https://unpkg.com/curvy-tabs-pager@2.1/umd/curvy-tabs-pager.js"></script>
 
   <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/solid.css" integrity="sha384-VGP9aw4WtGH/uPAOseYxZ+Vz/vaTb1ehm1bwx92Fm8dTrE+3boLfF1SpAtB1z7HW" crossorigin="anonymous">
   <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/fontawesome.css" integrity="sha384-1rquJLNOM3ijoueaaeS5m+McXPJCGdr5HcA03/VHXxcp2kX2sUrQDmFc3jR5i/C7" crossorigin="anonymous">
 </head>
 <body>
 
-<h1 style="margin:.5em; color:lightgrey">
-  Hypergrid Cell Formatter &amp; Editor Workbench
-</h1>
+<h1 style="margin:.5em; color:lightgrey">Hypergrid Tutorial</h1>
 
-<div id="hypergrid" style="height:145px; width:calc(50% - 8px)"></div>
+<div id="hypergrid" style="position:absolute; top:8px; height:145px; width:calc(50% - 16px); right:8px;"></div>
 
-<div id="editors" class="curvy-tabs-container" style="position:absolute; height:calc(100% - 250px); width:calc(50% - 16px); bottom:8px;">
+<div id="editors" class="curvy-tabs-container" style="position:absolute; height:calc(100% - 210px); width:calc(50% - 16px); bottom:8px; right:8px;">
   <div style="background-color:#dff; overflow:hidden" name="Data">
     <span id="reset-data" class="reset-button danger" title="Reset data to default. (This icon is only enabled when data have been edited.)"></span>
     <input type="button" class="api" value="grid.setData(…)" onclick="callApi('data', 'Data set.')"
@@ -98,7 +99,11 @@ grid.setData(…, { schema: [] })">
 
 <div class="divider"></div>
 
-<div id="tutorial" class="curvy-tabs-container" style="position:absolute; height:calc(100% - 58px); width:calc(50% - 12px); bottom:8px; right:8px">
+<div id="tutorial" class="curvy-tabs-container" style="position:absolute; height:calc(100% - 58px); width:calc(50% - 12px); bottom:8px">
+  <div style="background-color:white; overflow:hidden" name="TOC">
+    <iframe src="tutorial/Table%20of%20Contents.html"></iframe>
+  </div>
+
   <div style="background-color:#f4f4f4; overflow:hidden" name="Tutorial">
     <iframe></iframe>
   </div>
@@ -108,8 +113,8 @@ grid.setData(…, { schema: [] })">
   </div>
 </div>
 
-<div id="page-panel" style="position:absolute; top:50px; right:24px">
-  <div id="scroll-warning" style="position:absolute; top:-28px; font-size:8pt; color:#d00; text-align:center; left:0; right:0; opacity:0">
+<div id="page-panel" style="position:absolute; user-select:none; white-space:nowrap; top:14px; right:calc(50% + 1em)">
+  <div id="scroll-warning" style="position:absolute; top:25px; font-size:8pt; color:#d00; text-align:center; left:0; right:0; opacity:0">
     Scroll tutorial to bottom before<br>
     proceeding to next page.
   </div>

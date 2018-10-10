@@ -71,17 +71,20 @@ input[type=button].danger:active {
     background-color: yellow;
 }
 #hypergrid > div:first-child {
-    transition: box-shadow 2s;
+    transition: box-shadow linear 200ms;
+    overflow: hidden;
 }
-#hypergrid > div:first-child:hover {
-    box-shadow: 3px 3px 15px grey;
+#hypergrid > div:first-child:hover,
+#hypergrid > div:first-child.resizing {
+    box-shadow: 3px 3px 15px #006;
 }
 
 .divider {
     position: absolute;
     width: calc(50% - 15px);
     border-top: 4px double #ccc;
-    top: 218px;
+    top: 178px;
+    right: 8px;
 }
 .divider:hover {
     border-top: 4px double #444;
@@ -102,11 +105,11 @@ span.danger > svg {
     color: #cb2431;
     fill: currentColor;
 }
-span.danger > svg.disabled {
+span.danger.disabled > svg {
     color: #aaa;
     cursor: no-drop;
 }
-span.danger > svg:not(.disabled):hover {
+span.danger:not(.disabled):hover > svg {
     background-color: yellow;
     border-radius: 1em;
     cursor: pointer;
@@ -114,4 +117,9 @@ span.danger > svg:not(.disabled):hover {
 sup {
     font-size: 45%;
     font-weight: normal
+}
+.page-button:nth-of-type(1)::before {
+    content: 'TOC';
+    font-size: 8pt;
+    font-weight: bold;
 }
