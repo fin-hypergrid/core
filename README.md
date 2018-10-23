@@ -1,5 +1,3 @@
-[![Build Status](https://travis-ci.org/openfin/fin-hypergrid.svg?branch=develop)](https://travis-ci.org/openfin/fin-hypergrid)
-
 **fin-hypergrid** is an ultra-fast HTML5 grid presentation layer, achieving its speed by rendering (in a canvas tag) only the currently visible portion of your (virtual) grid, thus avoiding the latency and life-cycle issues of building, walking, and maintaining a complex DOM structure. Please be sure to checkout our [design overview](OVERVIEW.md)
 
 Below is an example custom application built on top of the Hypergrid API tooling.
@@ -69,11 +67,11 @@ The [Perspective](https://github.com/jpmorganchase/perspective) open source proj
 
 ![](images/README/perspective.png)
 
-##### Hyperblotter
+##### AdaptableBlotter.JS
 
-[Openfin](http://openfin.co)'s Hyperblotter ([installer](https://dl.openfin.co/services/download?fileName=Hyperblotter&config=http://cdn.openfin.co/demos/hyperblotter/app.json)) is a demo app that shows the capabilities of both OpenFin and Hypergrid.
+[Openfin](http://openfin.co)'s AdaptableBlotter.JS ([installer](https://install.openfin.co/download/?fileName=adaptable_blotter_openfin&config=http://beta.adaptableblotter.com/app-beta.json)) is a demo app that shows the capabilities of both Openfin and Hypergrid.
 
-![](images/README/Hyperblotter%20Tabled%20Reduced%20Rows.png)
+![](images/README/partner-adaptableblotter_image-01@2x-667x375@2x.png)
 
 ### Features
 
@@ -81,7 +79,7 @@ The [Perspective](https://github.com/jpmorganchase/perspective) open source proj
 
 ### Testing
 
-Please use github [issues](https://github.com/fin-hypergrid/core/issues) to report problems
+Please use github [issues](https://github.com/fin-hypergrid/core/issues/new) to report problems
 
 We invite everyone to test the alpha branch for changes going into the next release
 

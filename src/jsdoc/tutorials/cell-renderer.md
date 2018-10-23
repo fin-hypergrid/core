@@ -49,7 +49,7 @@ While the default cell renderer renders data as text, cell renderers are not con
 
 ### Default Renderers Available
 
-The {@link http://openfin.github.io/fin-hypergrid/doc/CellRenderer.html|CellRenderer Base Class} is the object that provides a empty cell.
+The {@link http://fin-hypergrid.github.io/core/doc/CellRenderer.html|CellRenderer Base Class} is the object that provides a empty cell.
 
 The following cell renderers are available for you to use declaratively. They have been extended from the CellRenderer base.
  
@@ -137,7 +137,7 @@ Parameter                       | Description
 
 ### Creating your own renderer
 
-You can create your own renderer by extending from the [CellRenderer](http://openfin.github.io/fin-hypergrid/doc/CellRenderer.html) base class and overriding the `paint` method that expects `gc` (2D graphics context) object and a `config` object (described above).
+You can create your own renderer by extending from the [CellRenderer](http://fin-hypergrid.github.io/core/doc/CellRenderer.html) base class and overriding the `paint` method that expects `gc` (2D graphics context) object and a `config` object (described above).
 
 Register your new cell renderer on the grid with `grid.cellRenderers.add`. This allows it to be referenced by name (in the cell's `renderer` render property).
 

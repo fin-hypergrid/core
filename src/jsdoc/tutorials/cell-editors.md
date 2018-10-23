@@ -159,13 +159,13 @@ See the full {@link DataModel#getCellEditorAt|getCellEditorAt} API.
 
 The following cell editors are preregistered in `grid.cellEditors`. See each for its template and notes on browser limitations.
 
-* {@link http://openfin.github.io/fin-hypergrid/doc/Color.html|Color}
-* {@link http://openfin.github.io/fin-hypergrid/doc/ComboBox.html|ComboBox}
-* {@link http://openfin.github.io/fin-hypergrid/doc/Date.html|Date}
-* {@link http://openfin.github.io/fin-hypergrid/doc/Number.html|Number}
-* {@link http://openfin.github.io/fin-hypergrid/doc/Slider.html|Slider}
-* {@link http://openfin.github.io/fin-hypergrid/doc/Spinner.html|Spinner}
-* {@link http://openfin.github.io/fin-hypergrid/doc/Textfield.html|Textfield}
+* {@link http://fin-hypergrid.github.io/core/doc/Color.html|Color}
+* {@link http://fin-hypergrid.github.io/core/doc/ComboBox.html|ComboBox}
+* {@link http://fin-hypergrid.github.io/core/doc/Date.html|Date}
+* {@link http://fin-hypergrid.github.io/core/doc/Number.html|Number}
+* {@link http://fin-hypergrid.github.io/core/doc/Slider.html|Slider}
+* {@link http://fin-hypergrid.github.io/core/doc/Spinner.html|Spinner}
+* {@link http://fin-hypergrid.github.io/core/doc/Textfield.html|Textfield}
 
 ### Development
 

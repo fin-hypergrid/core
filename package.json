@@ -7,7 +7,13 @@
     "type": "git",
     "url": "git://github.com/fin-hypergrid/core.git"
   },
-  "author": "SWirts, JEiten, DJones, NMichaud",
+  "author": "Steve Wirts (https://github.com/stevewirts)",
+  "contributors": [
+    "Jonathan Eiten (https://github.com/joneit)",
+    "Dwayne Jones (https://github.com/dwaynekj)",
+    "Naveen Michaud-Agrawal (https://github.com/nmichaud)",
+    "Hugo Nogueira (https://github.com/hugoeanogueira)"
+  ],
   "license": "MIT",
   "readmeFilename": "README.md",
   "gitHead": "",

@@ -4,11 +4,11 @@ Thank you in advance for being a part of this project and for helping to make Hy
 
 ## Beginners
 
-We have several beginner [issues](https://github.com/openfin/fin-hypergrid/issues) open for community involvement. Feel free to look all issues, especially those with the label "help wanted". Please ignore those with the label "on-hold" as the scope of these issues may change.
+We have several beginner [issues](https://github.com/fin-hypergrid/core/issues) open for community involvement. Feel free to look all issues, especially those with the label "help wanted". Please ignore those with the label "on-hold" as the scope of these issues may change.
 
 ## HyperGrid Core vs UserLand
 
-* Please see our [architectural overview](https://github.com/openfin/fin-hypergrid/blob/master/OVERVIEW.md)
+* Please see our [architectural overview](https://github.com/fin-hypergrid/core/blob/master/OVERVIEW.md)
 
 ## Getting Started
 
@@ -52,7 +52,7 @@ $ gulp
     problem by making the example concrete and imperative.
 ```
 
-* Make sure you have added the necessary [tests](https://github.com/openfin/fin-hypergrid/tree/master/test) for your changes.
+* Make sure you have added the necessary [tests](https://github.com/fin-hypergrid/core/tree/master/test) for your changes.
 * Run _all_ the tests to assure nothing else was accidentally broken.
 * Test your changes in all IE10+, Safari, Chrome, Chrome 40, Firefox
 * We are evaluating different testing strategies but for the moment, the major considerations are for
@@ -72,12 +72,12 @@ Code should be as self-explanatory as possible by using well-considered variable
 Use comments only to explain any remaining subtleties. 
 
 On the other hand, we do believe in good usage of jsdocs _especially_ if your updating a public api call.
-Here is an example of a [tutorial](http://openfin.github.io/fin-hypergrid/doc/tutorial-cell-editors.html)
+Here is an example of a [tutorial](http://fin-hypergrid.github.io/core/doc/tutorial-cell-editors.html)
 
 ## Submitting Changes
 
 * Push your changes to a topic branch in your fork of the repository.
-* Submit a pull request to the repository in the openfin organization.
+* Submit a pull request to the [`core` repository in the `fin-hypergrid` organization](https://github.com/fin-hypergrid/core/compare).
 * Do not submit until ready to publish — and then hold off a bit longer until you feel certain you are not submitting prematurely. If you find you absolutely must update a pull request, you must leave an explanatory comment. Updating will delay merging your PR if we have to review it again. Please try to avoid doing this (by not submitting too early; see above).
 * The core team looks at Pull Requests on a regular basis within a three-week sprint cycle.
 * If your PR is accepted, congratulations!! 
@@ -120,4 +120,4 @@ npm publish
 
 ## Additional Resources
 
-Feel free to open [issues](https://github.com/openfin/fin-hypergrid/issues) or email support@openfin.co
+Feel free to open [issues](https://github.com/fin-hypergrid/core/issues/new).
