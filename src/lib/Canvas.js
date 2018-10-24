@@ -452,12 +452,8 @@ Canvas.prototype = {
             return;
         }
 
-        // prevent TAB from moving focus off the canvas element
-        if (e.keyCode === 9) {
-            e.preventDefault();
-        }
+        var keyChar = updateCurrentKeys.call(this, e, true);
 
-        var keyChar = this.getKeyChar(e);
         if (e.repeat) {
             if (this.repeatKey === keyChar) {
                 this.repeatKeyCount++;
@@ -469,9 +465,6 @@ Canvas.prototype = {
             this.repeatKey = null;
             this.repeatKeyCount = 0;
             this.repeatKeyStartTime = 0;
-        }
-        if (this.currentKeys.indexOf(keyChar) === -1) {
-            this.currentKeys.push(keyChar);
         }
 
         this.dispatchNewEvent(e, 'fin-canvas-keydown', {
@@ -495,13 +488,8 @@ Canvas.prototype = {
             return;
         }
 
-        // prevent TAB from moving focus off the canvas element
-        if (e.keyCode === 9) {
-            e.preventDefault();
-        }
+        var keyChar = updateCurrentKeys.call(this, e, false);
 
-        var keyChar = this.getKeyChar(e);
-        this.currentKeys.splice(this.currentKeys.indexOf(keyChar), 1);
         this.repeatKeyCount = 0;
         this.repeatKey = null;
         this.repeatKeyStartTime = 0;
@@ -789,6 +777,42 @@ function makeCharMap() {
     map[123] = ['F12', 'F12SHIFT'];
 
     return map;
+}
+
+function updateCurrentKeys(e, keydown) {
+    var keyChar = this.getKeyChar(e);
+    var index = this.currentKeys.indexOf(keyChar);
+
+    // prevent TAB from moving focus off the canvas element
+    switch (keyChar) {
+        case 'TAB':
+        case 'TABSHIFT':
+        case 'Tab':
+            e.preventDefault();
+    }
+
+    if (!keydown && index >= 0) {
+        this.currentKeys.splice(index, 1);
+    }
+
+    if (keyChar === 'SHIFT') {
+        // on keydown, replace unshifted keys with shifted keys
+        // on keyup, vice-versa
+        this.currentKeys.forEach(function(key, index, currentKeys) {
+            var pair = charMap.find(function(pair) {
+                return pair[keydown ? 0 : 1] === key;
+            });
+            if (pair) {
+                currentKeys[index] = pair[keydown ? 1 : 0];
+            }
+        });
+    }
+
+    if (keydown && index < 0) {
+        this.currentKeys.push(keyChar);
+    }
+
+    return keyChar;
 }
 
 function getCachedContext(canvasElement, contextAttributes) {
