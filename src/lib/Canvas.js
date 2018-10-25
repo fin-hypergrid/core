@@ -335,7 +335,7 @@ Canvas.prototype = {
     dispatchNewMouseKeysEvent: function(event, name, detail) {
         detail = detail || {};
         detail.mouse = this.mouseLocation;
-        detail.keys = this.currentKeys;
+        defKeysProp.call(this, event, 'keys', detail);
         return this.dispatchNewEvent(event, name, detail);
     },
 
@@ -467,7 +467,7 @@ Canvas.prototype = {
             this.repeatKeyStartTime = 0;
         }
 
-        this.dispatchNewEvent(e, 'fin-canvas-keydown', {
+        this.dispatchNewEvent(e, 'fin-canvas-keydown', defKeysProp.call(this, e, 'currentKeys', {
             alt: e.altKey,
             ctrl: e.ctrlKey,
             char: keyChar,
@@ -478,9 +478,8 @@ Canvas.prototype = {
             repeatCount: this.repeatKeyCount,
             repeatStartTime: this.repeatKeyStartTime,
             shift: e.shiftKey,
-            identifier: e.key,
-            currentKeys: this.currentKeys.slice(0)
-        });
+            identifier: e.key
+        }));
     },
 
     finkeyup: function(e) {
@@ -493,7 +492,7 @@ Canvas.prototype = {
         this.repeatKeyCount = 0;
         this.repeatKey = null;
         this.repeatKeyStartTime = 0;
-        this.dispatchNewEvent(e, 'fin-canvas-keyup', {
+        this.dispatchNewEvent(e, 'fin-canvas-keyup', defKeysProp.call(this, e, 'currentKeys', {
             alt: e.altKey,
             ctrl: e.ctrlKey,
             char: keyChar,
@@ -505,7 +504,7 @@ Canvas.prototype = {
             shift: e.shiftKey,
             identifier: e.key,
             currentKeys: this.currentKeys.slice(0)
-        });
+        }));
     },
 
     finfocusgained: function(e) {
@@ -781,7 +780,6 @@ function makeCharMap() {
 
 function updateCurrentKeys(e, keydown) {
     var keyChar = this.getKeyChar(e);
-    var index = this.currentKeys.indexOf(keyChar);
 
     // prevent TAB from moving focus off the canvas element
     switch (keyChar) {
@@ -790,6 +788,14 @@ function updateCurrentKeys(e, keydown) {
         case 'Tab':
             e.preventDefault();
     }
+
+    fixCurrentKeys.call(this, keyChar, keydown);
+
+    return keyChar;
+}
+
+function fixCurrentKeys(keyChar, keydown) {
+    var index = this.currentKeys.indexOf(keyChar);
 
     if (!keydown && index >= 0) {
         this.currentKeys.splice(index, 1);
@@ -811,8 +817,31 @@ function updateCurrentKeys(e, keydown) {
     if (keydown && index < 0) {
         this.currentKeys.push(keyChar);
     }
+}
 
-    return keyChar;
+function defKeysProp(event, propName, object) {
+    var canvas = this;
+    Object.defineProperty(object, propName, {
+        configurable: true,
+        ennumerable: true,
+        get: function() {
+            var shiftKey;
+            if ('shiftKey' in event) {
+                fixCurrentKeys.call(canvas, 'SHIFT', shiftKey = event.shiftKey);
+            } else {
+                shiftKey = canvas.currentKeys.indexOf('SHIFT') >= 0;
+            }
+            var SHIFT = shiftKey ? 'SHIFT' : '';
+            if ('ctrlKey' in event) {
+                fixCurrentKeys.call(canvas, 'CTRL' + SHIFT, event.ctrlKey);
+            }
+            if ('altKey' in event) {
+                fixCurrentKeys.call(canvas, 'ALT' + SHIFT, event.altKey);
+            }
+            return canvas.currentKeys.slice();
+        }
+    });
+    return object;
 }
 
 function getCachedContext(canvasElement, contextAttributes) {
