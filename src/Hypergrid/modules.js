@@ -26,6 +26,7 @@ Object.defineProperties(module.exports, {
     'datasaur-base': { value: require('datasaur-base') }, // may be removed in a future release
     'datasaur-local': { value: require('datasaur-local') }, // may be removed in a future release
     'extend-me': {value: require('extend-me') },
+    finbars: { value: require('finbars') },
     'object-iterators': { value: require('object-iterators') },
     overrider: { value: require('overrider') },
     rectangular: { value: require('rectangular') },
