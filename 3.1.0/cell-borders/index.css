@@ -1,0 +1,43 @@
+.hypergrid-container {
+    height: 120px;
+    width: 400px;
+}
+body {
+    font-size: 9pt;
+}
+h1 {
+    font-family: sans-serif;
+    color: lightgrey;
+}
+div.example {
+    margin-bottom: .75em;
+}
+div.example > h2 {
+    display: inline;
+    margin-top: 0;
+    font-family: sans-serif;
+    font-size: 10pt;
+}
+div.example > h2 + p {
+    display: inline;
+    font-size: 10pt;
+}
+.annotation {
+    float: right;
+    font-family: monospace;
+    font-size: 8pt;
+    margin-left: 1.5em;
+    width: calc(100% - 400px);
+    white-space: pre-wrap;
+    background-color: #eee;
+    padding: 4px;
+    border: 1px dashed #bbb;
+}
+code {
+    font-fanily: verdana;
+    font-weight: bold;
+    background-color: #eee;
+    color: #444;
+    padding: 0 3px;
+    border-radius: 3px;
+}

@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" >
+</head>
+<body>
+
+    <script src="build/fin-hypergrid.js"></script>
+
+    <script>
+window.onload = function() {
+    var data = [
+        { symbol: 'APPL', name: 'Apple Inc.', prevclose: 93.13 },
+        { symbol: 'MSFT', name: 'Microsoft Corporation', prevclose: 51.91 },
+        { symbol: 'TSLA', name: 'Tesla Motors Inc.', prevclose: 196.40 },
+        { symbol: 'IBM', name: 'International Business Machines Corp', prevclose: 155.35 }
+    ];
+    var grid = window.grid = new fin.Hypergrid();
+    grid.setData(data);
+
+    fin.Hypergrid.dataModels.add('FilterSubgrid', fin.Hypergrid.dataModels.DataModel.extend({
+        type: 'filter',
+
+        format: 'filter', // this signals to renderer to override column localizer for these cells
+
+        initialize: function (grid) {
+            this.grid = grid;
+        },
+
+        getRow: function (y) {
+            return this.grid.behavior.getColumns().map(function (column) {
+                return column.filter || '';
+            });
+        },
+
+        getRowCount: function () {
+            return this.grid.properties.showFilterRow ? 1 : 0;
+        },
+
+        getValue: function (x, y) {
+            return this.grid.behavior.getColumn(x).properties.filter || '';
+        },
+
+        setValue: function (x, y, value) {
+            var column = this.grid.behavior.getColumn(x).properties.filter = value;
+        }
+    }));
+
+    // bonus feature: immediate mode filters on every keypress
+    grid.cellEditors.add(grid.cellEditors.get('Textfield').extend('FilterEditor', {
+        keyup: function (event) {
+            if (
+                !this.super.keyup.call(this, event) &&
+                this.grid.properties.filteringMode === 'immediate'
+            ) {
+                try {
+                    this.saveEditorValue(this.getEditorValue());
+                } catch (err) {
+                    // ignore syntax errors in immediate mode
+                }
+            }
+        },
+
+        saveEditorValue: function(value) {
+            var save = !arguments.length || value !== this.initialValue;
+
+            if (save) {
+                this.grid.behavior.setValue(this.event, value);
+                this.grid.fireSyntheticFilterAppliedEvent();
+            }
+
+            return save;
+        }
+    }));
+
+
+    grid.properties.subgrids = [
+        'HeaderSubgrid',
+        'FilterSubgrid',
+        'data'
+    ];
+    grid.properties.showFilterRow = true;
+
+    var version = grid.version.split('.');
+    if (
+        Number(version[0]) >= 2 &&
+        Number(version[1]) >= 1 &&
+        Number(version[2]) >= 14
+    ) {
+        // new way
+        grid.properties.filterEditor = 'FilterEditor';
+    } else {
+        // old way makes works when whole grid editable...
+        grid.properties.editor = 'Textfield'; // must be something in order for getCellEditorAt to be called
+        grid.behavior.dataModel.getCellEditorAt = function(columnIndex, rowIndex, editorName, cellEvent) {
+            if (cellEvent.isFilterCell) {
+                editorName = 'FilterEditor';
+            }
+            return cellEvent.grid.cellEditors.create(editorName, cellEvent);
+        }
+    }
+
+    grid.addEventListener('fin-filter-applied', function(e) {
+        console.log('Filters:', this.grid.behavior.getColumns().reduce(function (obj, column) {
+            if (column.properties.filter) {
+                obj[column.name] = column.properties.filter;
+            }
+            return obj;
+        }, {}));
+    })
+};
+    </script>
+
+</body>
+</html>

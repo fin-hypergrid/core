@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" >
+    <meta http-equiv="Cache-Control" content="must-revalidate" />
+    <link rel="icon" type="image/png" href="img/hypergrid-icon.png">
+</head>
+<body>
+
+<script src="build/fin-hypergrid.js"></script>
+
+<p><input type="button" value="Add a random row"></p>
+
+<script>
+    var data = [];
+    var grid = new fin.Hypergrid();
+    grid.setData(makeData());
+
+    document.querySelector('input').onclick = function() {
+        grid.setData(makeData());
+    };
+
+    function makeData() {
+        var dataRow = {};
+        for (var i = 1; i <= 8; i++) {
+            dataRow[String.fromCharCode(i + 64)] = Math.random() * Math.pow(10, Math.random() * 10 | 0) | 0;
+        }
+        data.push(dataRow);
+        return data;
+    }
+</script>
+</body>
+</html>
