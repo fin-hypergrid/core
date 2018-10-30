@@ -10,9 +10,9 @@ Hypergrid developers: You must update your remotes with `git remote` to point to
 
 ### CDN
 
-For continuity with existing pages that make requests (via <script> tag) to Hypergrid's legacy "GitHub Pages" CDN (URLs beginning with https://openfin.github.io/fin-hypergrid), we have retained just the build files for v2.0.2 and v1.3.0 in that location. Note that this legacy hosting pertains only to the build files. 
+For continuity with existing pages that make requests (via <script> tag) to Hypergrid's legacy "GitHub Pages" CDN (URLs beginning with `https://fin-hypergrid.github.io/core`), we have retained just the build files for v2.0.2 and v1.3.0 in that location. Note that this legacy hosting pertains only to the build files. 
 
-The current v2.0.2 release can also be found on the new CDN; all new releases will be pushed to the new CDN _only._ See https://fin-hypergrid.github.io for index. **We recommend updating your apps to make requests against the new CDN.**
+The current release can also be found on the new CDN; all new releases will be pushed to the new CDN _only._ See https://fin-hypergrid.github.io for index. **We recommend updating your apps to make requests against the new CDN.**
 
 ### See also...
 

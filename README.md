@@ -1,9 +1,7 @@
-[![Build Status](https://travis-ci.org/openfin/fin-hypergrid.svg?branch=develop)](https://travis-ci.org/openfin/fin-hypergrid)
-
 **fin-hypergrid** is an ultra-fast HTML5 grid presentation layer, achieving its speed by rendering (in a canvas tag) only the currently visible portion of your (virtual) grid, thus avoiding the latency and life-cycle issues of building, walking, and maintaining a complex DOM structure. Please be sure to checkout our [design overview](OVERVIEW.md)
 
 Below is an example custom application built on top of the Hypergrid API tooling.
-It also highlights a DOM-based custom external editor triggered via hypergrid events as well as interaction with Hypergrid's column ordering API
+It also highlights a DOM-based custom external editor triggered via hypergrid events as well as interaction with Hypergrid’s column ordering API.
 
 <img src="images/README/gridshot04.gif">
 
@@ -17,9 +15,9 @@ It also highlights a DOM-based custom external editor triggered via hypergrid ev
 * [Roadmap](#roadmap)
 * [Contributing](#contributors)
 
-### Current Release (3.0.3 - 25 September 2018)
+### Current Release (3.1.0 - 29 September 2018)
 
-**Hypergrid 3.0 includes a revised data model with some breaking changes.**
+**Hypergrid 3.1 includes 3.0’s revised data model with some breaking changes.**
 
 _For a complete list of changes, see the [release notes](https://github.com/fin-hypergrid/core/releases)._
 
@@ -27,7 +25,7 @@ _For a complete list of changes, see the [release notes](https://github.com/fin-
 
 #### npm module _(recommended)_
 Published as a CommonJS module to npmjs.org.
-Specify a <a href="https://semver.org/">SEMVER</a> of `"fin-hypergrid": "3.0.3"` (or `"^3.0.3"`) in your package.json file,
+Specify a <a href="https://semver.org/">SEMVER</a> of `"fin-hypergrid": "3.1.0"` (or `"^3.1.0"`) in your package.json file,
 issue the `npm install` command, and let your bundler (<a target="webpack" href="https://webpack.js.org/">wepback</a>,
 <a target="browserify" href="http://browserify.org/">Browserify</a>) create a single file containing both Hypergrid and your application.
 
@@ -69,11 +67,11 @@ The [Perspective](https://github.com/jpmorganchase/perspective) open source proj
 
 ![](images/README/perspective.png)
 
-##### Hyperblotter
+##### AdaptableBlotter.JS
 
-[Openfin](http://openfin.co)'s Hyperblotter ([installer](https://dl.openfin.co/services/download?fileName=Hyperblotter&config=http://cdn.openfin.co/demos/hyperblotter/app.json)) is a demo app that shows the capabilities of both OpenFin and Hypergrid.
+[Openfin](http://openfin.co)’s AdaptableBlotter.JS ([installer](https://install.openfin.co/download/?fileName=adaptable_blotter_openfin&config=http://beta.adaptableblotter.com/app-beta.json)) is a demo app that shows the capabilities of both Openfin and Hypergrid.
 
-![](images/README/Hyperblotter%20Tabled%20Reduced%20Rows.png)
+![](images/README/partner-adaptableblotter_image-01@2x-667x375@2x.png)
 
 ### Features
 
@@ -81,7 +79,7 @@ The [Perspective](https://github.com/jpmorganchase/perspective) open source proj
 
 ### Testing
 
-Please use github [issues](https://github.com/fin-hypergrid/core/issues) to report problems
+Please use github [issues](https://github.com/fin-hypergrid/core/issues/new) to report problems
 
 We invite everyone to test the alpha branch for changes going into the next release
 

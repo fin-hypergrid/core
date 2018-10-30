@@ -261,7 +261,7 @@ var sharedMixin = {
     },
 
     /**
-     * App developers are free to add in additional themes, such as those in {@link https://openfin.github.com/fin-hypergrid-themes/themes}:
+     * App developers are free to add in additional themes, such as those in {@link https://github.com/fin-hypergrid/themes/tree/master/js}:
      * ```javascript
      * Hypergrind.registerThemes(require('fin-hypergrid-themes'));
      * ```

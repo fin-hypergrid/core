@@ -613,8 +613,8 @@ var Renderer = Base.extend('Renderer', {
             return;
         }
 
-        var vci = this.visibleColumnsByIndex,
-            vri = this.visibleRowsByDataRowIndex,
+        var vc, vci = this.visibleColumnsByIndex,
+            vr, vri = this.visibleRowsByDataRowIndex,
             lastScrollableColumn = this.visibleColumns[this.visibleColumns.length - 1], // last column in scrollable section
             lastScrollableRow = this.visibleRows[this.visibleRows.length - 1], // last row in scrollable data section
             firstScrollableColumn = vci[this.dataWindow.origin.x],
@@ -625,25 +625,33 @@ var Renderer = Base.extend('Renderer', {
 
         if (
             // entire selection scrolled out of view to left of visible columns; or
-            selection.corner.x < this.visibleColumns[0].columnIndex ||
+            (vc = this.visibleColumns[0]) &&
+            selection.corner.x < vc.columnIndex ||
 
             // entire selection scrolled out of view between fixed columns and scrollable columns; or
             fixedColumnCount &&
-            selection.origin.x > this.visibleColumns[fixedColumnCount - 1].columnIndex &&
+            firstScrollableColumn &&
+            (vc = this.visibleColumns[fixedColumnCount - 1]) &&
+            selection.origin.x > vc.columnIndex &&
             selection.corner.x < firstScrollableColumn.columnIndex ||
 
             // entire selection scrolled out of view to right of visible columns; or
+            lastScrollableColumn &&
             selection.origin.x > lastScrollableColumn.columnIndex ||
 
             // entire selection scrolled out of view above visible rows; or
-            selection.corner.y < this.visibleRows[headerRowCount].rowIndex ||
+            (vr = this.visibleRows[headerRowCount]) &&
+            selection.corner.y < vr.rowIndex ||
 
             // entire selection scrolled out of view between fixed rows and scrollable rows; or
             fixedRowCount &&
-            selection.origin.y > this.visibleRows[headerRowCount + fixedRowCount - 1].rowIndex &&
+            firstScrollableRow &&
+            (vr = this.visibleRows[headerRowCount + fixedRowCount - 1]) &&
+            selection.origin.y > vr.rowIndex &&
             selection.corner.y < firstScrollableRow.rowIndex ||
 
             // entire selection scrolled out of view below visible rows
+            lastScrollableRow &&
             selection.origin.y > lastScrollableRow.rowIndex
         ) {
             return;
@@ -653,6 +661,10 @@ var Renderer = Base.extend('Renderer', {
             vrOrigin = vri[selection.origin.y] || firstScrollableRow,
             vcCorner = vci[selection.corner.x] || (selection.corner.x > lastScrollableColumn.columnIndex ? lastScrollableColumn : vci[fixedColumnCount - 1]),
             vrCorner = vri[selection.corner.y] || (selection.corner.y > lastScrollableRow.rowIndex ? lastScrollableRow : vri[fixedRowCount - 1]);
+
+        if (!(vcOrigin && vrOrigin && vcCorner && vrCorner)) {
+            return;
+        }
 
         // Render the selection model around the bounds
         var config = {

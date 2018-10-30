@@ -34,31 +34,6 @@ var EDGE_STYLES = ['top', 'bottom', 'left', 'right'],
  * @constructor
  * @classdesc An object representing a Hypergrid.
  * @desc The first parameter, `container`, is optional. If omitted, the `options` parameter is promoted to first position. (Note that the container can also be given in `options.container.`)
- * #### `options.canvasContextAttributes` object (see below)
- * The only currently meaningful property of this object is `alpha`:
- *
- * ```js
- * var gridOptions = {
- *     canvasContextAttributes: { alpha: false }
- * };
- * var myGrid = new Hypergrid(gridOptions);
- * ```
- *
- * `alpha` is a boolean that indicates if the canvas contains an alpha channel. If set to `false`, the browser now knows that the backdrop is always opaque, which can speed up drawing of transparent content and images.
- *
- * This option was added by request although testing failed to show any measurable performance benefit.
- *
- * Use with caution. In particular, if the canvas is set to "opaque" (`{alpha: false}`), do _not_ also specify a transparent or translucent color for `grid.properties.backGround` because content may then be drawn with corrupt anti-aliasing (at lest in Chrome v67).
- *
- * Note that such an "opaque" canvas can still be made to appear translucent using the CSS `opacity` property — a different effect entirely.
- *
- * Although this option has no apparent performance gains (in Chrome v63), it does permit the graphics context to use [sub-pixel rendering](https://en.wikipedia.org/wiki/Subpixel_rendering) for sharper text as viewed on LCD or LED screens, especially black text on white backgrounds, and especially when viewed on a high-pixel-density display such as an [Apple retina display](https://en.wikipedia.org/wiki/Retina_Display).
- *
- * value | Canvas | Text | Sample
- * ----- | :----: | :--: | ------
- * `{ alpha: true } ` | transparent | regular<br>anti-aliasing | ![regular.png](https://cdn-pro.dprcdn.net/files/acc_645730/ZqurK3)
- * `{ alpha: false }` | opaque | sub-pixel<br>rendering | ![sub-pixel.png](https://cdn-std.dprcdn.net/files/acc_645730/bf3VXh)
- *
  * @param {string|Element} [container] - CSS selector or Element. If omitted (and `options.container` also omitted), Hypergrid first looks for an _empty_ element with an ID of `hypergrid`. If not found, it will create a new element. In either case, the container element has the class name `hypergrid-container` added to its class name list. Finally, if the there is more than one such element with that class name, the element's ID attribute is set to `hypergrid` + _n_ where n is an ordinal one less than the number of such elements.
  * @param {object} [options] - If `options.data` provided, passed to {@link Hypergrid#setData setData}; else if `options.Behavior` provided, passed to {@link Hypergrid#setBehavior setBehavior}.
  * @param {function} [options.Behavior=Local] - _Per {@link Behavior#setData}._
@@ -73,8 +48,22 @@ var EDGE_STYLES = ['top', 'bottom', 'left', 'right'],
  *
  * @param {string|Element} [options.container] - Alternative to providing `container` (first) parameter above.
  *
- * @param {object} [options.canvasContextAttributes] - Passed to [`HTMLCanvasElement.getContext`](https://developer.mozilla.org/docs/Web/API/HTMLCanvasElement/getContext). _Please see discussion above._
+ * @param {object} [options.contextAttributes={ alpha: true }] - Passed to [`HTMLCanvasElement.getContext`](https://developer.mozilla.org/docs/Web/API/HTMLCanvasElement/getContext). Although the MDN docs say setting this to `{alpha: false}` (opaque canvas) can "can speed up drawing of transparent content and images," our testing (with Chrome v63) failed to show any measurable performance gain.
  *
+ * _An opaque canvas does have an important advantage, however!_ It permits the graphics context to use [sub-pixel rendering](https://en.wikipedia.org/wiki/Subpixel_rendering) for sharper text as viewed on LCD or LED screens, especially black text on white backgrounds, and especially when viewed on a high-pixel-density display such as an [Apple retina display](https://en.wikipedia.org/wiki/Retina_Display).
+ *
+ * Zoom in on the following samples images to see the difference in rendering.
+ *
+ * Value | Sample
+ * :---: | :----:
+ * `{ alpha: true }`<br>Transparent canvas,<br>renders text using<br>_regular anti-aliasing_ | ![regular.png](https://cdn-pro.dprcdn.net/files/acc_645730/ZqurK3)
+ * `{ alpha: false }`<br>Opaque canvas,<br>renders text using<br>_sub-pixel rendering_ | ![sub-pixel.png](https://cdn-std.dprcdn.net/files/acc_645730/bf3VXh).
+ *
+ * Use with caution, however. In particular, if the canvas is set to "opaque" (`{alpha: false}`), do _not_ also specify a transparent or translucent color for `grid.properties.backGround` because content may then be drawn with corrupt anti-aliasing (at lest as of Chrome v67).
+ *
+ * To clarify, the default setting (`{ alpha: true }`) is a transparent canvas, meaning that elements rendered underneath the `<canvas>` element can be seen through any non-opaque pixels (pixels with alpha channel < 1.0). Hypergrids that set their background color to non-opaque can see this effect.
+ *
+ * Note: An opaque canvas can still be made _to appear_ translucent using the CSS `opacity` property. But that is a different effect entirely, setting the entire rendered canvas to translucent, not just so all pixels become translucent.
  * @param {string} [options.localization=Hypergrid.localization]
  * @param {string|string[]} [options.localization.locale=Hypergrid.localization.locale] - The default locale to use when an explicit `locale` is omitted from localizer constructor calls. Passed to `Intl.NumberFomrat` and `Intl.DateFomrat`. See {@link https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Intl#Locale_identification_and_negotiation|Locale identification and negotiation} for more information.
  * @param {string} [options.localization.numberOptions=Hypergrid.localization.numberOptions] - Options passed to [`Intl.NumberFormat`](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/NumberFormat) for creating the basic "number" localizer.
@@ -1048,7 +1037,11 @@ var Hypergrid = Base.extend('Hypergrid', {
 
             this.div.appendChild(divCanvas);
 
-            var canvas = new Canvas(divCanvas, this.renderer, options && options.contextAttributes);
+            var contextAttributes = options && (
+                options.contextAttributes ||
+                options.canvasContextAttributes
+            );
+            var canvas = new Canvas(divCanvas, this.renderer, contextAttributes);
             canvas.canvas.classList.add('hypergrid');
 
             this.divCanvas = divCanvas;

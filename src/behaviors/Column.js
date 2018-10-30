@@ -188,7 +188,7 @@ Column.prototype = {
     },
 
     setWidth: function(width) {
-        width = Math.max(this.properties.minimumColumnWidth, width);
+        width = Math.min(Math.max(this.properties.minimumColumnWidth, width), this.properties.maximumColumnWidth || Infinity);
         if (width !== this.properties.width) {
             this.properties.width = width;
             this.properties.columnAutosizing = false;
