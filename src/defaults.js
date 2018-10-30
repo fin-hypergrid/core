@@ -748,6 +748,8 @@ var defaults = {
     defaultRowHeight: version > 2 ? 14 : 15,
 
     /**
+     * This default column width is used when `width` property is undefined.
+     * (`width` is defined on column creation unless {@link module:defaults.columnAutosizing columnAutosizing} has been set to `false`.)
      * @default
      * @type {number}
      * @memberOf module:defaults
@@ -755,11 +757,27 @@ var defaults = {
     defaultColumnWidth: 100,
 
     /**
+     * Minimum column width.
+     * Adjust this value for different fonts/sizes or exotic cell renderers.
+     * _Must be defined._
+     * The default (`5`) is enough room for an ellipsis with default font size.
      * @default
      * @type {number}
      * @memberOf module:defaults
      */
     minimumColumnWidth: 5,
+
+    /**
+     * Maximum column width.
+     * _When defined,_ column width is clamped to this value by {@link Column#setWidth setWidth}).
+     * Ignored when falsy.
+     * Respects {@link module:defaults.resizeColumnInPlace resizeColumnInPlace} but may cause user confusion when
+     * user can't make column narrower due to next column having reached its maximum.
+     * @default
+     * @type {number}
+     * @memberOf module:defaults
+     */
+    maximumColumnWidth: undefined,
 
     /**
      * Resizing a column through the UI (by clicking and dragging on the column's
@@ -769,12 +787,12 @@ var defaults = {
      * In other words, if user expands (say) the third column, then the fourth column will contract —
      * and _vice versa_ — without therefore affecting the width of the grid.
      *
-     * This is a _column propert_ and may be set for selected columns (`myColumn.properties.resizeColumnInPlace`)
-     * or for all columns by setting it at the grid level. (`myGrid.properties.resizeColumnInPlace`).
+     * This is a _column property_ and may be set for selected columns (`myColumn.properties.resizeColumnInPlace`)
+     * or for all columns by setting it at the grid level (`myGrid.properties.resizeColumnInPlace`).
      *
      * Note that the implementation of this property does not allow expanding a
      * column beyond the width it can borrow from the next column.
-     * The last column, however, is unconstrained and resizing it will affect the total grid width.
+     * The last column, however, is unconstrained, and resizing of course affects the total grid width.
      * @default
      * @type {boolean}
      * @memberOf module:defaults

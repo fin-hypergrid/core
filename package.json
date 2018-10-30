@@ -1,6 +1,6 @@
 {
   "name": "fin-hypergrid",
-  "version": "3.0.3",
+  "version": "3.1.0",
   "description": "Canvas-based high-performance grid",
   "main": "src/Hypergrid",
   "repository": {
@@ -25,7 +25,7 @@
     "datasaur-base": "^3.0.0",
     "datasaur-local": "^3.0.0",
     "extend-me": "^2.7.0",
-    "finbars": "^1.6.0",
+    "finbars": "^2.0.0",
     "inject-stylesheet-template": "^1.0.1",
     "mustache": "^2.3.0",
     "object-iterators": "1.3.0",
