@@ -18,13 +18,14 @@ window.onload = function() {
     var grid = window.grid = new fin.Hypergrid();
     grid.setData(data);
 
-    fin.Hypergrid.dataModels.add('FilterSubgrid', fin.Hypergrid.dataModels.DataModel.extend({
+    var dataModels = fin.Hypergrid.require('fin-hypergrid/src/dataModels');
+    dataModels.add('FilterSubgrid', dataModels.BaseClass.extend({
         type: 'filter',
 
         format: 'filter', // this signals to renderer to override column localizer for these cells
 
-        initialize: function (grid) {
-            this.grid = grid;
+        initialize: function (nextDataSource, options) {
+            this.grid = options.grid;
         },
 
         getRow: function (y) {
@@ -65,7 +66,7 @@ window.onload = function() {
             var save = !arguments.length || value !== this.initialValue;
 
             if (save) {
-                this.grid.behavior.setValue(this.event, value);
+                this.event.value = value;
                 this.grid.fireSyntheticFilterAppliedEvent();
             }
 
@@ -81,24 +82,18 @@ window.onload = function() {
     ];
     grid.properties.showFilterRow = true;
 
-    var version = grid.version.split('.');
-    if (
-        Number(version[0]) >= 2 &&
-        Number(version[1]) >= 1 &&
-        Number(version[2]) >= 14
-    ) {
-        // new way
-        grid.properties.filterEditor = 'FilterEditor';
-    } else {
-        // old way makes works when whole grid editable...
-        grid.properties.editor = 'Textfield'; // must be something in order for getCellEditorAt to be called
-        grid.behavior.dataModel.getCellEditorAt = function(columnIndex, rowIndex, editorName, cellEvent) {
-            if (cellEvent.isFilterCell) {
-                editorName = 'FilterEditor';
-            }
-            return cellEvent.grid.cellEditors.create(editorName, cellEvent);
+    /* version 3 way */
+    grid.properties.filterEditor = 'FilterEditor';
+
+    /* version 2 way: works when whole grid editable...
+    grid.properties.editor = 'Textfield'; // must be something in order for getCellEditorAt to be called
+    grid.behavior.dataModel.getCellEditorAt = function(columnIndex, rowIndex, editorName, cellEvent) {
+        if (cellEvent.isFilterCell) {
+            editorName = 'FilterEditor';
         }
+        return cellEvent.grid.cellEditors.create(editorName, cellEvent);
     }
+    */
 
     grid.addEventListener('fin-filter-applied', function(e) {
         console.log('Filters:', this.grid.behavior.getColumns().reduce(function (obj, column) {
