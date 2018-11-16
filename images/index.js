@@ -76,18 +76,24 @@ images['checkbox-off'] = images.unchecked;
  * @method
  * @param {string} name
  * @param {HTMLImageElement} img
- * @param {function} [setSvgProps=svgThemer.setSvgProps] - Used to theme the image and the styles. _If omitted, `styles` is promoted 2nd parameter position._
- * @param {string[]} [styles] - Array of style names.
- * If falsy (or omitted), no rules are created.
- * If empty array, a default value of `['background-image']` is substituted.
- * Create a CSS rule for each array element value; otherwise no rules are created.
- * The rule is inserted into `style#injected-stylesheet-grid`.
- * The rule's selector is `.hypergrid-style-name` (where `style` is element value and `name` is image name).
+ * @param {function} [setSvgProps=svgThemer.setSvgProps] - Optional custom theming code for this image and the rules implied by `styles`. _If omitted, `styles` is promoted 2nd parameter position._
+ * @param {boolean|string[]} [styles] - Optional list style names with which to create CSS rules.
+ * * If falsy (or omitted), no rules are created.
+ * * Else if truthy but not an array, create a single rule:
+ * ```css
+ * `.hypergrid-background-image-name { background-image: url(...) }`
+ * where _name_ is the value of the `name` parameter.
+ * * Else if an array, create a CSS rule for each style named therein.
+ *
+ * For each rule thus created:
+ * * Inserted into `style#injected-stylesheet-grid`.
+ * * Selector is `.hypergrid-style-name` (where `style` is element value and `name` is image name).
  * (If a rule with that selector already exists, it is replaced.)
- * The rule has a single image data style (also element value) that takes a `url(...)` construct as its value.
- * Image data styles include `background-image`, `list-style-image`, `border-image`, and `content`.
- * The image and the rule(s) thus created are all subject to hypergrid theming (which is the whole point).
- * @see {https://github.com/joneit/svg-themer}
+ * * Contains the named style with a value of `url(...)` where `...` is the image data.
+ * Possible styles must be one of those listed in {*link https://github.com/joneit/svg-themer/blob/master/README.md#cssimagepropertynames svgThemer.cssImagePropertyNames} (which you can extend if needed).
+ * * Will be automatically themed when the grid is themed (which is the whole point).
+ *
+ * @see {@link https://github.com/joneit/svg-themer}
  * @memberOf module:images
  */
 function add(name, img, setSvgProps, styles) {
