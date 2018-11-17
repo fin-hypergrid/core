@@ -6,6 +6,9 @@ var details = [
     'gridCell',
     'dataCell',
     'mousePoint',
+    'gridPoint',
+    'clientPoint',
+    'pagePoint',
     'keys',
     'row'
 ];
