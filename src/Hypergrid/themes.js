@@ -285,7 +285,6 @@ var sharedMixin = {
      * @summary Apply global theme.
      * @desc Apply props from the given theme object to the global theme object,
      * the `defaults` layer at the bottom of the properties hierarchy.
-     * @this {Hypergrid.}
      * @param {object|string} [theme=registry.default] - One of:
      * * **string:** A registered theme name.
      * * **object:** A theme object. Empty object removes global them, restoring defaults.
