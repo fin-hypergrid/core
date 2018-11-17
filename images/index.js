@@ -71,39 +71,142 @@ images['checkbox-on'] = images.checked;
  */
 images['checkbox-off'] = images.unchecked;
 
+var RULE_PREFIX = '.hypergrid-';
+
 /**
- * @name add
  * @method
- * @param {string} key
+ * @param {string} name
  * @param {HTMLImageElement} img
+ * @param {function} [setSvgProps=svgThemer.setSvgProps] - Used to theme the image and the styles. _If omitted, `styles` is promoted 2nd parameter position._
+ * @param {string[]} [styles] - Array of style names.
+ * If falsy (or omitted), no rules are created.
+ * If empty array, a default value of `['background-image']` is substituted.
+ * Create a CSS rule for each array element value; otherwise no rules are created.
+ * The rule is inserted into `style#injected-stylesheet-grid`.
+ * The rule's selector is `.hypergrid-style-name` (where `style` is element value and `name` is image name).
+ * (If a rule with that selector already exists, it is replaced.)
+ * The rule has a single image data style (also element value) that takes a `url(...)` construct as its value.
+ * Image data styles include `background-image`, `list-style-image`, `border-image`, and `content`.
+ * The image and the rule(s) thus created are all subject to hypergrid theming (which is the whole point).
+ * @see {https://github.com/joneit/svg-themer}
  * @memberOf module:images
  */
-images.add = function(key, img) {
-    return images[key] = img;
-};
+function add(name, img, setSvgProps, styles) {
+    //if (!/^data:image\/svg\+xml|\.svg/.test(img.src)) { // todo need to handle external files via AJAX a la svg-themer
+    if (/^data:image\/svg\+xml/.test(img.src)) {
+        img.themeable = true;
+        if (typeof setSvgProps === 'object') {
+            styles = setSvgProps;
+            setSvgProps = undefined;
+        }
+        if (setSvgProps) {
+            img.setSvgProps = setSvgProps;
+        }
+        if (styles) {
+            img.themeableRules = createThemeableRules(name, img, setSvgProps, styles);
+        }
+    }
+    return images[name] = img;
+}
+
+function createThemeableRules(key, img, setSvgProps, styles) {
+    // find or create stylesheet as needed
+    var styleEl = document.querySelector('style#injected-stylesheet-themeables');
+    if (!styleEl) {
+        styleEl = document.createElement('style');
+        styleEl.id = 'injected-stylesheet-themeables';
+        document.head.appendChild(styleEl);
+    }
+    var sheet = styleEl.sheet;
+
+    return (styles.length ? styles : ['background-image']).reduce(function(rules, styleName) {
+        var selectorText = RULE_PREFIX + styleName + '-' + key;
+
+        // find and delete existing rule, if any
+        var ruleIndex = Array.prototype.findIndex.call(sheet.cssRules, function(rule) {
+            return rule.selectorText === selectorText;
+        });
+        if (ruleIndex !== -1) {
+            sheet.deleteRule(ruleIndex);
+        }
+
+        // create and insert new rule consisting of selector + style "collection"
+        var ruleStyles = {};
+
+        // add image data style
+        ruleStyles[styleName] = 'url(' + img.src + ')';
+
+        // add dimensions if known
+        if (img.width) { ruleStyles.width = img.width + 'px'; }
+        if (img.height) { ruleStyles.height = img.height + 'px'; }
+
+        // combine the above styles into a semi-colon-separated "collection"
+        var styleCollection = Object.keys(ruleStyles).map(function(key) {
+            return key + ':' + ruleStyles[key];
+        }).join(';');
+
+        var ruleText = '{' + styleCollection + '}';
+        sheet.insertRule(selectorText + ruleText);
+
+        var themeableRule = {
+            rule: sheet.cssRules[0]
+        };
+        if (setSvgProps) {
+            themeableRule.setSvgProps = setSvgProps;
+        }
+        rules.push(themeableRule);
+        return rules;
+    }, []);
+}
+
+/**
+ * @param {object} theme
+ * @memberOf module:images
+ */
+function setTheme(theme) {
+    Object.keys(images).forEach(function(name) {
+        var img = images[name];
+        if (img.themeable) {
+            svgThemer.setImgSvgProps.call(img, theme, img.setSvgProps);
+        }
+        if (img.themeableRules) {
+            img.themeableRules.forEach(function(themeable) {
+                var selectorText = themeable.rule.selectorText;
+                var len = RULE_PREFIX.length;
+                var styleName = selectorText.substr(len, selectorText.length - len - 1 - name.length);
+                svgThemer.setRuleSvgProps.call(themeable.rule, theme, img.setSvgProps, styleName);
+            });
+        }
+    });
+}
 
 /**
  * Convenience function.
- * @name checkbox
- * @method
  * @param {boolean} state
  * @returns {HTMLImageElement} {@link module:images.checked|checked} when `state` is truthy or {@link module:images.unchecked|unchecked} otherwise.
  * @memberOf module:images
  */
-images.checkbox = function(state) {
+function checkbox(state) {
     return images[state ? 'checked' : 'unchecked'];
-};
+}
 
 /**
  * Convenience function.
- * @name filter
- * @method
  * @param {boolean} state
  * @returns {HTMLImageElement} {@link module:images.filter-off|filter-off} when `state` is truthy or {@link module:images.filter-on|filter-on} otherwise.
  * @memberOf module:images
  */
-images.filter = function(state) {
+function filter(state) {
     return images[state ? 'filter-on' : 'filter-off'];
-};
+}
+
+// add methods as non-enumerable members so member images can be enumerated
+Object.defineProperties(images, {
+    add: { value: add },
+    setTheme: { value: setTheme },
+    checkbox: { value: checkbox },
+    filter: { value: filter }
+});
+
 
 module.exports = images;

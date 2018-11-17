@@ -32,6 +32,7 @@
     "overrider": "^0",
     "rectangular": "1.0.1",
     "sparse-boolean-array": "1.0.1",
+    "svg-themer": "^1.1.2",
     "synonomous": "^2.1.2"
   },
   "devDependencies": {
@@ -41,7 +42,7 @@
     "gulp-eslint": "^4.0.2",
     "gulp-footer": "^1.1.1",
     "gulp-header": "^1.8.2",
-    "gulp-imagine-64": "^1.0.1",
+    "gulp-imagine-64": "^2.0.1",
     "gulp-load-plugins": "^1.1.0",
     "gulp-mocha": "^6.0.0",
     "run-sequence": "^1.1.4"
