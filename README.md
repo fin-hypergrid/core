@@ -15,9 +15,9 @@ It also highlights a DOM-based custom external editor triggered via hypergrid ev
 * [Roadmap](#roadmap)
 * [Contributing](#contributors)
 
-### Current Release (3.1.0 - 29 September 2018)
+### Current Release (3.2.0 - 17 November 2018)
 
-**Hypergrid 3.1 includes 3.0’s revised data model with some breaking changes.**
+> **CAUTION:** For those considering upgrading directly from v2, be advised Hypergrid v3 introduced a revised data model _with breaking changes._ The impact of these changes has been intentionally minimized and should not affect the vast majority of users. See the [v3.0.0 release notes](https://github.com/fin-hypergrid/core/releases/tag/v3.0.0) for more information.
 
 _For a complete list of changes, see the [release notes](https://github.com/fin-hypergrid/core/releases)._
 
@@ -25,7 +25,7 @@ _For a complete list of changes, see the [release notes](https://github.com/fin-
 
 #### npm module _(recommended)_
 Published as a CommonJS module to npmjs.org.
-Specify a <a href="https://semver.org/">SEMVER</a> of `"fin-hypergrid": "3.1.0"` (or `"^3.1.0"`) in your package.json file,
+Specify a <a href="https://semver.org/">SEMVER</a> of `"fin-hypergrid": "3.2.0"` (or `"^3.2.0"`) in your package.json file,
 issue the `npm install` command, and let your bundler (<a target="webpack" href="https://webpack.js.org/">wepback</a>,
 <a target="browserify" href="http://browserify.org/">Browserify</a>) create a single file containing both Hypergrid and your application.
 
