@@ -19,14 +19,16 @@ Object.defineProperty(Base.prototype, 'version', {
     value: require('../package.json').version
 });
 
-Base.prototype.atLeastVersion = function(neededVersion) {
-    var neededParts = neededVersion.split('.'),
-        thisParts = this.version.split('.'),
-        delta;
-    neededParts.find(function(neededPart, i) {
-        return (delta = neededPart - thisParts[i]);
-    });
-    return delta >= 0;
+Base.prototype.versionAtLeast = function(neededVersion) {
+    var neededParts = neededVersion.split('.').map(Number),
+        delta = this.version.split('.').map(function(part, i) { return Number(part) - neededParts[i]; });
+    return (
+        delta[0] > 0 ||
+        delta[0] === 0 && (
+            delta[1] > 0 ||
+            delta[1] === 0 && delta[2] >= 0
+        )
+    );
 };
 
 Base.prototype.deprecated = require('./lib/deprecated');

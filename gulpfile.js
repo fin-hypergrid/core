@@ -70,7 +70,7 @@ function clearBashScreen() {
 function swallowImages() {
     var config = {
         src: {
-            globs: [ 'images/*.png', 'images/*.gif','images/*.jpeg', 'images/*.jpg' ],
+            globs: 'images/*.{gif,png,jpg,jpeg,svg,ico}',
             options: {}
         },
         transform: {

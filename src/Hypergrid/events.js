@@ -458,6 +458,23 @@ exports.mixin = {
                         writable: true
                     }
                 );
+
+                // add some interesting mouse offsets
+                var drilldown;
+                if ((drilldown = primitiveEvent.primitiveEvent && primitiveEvent.primitiveEvent.detail)) {
+                    decoratedEvent.gridPoint = drilldown.mouse;
+                    if ((drilldown = drilldown.primitiveEvent)) {
+                        decoratedEvent.clientPoint = {
+                            x: drilldown.clientX,
+                            y: drilldown.clientY
+                        };
+                        decoratedEvent.pagePoint = {
+                            x: drilldown.clientX + window.scrollX,
+                            y: drilldown.clientY + window.scrollY
+                        };
+                    }
+                }
+
                 cb.call(grid, decoratedEvent);
             }
         }
@@ -576,7 +593,7 @@ exports.mixin = {
         });
 
         this.addInternalEventListener('fin-canvas-context-menu', function(e) {
-            handleMouseEvent(e, function(mouseEvent){
+            handleMouseEvent(e, function(mouseEvent) {
                 grid.delegateContextMenu(mouseEvent);
                 grid.fireSyntheticContextMenuEvent(mouseEvent);
             });
