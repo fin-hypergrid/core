@@ -475,8 +475,6 @@ exports.mixin = {
                     }
                 }
 
-
-
                 cb.call(grid, decoratedEvent);
             }
         }
