@@ -11,6 +11,7 @@ var _ = require('object-iterators'); // fyi: installs the Array.prototype.find p
 var defaults = require('../defaults');
 var dynamicPropertyDescriptors = require('../lib/dynamicProperties');
 var HypergridError = require('../lib/error');
+var images = require('../../images');
 
 var styles = [
     'BackgroundColor',
@@ -73,15 +74,9 @@ stylers.reduce(function(theme, styler) {
 var registry = Object.create(null, {
     default: { value: defaultTheme }
 });
-var pseudopropAdvice = {
-    showRowNumbers: 'rowHeaderCheckboxes and rowHeaderNumbers',
-    lineColor: 'gridLinesHColor and gridLinesVColor',
-    lineWidth: 'gridLinesHWidth and gridLinesVWidth',
-    gridBorder: 'gridBorderLeft, gridBorderRight, gridBorderTop, and gridBorderBottom'
-};
 
 function applyTheme(theme) {
-    var themeLayer, grids, props;
+    var themeLayer, grids, props, themeObject;
 
     if (theme && typeof theme === 'object' && !Object.getOwnPropertyNames(theme).length) {
         theme = null;
@@ -117,45 +112,50 @@ function applyTheme(theme) {
         theme = theme || 'default';
     }
 
-    if (typeof theme === 'string') {
-        if (!registry[theme]) {
-            throw new HypergridError('Unknown theme "' + theme + '"');
-        }
-        theme = registry[theme];
+    if (typeof theme === 'object') {
+        themeObject = theme;
+    } else if (!registry[theme]) {
+        throw new HypergridError('Unknown theme "' + theme + '"');
+    } else {
+        themeObject = registry[theme];
     }
 
-    if (theme) {
+    if (themeObject) {
         // When no theme name, set it to explicit `undefined` (to mask defaults.themeName).
-        if (!theme.themeName) {
-            theme.themeName = undefined;
+        if (!themeObject.themeName) {
+            themeObject.themeName = undefined;
         }
 
-        Object.keys(theme).forEach(function(key) {
+        Object.keys(themeObject).forEach(function(key) {
             if (key in dynamicPropertyDescriptors) {
                 if (key in dynamicCosmetics) {
                     grids.forEach(function(grid) {
-                        grid.properties[key] = theme[key];
+                        grid.properties[key] = themeObject[key];
                     });
                 } else {
                     // Dynamic properties are defined on properties layer; defining these
                     // r-values on the theme layer is ineffective so let's not allow it.
-                    var message = pseudopropAdvice[key];
-                    message = message
-                        ? 'Ignoring unexpected pseudo-prop ' + key + ' in theme object. Use actual props ' + message + ' instead.'
-                        : 'Ignoring invalid property ' + key + ' in theme object.';
-                    console.warn(message);
-                    delete theme[key];
+                    switch (key) {
+                        case 'lineColor':
+                            themeObject.gridLinesHColor = themeObject.gridLinesVColor = themeObject[key];
+                            break;
+                        default:
+                            console.warn('Ignoring unexpected dynamic property ' + key + ' from theme object.');
+                    }
+                    // delete themeObject[key];
                 }
             }
         });
 
         // No .assign() because themeName is read-only in defaults layer
-        Object.defineProperties(themeLayer, Object.getOwnPropertyDescriptors(theme));
+        Object.defineProperties(themeLayer, Object.getOwnPropertyDescriptors(themeObject));
     }
 
     grids.forEach(function(grid) {
         grid.repaint();
     });
+
+    return themeObject;
 }
 
 
@@ -185,8 +185,8 @@ var mixin = {
      * @this {Hypergrid}
      * @param {object|string} [theme] - One of:
      * * **string:** A registered theme name.
-     * * **object:** A unregistered (anonymous) theme object. Empty object removes grid theme, exposing global theme.
-     * * _falsy value:_ Also removes grid theme.
+     * * **object:** An anonymous (unregistered) theme object. Empty object removes grid theme, exposing global theme.
+     * * _falsy value:_ Also removes grid theme (like empty object).
      * @param {string|undefined} [theme.themeName=undefined]
      * @memberOf Hypergrid#
      */
@@ -213,7 +213,7 @@ var mixin = {
 };
 Object.defineProperty(mixin, 'theme', {
     enumerable: true,
-    set: mixin.applyTheme,
+    set: applyTheme,
     get: mixin.getTheme
 });
 
@@ -234,7 +234,8 @@ var sharedMixin = {
      * ```javascript
      * var myTheme = require('fin-hypergrid-themes').buildTheme();
      * ```
-     * If omitted, the theme named in the first parameter is unregistered.
+     * If omitted, unregister the theme named in the first parameter.
+     *
      * Grid instances that have previously applied the named theme are unaffected by this action (whether re-registering or unregistering).
      * @memberOf Hypergrid.
      */
@@ -292,11 +293,14 @@ var sharedMixin = {
      * @param {string|undefined} [theme.themeName=undefined]
      * @memberOf Hypergrid.
      */
-    applyTheme: applyTheme
+    applyTheme: function(theme) {
+        var themeObject = applyTheme.call(this, theme);
+        images.setTheme(themeObject);
+    }
 };
 Object.defineProperty(sharedMixin, 'theme', { // global theme setter/getter
     enumerable: true,
-    set: applyTheme,
+    set: sharedMixin.applyTheme,
     get: function() { return defaults; } // the defaults layer *is* the global theme layer
 });
 

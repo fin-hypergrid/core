@@ -141,7 +141,7 @@ var SimpleCell = CellRenderer.extend('SimpleCell', {
             // Measure & draw center icon
             iyoffset = Math.round((height - centerIcon.height) / 2);
             ixoffset = width - Math.round((width - centerIcon.width) / 2) - centerIcon.width;
-            gc.drawImage(centerIcon, x + ixoffset, y + iyoffset);
+            gc.drawImage(centerIcon, x + ixoffset, y + iyoffset, centerIcon.width, centerIcon.height); // see [SIZE NOTE]!
             valWidth = iconPadding + centerIcon.width + iconPadding;
             if (config.hotIcon === 'center') {
                 config.clickRect = new Rectangle(ixoffset, iyoffset, centerIcon.width, centerIcon.height);
@@ -152,7 +152,7 @@ var SimpleCell = CellRenderer.extend('SimpleCell', {
         if (leftIcon) {
             // Draw left icon
             iyoffset = Math.round((height - leftIcon.height) / 2);
-            gc.drawImage(leftIcon, x + iconPadding, y + iyoffset);
+            gc.drawImage(leftIcon, x + iconPadding, y + iyoffset, leftIcon.width, leftIcon.height); // see [SIZE NOTE]!
             if (config.hotIcon === 'left') {
                 config.clickRect = new Rectangle(iconPadding, iyoffset, leftIcon.width, leftIcon.height);
             }
@@ -171,7 +171,7 @@ var SimpleCell = CellRenderer.extend('SimpleCell', {
 
             // Draw right icon
             iyoffset = Math.round((height - rightIcon.height) / 2);
-            gc.drawImage(rightIcon, rightX, y + iyoffset);
+            gc.drawImage(rightIcon, rightX, y + iyoffset, rightIcon.width, rightIcon.height); // see [SIZE NOTE]!
             if (config.hotIcon === 'right') {
                 config.clickRect =  new Rectangle(ixoffset, iyoffset, rightIcon.width, rightIcon.height);
             }
@@ -189,6 +189,16 @@ var SimpleCell = CellRenderer.extend('SimpleCell', {
         config.minWidth = leftPadding + valWidth + rightPadding;
     }
 });
+
+/* [SIZE NOTE] (11/1/2018): Always call `drawImage` with explicit width and height overload.
+ * Possible browser bug: Although 3rd and 4th parameters to `drawImage` are optional,
+ * when image data derived from SVG source, some browsers (e.g., Chrome 70) implementation
+ * of `drawImage` only respects _implicit_ `width` x `height` specified in the root <svg>
+ * element `width` & `height` attributes. Otherwise, image is copied into canvas using its
+ * `naturalWidth` x `naturalHeight`. That is, _explict_ settings of `width` & `height`
+ * (i.e, via property assignment, calling setAttribute, or in `new Image` call) have no
+ * effect on `drawImage` in the case of SVGs on these browsers.
+ */
 
 /**
  * @summary Renders single line text.
