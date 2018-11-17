@@ -76,6 +76,9 @@ images['checkbox-off'] = images.unchecked;
  * @method
  * @param {string} name
  * @param {HTMLImageElement} img
+ * @param {boolean} [themeable] - If truthy, the image will be themed by {@link module:images.setTheme images.setTheme}, called by {@link Hypergrid.applyTheme}.
+ * If falsy, the image won't be themed until `images[name].themeable` is set to `true`.
+ * In any case the remaining parameters are processed.
  * @param {function} [setSvgProps=svgThemer.setSvgProps] - Optional custom theming code for this image and the rules implied by `styles`. _If omitted, `styles` is promoted 2nd parameter position._
  * @param {boolean|string[]} [styles] - Optional list style names with which to create CSS rules.
  * * If falsy (or omitted), no rules are created.
@@ -96,9 +99,9 @@ images['checkbox-off'] = images.unchecked;
  * @see {@link https://github.com/joneit/svg-themer}
  * @memberOf module:images
  */
-function add(name, img, setSvgProps, styles) {
+function add(name, img, themeable, setSvgProps, styles) {
     if (/^data:image\/svg\+xml|\.svg/.test(img.src)) {
-        img.themeable = true;
+        img.themeable = !!themeable;
         if (typeof setSvgProps === 'object') {
             styles = setSvgProps;
             setSvgProps = undefined;
