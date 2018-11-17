@@ -32,6 +32,7 @@ var Registry = Base.extend('Registry', {
             return;
         }
 
+        // getClassName defined if new item derived from extend-me
         name = name || item.getClassName && item.getClassName();
 
         if (!name) {
@@ -58,6 +59,16 @@ var Registry = Base.extend('Registry', {
      */
     addSynonym: function(synonymName, existingName) {
         return (this.items[synonymName] = this.items[existingName]);
+    },
+
+    /**
+     * Create a new item extended from base class. For formal parameters, see {@link Registry#add add}.
+     * @memberOf Registry#
+     */
+    make: function(name, prototype) {
+        var last = arguments.length - 1;
+        arguments[last] = this.BaseClass.extend(arguments[last]);
+        this.add.apply(this, arguments);
     },
 
     /**
