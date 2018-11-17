@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+    <title>simple hypergrid demo</title>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" >
+    <meta http-equiv="Cache-Control" content="must-revalidate" />
+    <link rel="icon" type="image/png" href="img/hypergrid-icon.png">
+    <script src="build/fin-hypergrid.js"></script>
+    <script>
+        'use strict';
+
+        var HTTP_STATE_DONE = 4,
+            HTTP_STATUS_OK = 200;
+
+        function get(url, callback) {
+            var httpRequest = new XMLHttpRequest();
+
+            httpRequest.open('GET', url, true);
+
+            httpRequest.onreadystatechange = function() {
+                if (
+                    httpRequest.readyState === HTTP_STATE_DONE &&
+                    httpRequest.status === HTTP_STATUS_OK
+                ) {
+                    callback(JSON.parse(httpRequest.responseText));
+                }
+            };
+
+            httpRequest.send(null);
+        };
+
+        window.onload = function() {
+            get('data/basic.json', function(data) {
+                var div = document.querySelector('div#json-example'),
+                    grid = new fin.Hypergrid(div, { data: data });
+            });
+        };
+    </script>
+</head>
+<body>
+<p> JSON example using AJAX.<br/>
+        Put your JSON in:<b><code> ./data/simple.json</code></b>
+    </p>
+    <div id="json-example" style="position:relative; width:600px; height:100px"></div>
+    <p><small><em>Note: AJAX does not work with the <b><code>file://</code></b> protocol. To serve locally, try <a href="https://www.npmjs.com/package/http-server">http-server</a>.</em></samll></p>
+</body>
+</html>

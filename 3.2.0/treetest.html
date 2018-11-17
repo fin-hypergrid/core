@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" >
+    <meta http-equiv="Cache-Control" content="must-revalidate" />
+    <link rel="icon" type="image/png" href="img/hypergrid-icon.png">
+</head>
+<body>
+
+<script src="build/fin-hypergrid.js"></script>
+
+<script>
+    var grid = new fin.Hypergrid({ boundingRect: { height: '900px' } });
+
+    grid.localization.add('dollars', new grid.localization.NumberFormatter('en-US', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+    }));
+
+    grid.setData(makeData());
+
+    grid.cellRenderers.add('treelines', grid.cellRenderers.BaseClass.extend({ paint: treeLineRendererPaint }));
+
+    grid.setState({
+        gridLinesH: false,
+        gridLinesV: false,
+        backgroundColor: 'white',
+        defaultRowHeight: 24,
+        font: '12px "Open Sans", Helvetica, sans-serif',
+        columns: {
+            tree: {
+                color: 'rgb(102, 102, 102)',
+                renderer: 'treelines'
+            },
+            sales: {
+                color: '#0077d4',
+                format: 'dollars',
+                halign: 'right'
+            },
+            profit: {
+                color: '#0077d4',
+                format: 'dollars',
+                halign: 'right'
+            }
+        },
+        columnNames: ["tree", "sales", "profit"]
+    });
+
+    var TREE_COLUMN_INDEX = 2;
+    var TREE_COLUMN_NAME = 'tree';
+    grid.behavior.dataModel.getCell = function(config, rendererName) {
+        var nextRow, depthDelta;
+        if (config.isUserDataArea && config.dataCell.x === TREE_COLUMN_INDEX && config.value) {
+            nextRow = this.getRow(config.dataCell.y + 1);
+            depthDelta = nextRow ? config.value.rowPath.length - nextRow[TREE_COLUMN_NAME].rowPath.length : 1;
+            config.last = !!depthDelta;
+            // config._type = this.schema[TREE_COLUMN_INDEX].type[config.value.rowPath.length - 2];
+        }
+        return config.grid.cellRenderers.get(rendererName);
+    };
+
+    grid.behaviorShapeChanged();
+
+    var LINE_NODE_SPACE = 16;
+    var NODE_RADIUS = 3;
+
+    function treeLineRendererPaint(gc, config) {
+        var x = config.bounds.x;
+        var y = config.bounds.y;
+        var width = config.bounds.width;
+        var height = config.bounds.height;
+
+        if (config.value === null) {
+            return;
+        }
+
+        var value = config.value.rollup;
+        var leaf = config.value.isLeaf;
+        var depth = config.value.rowPath.length - 1;
+        var lastChild = config.last;
+
+        var halfDown = y + height / 2;
+        var fullDown = y + height;
+
+        var color, backgroundColor;
+        if (config.isSelected) {
+            color = config.foregroundSelectionColor;
+            backgroundColor = config.backgroundSelectionColor;
+        } else {
+            color = config.color;
+            backgroundColor = config.backgroundColor;
+        }
+        if (config.isRowHovered && config.hoverRowHighlight.enabled && !config.isCellHovered) {
+            backgroundColor = config.hoverRowHighlight.backgroundColor;
+        } else if (config.isCellHovered && config.hoverCellHighlight.enabled) {
+            backgroundColor = config.hoverCellHighlight.backgroundColor;
+        }
+
+        gc.save();
+
+        // Fill in background
+        gc.fillStyle = backgroundColor;
+        gc.fillRect(x, y, width, height);
+
+        gc.globalAlpha = 0.3;
+        gc.strokeStyle = gc.fillStyle = color;
+
+        gc.beginPath();
+
+        // Draw vertical lines
+        for (var i = 1; i <= depth; i++) {
+            var lastOfRank = config.value.rowPath[i - 1][0] === '-';
+            var terminal = i === depth;
+
+            x += LINE_NODE_SPACE;
+
+            if (!terminal && lastOfRank) {
+                continue;
+            }
+
+            var halfLine = terminal && (lastOfRank || leaf && lastChild);
+
+            gc.moveTo(x, y);
+            gc.lineTo(x, halfLine ? halfDown : fullDown);
+        }
+
+        // Anchor horizontal line
+        gc.moveTo(x, halfDown);
+        x += LINE_NODE_SPACE;
+        if (!leaf) {
+            // Draw horizontal line to edge of node circle
+            gc.lineTo(x - NODE_RADIUS, halfDown);
+
+            // Draw node circle
+            gc.arc(x, halfDown, NODE_RADIUS, -Math.PI, Math.PI);
+
+            // Fill in circle (always for now)
+            if (true || config.isCellHovered) {
+                gc.globalAlpha = 0.45;
+                gc.fill();
+                gc.globalAlpha = 0.3;
+            }
+
+            // Draw start of new vertical line
+            gc.moveTo(x, halfDown + NODE_RADIUS);
+            gc.lineTo(x, fullDown);
+        } else {
+            // Draw horizontal line without a node circle
+            gc.lineTo(x + NODE_RADIUS, halfDown);
+        }
+
+        gc.stroke();
+        gc.closePath();
+
+        // render message text
+
+        gc.globalAlpha = 1.0;
+        gc.fillStyle = config.isSelected ? config.foregroundSelectionColor : config.color;
+        gc.textAlign = "start";
+        gc.textBaseline = "middle";
+        gc.font = config.isSelected ? config.foregroundSelectionFont : config.treeHeaderFont;
+
+        var cellTextOffset = x + 2 * NODE_RADIUS + 3;
+        // value = config.formatValue(value, config._type);
+        var metrics = gc.getTextWidthTruncated(value, width - cellTextOffset + (x - LINE_NODE_SPACE - 3), true);
+        gc.fillText(metrics.string ? metrics.string : value, cellTextOffset, halfDown);
+        config.minWidth = cellTextOffset + gc.getTextWidth(value) + 15;
+        gc.restore();
+    }
+
+    function makeData() {
+        return [
+            {
+                sales: 2297200.8602999994,
+                profit: 286397.0216999999,
+                tree: {
+                    rollup: 'TOTAL',
+                    rowPath: ['ROOT'],
+                    isLeaf: false
+                }
+            },
+            {
+                sales: 149528.03,
+                profit: 55617.82489999999,
+                tree: {
+                    rollup: 'Copiers',
+                    rowPath: ['ROOT','Copiers'],
+                    isLeaf: false
+                }
+            },
+            {
+                sales: 49749.242,
+                profit: 19327.235099999998,
+                tree: {
+                    rollup: 'West',
+                    rowPath: ['ROOT','Copiers','West'],
+                    isLeaf: false
+                }
+            },
+            {
+                sales: 30459.611999999997,
+                profit: 12158.871299999999,
+                tree: {
+                    rollup: 'Consumer',
+                    rowPath: ['ROOT','Copiers','West','Consumer'],
+                    isLeaf: true
+                }
+            },
+            {
+                sales: 11219.788,
+                profit: 3977.9271999999996,
+                tree: {
+                    rollup: 'Home Office',
+                    rowPath: ['ROOT','Copiers','West','Home Office'],
+                    isLeaf: true
+                }
+            },
+            {
+                sales: 8069.8420000000015,
+                profit: 3190.4366,
+                tree: {
+                    rollup: 'Corporate',
+                    rowPath: ['ROOT','Copiers','West','Corporate'],
+                    isLeaf: true
+                }
+            },
+            {
+                sales: 53219.462,
+                profit: 17022.841799999995,
+                tree: {
+                    rollup: 'East',
+                    rowPath: ['ROOT','Copiers','East'],
+                    isLeaf: false
+                }
+            },
+            {
+                sales: 30399.705999999995,
+                profit: 8657.932499999997,
+                tree: {
+                    rollup: 'Consumer',
+                    rowPath: ['ROOT','Copiers','East','Consumer'],
+                    isLeaf: true
+                }
+            },
+            {
+                sales: 18599.842,
+                profit: 7229.932799999999,
+                tree: {
+                    rollup: 'Home Office',
+                    rowPath: ['ROOT','Copiers','East','Home Office'],
+                    isLeaf: true
+                }
+            },
+            {
+                sales: 4219.914,
+                profit: 1134.9764999999998,
+                tree: {
+                    rollup: 'Corporate',
+                    rowPath: ['ROOT','Copiers','East','Corporate'],
+                    isLeaf: true
+                }
+            },
+            {
+                sales: 37259.57,
+                profit: 15608.841299999998,
+                tree: {
+                    rollup: 'Central',
+                    rowPath: ['ROOT','Copiers','Central'],
+                    isLeaf: false
+                }
+            },
+            {
+                sales: 29679.742,
+                profit: 12789.904299999998,
+                tree: {
+                    rollup: 'Corporate',
+                    rowPath: ['ROOT','Copiers','Central','Corporate'],
+                    isLeaf: true
+                }
+            },
+            {
+                sales: 4519.884,
+                profit: 1482.9615999999999,
+                tree: {
+                    rollup: 'Consumer',
+                    rowPath: ['ROOT','Copiers','Central','Consumer'],
+                    isLeaf: true
+                }
+            },
+            {
+                sales: 3059.944,
+                profit: 1335.9754,
+                tree: {
+                    rollup: 'Home Office',
+                    rowPath: ['ROOT','Copiers','Central','Home Office'],
+                    isLeaf: true
+                }
+            },
+            {
+                sales: 9299.756000000001,
+                profit: 3658.9066999999995,
+                tree: {
+                    rollup: 'South',
+                    rowPath: ['ROOT','-Copiers','South'],
+                    isLeaf: false
+                }
+            },
+            {
+                sales: 4859.888,
+                profit: 1874.9615,
+                tree: {
+                    rollup: 'Corporate',
+                    rowPath: ['ROOT','-Copiers','South','Corporate'],
+                    isLeaf: true
+                }
+            },
+            {
+                sales: 4439.868,
+                profit: 1783.9451999999997,
+                tree: {
+                    rollup: 'Consumer',
+                    rowPath: ['ROOT','-Copiers','South','Consumer'],
+                    isLeaf: true
+                }
+            },
+            {
+                sales: 330007.0539999999,
+                profit: 44515.7306,
+                tree: {
+                    rollup: 'Phones',
+                    rowPath: ['-ROOT','Phones'],
+                    isLeaf: false
+                }
+            },
+            {
+                sales: 72403.28199999999,
+                profit: 12323.026699999999,
+                tree: {
+                    rollup: 'Central',
+                    rowPath: ['-ROOT','Phones','Central'],
+                    isLeaf: false
+                }
+            },
+            {
+                sales: 37108.78599999999,
+                profit: 6416.0196,
+                tree: {
+                    rollup: 'Consumer',
+                    rowPath: ['-ROOT','Phones','Central','Consumer'],
+                    isLeaf: true
+                }
+            },
+            {
+                sales: 18113.7,
+                profit: 3515.7273999999998,
+                tree: {
+                    rollup: 'Home Office',
+                    rowPath: ['-ROOT','Phones','Central','Home Office'],
+                    isLeaf: true
+                }
+            },
+            {
+                sales: 17180.795999999995,
+                profit: 2391.279699999999,
+                tree: {
+                    rollup: 'Corporate',
+                    rowPath: ['-ROOT','Phones','Central','Corporate'],
+                    isLeaf: true
+                }
+            },
+            {
+                sales: 100614.98199999999,
+                profit: 12314.686000000002,
+                tree: {
+                    rollup: 'East',
+                    rowPath: ['-ROOT','Phones','East'],
+                    isLeaf: false
+                }
+            },
+            {
+                sales: 51512.038,
+                profit: 7328.253600000002,
+                tree: {
+                    rollup: 'Consumer',
+                    rowPath: ['-ROOT','Phones','East','Consumer'],
+                    isLeaf: true
+                }
+            },
+            {
+                sales: 29865.61799999999,
+                profit: 3129.6182999999996,
+                tree: {
+                    rollup: 'Corporate',
+                    rowPath: ['-ROOT','Phones','East','Corporate'],
+                    isLeaf: true
+                }
+            },
+            {
+                sales: 19237.326,
+                profit: 1856.8140999999998,
+                tree: {
+                    rollup: 'Home Office',
+                    rowPath: ['-ROOT','Phones','East','Home Office'],
+                    isLeaf: true
+                }
+            },
+            {
+                sales: 58304.437999999995,
+                profit: 10767.275300000001,
+                tree: {
+                    rollup: 'South',
+                    rowPath: ['-ROOT','Phones','South'],
+                    isLeaf: false
+                }
+            },
+            {
+                sales: 30846.203999999998,
+                profit: 5623.9118,
+                tree: {
+                    rollup: 'Consumer',
+                    rowPath: ['-ROOT','Phones','South','Consumer'],
+                    isLeaf: true
+                }
+            },
+            {
+                sales: 19274.231999999996,
+                profit: 3680.212000000001,
+                tree: {
+                    rollup: 'Corporate',
+                    rowPath: ['-ROOT','Phones','South','Corporate'],
+                    isLeaf: true
+                }
+            },
+            {
+                sales: 8184.002,
+                profit: 1463.1514999999995,
+                tree: {
+                    rollup: 'Home Office',
+                    rowPath: ['-ROOT','Phones','South','Home Office'],
+                    isLeaf: true
+                }
+            },
+            {
+                sales: 98684.35199999996,
+                profit: 9110.742600000001,
+                tree: {
+                    rollup: 'West',
+                    rowPath: ['-ROOT','-Phones','West'],
+                    isLeaf: false
+                }
+            },
+            {
+                sales: 50465.73599999995,
+                profit: 4468.9297,
+                tree: {
+                    rollup: 'Consumer',
+                    rowPath: ['-ROOT','-Phones','West','Consumer'],
+                    isLeaf: true
+                }
+            },
+            {
+                sales: 24832.767999999996,
+                profit: 2565.1096000000002,
+                tree: {
+                    rollup: 'Corporate',
+                    rowPath: ['-ROOT','-Phones','West','Corporate'],
+                    isLeaf: true
+                }
+            },
+            {
+                sales: 23385.847999999998,
+                profit: 2076.7033,
+                tree: {
+                    rollup: 'Home Office',
+                    rowPath: ['-ROOT','-Phones','West','Home Office'],
+                    isLeaf: true
+                }
+            }
+        ]
+    }
+
+</script>
+
+</body>
+</html>

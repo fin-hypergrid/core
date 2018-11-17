@@ -1,0 +1,17 @@
+th, td {
+    width: 50%;
+    padding: .65em;
+    vertical-align: top;
+    border:1px solid #444;
+    font-size: small;
+    font-family: sans-serif;
+}
+table { border-collapse: collapse }
+caption { text-align: left; padding: 1em 0 .65em 0 }
+table, div#example { width:400px; }
+div#example {
+    position:relative;
+    height:150px;
+    margin-top:1em
+}
+code { font-weight: bold }
