@@ -113,7 +113,7 @@ function add(name, img, themeable, setSvgProps, styles) {
             img.themeableRules = createThemeableRules(name, img, setSvgProps, styles);
         }
     }
-    return images[name] = img;
+    return (images[name] = img);
 }
 
 function createThemeableRules(key, img, setSvgProps, styles) {
