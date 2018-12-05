@@ -390,7 +390,7 @@ function resolveCalculator(calculator) {
         }
     } else if ((matches = calculator.match(REGEX_NAMED_FUNC))) {
         key = matches[1]; // function name extracted from stringified function
-    } else if (calculator.test(REGEX_ANON_FUNC)) {
+    } else if (REGEX_ANON_FUNC.test(calculator)) {
         key = calculator; // anonymous stringified function
     } else if (REGEX_ARROW_FUNC.test(calculator)) {
         throw new HypergridError('Arrow function not permitted as column calculator ' + forColumnName);
