@@ -104,6 +104,10 @@ function Canvas(div, component, contextAttributes) {
         self.fintouchmove(e);
     });
 
+    this.addEventListener('touchend', function(e) {
+        self.fintouchend(e);
+    });
+
     this.canvas.setAttribute('tabindex', 0);
 
     this.resize();
@@ -549,6 +553,10 @@ Canvas.prototype = {
 
     fintouchmove: function(e) {
         this.dispatchNewTouchEvent(e, 'fin-canvas-touchmove');
+    },
+
+    fintouchend: function(e) {
+        this.dispatchNewTouchEvent(e, 'fin-canvas-touchend');
     },
 
     paintLoopRunning: function() {
