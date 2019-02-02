@@ -96,6 +96,10 @@ function Canvas(div, component, contextAttributes) {
         return false;
     });
 
+    this.addEventListener('touchstart', function(e) {
+        self.fintouchstart(e);
+    });
+
     this.canvas.setAttribute('tabindex', 0);
 
     this.resize();
@@ -339,6 +343,16 @@ Canvas.prototype = {
         return this.dispatchNewEvent(event, name, detail);
     },
 
+    dispatchNewTouchEvent: function(event, name, detail) {
+        detail = detail || {};
+        
+        detail.touches = [].slice.call(event.touches).map(function(touch) {
+            return this.getLocal(touch);
+        }, this);
+
+        return this.dispatchNewEvent(event, name, detail);
+    },
+
     finmousemove: function(e) {
         if (!this.isDragging() && this.mousedown) {
             this.beDragging();
@@ -523,6 +537,10 @@ Canvas.prototype = {
         this.dispatchNewMouseKeysEvent(e, 'fin-canvas-context-menu', {
             isRightClick: this.isRightClick(e)
         });
+    },
+
+    fintouchstart: function(e) {
+        this.dispatchNewTouchEvent(e, 'fin-canvas-touchstart');
     },
 
     paintLoopRunning: function() {
