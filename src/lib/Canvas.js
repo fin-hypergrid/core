@@ -100,6 +100,10 @@ function Canvas(div, component, contextAttributes) {
         self.fintouchstart(e);
     });
 
+    this.addEventListener('touchmove', function(e) {
+        self.fintouchmove(e);
+    });
+
     this.canvas.setAttribute('tabindex', 0);
 
     this.resize();
@@ -345,7 +349,7 @@ Canvas.prototype = {
 
     dispatchNewTouchEvent: function(event, name, detail) {
         detail = detail || {};
-        
+
         detail.touches = [].slice.call(event.touches).map(function(touch) {
             return this.getLocal(touch);
         }, this);
@@ -541,6 +545,10 @@ Canvas.prototype = {
 
     fintouchstart: function(e) {
         this.dispatchNewTouchEvent(e, 'fin-canvas-touchstart');
+    },
+
+    fintouchmove: function(e) {
+        this.dispatchNewTouchEvent(e, 'fin-canvas-touchmove');
     },
 
     paintLoopRunning: function() {
