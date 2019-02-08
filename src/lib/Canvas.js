@@ -354,7 +354,8 @@ Canvas.prototype = {
     dispatchNewTouchEvent: function(event, name, detail) {
         detail = detail || {};
 
-        detail.touches = [].slice.call(event.touches).map(function(touch) {
+        var touches = [].slice.call(event.targetTouches);
+        detail.touches = touches.map(function(touch) {
             return this.getLocal(touch);
         }, this);
 
