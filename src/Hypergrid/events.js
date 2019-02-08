@@ -625,6 +625,7 @@ exports.mixin = {
         });
 
         this.addInternalEventListener('fin-canvas-touchmove', function(e) {
+            grid.delegateTouchMove(e);
             grid.fireSyntheticTouchMoveEvent(e);
         });
 
@@ -742,5 +743,14 @@ exports.mixin = {
      */
     delegateTouchStart: function(event) {
         this.behavior.onTouchStart(this, event);
+    },
+
+    /**
+     * @memberOf Hypergrid#
+     * @desc Delegate touchmove to the Behavior model.
+     * @param {CustomEvent} event - The pertinent event.
+     */
+    delegateTouchMove: function(event) {
+        this.behavior.onTouchMove(this, event);
     }
 };
