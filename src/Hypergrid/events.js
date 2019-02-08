@@ -381,6 +381,16 @@ exports.mixin = {
 
     /**
      * @memberOf Hypergrid#
+     * @desc Synthesize and fire a `fin-touchmove` event.
+     * @param {CustomEvent} e - The canvas event.
+     * @returns {boolean} Proceed; event was not [canceled](https://developer.mozilla.org/docs/Web/API/EventTarget/dispatchEvent#Return_Value `EventTarget.dispatchEvent`).
+     */
+    fireSyntheticTouchMoveEvent: function(e) {
+        return dispatchGridEvent.call(this, 'fin-touchmove', e);
+    },
+
+    /**
+     * @memberOf Hypergrid#
      * @desc Synthesize and fire a scroll event.
      * @param {string} type - Should be either `fin-scroll-x` or `fin-scroll-y`.
      * @param {number} oldValue - The old scroll value.
@@ -612,6 +622,10 @@ exports.mixin = {
         this.addInternalEventListener('fin-canvas-touchstart', function(e) {
             grid.delegateTouchStart(e);
             grid.fireSyntheticTouchStartEvent(e);
+        });
+
+        this.addInternalEventListener('fin-canvas-touchmove', function(e) {
+            grid.fireSyntheticTouchMoveEvent(e);
         });
 
         //Register a listener for the copy event so we can copy our selected region to the pastebuffer if conditions are right.
