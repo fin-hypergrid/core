@@ -807,6 +807,18 @@ var Behavior = Base.extend('Behavior', {
 
     /**
      * @memberOf Behavior#
+     * @desc Delegate handling touchstart to the feature chain of responsibility.
+     * @param {Hypergrid} grid The grid instance.
+     * @param {Object} event - The event details.
+     */
+    onTouchStart: function(grid, event) {
+        if (this.featureChain) {
+            this.featureChain.handleTouchStart(grid, event);
+        }
+    },
+
+    /**
+     * @memberOf Behavior#
      * @desc I've been notified that the behavior has changed.
      */
     changed: function() { this.grid.behaviorChanged(); },

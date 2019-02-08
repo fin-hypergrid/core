@@ -726,5 +726,7 @@ exports.mixin = {
      * @desc Delegate touchstart to the Behavior model.
      * @param {CustomEvent} event - The pertinent event.
      */
-    delegateTouchStart: function(event) {}
+    delegateTouchStart: function(event) {
+        this.behavior.onTouchStart(this, event);
+    }
 };
