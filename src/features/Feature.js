@@ -259,6 +259,19 @@ var Feature = Base.extend('Feature', {
 
     /**
      * @memberOf Feature.prototype
+     * @param {Hypergrid} grid The grid instance.
+     * @param {Object} event - The event details.
+     * @private
+     * @comment Not really private but was cluttering up all the feature doc pages.
+     */
+    handleTouchEnd: function(grid, event) {
+        if (this.next) {
+            this.next.handleTouchEnd(grid, event);
+        }
+    },
+
+    /**
+     * @memberOf Feature.prototype
      * @desc toggle the column picker
      * @private
      * @comment Not really private but was cluttering up all the feature doc pages.

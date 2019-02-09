@@ -391,6 +391,16 @@ exports.mixin = {
 
     /**
      * @memberOf Hypergrid#
+     * @desc Synthesize and fire a `fin-touchend` event.
+     * @param {CustomEvent} e - The canvas event.
+     * @returns {boolean} Proceed; event was not [canceled](https://developer.mozilla.org/docs/Web/API/EventTarget/dispatchEvent#Return_Value `EventTarget.dispatchEvent`).
+     */
+    fireSyntheticTouchEndEvent: function(e) {
+        return dispatchGridEvent.call(this, 'fin-touchend', e);
+    },
+
+    /**
+     * @memberOf Hypergrid#
      * @desc Synthesize and fire a scroll event.
      * @param {string} type - Should be either `fin-scroll-x` or `fin-scroll-y`.
      * @param {number} oldValue - The old scroll value.
@@ -629,6 +639,11 @@ exports.mixin = {
             grid.fireSyntheticTouchMoveEvent(e);
         });
 
+        this.addInternalEventListener('fin-canvas-touchend', function(e) {
+            grid.delegateTouchEnd(e);
+            grid.fireSyntheticTouchEndEvent(e);
+        });
+
         //Register a listener for the copy event so we can copy our selected region to the pastebuffer if conditions are right.
         document.body.addEventListener('copy', function(evt) {
             grid.checkClipboardCopy(evt);
@@ -752,5 +767,14 @@ exports.mixin = {
      */
     delegateTouchMove: function(event) {
         this.behavior.onTouchMove(this, event);
+    },
+
+    /**
+     * @memberOf Hypergrid#
+     * @desc Delegate touchend to the Behavior model.
+     * @param {CustomEvent} event - The pertinent event.
+     */
+    delegateTouchEnd: function(event) {
+        this.behavior.onTouchEnd(this, event);
     }
 };
