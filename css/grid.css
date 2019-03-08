@@ -32,4 +32,6 @@
     outline: 0;
 }
 
-
+.hypergrid {
+    touch-action: none;
+}
