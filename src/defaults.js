@@ -1501,7 +1501,8 @@ var defaults = {
         'columnsorting',
         'cellclick',
         'cellediting',
-        'onhover'
+        'onhover',
+        'touchscrolling'
     ],
 
     /** @summary Restore row selections across data transformations (`reindex` calls).
