@@ -13,14 +13,13 @@ var TouchScrolling = Feature.extend('TouchScrolling', {
 
     handleTouchMove: function(grid, event) {
         var currentTouch = this.getTouchedCell(grid, event);
+        var lastTouch = this.lastTouch;
 
-        var xOffset = this.lastTouch.x - currentTouch.x;
-        var yOffset = this.lastTouch.y - currentTouch.y;
+        var xOffset = (lastTouch.x - currentTouch.x) / lastTouch.width;
+        var yOffset = (lastTouch.y - currentTouch.y) / lastTouch.height;
 
-        grid.scrollBy(
-            xOffset / this.lastTouch.width,
-            yOffset / this.lastTouch.height
-        );
+        grid.sbHScroller.index = grid.sbHScroller.index + xOffset;
+        grid.sbVScroller.index = grid.sbVScroller.index + yOffset;
 
         this.lastTouch = currentTouch;
     },
