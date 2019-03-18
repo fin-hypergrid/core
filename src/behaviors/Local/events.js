@@ -2,47 +2,36 @@
 
 /**
  * @namespace dataModelEventHandlers
- * @desc These handlers are called by {@link module:decorators.dispatchDataModelEvent dataModel.dispatchEvent}.
+ * @desc These handlers are called by {@link dispatchDataModelEvent dataModel.dispatchEvent} to perform Hypergrid housekeeping tasks.
  *
  * (Hypergrid registers itself with the data model by calling `dataModel.addListener`. Both `addListener` and `dispatchEvent` are optional API. If the data model lacks `addListener`, Hypergrid inserts a bound version of `dispatchEvent` directly into the data model.)
  *
- * They perform some Hypergrid housekeeping chores before (and possibly after) optionally re-emiting the event as a standard
- * Hypergrid event (to the `<canvas>` element).
+ * #### Coding pattern
+ * If there are no housekeeping tasks to be performed, do not define a handler here.
  *
- * All the built-in data model events re-emit their events (all non-cancelable).
+ * Otherwise, the typical coding pattern is for our handler to perform the housekeeping tasks, returning `undefined` to the caller ({@link DispatchDataModelEvent}) which then re-emits the event as a Hypergrid event (_i.e.,_ as a DOM event to the `<canvas>` element).
  *
- * #### Coding patterns
- * These handlers should return a boolean if they re-emit the event as a grid event themselves, when they have chores to perform post-re-emission. If they don't, they should return `undefined` which signals the caller (`dataModel.dispatchEvent`) to re-emit it as a grid event as a final step for the handler.
+ * Alternatively, our handler can re-emit the event itself by calling the grid event handler and propagating its boolean return value value to the caller which signals the caller _not_ to re-emit on our behalf. This is useful when tasks need to be performed _after_ the Hypergrid event handler is called (or before _and_ after).
  *
- * Given the above, there are four typical coding patterns for these handlers:
- * 1. Perform chores with no event re-emission:
- * ```
- * Chores();
- * return true; // (or any defined value) signals caller not to re-emit the event
- * ```
- * 2. First perform chores; then re-emit the event as a grid event:
- * ```
- * Chores();
- * return undefined; // (or omit) signals caller to re-emit the event for us
- * ```
- * 3. First perform some pre-re-emit chores (optional); then re-emit the event as a _non-cancelable_ grid event; then perform remaining chores:
- * ```
- * optionalPreReemitChores();
- * var dispatchGridEvent = require('../../lib/dispatchGridEvent.js');
- * dispatchGridEvent.call(this, event.type, event); // non-cancelable
- * remainingChores();
- * return true; // signals caller that we've already re-emitted the event and it was not canceled
- * ```
- * 3. First perform some pre-re-emit chores (optional); then re-emit the event as a _cancelable_ grid event; then perform remaining chores conditionally [iff](https://en.wikipedia.org/wiki/If_and_only_if) not canceled (_important:_ note the `true` in the following):
- * ```
- * optionalPreReemitChores();
- * if (dispatchGridEvent.call(this, event.type, true, event)) { // `true` here means cancelable
- *     conditionalChores();
- *     return true; // signals caller that we've already re-emitted the event (which was not canceled)
- * } else {
- *     return false; // signals caller that we've already re-emitted the event (which was canceled)
+ * The pattern, in general:
+ * ```js
+ * exports['fin-hypergrid-data-myevent'] = function(event) {
+ *     var notCanceled;
+ *
+ *     PerformHousekeepingTasks();
+ *
+ *     // optionally re-emit the event as a grid event
+ *     var dispatchGridEvent = require('../../lib/dispatchGridEvent.js');
+ *     notCanceled = dispatchGridEvent.call(this, event.type, isCancelable, event);
+ *
+ *     if (!notCanceled) {
+ *         PerformAdditionalHousekeepingTasks()
+ *     }
+ *
+ *     return notCanceled;
  * }
- * ```
+ * Re-emitting the event is optional; if `notCanceled` is never defined, the caller will take care of it. If your handler does choose to re-emit the event itself by calling `dispatchGridEvent`, you should propagate its return value (the result of its internal call to [`dispatchEvent`](https://developer.mozilla.org/docs/Web/API/EventTarget/dispatchEvent), which is either `false` if the event was canceled or `true` if it was not).
+ *
  */
 module.exports = {
     /**

@@ -41,8 +41,6 @@ var Local = Behavior.extend('Local', {
         this.dataModel.setSchema(newSchema);
     },
 
-    dataModelEventHandlers: require('./events').dataModelEventHandlers, // for adding additional event handlers
-
     createColumns: function() {
         this.super.createColumns.call(this, createColumns);
     },
