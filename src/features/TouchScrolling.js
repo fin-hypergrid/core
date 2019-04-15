@@ -9,6 +9,7 @@ var Feature = require('./Feature');
 var TouchScrolling = Feature.extend('TouchScrolling', {
     handleTouchStart: function(grid, event) {
         this.lastTouch = this.getTouchedCell(grid, event);
+        this.touches = [this.lastTouch];
     },
 
     handleTouchMove: function(grid, event) {
@@ -22,6 +23,8 @@ var TouchScrolling = Feature.extend('TouchScrolling', {
         grid.sbVScroller.index += yOffset;
 
         this.lastTouch = currentTouch;
+
+        this.touches.push(currentTouch);
     },
 
     getTouchedCell: function(grid, event) {
