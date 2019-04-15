@@ -18,15 +18,17 @@ var TouchScrolling = Feature.extend('TouchScrolling', {
         var xOffset = (lastTouch.x - currentTouch.x) / lastTouch.width;
         var yOffset = (lastTouch.y - currentTouch.y) / lastTouch.height;
 
-        grid.sbHScroller.index = grid.sbHScroller.index + xOffset;
-        grid.sbVScroller.index = grid.sbVScroller.index + yOffset;
+        grid.sbHScroller.index += xOffset;
+        grid.sbVScroller.index += yOffset;
 
         this.lastTouch = currentTouch;
     },
 
     getTouchedCell: function(grid, event) {
         var point = event.detail.touches[0];
-        return grid.getGridCellFromMousePoint(point).cellEvent.bounds;
+        var cell = grid.getGridCellFromMousePoint(point).cellEvent.bounds;
+        cell.timestamp = Date.now();
+        return cell;
     }
 });
 
