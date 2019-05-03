@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Tutorial: cell-editors-old</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-decorators.html">decorators</a></li><li><a href="module-defaults.html">defaults</a></li><li><a href="module-dynamicProperties.html">dynamicProperties</a></li><li><a href="module-effects.html">effects</a></li><li><a href="module-fallbacks.html">fallbacks</a></li><li><a href="module-fields.html">fields</a></li><li><a href="module-hooks.html">hooks</a></li><li><a href="module-images.html">images</a></li><li><a href="module-localization.html">localization</a></li></ul><h3>Classes</h3><ul><li><a href="Base.html">Base</a></li><li><a href="Behavior.html">Behavior</a></li><li><a href="Button.html">Button</a></li><li><a href="CellClick.html">CellClick</a></li><li><a href="CellEditing.html">CellEditing</a></li><li><a href="CellEditor.html">CellEditor</a></li><li><a href="CellEditors.html">CellEditors</a></li><li><a href="CellEvent.html">CellEvent</a></li><li><a href="CellRenderer.html">CellRenderer</a></li><li><a href="CellRenderers.html">CellRenderers</a></li><li><a href="CellSelection.html">CellSelection</a></li><li><a href="Color.html">Color</a></li><li><a href="Column.html">Column</a></li><li><a href="ColumnMoving.html">ColumnMoving</a></li><li><a href="ColumnResizing.html">ColumnResizing</a></li><li><a href="ColumnSelection.html">ColumnSelection</a></li><li><a href="ColumnSorting.html">ColumnSorting</a></li><li><a href="Combo.html">Combo</a></li><li><a href="DataModels.html">DataModels</a></li><li><a href="Date.html">Date</a></li><li><a href="ErrorCell.html">ErrorCell</a></li><li><a href="Feature.html">Feature</a></li><li><a href="Features.html">Features</a></li><li><a href="Filters.html">Filters</a></li><li><a href="HeaderSubgrid.html">HeaderSubgrid</a></li><li><a href="Hypergrid.html">Hypergrid</a></li><li><a href="KeyPaging.html">KeyPaging</a></li><li><a href="LastSelection.html">LastSelection</a></li><li><a href="Local.html">Local</a></li><li><a href="module-localization-DateFormatter.html">DateFormatter</a></li><li><a href="module-localization-Formatter.html">Formatter</a></li><li><a href="module-localization-Localization.html">Localization</a></li><li><a href="module-localization-NumberFormatter.html">NumberFormatter</a></li><li><a href="Number.html">Number</a></li><li><a href="OnHover.html">OnHover</a></li><li><a href="Registry.html">Registry</a></li><li><a href="Renderer.html">Renderer</a></li><li><a href="RowResizing.html">RowResizing</a></li><li><a href="RowSelection.html">RowSelection</a></li><li><a href="SelectionModel.html">SelectionModel</a></li><li><a href="SimpleCell.html">SimpleCell</a></li><li><a href="Slider.html">Slider</a></li><li><a href="SparkBar.html">SparkBar</a></li><li><a href="SparkLine.html">SparkLine</a></li><li><a href="Spinner.html">Spinner</a></li><li><a href="Tag.html">Tag</a></li><li><a href="Textfield.html">Textfield</a></li><li><a href="ThumbwheelScrolling.html">ThumbwheelScrolling</a></li><li><a href="TreeCell.html">TreeCell</a></li><li><a href="WritablePoint.html">WritablePoint</a></li></ul><h3>Events</h3><ul><li><a href="DataModel.html#event:fin-hypergrid-data-loaded">fin-hypergrid-data-loaded</a></li><li><a href="DataModel.html#event:fin-hypergrid-data-postreindex">fin-hypergrid-data-postreindex</a></li><li><a href="DataModel.html#event:fin-hypergrid-data-prereindex">fin-hypergrid-data-prereindex</a></li><li><a href="DataModel.html#event:fin-hypergrid-data-shape-changed">fin-hypergrid-data-shape-changed</a></li><li><a href="DataModel.html#event:fin-hypergrid-schema-loaded">fin-hypergrid-schema-loaded</a></li></ul><h3>Namespaces</h3><ul><li><a href="dataModelEventHandlers.html">dataModelEventHandlers</a></li></ul><h3>Mixins</h3><ul><li><a href="events.mixin.html">mixin</a></li><li><a href="mixin.html">mixin</a></li><li><a href="scrolling.mixin.html">mixin</a></li><li><a href="selection.mixin.html">mixin</a></li><li><a href="themes.mixin.html">mixin</a></li><li><a href="themes.sharedMixin.html">sharedMixin</a></li></ul><h3>Interfaces</h3><ul><li><a href="DataModel.html">DataModel</a></li><li><a href="localizerInterface.html">localizerInterface</a></li></ul><h3>Global</h3><ul><li><a href="global.html#addAllColumnProperties">addAllColumnProperties</a></li><li><a href="global.html#assignProps">assignProps</a></li><li><a href="global.html#cancelEditing">cancelEditing</a></li><li><a href="global.html#cellEventFactory">cellEventFactory</a></li><li><a href="global.html#computeCellsBounds">computeCellsBounds</a></li><li><a href="global.html#createColumns">createColumns</a></li><li><a href="global.html#createDataRowProxy">createDataRowProxy</a></li><li><a href="global.html#deferredBehaviorChange">deferredBehaviorChange</a></li><li><a href="global.html#deprecated">deprecated</a></li><li><a href="global.html#dispatchDataModelEvent">dispatchDataModelEvent</a></li><li><a href="global.html#errorEffectEnd">errorEffectEnd</a></li><li><a href="global.html#findCell">findCell</a></li><li><a href="global.html#getActiveColumns">getActiveColumns</a></li><li><a href="global.html#getColumns">getColumns</a></li><li><a href="global.html#getMinimumLeftPositionToShowColumn">getMinimumLeftPositionToShowColumn</a></li><li><a href="global.html#getSubrects">getSubrects</a></li><li><a href="global.html#getTextWidthTruncated">getTextWidthTruncated</a></li><li><a href="global.html#getVisibleCellMatrix">getVisibleCellMatrix</a></li><li><a href="global.html#handleKeyDown">handleKeyDown</a></li><li><a href="global.html#rebundleGridRenderers">rebundleGridRenderers</a></li><li><a href="global.html#registry">registry</a></li><li><a href="global.html#resetCellPropertiesCache">resetCellPropertiesCache</a></li><li><a href="global.html#resetRowHeaderColumnWidth">resetRowHeaderColumnWidth</a></li><li><a href="global.html#resolveCalculator">resolveCalculator</a></li><li><a href="global.html#setAllColumnProperties">setAllColumnProperties</a></li><li><a href="global.html#valOrFunc">valOrFunc</a></li><li><a href="global.html#visibleColumns">visibleColumns</a></li><li><a href="global.html#visibleRows">visibleRows</a></li></ul>
+</nav>
+<div id="main">
+
+    <h1 class="page-title">Tutorial: cell-editors-old</h1>
+
+    <section>
+
+<header>
+    
+
+    <h2>cell-editors-old</h2>
+</header>
+
+<article>
+    <p>This document describes the Cell Editor interface. This information is useful to the application developer to better understand what cell editors are, how to use them, and how to create custom cell editors.</p>
+<h4>What you need to know</h4><p>The reader should have a basic theoretical understanding of the Hypergrid engine. In a nutshell, a <strong>hypergrid</strong> is represented in code by an object, an instance of the <code>Hypergrid</code> &quot;class&quot;; it is represented in the DOM by a single <code>&lt;canvas&gt;</code> element. The grid instance &quot;paints&quot; (or renders) an image of the visible portion of the grid into the canvas and repaints it any time the grid changes. This includes all visual effects, such as mouse hovering, cell selection, and grid scrolling. All, that is, except one: Cell editors.</p>
+<h4>Definition</h4><p>A <strong>cell editor</strong> is represented in code by another object, an instance of a &quot;class&quot; descended from <code>CellEditor</code>. The cell editor serves as a basic <em>view-controller</em>, placing an additional DOM element on top of the grid's <code>&lt;canvas&gt;</code> element, positioned precisely over the particular grid cell the user wants to edit. All the editing takes place in this element, with the cell editor responding to the user's actions.</p>
+<h4>One cell at a time</h4><p>While a grid might utilize a number of different types of cell editors, only one cell editor can be open (instantiated) at any one time (per grid). When a cell editor is opened at the start of an editing session, it sets the grid's <code>editor</code> property to refer to itself. When it is closed, at the conclusion (or abandonment) of the edit session, it sets this property to <code>undefined</code>, essentially disposing of itself. This property can be used to test if the user is currently in an edit session. It is used by Hypergrid to close the open editor if the user &quot;clicks away&quot; from it.</p>
+<h4>Cell editor assignment</h4><p>At setup time, a cell declares its cell editor in the <code>editor</code> render property. This property can be set (or reset) programmatically at render time.</p>
+<p><em><strong> Are all cells editable? </strong></em> Cells are normally not editable by default because Hypergrid, out of the box, has no defined default value for the <code>editor</code> render property. Only cells with explicit cell editor assignments are editable. Although the application developer could define such a default, for all but the simplest text-only grid would a single cell editor be appropriate for all cells.</p>
+<p><em><strong> What is an &quot;appropriate&quot; cell editor? </strong></em> Different types of cell data call for different types of cell editors. Some cells will likely be straight text editors; others may be purely graphical. Cell editors are free to represent cell data in any form, which may or may not resemble how the same data was rendered into the grid. Text data is often edited as text data, usually with the same formatting. However, cell editors are not constrained to load the data with the same syntax, or even edit text data as text. For example, data displayed as a date in text form in the grid might be edited by a &quot;date picker&quot; cell editor (a calendar). Or the reverse. For example, data displayed as a star rating in the grid (with 5 star outlines, partially filled) might be edited in text form as a number from 0 to 5. Or it might be edited in graphic form by clicking on 5 stars.</p>
+<h4>Text cell editors</h4><p>Text cell editors are the simplest type of cell editors, usually consisting of a single <code>&lt;input&gt;</code> element. Text cell editors have one feature that makes them very powerful despite their basic simplicity. Formatters make text cell editors very flexible. A cell editor can be bound to a specific formatter, including no formatter at all. For a seamless user experience, cell editors can also defer to the format used by the cell renderer.</p>
+<p> A localizer includes both a formatter (<code>format</code>) as well as a de-formatter (<code>parse</code>). Cell editors need to know how to do both these operations.</p>
+<p>For example, if the cell data is number of minutes and we want to edit in the form <em>hh:mm</em>, we'll need a formatter to format the data for editing, and a de-formatter to remove the formatting after editing. We wrap these in a <em>localizer</em> API as <code>format</code> and <code>parse</code>:</p>
+<pre class="prettyprint source lang-javascript"><code>var hhmm = {
+    format: function(mins) { return ...; }, // returns formatted string from number
+    parse: function(syntax) { return ...; } // returns number from formatted string
+}</code></pre><p>For a cell editor we will also need a de-formatter:</p>
+<pre class="prettyprint source lang-javascript"><code>var regexHHMM = /^(\d+):([0-5]\d)$/;
+function hhmm_deformatter(hhmm) {
+    var parts = hhmm.match(regexHHMM);
+    return Number(parts[1]) * 60 + Number(parts[2]);
+}</code></pre><pre class="prettyprint source lang-javascript"><code>function hhmm_formatter(mins) {
+    return Math.floor(mins / 60)+ ':' + (mins % 60 + 100 + '').substr(1, 2);
+}</code></pre><p>We can use this localizer to create a new text cell editor:</p>
+<pre class="prettyprint source lang-javascript"><code>var cellEditors = require('fin-hypergrid/src/cellEditors');
+var Textfield = cellEditors.get('textfield'),
+    HoursMinutes = TextField.extend({ localizer: localizer });
+cellEditors.register(HoursMinutes, 'hhmm');</code></pre><h4>Syntax errors and error feedback</h4><p>What happens when the user enters a value with an invalid syntax?</p>
+<p>The short answer is: The value is ignored; the user looses his edit. This will quickly prove frustrating for the user.</p>
+<p>The long answer: Better would be to provide some sort of error alert and let the user correct the edit before losing it.</p>
+<p>If you define an <code>invalid()</code> method on your localizer, your text cell editor will automatically provide feedback to the user on a syntax error:</p>
+<pre class="prettyprint source lang-javascript"><code>hhmm.isValid = function(hoursAndMinutes) { return ...; } // returns true for valid</code></pre><p>When the edited text is invalid, an error effect is triggered. Every third time the effect is triggered is followed by an alert message explaining the situation:</p>
+<pre style="font-family:monospace;margin:0 3em;padding:1em;border:1px solid grey;background:#DDD">
+Invalid value. To resolve, do one of the following:
+
+    * Correct the error and try again.
+        - or -
+    * Cancel editing by pressing the "esc" (escape) key.
+</pre>
+
+<p>You can add a custom message by also defining an <code>expectation</code> property:</p>
+<pre class="prettyprint source lang-javascript"><code>hhmm.expectation = 'Expected a time signature in the format hh:mm.'</code></pre><p>This will expand the alert message:</p>
+<pre style="font-family:monospace;margin:0 3em;padding:1em;border:1px solid grey;background:#DDD">
+Invalid value. To resolve, do one of the following:
+
+    * Correct the error and try again.
+        - or -
+    * Cancel editing by pressing the "esc" (escape) key.
+
+Additional information about this error:
+
+    * Expected a time signature in the format hh:mm.
+</pre>
+
+<p>You can control which effect is used to signal the negative feedback and when to show the alert message:</p>
+<h4>Which cells are editable?</h4><p>Only <em>filter cells</em> and <em>data cells</em> can use cell editors. Column headers and row handles are also cells but these cannot be edited. In addition, cells in summary rows, and cells in drill-down columns are not editable.</p>
+<p>Filter cells are automatically assigned to the <code>filterbox</code> cell editor. For a data cell to be editable however, it must have a cell editor <em>assigned</em> to it. In most cases default assignments are made automatically. (See <em>Assigning a cell editor,</em> below.)</p>
+<h3>Lifecycle of a cell editor</h3><p>All cell editors go through the following steps (step 6 is skipped when the editing session is abandoned):</p>
+<ol>
+<li><strong>Generate a <em>view,</em></strong> a graphical user interface consisting of either:<ul>
+<li>A single interactive DOM element that holds the control's value, typically in its <code>value</code> attribute. Referenced by both the view's <code>el</code> and <code>input</code> properties.</li>
+<li>A containing element (<code>el</code>) with nested sub-elements, one of which (<code>input</code>) is designated to hold the control's value.</li>
+</ul>
+</li>
+<li><strong>Fetch the cell value</strong> from the data store and incorporate it into the view.</li>
+<li><strong>Insert the view</strong> into the DOM at the start of a cell editing session.</li>
+<li><strong>Control the view</strong> by listening for events and responding by manipulating the view.</li>
+<li><strong>Remove the view</strong> from the DOM at the conclusion (or abandonment) of the cell editing session.</li>
+<li><strong>Save the new value:</strong>
+a. <strong>Extract the edited value</strong> from the <code>input</code> element.
+b. <strong>Parse the edited value</strong> from its presentational (formatted) form back into its data form.
+c. <strong>Convert the parsed value</strong> to type as needed.
+d. <strong>Store the new value</strong> into the underlying data store.</li>
+<li><strong>Dispose of the view.</strong></li>
+</ol>
+<h4>Instantiation</h4><p>As noted, the cell's assigned cell editor object is instantiated one at a time and only as needed. The new object is assigned to your grid's <code>editor</code> property; and this property is undefined when the object is disposed of.</p>
+<h4>Standard cell editors</h4><p>Hypergrid comes with a set of standard cell editors. (See <em>What's in the box?</em> below.) Most of these are simple implementations of various types of the HTML <code>&lt;input&gt;</code> element (text, date, color, etc.). However, like cell renderers, cell editors can take any form and are not restricted to the use of the <code>&lt;input&gt;</code> element.</p>
+<h4>Invoking a cell editor</h4><p>Cell editors are typically invoked through user interaction, although they may also be invoked programmatically.</p>
+<h5>Beginning editing</h5><p>The user initiates a cell editing session:</p>
+<ul>
+<li><em>On a filter cell</em> with a single (or double) mouse click; or</li>
+<li><em>On a data cell</em> with a double mouse click.</li>
+</ul>
+<p>The application developer can begin a session programmatically on a particular cell as follows:</p>
+<pre class="prettyprint source lang-javascript"><code>var Point = require('rectangular').Point;
+yourGrid.onEditorActivate({ gridCell: new Point(columnIndex, rowIndex) };</code></pre><p>If the cell has no cell editor class assigned to it, nothing will happen. But if there is a cell editor, the following happens:</p>
+<ol>
+<li>A cell editor object is instantiated from the assigned class. This object serves as a view controller.</li>
+<li>The cell editor is used to create a view, consisting of DOM <code>Node</code>s and event handlers.</li>
+<li>The view is inserted into the DOM on top of the grid's <code>&lt;canvas&gt;</code> element, positioned precisely over the cell's image in the canvas.</li>
+<li>During this time, canvas scrolling is suppressed.</li>
+</ol>
+<p>The user can now interact with the control to &quot;edit&quot; the data in the cell. Eventually, the user either saves or cancels the editing session.</p>
+<h5>Concluding editing (save)</h5><p>The new value is accepted by pressing the <em><em>enter</em></em> (aka <em><em>return</em></em>) key or the <em><em>tab</em></em> key; or by &quot;clicking away&quot; from (clicking or double-clicking outside of) the control (including a click that would initiate editing of another cell).</p>
+<p>Or programmatically:</p>
+<pre class="prettyprint source lang-javascript"><code>yourGrid.stopEditing();</code></pre><p>The DOM element(s) are removed from the DOM; and the cell editor (view controller object) is disposed of.</p>
+<h5>Aborting editing (cancel)</h5><p>The edit can be aborted by pressing the <em><em>esc</em></em> (&quot;escape&quot;) key on the keyboard; or by scrolling the grid via the mouse-wheel or trackpad gesture.</p>
+<p>Or programmatically:</p>
+<pre class="prettyprint source lang-javascript"><code>yourGrid.cancelEditing();</code></pre><p>The DOM element(s) are removed from the DOM; and the cell editor (view controller object) is disposed of.</p>
+<h3>Assigning a cell editor</h3><p>As described above, a cell editor class must be assigned to the grid cell in order for an editing session to begin. This assignment may be made <em>declaratively</em> and/or <em>programmatically</em> (see below). If both methods are applied to a cell, the programmatic assignment can inspect and override the declarative assignment. If no assignment is established by either method, the cell will not be editable. However, read the declarative assignment rules carefully, and there are several fallback strategies before the the declaration will truly yield no assignment.</p>
+<p>Note that column filter cells are automatically assigned to the <code>FilterBox</code> cell editor. This assignment can however be overridden programmatically. (The only practical override for a filter cell editor would presumably be no editor at all, should you want to suppress filter cell editing on a column.)</p>
+<h4>Declarative cell editor assignment</h4><p>By <em>declarative,</em> we mean statements that (typically) use JavaScript object literals to supply <em>render property</em> values to Hypergrid's various <em>set properties</em> methods. These values are necessarily static; they won't change frequently or at all.</p>
+<p>Assign a cell editor to a cell explicitly in a declarative statement by referencing them by name:</p>
+<pre class="prettyprint source lang-javascript"><code>behavior.setColumnProperties(COLUMN_INDEX_SALARY, {
+    editor: 'number',
+    format: 'number'
+});</code></pre><p>This declaration assigns assigns the <code>'number'</code> cell editor as the editor to use for all the cells in a particular column; and the <code>'number'</code> localizer as the localizer to use to format all the column's cells for display.</p>
+<p>Declarations refer to objects by name. In order for the above declaration to work, the name of the cell editor (&quot;number&quot;) must have been previously registered in the <code>cellEditors</code> API; and the name of the localizer must have been previously registered in the <code>localization</code> API.</p>
+<p>It is typical to declare a cell editor for all the cells in a column. It would be rare a specific cell (<em>i.e.,</em> in a specific row) to have a cell editor assignment that differs from the other cells in its column.</p>
+<p>In the above, the column is referenced by its <em>absolute</em> index, its position within the data model's <code>fields[]</code> array. (See the <a href="tutorial-columns.html">Column objects and column schema</a> tutorial for more information.)</p>
+<h4>Render properties</h4><p>Hypergrid maintains special <em>render property objects</em> for the grid, for each column, and optionally for individual cells. The term <em>render property</em> refers to properties of these special objects. The resolution of a render property cascades through these objects from most specific to most general. For example, the resolution of the <code>editor</code> render property looks like this:</p>
+<ol>
+<li>Check for an <code>editor</code> cell render property; if undefined then...</li>
+<li>Check for an <code>editor</code> column render property; if still undefined then...</li>
+<li>Check for an <code>editor</code> grid render property.</li>
+</ol>
+<p>By &quot;undefined&quot; in the above we mean not either not defined at all (missing from the object), or defined with the <code>undefined</code> value. Any other value is considered to be &quot;defined&quot; and will halt the cascade. This includes other falsy values such as <code>null</code>. Therefore, <code>null</code> can be used to stop the cascade with a falsy value which the code generally interprets as &quot;do not apply the property&quot; (although for certain properties the code may take other default actions).</p>
+<h4>Name resolution</h4><p>Both localizers and cell editors have defaults. That is, the declarative strategies for both assignments has been extended beyond the usual cascade of a single render property (as listed above) to include the following fallback strategies: </p>
+<ol>
+<li>If <code>format</code> fails to resolve to a localizer name, the algorithm will look for a formatter with a name that matches the column's <code>type</code> name (unless <code>format</code> as <code>null</code>). That is, if the application developer fails to specify a formatter, but the column has a defined type, we (usually) want to use the default formatter for that type. To avoid this, we can specify <code>null</code> for <code>format</code>.</li>
+<li>If <code>editor</code> fails to resolve to a cell editor name, the algorithm will look for a cell editor with a name that matches the format as resolved in strategy #1 above. That is, at the beginning of a cell editing session we (usually) want to apply the same formatting to the value initially loaded into the cell editor as was applied when the value was rendered into the grid cell. To avoid this, we can specify <code>null</code> for <code>editor</code>.</li>
+</ol>
+<p>As you can see, the two are interrelated: The localizer strategy is applied first. The cell editor strategy as applied depends on the results of the localizer strategy. The end result being that the cell editor name falls back first to the format name and then to the type name.</p>
+<p>In practical terms, when the cell editor name and the formatter name are the same, as in the above example, the <code>editor</code> render property can be omitted. As this is usually the case (we usually want the the cell editor session to begin with a value formatted in exactly the same way as the value was rendered into the grid cell), the <code>editor</code> render property can be omitted most of the time. Only when we want to use a different cell editor do we need to specify it's name (or <code>null</code>).</p>
+<p>This scheme requires some clarification because cell editor names, localizer names, and type names belong to entirely separate and unrelated namespaces. Nevertheless, by strategically naming our localizers and cell editors (as they are registered), including creating synonyms, we create a deliberate convergence between the two namespaces. This allows the cascading effect to work for us most of the time.</p>
+<p>Note that the <code>type</code> property is not a render property that can exist at the cell, column, and grid levels. Rather, it is a regular property on the column object. Therefore, only the column is checked for <code>type</code>.</p>
+<p>In summary, the full strategy for cell editor resolution cascades as follows:</p>
+<ol>
+<li><code>editor</code> cell render property</li>
+<li><code>editor</code> column render property</li>
+<li><code>editor</code> grid render property</li>
+<li><code>format</code> cell render property</li>
+<li><code>format</code> column render property</li>
+<li><code>format</code> grid render property</li>
+<li><code>type</code> column object property</li>
+</ol>
+<h5>Reference by name</h5><p>Hypergrid's cell editors are &quot;classes&quot; extended from <code>CellEditor</code>. When the user begins cell editing, a cell editor object is automatically instantiated from one of these classes. This is the &quot;active&quot; cell editor. When the user closes the cell editor, the instance is destroyed. Since you can only edit one grid cell at a time, at most only a single cell editor is ever active at any given time. For declarative purposes, each cell editor has a name, generally the name of the object's constructor, although any name can be used.</p>
+<p> Internally, the name is stored in all lower case. This supports case-insensitivity in that references to the names are converted to all lower case before dereferencing is attempted. It does mean however that distinct cell editor names must differ by more than case alone.</p>
+<h5>Assignments</h5><p>The default method assigns cell editors based on the following declarations:</p>
+<ol>
+<li>The cell's <code>editor</code> property is an explicit reference-by-name to a registered cell editor. (Stop.)</li>
+<li>The cell's <code>format</code> property is an explicit reference-by-name to a registered localizer. If the cell's <code>editor</code> property is undefined, this name will be used to attempt to resolve the cell editor. (Stop.)</li>
+<li>The column object's <code>type</code> property is the (name of the) primitive data type of all the cells in the column. If the cell's <code>format</code> property is undefined, this name will be used to attempt to resolve the cell localizer; and if the cell's <code>editor</code> property is also undefined, this name will in turn be used to attempt to resolve the cell editor as well. (Stop.)</li>
+<li>If the column is untyped, the cell will have to declared localizer nor cell editor.</li>
+</ol>
+<p>Specifically, when the user initiates cell editing on a data cell, the data model's <code>getCellEditorAt</code> method is invoked with the cell coordinates. Unless overridden, <code>DataModel.prototype.getCellEditorAt</code> looks for a cell editor name as described above. If found <em>and</em> it was the name (or synonym) of a registered cell editor, the cell editor is assigned to the cell. Otherwise, the cell will be <em>non-editable</em> unless a cell editor is assigned programmatically at run-time, as described in the following section.</p>
+<h5>The <code>format</code> property</h5><p>For data to be presented as text, cells and cell editors both use <em>localizers</em> to format the data primitives into human-readable form. (See the Localizers tutorial for more information.)</p>
+<p>The application developer can specify a cell's format by declaring a localizer name using the <code>format</code> cell property. This can be specified at the cell level, the column level, or the grid label. Note that the default value for the <code>format</code> property (as defined in ./defaults.js) is <code>undefined</code> (meaning non-editable).</p>
+<p>A cell editor also declares a localizer, but internally, in its prototype's <code>localizer</code> property; and rather than using a registered localizer name, this declaraction consists of a direct references to a <a href="localizerInterface.html"><code>localizer object</code></a>. The default value for the <code>localizer</code> property (as defined in ./cellEditors/CellEditor.js) is a reference to the &quot;null&quot; localizer (essentially <code>toString()</code> function).</p>
+<p>Cell editors also use localizers to parse a formatted value back into a data primitive after editing is complete (<code>cellEditor.localizer.standardize()</code>).</p>
+<p>The cell and its editor will generally use the same localizer (although they don't have to). This is why the above cascading assignment rules are often useful: Usually, you only need to specify <code>editor</code> if it differs from <code>format</code>; and you only really need to specify <code>format</code> if the format differs from the column type (or if the column is untyped)</p>
+<p>To support this mechanism, localizer synonyms may be registered for for type names; and cell editor synonyms may be registered for localizer names. In this sense, the namespaces overlap. </p>
+<h4>Programmatic cell editor assignment</h4><p>This data model's <code>getCellEditorAt</code> method is called when the user attempts to open a cell editor. For programmatic cell editor assignment, override it:</p>
+<pre class="prettyprint source lang-javascript"><code>yourGrid.behavior.dataModel.getCellEditorAt = function(x, y) {
+    // required: decide which cell editor to use
+    var Constructor;
+    switch (x) {
+        case idx.BIRTH_WEIGHT:
+            Constructor = metricWeightCellEditor;
+
+        default:
+    }
+
+    // required: instantiate a new cell editor
+    var cellEditor = new cellEditors(this.grid);
+
+    // optional: set properties
+    cellEditor.property = value;                      
+
+    // optional: set container element's attributes
+    if (new Date().getMonth() === 12 - 1) {
+        cellEditor.el.classList.add('candycane'); 
+    }
+
+    // optional: set input element's attributes
+    cellEditor.input.setAttribute('maxlength', '5');  
+
+    return cellEditor; // reaquired
+};</code></pre><p>As you can see, the requirements for any implementation of this method is to decide upon a cell editor, instantiate it, and return the new instance.</p>
+<p><code>getCellEditorAt</code> is called with the cell coordinates:
+Parameter | Description
+<code>x</code> | The <em>untranslated</em> column index. The _translated&quot; means that this does not refer to the column currently visible in the grid at this position. Columns can be hidden or re-ordered via the UI or programmatically. which is its position in <code>yourGrid.behavior.columns</code> (built from <code>yourGrid.behavior.dataSource.source.fields</code>). This means that  which means that the column coordinate </p>
+<hr>
+<p><sup>*</sup> Alternatively, you can create a custom class extended from <code>DataModel</code> with your your implementation of <code>getCellEditorAt</code> in its prototype; but you will have to overload <code>yourGrid.behavior.getNewDataModel</code> in order to use it.</p>
+<h3>What's in the box?</h3><p>Hypergrid comes with several <em>standard</em> cell editors, each represented by a file in the cellEditors folder (./src/cellEditors/).</p>
+<p>Note however the two files in that folder which do <em>not</em> represent actual cell editors: <em>CellEditor.js</em> is the abstract base class (<code>CellEditor</code>) from which all cell editors <em>extend</em> (or _inherit); and <em>index.js</em> bundles all the cell editors into a single local npm module.</p>
+<h3>Cell editors for HTML5 <code>&lt;input&gt;</code> controls</h3><p>Most of the standard cell editors simply generate one of the HTML <code>&lt;input&gt;</code> type UI controls. See the <a href="https://www.w3.org/TR/html5/forms.html">W3C Recommendation</a> or the <a href="https://developer.mozilla.org/docs/Web/HTML/Element/input">Mozilla pae</a> for more information.</p>
+<blockquote>
+<p><em>Note:</em> The implementation of these controls across browsers is uneven at best; and none are localizable as they should be. Presumably, these features (including full localization) will come in time to all browsers. But for now, the decision to use these controls should be made carefully, considering how it is implemented on each of the browsers your users are likely to use.</p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Object</th>
+<th>Markup</th>
+<th>Cr</th>
+<th>Sf</th>
+<th>FF</th>
+<th>IE</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Color.js</td>
+<td>Color</td>
+<td><code>&lt;input type=&quot;color&quot;&gt;</code></td>
+<td>+</td>
+<td>-</td>
+<td>+</td>
+<td>?</td>
+<td>Color picker.</td>
+</tr>
+<tr>
+<td>Date.js</td>
+<td>Date</td>
+<td><code>&lt;input type=&quot;date&quot;&gt;</code></td>
+<td>+</td>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+<td>Calendar control.</td>
+</tr>
+<tr>
+<td>Spinner.js</td>
+<td>Spinner</td>
+<td><code>&lt;input type=&quot;number&quot;&gt;</code></td>
+<td>+</td>
+<td>+</td>
+<td>+</td>
+<td>-</td>
+<td>Number input with elevator buttons for incrementing/decrementing. With optional clamping (<code>min</code>, <code>max</code>) and <code>step</code> precision attributes.<sup>1,&nbsp;2</sup></td>
+</tr>
+<tr>
+<td>Slider.js</td>
+<td>Slider</td>
+<td><code>&lt;input type=&quot;range&quot;&gt;</code></td>
+<td>+</td>
+<td>+</td>
+<td>+</td>
+<td>+</td>
+<td>Sliding range control with optional <code>min</code> and <code>max</code> attributes.<sup>2</sup></td>
+</tr>
+<tr>
+<td>Textfield.js</td>
+<td>Textfield</td>
+<td><code>&lt;input type=&quot;text&quot;&gt;</code></td>
+<td>+</td>
+<td>+</td>
+<td>+</td>
+<td>+</td>
+<td>Simple text box.</td>
+</tr>
+</tbody>
+</table>
+<p><sup>1</sup> Chrome accepts only characters valid in standard numbers, making this control unusable for fancy formatted numbers (e.g., with thousands separators because commas are not valid characters in standard JavaScript numbers) or for localized numbers (because Chinese numerals for example are not valid characters in standard JavaScript numbers).
+<sup>2</sup> See HTML5 documentation for more information on the various attributes of the <code>input</code> tag. Values for these attributes can be set in various ways; see section below. </p>
+<h3>Other standard cell editors</h3><p>The following are the remaining standard cell editors. These do <em>not</em> simply reflect HTML <code>&lt;input&gt;</code> controls; they are complex controls comprised of multiple HTML elements. (Sort of like .Net <em>user controls</em>.)</p>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Object</th>
+<th>Markup</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ComboBox.js</td>
+<td>ComboBox</td>
+<td><code>&lt;div&gt;</code>...<code>&lt;/div&gt;</code></td>
+<td>Combines a text box (<code>&lt;input type=&quot;text&quot;&gt;</code> UI control) with a drop-down (<code>&lt;select&gt;...&lt;/select&gt;</code> UI control) which appears when the user clicks an arrow icon (<code>▾</code>). The user may type into the text box and/or select an item from the drop-down.</td>
+</tr>
+</tbody>
+</table>
+<h3>Setting cell editor attributes</h3><p>To set cell editor attributes (such as <code>min</code> and <code>max</code> mentioned above), you must override the <code>myGrid.behavior.dataModel.getCellEditorAt(x, y)</code> method. The formal parameters <code>x</code> and <code>y</code> are the cell coordinates.</p>
+<p>Cell editor attributes may be actual HTML element attributes; or they may be attributes on the cell editor object.</p>
+<h4>HTML element attributes</h4><p>If you know what kind of HTML control you are dealing with, you can set attributes directly on the HTML element using the cell editor's <code>input</code> property which references the element:</p>
+<pre class="prettyprint source lang-javascript"><code>myGrid.behavior.dataModel.getCellEditorAt = function(x, y) {
+    if (x === 5) {
+        myCellEditor.input.min = -5;
+        myCellEditor.input.max = +5;
+    }
+};</code></pre><p>You can also 
+For styling, you can set the <code>class</code> and/or <code>style</code> attributes (keeping in mind that the latter overrides any style attributes set by the former). Here's an example that sets both:</p>
+<pre class="prettyprint source lang-javascript"><code>myGrid.behavior.dataModel.getCellEditorAt = function(x, y) {
+    if (x === 5) {
+        myCellEditor.input.classList.add('birth-date');
+        myCellEditor.input.style.color = 'red';
+    }
+};
+
+For the above example to work, you would add a CSS stylesheet with a `birth-date` selector:
+
+```css
+input.birth-date { font-weight: bold }</code></pre><h4>Cell editor object attributes</h4><p>Another approach is to set attributes as properties on the cell editor object itself. The cell editor can then use these properties during its render process. In particular, these properties are all available to the cell editor's template, as discussed in the following section.</p>
+<p>This approach is more appropriate for custom controls when you don't want to know (or care) what kind of HTML elements make it up.</p>
+<h3>Cell editor templates</h3><p>All cell editors have HTML templates. These </p>
+<h3>Custom controls</h3><p>Custom controls are complex controls made up several HTML input controls. Specifically, a custom control will consist of a container element (referenced with the <code>el</code> property) plus 2 or more input controls. The <code>el</code> property references the container element. One of the controls inside the container holds the actual cell value and is referenced (as above) with the <code>input</code> property. The other controls fill supporting roles and may or may not have referencing properties. (For simple cell editors, <code>el</code> and <code>input</code> both refer to its single HTML control element.)</p>
+<p> Note that setting attributes on the container (<code>el</code> property) other than <code>class</code> and <code>style</code> is probwably not going to be too useful. It is generally more appropriate (dpending of course on the design of the custom control) to set properties on the cell editor object itself, as described above.</p>
+<p>Values for the  attributes can be set directly on the cell editor objects. 
+``</p>
+</article>
+
+</section>
+
+</div>
+
+<br class="clear">
+
+<footer>
+    &copy; 2015-2019 <a href="https://openfin.co" target="_blank">Openfin</a> and <a href="https://github.com/fin-hypergrid" target="_blank">The Hypergrid Authors</a>. All Rights Reserved.
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>
