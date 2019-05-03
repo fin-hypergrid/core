@@ -383,15 +383,21 @@ function resolveCalculator(calculator) {
     var matches, key,
         calculators = this.behavior.grid.properties.calculators || (this.behavior.grid.properties.calculators = {});
 
-    if (/^\w+$/.test(calculator)) {
-        key = calculator; // just a function name
+    if (/^\w+$/.test(calculator)) { // just a function name?
+        // use as registry key but make sure it is in fact a registered calculator
+        key = calculator;
         if (!calculators[key]) {
             throw new HypergridError('Unknown calculator name "' + key + forColumnName);
         }
-    } else if ((matches = calculator.match(REGEX_NAMED_FUNC))) {
-        key = matches[1]; // function name extracted from stringified function
-    } else if (calculator.test(REGEX_ANON_FUNC)) {
-        key = calculator; // anonymous stringified function
+
+    } else if ((matches = calculator.match(REGEX_NAMED_FUNC))) { // named stringified function?
+        // extract function name from stringified function to use as registry key
+        key = matches[1];
+
+    } else if (REGEX_ANON_FUNC.test(calculator)) { // anonymous stringified function?
+        // use entire anonymous stringified function as registry key
+        key = calculator;
+
     } else if (REGEX_ARROW_FUNC.test(calculator)) {
         throw new HypergridError('Arrow function not permitted as column calculator ' + forColumnName);
     }
