@@ -1,6 +1,6 @@
 {
   "name": "fin-hypergrid",
-  "version": "3.2.0",
+  "version": "3.2.1",
   "description": "Canvas-based high-performance grid",
   "main": "src/Hypergrid",
   "repository": {

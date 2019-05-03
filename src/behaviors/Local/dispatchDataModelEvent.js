@@ -19,15 +19,14 @@ var REGEX_DATA_EVENT_STRING = /^fin-hypergrid-(data|schema)(-[a-z]+)+$/;
  * 3. Re-emits the event as a DOM event to the `<canvas>` element (unless the handler has already done so).
  *
  * The data model's `dispatchEvent` method is bound to the grid by {@link module:decorators.injectCode injectCode}.
- * A curried version of this function, bound to the grid instance, is either:
+ * A bound version of this function, bound to the grid instance, is either:
  * * Added to the data model via its `addListener` method, if it has one; or
  * * Force-injected into the data model, overriding any native implementation. (A native implementation may exist simply to "catch" calls that might be made before the data model is attached to Hypergrid.)
  *
  * @this {Hypergrid}
  * @param {string|NormalizedDataModelEvent} event
- * @memberOf module:decorators~
  */
-module.exports = function(event) {
+function dispatchDataModelEvent(event) {
     var type;
 
     switch (typeof event) {
@@ -55,4 +54,6 @@ module.exports = function(event) {
     }
 
     return dispatched !== undefined ? dispatched : dispatchGridEvent.call(this, event.type, event);
-};
+}
+
+module.exports = dispatchDataModelEvent;
