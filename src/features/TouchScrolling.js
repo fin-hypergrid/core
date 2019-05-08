@@ -8,6 +8,7 @@ var Feature = require('./Feature');
  */
 var TouchScrolling = Feature.extend('TouchScrolling', {
     handleTouchStart: function(grid, event) {
+        this.stopDeceleration();
         this.touches = [this.getTouchedCell(grid, event)];
     },
 
@@ -30,36 +31,17 @@ var TouchScrolling = Feature.extend('TouchScrolling', {
 
     handleTouchEnd: function(grid, event) {
         var currentTouch = this.getTouchedCell(grid, event);
-        var currentTime = Date.now();
         var timeOffset;
-        var i = this.touches.length;
+        var i = -1;
 
         do {
-            timeOffset = (currentTime - this.touches[--i].timestamp);
-        } while (timeOffset <= 100 && i > 0);
+            timeOffset = (currentTouch.timestamp - this.touches[++i].timestamp);
+        } while (timeOffset > 100 && i < this.touches.length - 1);
 
-        var yOffset = (currentTouch.y - this.touches[i].y);
-        var yVelocity = (Math.abs(yOffset) / timeOffset) * 100;
-        var dir = -Math.sign(yOffset);
+        var startTouch = this.touches[i];
 
-        var interval = yVelocity >= 50 ? 5 : 30;
-
-        var decelerate = function() {
-            var delta = yVelocity >= 180 ? 3 : yVelocity >= 75 ? 2 : 1;
-            grid.sbVScroller.index += dir * delta;
-
-            if (yVelocity) {
-                yVelocity = Math.max(0, yVelocity - 5);
-
-                setTimeout(decelerate, interval);
-
-                if (interval < 200) {
-                    interval += 5;
-                }
-            }
-        };
-
-        decelerate();
+        this.decelerateY(grid, startTouch, currentTouch);
+        this.decelerateX(grid, startTouch, currentTouch);
     },
 
     getTouchedCell: function(grid, event) {
@@ -67,9 +49,97 @@ var TouchScrolling = Feature.extend('TouchScrolling', {
         var cell = grid.getGridCellFromMousePoint(point).cellEvent.bounds;
         cell.timestamp = Date.now();
         return cell;
+    },
+
+    decelerateY: function(grid, startTouch, endTouch) {
+        var offset = endTouch.y - startTouch.y;
+        var timeOffset = endTouch.timestamp - startTouch.timestamp;
+        this.decelerate(grid.sbVScroller, offset, timeOffset);
+    },
+
+    decelerateX: function(grid, startTouch, endTouch) {
+        var offset = endTouch.x - startTouch.x;
+        var timeOffset = endTouch.timestamp - startTouch.timestamp;
+        this.decelerate(grid.sbHScroller, offset, timeOffset);
+    },
+
+    decelerate: function(scroller, offset, timeOffset) {
+        var velocity = (Math.abs(offset) / timeOffset) * 100;
+        var dir = -Math.sign(offset);
+        var interval = this.getInitialInterval(velocity);
+
+        var step = function() {
+            if (velocity > 0) {
+                var delta = this.getDelta(velocity);
+                var index = scroller.index + (dir * delta);
+                scroller.index = index;
+
+                if (index > scroller.range.max || index < 0) {
+                    return;
+                }
+
+                velocity -= TouchScrolling.DEC_STEP_SIZE;
+
+                this.timer = setTimeout(step, interval);
+
+                interval = this.updateInterval(interval, velocity);
+            }
+        }.bind(this);
+
+        step();
+    },
+
+    getDelta: function(velocity) {
+        if (velocity >= 180) {
+            return 10;
+        } else if (velocity >= 100) {
+            return 5;
+        } else if (velocity >= 50) {
+            return 2;
+        } else if (velocity >= 25) {
+            return 1;
+        } else {
+            return 0.5;
+        }
+    },
+
+    getInitialInterval: function(velocity) {
+        if (velocity >= 50) {
+            return 5;
+        } else if (velocity >= 25) {
+            return 15;
+        } else {
+            return 30;
+        }
+    },
+
+    updateInterval: function(interval, velocity) {
+        if (interval >= TouchScrolling.MAX_INTERVAL) {
+            return interval;
+        }
+
+        var offset = 0;
+
+        if (velocity < 25) {
+            offset = 10;
+        } else if (velocity < 75) {
+            offset = 5;
+        } else if (velocity < 150) {
+            offset = 2;
+        }
+
+        return interval + offset;
+    },
+
+    stopDeceleration: function() {
+        clearTimeout(this.timer);
     }
 });
 
+TouchScrolling.MAX_INTERVAL = 200;
+
 TouchScrolling.MAX_TOUCHES = 70;
+
+TouchScrolling.DEC_STEP_SIZE = 5;
 
 module.exports = TouchScrolling;
