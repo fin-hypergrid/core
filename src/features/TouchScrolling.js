@@ -8,13 +8,12 @@ var Feature = require('./Feature');
  */
 var TouchScrolling = Feature.extend('TouchScrolling', {
     handleTouchStart: function(grid, event) {
-        this.lastTouch = this.getTouchedCell(grid, event);
-        this.touches = [this.lastTouch];
+        this.touches = [this.getTouchedCell(grid, event)];
     },
 
     handleTouchMove: function(grid, event) {
         var currentTouch = this.getTouchedCell(grid, event);
-        var lastTouch = this.lastTouch;
+        var lastTouch = this.touches[this.touches.length - 1];
 
         var xOffset = (lastTouch.x - currentTouch.x) / lastTouch.width;
         var yOffset = (lastTouch.y - currentTouch.y) / lastTouch.height;
@@ -22,7 +21,9 @@ var TouchScrolling = Feature.extend('TouchScrolling', {
         grid.sbHScroller.index += xOffset;
         grid.sbVScroller.index += yOffset;
 
-        this.lastTouch = currentTouch;
+        if (this.touches.length >= TouchScrolling.MAX_TOUCHES) {
+            this.touches.shift();
+        }
 
         this.touches.push(currentTouch);
     },
@@ -68,5 +69,7 @@ var TouchScrolling = Feature.extend('TouchScrolling', {
         return cell;
     }
 });
+
+TouchScrolling.MAX_TOUCHES = 70;
 
 module.exports = TouchScrolling;
