@@ -352,9 +352,6 @@ Canvas.prototype = {
     },
 
     dispatchNewTouchEvent: function(event, name, detail) {
-        event.preventDefault();
-        event.stopPropagation();
-
         detail = detail || {};
 
         var touches = [].slice.call(event.changedTouches);
