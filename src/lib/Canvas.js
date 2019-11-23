@@ -38,7 +38,6 @@ function Canvas(div, component, contextAttributes) {
 
     // create and append the canvas
     this.gc = getCachedContext(this.canvas = document.createElement('canvas'), contextAttributes);
-    this.bc = getCachedContext(this.buffer = document.createElement('canvas'), contextAttributes);
 
     this.div.appendChild(this.canvas);
 
@@ -260,33 +259,17 @@ Canvas.prototype = {
         this.width = box.width;
         this.height = box.height;
 
-        //fix ala sir spinka, see
-        //http://www.html5rocks.com/en/tutorials/canvas/hidpi/
-        //just add 'hdpi' as an attribute to the fin-canvas tag
-        var ratio = 1;
+        // http://www.html5rocks.com/en/tutorials/canvas/hidpi/
         var isHIDPI = window.devicePixelRatio && this.component.properties.useHiDPI;
-        if (isHIDPI) {
-            var devicePixelRatio = window.devicePixelRatio || 1;
-            var backingStoreRatio = this.gc.webkitBackingStorePixelRatio ||
-                this.gc.mozBackingStorePixelRatio ||
-                this.gc.msBackingStorePixelRatio ||
-                this.gc.oBackingStorePixelRatio ||
-                this.gc.backingStorePixelRatio || 1;
+        var ratio = isHIDPI && window.devicePixelRatio || 1;
 
-            ratio = devicePixelRatio / backingStoreRatio;
-            //this.canvasCTX.scale(ratio, ratio);
-        }
+        this.canvas.width = this.width * ratio;
+        this.canvas.height = this.height * ratio;
 
-        this.buffer.width = this.canvas.width = this.width * ratio;
-        this.buffer.height = this.canvas.height = this.height * ratio;
+        this.canvas.style.width = this.width + 'px';
+        this.canvas.style.height = this.height + 'px';
 
-        this.canvas.style.width = this.buffer.style.width = this.width + 'px';
-        this.canvas.style.height = this.buffer.style.height = this.height + 'px';
-
-        this.bc.scale(ratio, ratio);
-        if (isHIDPI && !this.component.properties.useBitBlit) {
-            this.gc.scale(ratio, ratio);
-        }
+        this.gc.scale(ratio, ratio);
 
         this.bounds = new rectangular.Rectangle(0, 0, this.width, this.height);
         this.component.setBounds(this.bounds);
@@ -306,29 +289,19 @@ Canvas.prototype = {
     },
 
     paintNow: function() {
-        var useBitBlit = this.component.properties.useBitBlit,
-            gc = useBitBlit ? this.bc : this.gc;
-
         try {
-            gc.cache.save();
+            this.gc.cache.save();
             this.dirty = false;
-            this.component.paint(gc);
+            this.component.paint(this.gc);
         } catch (e) {
             console.error(e);
         } finally {
-            gc.cache.restore();
-        }
-
-        if (useBitBlit) {
-            this.flushBuffer();
+            this.gc.cache.restore();
         }
     },
 
-    flushBuffer: function() {
-        if (this.buffer.width > 0 && this.buffer.height > 0) {
-            this.gc.drawImage(this.buffer, 0, 0);
-        }
-    },
+    // flushBuffer deprecated in 3.3.0
+    flushBuffer: function() {},
 
     newEvent: function(primitiveEvent, name, detail) {
         var event = {
