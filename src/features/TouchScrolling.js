@@ -12,6 +12,10 @@ var TouchScrolling = Feature.extend('TouchScrolling', {
         this.touches = [this.getTouchedCell(grid, event)];
     },
 
+    handleClick: function() {},
+
+    handleDoubleClick: function() {},
+
     handleTouchMove: function(grid, event) {
         var currentTouch = this.getTouchedCell(grid, event);
         var lastTouch = this.touches[this.touches.length - 1];

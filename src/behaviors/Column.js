@@ -136,7 +136,6 @@ Column.prototype = {
      */
     set header(header) {
         this.schema.header = header;
-        this.behavior.grid.repaint();
     },
     get header() {
         return this.schema.header;
