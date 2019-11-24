@@ -437,11 +437,12 @@ var CellEditor = Base.extend('CellEditor', {
      */
     setBounds: function(cellBounds) {
         var style = this.el.style;
+        var zoomFactor = this.grid.getZoomFactor();
 
-        style.left = px(cellBounds.x);
-        style.top = px(cellBounds.y);
-        style.width = px(cellBounds.width);
-        style.height = px(cellBounds.height);
+        style.left   = px(zoomFactor * cellBounds.x);
+        style.top    = px(zoomFactor * cellBounds.y);
+        style.width  = px(zoomFactor * cellBounds.width);
+        style.height = px(zoomFactor * cellBounds.height);
     },
 
     /**

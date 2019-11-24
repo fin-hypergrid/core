@@ -1482,19 +1482,8 @@ var Hypergrid = Base.extend('Hypergrid', {
      * @memberOf Hypergrid#
      * @returns {number} The HiDPI ratio.
      */
-    getHiDPI: function(ctx) {
-        if (window.devicePixelRatio && this.properties.useHiDPI) {
-            var devicePixelRatio = window.devicePixelRatio || 1,
-                backingStoreRatio = ctx.webkitBackingStorePixelRatio ||
-                    ctx.mozBackingStorePixelRatio ||
-                    ctx.msBackingStorePixelRatio ||
-                    ctx.oBackingStorePixelRatio ||
-                    ctx.backingStorePixelRatio || 1,
-                result = devicePixelRatio / backingStoreRatio;
-        } else {
-            result = 1;
-        }
-        return result;
+    getHiDPI: function() {
+        return this.canvas.devicePixelRatio;
     },
 
     /**
@@ -1568,6 +1557,35 @@ var Hypergrid = Base.extend('Hypergrid', {
         var column = columnOrIndex >= -2 ? this.behavior.getActiveColumn(columnOrIndex) : columnOrIndex;
         column.checkColumnAutosizing(true);
         this.computeCellsBounds();
+    },
+
+    /**
+     /**
+     * @memberOf Hypergrid#
+     * @desc Reset zoom factor used by mouse tracking and placement
+     * of cell editors on top of canvas.
+     *
+     * Call this after externally resetting the `zoom` CSS style
+     * of any of the elements `<body>`..`<canvas>` (inclusive).
+     *
+     * **NOTE THE FOLLOWING:**
+     * 1. `zoom` is non-standard (unsupported by FireFox)
+     * 2. The alternative suggested on MDN, `transform`, is ignored
+     * here as it is not a practical replacement for `zoom`.
+     * @see https://developer.mozilla.org/en-US/docs/Web/CSS/zoom
+     *
+     * **RECOMMENDATION:** If possible keep things simple and use
+     * `body.style.zoom` only (especially considering scroll bar issue).
+     *
+     * @todo Scrollbars need to be repositioned when `canvas.style.zoom` !== 1. (May need update to finbars.)
+     */
+    resetZoom: function() {
+        this.canvas.resetZoom();
+        this.abortEditing();
+    },
+
+    getZoomFactor: function() {
+        return this.canvas.zoomFactor;
     },
 
     /**
