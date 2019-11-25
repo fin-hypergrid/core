@@ -239,6 +239,15 @@ var Hypergrid = Base.extend('Hypergrid', {
     isWebkit: true,
 
     /**
+     * We still support IE 11; we do NOT support older versions of IE.
+     * (We do NOT officially support Edge.)
+     * @see https://stackoverflow.com/questions/21825157/internet-explorer-11-detection#answer-21825207
+     * @type {boolean}
+     * @memberOf Hypergrid#
+     */
+    isIE11: !!(window.MSInputMethodContext && document.documentMode),
+
+    /**
      * The pixel location of an initial mousedown click, either for editing a cell or for dragging a selection.
      * @type {Point}
      * @memberOf Hypergrid#
@@ -1482,19 +1491,8 @@ var Hypergrid = Base.extend('Hypergrid', {
      * @memberOf Hypergrid#
      * @returns {number} The HiDPI ratio.
      */
-    getHiDPI: function(ctx) {
-        if (window.devicePixelRatio && this.properties.useHiDPI) {
-            var devicePixelRatio = window.devicePixelRatio || 1,
-                backingStoreRatio = ctx.webkitBackingStorePixelRatio ||
-                    ctx.mozBackingStorePixelRatio ||
-                    ctx.msBackingStorePixelRatio ||
-                    ctx.oBackingStorePixelRatio ||
-                    ctx.backingStorePixelRatio || 1,
-                result = devicePixelRatio / backingStoreRatio;
-        } else {
-            result = 1;
-        }
-        return result;
+    getHiDPI: function() {
+        return this.canvas.devicePixelRatio;
     },
 
     /**
@@ -1568,6 +1566,31 @@ var Hypergrid = Base.extend('Hypergrid', {
         var column = columnOrIndex >= -2 ? this.behavior.getActiveColumn(columnOrIndex) : columnOrIndex;
         column.checkColumnAutosizing(true);
         this.computeCellsBounds();
+    },
+
+    /**
+     * @memberOf Hypergrid#
+     * @desc Reset zoom factor used by mouse tracking and placement
+     * of cell editors on top of canvas.
+     *
+     * Call this after resetting `document.body.style.zoom`.
+     * (Do not set `zoom` style on canvas or any other ancestor thereof.)
+     *
+     * **NOTE THE FOLLOWING:**
+     * 1. `zoom` is non-standard (unsupported by FireFox)
+     * 2. The alternative suggested on MDN, `transform`, is ignored
+     * here as it is not a practical replacement for `zoom`.
+     * @see https://developer.mozilla.org/en-US/docs/Web/CSS/zoom
+     *
+     * @todo Scrollbars need to be repositioned when `canvas.style.zoom` !== 1. (May need update to finbars.)
+     */
+    resetZoom: function() {
+        this.abortEditing();
+        this.canvas.resetZoom();
+    },
+
+    getBodyZoomFactor: function() {
+        return this.canvas.bodyZoomFactor;
     },
 
     /**
