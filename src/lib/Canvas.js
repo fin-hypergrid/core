@@ -22,6 +22,10 @@ var RESIZE_POLLING_INTERVAL = 200,
     resizeInterval,
     charMap = makeCharMap();
 
+// We still support IE 11; we do NOT support older versions of IE (and we do NOT officially support Edge)
+// https://stackoverflow.com/questions/21825157/internet-explorer-11-detection#answer-21825207
+var isIE11 = !!(window.MSInputMethodContext && document.documentMode);
+
 function Canvas(div, component, contextAttributes) {
     var self = this;
 
@@ -108,6 +112,8 @@ function Canvas(div, component, contextAttributes) {
     });
 
     this.canvas.setAttribute('tabindex', 0);
+
+    this.resetZoom();
 
     this.resize();
 
@@ -225,9 +231,34 @@ Canvas.prototype = {
         this.stopResizing();
     },
 
+    getBoundingClientRect: function(el) {
+        var rect = el.getBoundingClientRect();
+
+        if (isIE11) {
+            var r = 1 / this.bodyZoomFactor;
+            var top = rect.top * r;
+            var right = rect.right * r;
+            var bottom = rect.bottom * r;
+            var left = rect.left * r;
+
+            rect = {
+                top: top,
+                right: right,
+                bottom: bottom,
+                left: left,
+                width: right - left,
+                height: bottom - top,
+                x: left,
+                y: top
+            };
+        }
+
+        return rect;
+    },
+
     getDivBoundingClientRect: function() {
         // Make sure our canvas has integral dimensions
-        var rect = this.div.getBoundingClientRect();
+        var rect = this.getBoundingClientRect(this.div);
         var top = Math.floor(rect.top),
             left = Math.floor(rect.left),
             width = Math.ceil(rect.width),
@@ -246,15 +277,14 @@ Canvas.prototype = {
     },
 
     checksize: function() {
-        //this is expensive lets do it at some modulo
         var sizeNow = this.getDivBoundingClientRect();
         if (sizeNow.width !== this.size.width || sizeNow.height !== this.size.height) {
-            this.resize();
+            this.resize(sizeNow);
         }
     },
 
-    resize: function() {
-        var box = this.size = this.getDivBoundingClientRect();
+    resize: function(box) {
+        box = this.size = box || this.getDivBoundingClientRect();
 
         this.width = box.width;
         this.height = box.height;
@@ -263,8 +293,10 @@ Canvas.prototype = {
         var isHIDPI = window.devicePixelRatio && this.component.properties.useHiDPI;
         var ratio = isHIDPI && window.devicePixelRatio || 1;
 
-        this.canvas.width = this.width * ratio;
-        this.canvas.height = this.height * ratio;
+        this.devicePixelRatio = ratio *= this.bodyZoomFactor;
+
+        this.canvas.width = Math.round(this.width * ratio);
+        this.canvas.height = Math.round(this.height * ratio);
 
         this.canvas.style.width = this.width + 'px';
         this.canvas.style.height = this.height + 'px';
@@ -282,6 +314,30 @@ Canvas.prototype = {
             width: this.width,
             height: this.height
         });
+    },
+
+    resetZoom: function() {
+        var factor = 1;
+
+        // IE11 bug: must use getPropertyValue because zoom is omitted from returned object
+        var zoomProp = getComputedStyle(document.body).getPropertyValue('zoom');
+
+        if (zoomProp) {
+            // IE11: always returns percentage + percent sign (others return factor)
+            var m = zoomProp.match(/^(.+?)(%)?$/);
+            if (m) {
+                var zoom = Number(m[1]);
+                if (m[2]) {
+                    zoom /= 100;
+                }
+                zoom = Number(zoom || 1);
+                factor *= zoom;
+            }
+        }
+
+        this.bodyZoomFactor = factor;
+
+        this.resize();
     },
 
     getBounds: function() {
@@ -345,7 +401,6 @@ Canvas.prototype = {
             this.dragstart = new rectangular.Point(this.mouseLocation.x, this.mouseLocation.y);
         }
         this.mouseLocation = this.getLocal(e);
-        //console.log(this.mouseLocation);
         if (this.isDragging()) {
             this.dispatchNewMouseKeysEvent(e, 'fin-canvas-drag', {
                 dragstart: this.dragstart,
@@ -553,14 +608,19 @@ Canvas.prototype = {
     },
 
     getOrigin: function() {
-        var rect = this.canvas.getBoundingClientRect();
+        var rect = this.getBoundingClientRect(this.canvas);
         var p = new rectangular.Point(rect.left, rect.top);
         return p;
     },
 
     getLocal: function(e) {
-        var rect = this.canvas.getBoundingClientRect();
-        var p = new rectangular.Point(e.clientX - rect.left, e.clientY - rect.top);
+        var rect = this.getBoundingClientRect(this.canvas);
+
+        var p = new rectangular.Point(
+            e.clientX / this.bodyZoomFactor - rect.left,
+            e.clientY / this.bodyZoomFactor - rect.top
+        );
+
         return p;
     },
 
