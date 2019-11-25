@@ -17,14 +17,14 @@ It also highlights a DOM-based custom external editor triggered via hypergrid ev
 
 ### Current Release
 
-**v3.3.0**
+**v3.3.2**
 25 November 2019
 
 ### Distribution
 
 #### npm module _(recommended)_
 Published as a CommonJS module to [**npm**](http://npmjs.com/package/fin-hypergrid).
-Specify a <a href="https://semver.org/">SEMVER</a> of `"fin-hypergrid": "3.3.0"` (or `"^3.3.0"`) in your package.json file,
+Specify a <a href="https://semver.org/">SEMVER</a> of `"fin-hypergrid": "3.3.2"` (or `"^3.3.2"`) in your package.json file,
 issue the `npm install` command, and let your bundler (<a target="webpack" href="https://webpack.js.org/">wepback</a>,
 <a target="browserify" href="http://browserify.org/">Browserify</a>) create a single file containing both Hypergrid and your application.
 
@@ -33,7 +33,7 @@ For small and informal examples and proofs-of-concept, load a pre-bundled build 
 
 Your application can load one of these pre-bundled build files (in a `<script>` tag), which creates the global namespace `window.fin` (as needed) and populates it with `window.fin.Hypergrid`.
 
-As of v3.2.1, the same build files are also available in a `umd` folder on npm for distribution via the [**unpkg**](https://unpkg.com/) CDN which processes SEMVER semantics when provided (_e.g.,_ `<script src="https://unpkg.com/fin-hypergrid@^3.3.0/umd/fin-hypergrid.min.js"></script>`).
+As of v3.2.1, the same build files are also available in a `umd` folder on npm for distribution via the [**unpkg**](https://unpkg.com/) CDN which processes SEMVER semantics when provided. For example, `<script src="https://unpkg.com/fin-hypergrid@^3.2/umd/fin-hypergrid.min.js"></script>` loads v3.3.2 which is the greatest (most recent) version number matching the SEMVER pattern `^3.2` (aka 3.*.*).
 
 ### Demos
 
