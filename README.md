@@ -6,7 +6,7 @@ It also highlights a DOM-based custom external editor triggered via hypergrid ev
 <img src="images/README/gridshot04.gif">
 
 ## Table of Contents
-* [Current Release](#current-release-302---25-September-2018)
+* [Current Release](#current-release)
 * [Distribution](#distribution)
 * [Demos](#demos)
 * [Features](#features)
@@ -15,28 +15,25 @@ It also highlights a DOM-based custom external editor triggered via hypergrid ev
 * [Roadmap](#roadmap)
 * [Contributing](#contributors)
 
-### Current Release (3.2.1 - 2 May 2019)
+### Current Release
 
-> **CAUTION:** For those considering upgrading directly from v2, be advised Hypergrid v3 introduced a revised data model _with breaking changes._ The impact of these changes has been intentionally minimized and should not affect the vast majority of users. See the [v3.0.0 release notes](https://github.com/fin-hypergrid/core/releases/tag/v3.0.0) for more information.
-
-_For a complete list of changes, see the [release notes](https://github.com/fin-hypergrid/core/releases)._
+**v3.3.2**
+25 November 2019
 
 ### Distribution
 
 #### npm module _(recommended)_
-Published as a CommonJS module to npmjs.org.
-Specify a <a href="https://semver.org/">SEMVER</a> of `"fin-hypergrid": "3.2.1"` (or `"^3.2.1"`) in your package.json file,
+Published as a CommonJS module to [**npm**](http://npmjs.com/package/fin-hypergrid).
+Specify a <a href="https://semver.org/">SEMVER</a> of `"fin-hypergrid": "3.3.2"` (or `"^3.3.2"`) in your package.json file,
 issue the `npm install` command, and let your bundler (<a target="webpack" href="https://webpack.js.org/">wepback</a>,
 <a target="browserify" href="http://browserify.org/">Browserify</a>) create a single file containing both Hypergrid and your application.
 
-#### Build files _(for small and informal examples and proofs-of-concept)_
-Also published as pre-bundled build files (`fin-hypergrid.js` and `fin-hypergrid.min.js`) to the GitHub CDN.
-See the [CDN index](https://fin-hypergrid.github.io#index) for links.
+#### Build files
+For small and informal examples and proofs-of-concept, load a pre-bundled build file (`fin-hypergrid.js` or `fin-hypergrid.min.js`) from the GitHub CDN. See the [CDN index](https://fin-hypergrid.github.io#index) for links.
 
-Contains a JavaScript [IIFE](https://en.wikipedia.org/wiki/Immediately-invoked_function_expression)
-that creates (as needed) the global namespace `window.fin` and populates `window.fin.Hypergrid`.
-Your application would load one of these pre-bundled build files (in a `<script>` tag),
-plus each of its own modules (or a single bundled build of all of its own its own modules).
+Your application can load one of these pre-bundled build files (in a `<script>` tag), which creates the global namespace `window.fin` (as needed) and populates it with `window.fin.Hypergrid`.
+
+As of v3.2.1, the same build files are also available in a `umd` folder on npm for distribution via the [**unpkg**](https://unpkg.com/) CDN which processes SEMVER semantics when provided. For example, `<script src="https://unpkg.com/fin-hypergrid@^3.2/umd/fin-hypergrid.min.js"></script>` loads v3.3.2 which is the greatest (most recent) version number matching the SEMVER pattern `^3.2` (aka 3.*.*).
 
 ### Demos
 
@@ -99,7 +96,7 @@ Hypergrid global configurations can be found [here](https://fin-hypergrid.github
 
 ### Roadmap
 
-For our current queue of up coming work you can find it [here](ROADMAP.md)
+For our current queue of upcoming work you can find it [here](ROADMAP.md)
 
 ### Contributors
 

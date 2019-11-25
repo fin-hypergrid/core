@@ -816,16 +816,6 @@ var defaults = {
      */
     repaintImmediately: false,
 
-    //enable or disable double buffering
-
-    /**
-     * @default
-     * @type {boolean}
-     * @memberOf module:defaults
-     */
-    useBitBlit: false,
-
-
     /**
      * @default
      * @type {boolean}

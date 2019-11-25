@@ -18,6 +18,15 @@ var draggerCTX;
 var floatColumn;
 var floatColumnCTX;
 
+function translate(grid, x, y) {
+    if (grid.isIE11) {
+        var zoomFactor = grid.getBodyZoomFactor();
+        x *= zoomFactor;
+        y *= zoomFactor;
+    }
+    return 'translate(' + x + 'px, ' + y + 'px)';
+}
+
 /**
  * @constructor
  * @extends Feature
@@ -297,14 +306,14 @@ var ColumnMoving = Feature.extend('ColumnMoving', {
         return function() {
             var d = floatColumn;
             d.style.display = 'inline';
-            self.setCrossBrowserProperty(d, 'transform', 'translate(' + floaterStartX + 'px, ' + 0 + 'px)');
+            self.setCrossBrowserProperty(d, 'transform', translate(grid, floaterStartX, 0));
 
             //d.style.webkit-webkit-Transform = 'translate(' + floaterStartX + 'px, ' + 0 + 'px)';
             //d.style.webkit-webkit-Transform = 'translate(' + floaterStartX + 'px, ' + 0 + 'px)';
 
             requestAnimationFrame(function() {
                 self.setCrossBrowserProperty(d, 'transition', (self.isWebkit ? '-webkit-' : '') + 'transform ' + columnAnimationTime + 'ms ease');
-                self.setCrossBrowserProperty(d, 'transform', 'translate(' + draggerStartX + 'px, ' + -2 + 'px)');
+                self.setCrossBrowserProperty(d, 'transform', translate(grid, draggerStartX, -2));
             });
             grid.repaint();
             //need to change this to key frames
@@ -353,7 +362,7 @@ var ColumnMoving = Feature.extend('ColumnMoving', {
         }
 
         var columnWidth = grid.getColumnWidth(columnIndex);
-        var colHeight = grid.div.clientHeight;
+        var colHeight = grid.canvas.canvas.clientHeight;
         var d = floatColumn;
         var style = d.style;
         var location = grid.div.getBoundingClientRect();
@@ -361,13 +370,16 @@ var ColumnMoving = Feature.extend('ColumnMoving', {
         style.top = (location.top - 2) + 'px';
         style.left = location.left + 'px';
 
-        var hdpiRatio = grid.getHiDPI(floatColumnCTX);
+        var hdpiRatio = grid.getHiDPI();
 
-        d.setAttribute('width', Math.round(columnWidth * hdpiRatio) + 'px');
-        d.setAttribute('height', Math.round(colHeight * hdpiRatio) + 'px');
+        d.setAttribute('width', Math.round(columnWidth * hdpiRatio));
+        d.setAttribute('height', Math.round(colHeight * hdpiRatio));
         style.boxShadow = '0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23)';
-        style.width = columnWidth + 'px'; //Math.round(columnWidth / hdpiRatio) + 'px';
-        style.height = colHeight + 'px'; //Math.round(colHeight / hdpiRatio) + 'px';
+
+        var zoomFactor = grid.isIE11 ? grid.getBodyZoomFactor() : 1;
+        style.width = columnWidth * zoomFactor + 'px'; //Math.round(columnWidth / hdpiRatio) + 'px';
+        style.height = colHeight * zoomFactor + 'px'; //Math.round(colHeight / hdpiRatio) + 'px';
+
         style.borderTop = '1px solid ' + grid.properties.lineColor;
         style.backgroundColor = grid.properties.backgroundColor;
 
@@ -385,7 +397,7 @@ var ColumnMoving = Feature.extend('ColumnMoving', {
         };
 
         style.zIndex = '4';
-        this.setCrossBrowserProperty(d, 'transform', 'translate(' + startX + 'px, ' + -2 + 'px)');
+        this.setCrossBrowserProperty(d, 'transform', translate(grid, startX, -2));
         GRABBING.forEach(setName, style);
         grid.repaint();
     },
@@ -435,9 +447,9 @@ var ColumnMoving = Feature.extend('ColumnMoving', {
             scrollLeft = 0;
         }
 
-        var hdpiRatio = grid.getHiDPI(draggerCTX);
+        var hdpiRatio = grid.getHiDPI();
         var columnWidth = grid.getColumnWidth(columnIndex);
-        var colHeight = grid.div.clientHeight;
+        var colHeight = grid.canvas.canvas.clientHeight;
         var d = dragger;
         var location = grid.div.getBoundingClientRect();
         var style = d.style;
@@ -450,11 +462,12 @@ var ColumnMoving = Feature.extend('ColumnMoving', {
         style.borderTop = '1px solid ' + grid.properties.lineColor;
         style.backgroundColor = grid.properties.backgroundColor;
 
-        d.setAttribute('width', Math.round(columnWidth * hdpiRatio) + 'px');
-        d.setAttribute('height', Math.round(colHeight * hdpiRatio) + 'px');
+        d.setAttribute('width', Math.round(columnWidth * hdpiRatio));
+        d.setAttribute('height', Math.round(colHeight * hdpiRatio));
 
-        style.width = columnWidth + 'px'; //Math.round(columnWidth / hdpiRatio) + 'px';
-        style.height = colHeight + 'px'; //Math.round(colHeight / hdpiRatio) + 'px';
+        var zoomFactor = grid.isIE11 ? grid.getBodyZoomFactor() : 1;
+        style.width = columnWidth * zoomFactor + 'px'; //Math.round(columnWidth / hdpiRatio) + 'px';
+        style.height = colHeight * zoomFactor + 'px'; //Math.round(colHeight / hdpiRatio) + 'px';
 
         var startX = grid.renderer.visibleColumns[columnIndex - scrollLeft].left * hdpiRatio;
 
@@ -470,7 +483,7 @@ var ColumnMoving = Feature.extend('ColumnMoving', {
             hdpiratio: hdpiRatio
         };
 
-        this.setCrossBrowserProperty(d, 'transform', 'translate(' + x + 'px, -5px)');
+        this.setCrossBrowserProperty(d, 'transform', translate(grid, x, -5));
         style.zIndex = '5';
         GRABBING.forEach(setName, style);
         grid.repaint();
@@ -489,7 +502,7 @@ var ColumnMoving = Feature.extend('ColumnMoving', {
 
         var autoScrollingNow = this.columnDragAutoScrollingRight || this.columnDragAutoScrollingLeft;
 
-        var hdpiRatio = grid.getHiDPI(draggerCTX);
+        var hdpiRatio = grid.getHiDPI();
 
         var dragColumnIndex = grid.renderOverridesCache.dragger.columnIndex;
 
@@ -508,7 +521,7 @@ var ColumnMoving = Feature.extend('ColumnMoving', {
 
         this.setCrossBrowserProperty(d, 'transition', (self.isWebkit ? '-webkit-' : '') + 'transform ' + 0 + 'ms ease, box-shadow ' + columnAnimationTime + 'ms ease');
 
-        this.setCrossBrowserProperty(d, 'transform', 'translate(' + x + 'px, ' + -10 + 'px)');
+        this.setCrossBrowserProperty(d, 'transform', translate(grid, x, -10));
         requestAnimationFrame(function() {
             d.style.display = 'inline';
         });
@@ -639,7 +652,7 @@ var ColumnMoving = Feature.extend('ColumnMoving', {
         var d = dragger;
         var changed = grid.renderOverridesCache.dragger.startIndex !== grid.renderOverridesCache.dragger.columnIndex;
         self.setCrossBrowserProperty(d, 'transition', (self.isWebkit ? '-webkit-' : '') + 'transform ' + columnAnimationTime + 'ms ease, box-shadow ' + columnAnimationTime + 'ms ease');
-        self.setCrossBrowserProperty(d, 'transform', 'translate(' + startX + 'px, ' + -1 + 'px)');
+        self.setCrossBrowserProperty(d, 'transform', translate(grid, startX, -1));
         d.style.boxShadow = '0px 0px 0px #888888';
 
         setTimeout(function() {
