@@ -195,8 +195,13 @@ var Hypergrid = Base.extend('Hypergrid', {
         while (div.hasChildNodes()) { div.removeChild(div.firstChild); }
 
         Hypergrid.grids.splice(Hypergrid.grids.indexOf(this), 1);
-    },
 
+        delete this.div;
+        delete this.canvas.div;
+        delete this.canvas.canvas;
+        delete this.sbVScroller;
+        delete this.sbHScroller;
+    },
 
     resetGridBorder: function(edge) {
         edge = edge || '';
