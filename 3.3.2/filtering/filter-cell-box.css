@@ -1,0 +1,49 @@
+.filter-cell-box {
+    position: absolute;
+    height: 1.8em;
+    border:  1px dotted grey;
+    color: black;
+    width: 12em;
+}
+.filter-cell-box > input {
+    position: absolute;
+    outline: 0;
+    border: 0;
+    top: 7px;
+    left: 11px;
+    padding-left: 21px;
+    width: calc(100% - 50px);
+    font: lighter 12px Helvetica, Arial, sans-serif;
+    letter-spacing: .5px;
+    color: #888;
+    background-color: transparent;
+    background-repeat: no-repeat;
+    background-size: 14px;
+    background-position-y: center;
+}
+.filter-cell-box > input:focus {
+    background: none; /* hide icon which this element displays via filter-icon-search class */
+    padding: 0; /* move to left where icon was */
+}
+.filter-cell-pill {
+    position: absolute;
+    top: 5px;
+    left: 9px;
+    padding: 4px 4px 3px 4px;
+    font: lighter 12px Helvetica, Arial, sans-serif;
+    letter-spacing: 0;
+    color: #666;
+    background-color: #eee;
+    border: 0;
+    border-bottom: 1px solid #f38900;
+    white-space: nowrap;
+    display: none;
+}
+.filter-cell-box > div {
+    position: absolute;
+    right: 0;
+    top: 7px;
+}
+.filter-cell-box > div:hover {
+    cursor: pointer;
+}

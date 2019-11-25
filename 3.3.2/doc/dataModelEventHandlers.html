@@ -1,0 +1,940 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Namespace: dataModelEventHandlers</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-decorators.html">decorators</a></li><li><a href="module-defaults.html">defaults</a></li><li><a href="module-dynamicProperties.html">dynamicProperties</a></li><li><a href="module-effects.html">effects</a></li><li><a href="module-fallbacks.html">fallbacks</a></li><li><a href="module-fields.html">fields</a></li><li><a href="module-hooks.html">hooks</a></li><li><a href="module-images.html">images</a></li><li><a href="module-localization.html">localization</a></li></ul><h3>Classes</h3><ul><li><a href="Base.html">Base</a></li><li><a href="Behavior.html">Behavior</a></li><li><a href="Button.html">Button</a></li><li><a href="CellClick.html">CellClick</a></li><li><a href="CellEditing.html">CellEditing</a></li><li><a href="CellEditor.html">CellEditor</a></li><li><a href="CellEditors.html">CellEditors</a></li><li><a href="CellEvent.html">CellEvent</a></li><li><a href="CellRenderer.html">CellRenderer</a></li><li><a href="CellRenderers.html">CellRenderers</a></li><li><a href="CellSelection.html">CellSelection</a></li><li><a href="Color.html">Color</a></li><li><a href="Column.html">Column</a></li><li><a href="ColumnMoving.html">ColumnMoving</a></li><li><a href="ColumnResizing.html">ColumnResizing</a></li><li><a href="ColumnSelection.html">ColumnSelection</a></li><li><a href="ColumnSorting.html">ColumnSorting</a></li><li><a href="Combo.html">Combo</a></li><li><a href="DataModels.html">DataModels</a></li><li><a href="Date.html">Date</a></li><li><a href="ErrorCell.html">ErrorCell</a></li><li><a href="Feature.html">Feature</a></li><li><a href="Features.html">Features</a></li><li><a href="Filters.html">Filters</a></li><li><a href="HeaderSubgrid.html">HeaderSubgrid</a></li><li><a href="Hypergrid.html">Hypergrid</a></li><li><a href="KeyPaging.html">KeyPaging</a></li><li><a href="LastSelection.html">LastSelection</a></li><li><a href="Local.html">Local</a></li><li><a href="module-localization-DateFormatter.html">DateFormatter</a></li><li><a href="module-localization-Formatter.html">Formatter</a></li><li><a href="module-localization-Localization.html">Localization</a></li><li><a href="module-localization-NumberFormatter.html">NumberFormatter</a></li><li><a href="Number.html">Number</a></li><li><a href="OnHover.html">OnHover</a></li><li><a href="Registry.html">Registry</a></li><li><a href="Renderer.html">Renderer</a></li><li><a href="RowResizing.html">RowResizing</a></li><li><a href="RowSelection.html">RowSelection</a></li><li><a href="SelectionModel.html">SelectionModel</a></li><li><a href="SimpleCell.html">SimpleCell</a></li><li><a href="Slider.html">Slider</a></li><li><a href="SparkBar.html">SparkBar</a></li><li><a href="SparkLine.html">SparkLine</a></li><li><a href="Spinner.html">Spinner</a></li><li><a href="Tag.html">Tag</a></li><li><a href="Textfield.html">Textfield</a></li><li><a href="ThumbwheelScrolling.html">ThumbwheelScrolling</a></li><li><a href="TouchScrolling.html">TouchScrolling</a></li><li><a href="TreeCell.html">TreeCell</a></li><li><a href="WritablePoint.html">WritablePoint</a></li></ul><h3>Events</h3><ul><li><a href="DataModel.html#event:fin-hypergrid-data-loaded">fin-hypergrid-data-loaded</a></li><li><a href="DataModel.html#event:fin-hypergrid-data-postreindex">fin-hypergrid-data-postreindex</a></li><li><a href="DataModel.html#event:fin-hypergrid-data-prereindex">fin-hypergrid-data-prereindex</a></li><li><a href="DataModel.html#event:fin-hypergrid-data-shape-changed">fin-hypergrid-data-shape-changed</a></li><li><a href="DataModel.html#event:fin-hypergrid-schema-loaded">fin-hypergrid-schema-loaded</a></li></ul><h3>Namespaces</h3><ul><li><a href="dataModelEventHandlers.html">dataModelEventHandlers</a></li></ul><h3>Mixins</h3><ul><li><a href="events.mixin.html">mixin</a></li><li><a href="mixin.html">mixin</a></li><li><a href="scrolling.mixin.html">mixin</a></li><li><a href="selection.mixin.html">mixin</a></li><li><a href="themes.mixin.html">mixin</a></li><li><a href="themes.sharedMixin.html">sharedMixin</a></li></ul><h3>Interfaces</h3><ul><li><a href="DataModel.html">DataModel</a></li><li><a href="localizerInterface.html">localizerInterface</a></li></ul><h3>Global</h3><ul><li><a href="global.html#addAllColumnProperties">addAllColumnProperties</a></li><li><a href="global.html#assignProps">assignProps</a></li><li><a href="global.html#cancelEditing">cancelEditing</a></li><li><a href="global.html#cellEventFactory">cellEventFactory</a></li><li><a href="global.html#computeCellsBounds">computeCellsBounds</a></li><li><a href="global.html#createColumns">createColumns</a></li><li><a href="global.html#createDataRowProxy">createDataRowProxy</a></li><li><a href="global.html#deferredBehaviorChange">deferredBehaviorChange</a></li><li><a href="global.html#deprecated">deprecated</a></li><li><a href="global.html#dispatchDataModelEvent">dispatchDataModelEvent</a></li><li><a href="global.html#errorEffectEnd">errorEffectEnd</a></li><li><a href="global.html#findCell">findCell</a></li><li><a href="global.html#getActiveColumns">getActiveColumns</a></li><li><a href="global.html#getColumns">getColumns</a></li><li><a href="global.html#getMinimumLeftPositionToShowColumn">getMinimumLeftPositionToShowColumn</a></li><li><a href="global.html#getSubrects">getSubrects</a></li><li><a href="global.html#getTextWidthTruncated">getTextWidthTruncated</a></li><li><a href="global.html#getVisibleCellMatrix">getVisibleCellMatrix</a></li><li><a href="global.html#handleKeyDown">handleKeyDown</a></li><li><a href="global.html#rebundleGridRenderers">rebundleGridRenderers</a></li><li><a href="global.html#registry">registry</a></li><li><a href="global.html#resetCellPropertiesCache">resetCellPropertiesCache</a></li><li><a href="global.html#resetRowHeaderColumnWidth">resetRowHeaderColumnWidth</a></li><li><a href="global.html#resolveCalculator">resolveCalculator</a></li><li><a href="global.html#setAllColumnProperties">setAllColumnProperties</a></li><li><a href="global.html#valOrFunc">valOrFunc</a></li><li><a href="global.html#visibleColumns">visibleColumns</a></li><li><a href="global.html#visibleRows">visibleRows</a></li></ul>
+</nav>
+<div id="main">
+
+    <h1 class="page-title">Namespace: dataModelEventHandlers</h1>
+
+    
+
+
+
+
+<section>
+
+<header>
+    
+        <h2>
+        dataModelEventHandlers
+        </h2>
+        
+    
+</header>
+
+<article>
+    <div class="container-overview">
+    
+        
+            <div class="description"><p>These handlers are called by <a href="global.html#dispatchDataModelEvent"><code>dataModel.dispatchEvent</code></a> to perform Hypergrid housekeeping tasks.</p>
+<p>(Hypergrid registers itself with the data model by calling <code>dataModel.addListener</code>. Both <code>addListener</code> and <code>dispatchEvent</code> are optional API. If the data model lacks <code>addListener</code>, Hypergrid inserts a bound version of <code>dispatchEvent</code> directly into the data model.)</p>
+<h4>Coding pattern</h4><p>If there are no housekeeping tasks to be performed, do not define a handler here.</p>
+<p>Otherwise, the typical coding pattern is for our handler to perform the housekeeping tasks, returning <code>undefined</code> to the caller (<code>DispatchDataModelEvent</code>) which then re-emits the event as a Hypergrid event (<em>i.e.,</em> as a DOM event to the <code>&lt;canvas&gt;</code> element).</p>
+<p>Alternatively, our handler can re-emit the event itself by calling the grid event handler and propagating its boolean return value value to the caller which signals the caller <em>not</em> to re-emit on our behalf. This is useful when tasks need to be performed <em>after</em> the Hypergrid event handler is called (or before <em>and</em> after).</p>
+<p>The pattern, in general:
+```js
+exports['fin-hypergrid-data-myevent'] = function(event) {
+    var notCanceled;</p>
+<pre class="prettyprint source"><code>PerformHousekeepingTasks();
+
+// optionally re-emit the event as a grid event
+var dispatchGridEvent = require('../../lib/dispatchGridEvent.js');
+notCanceled = dispatchGridEvent.call(this, event.type, isCancelable, event);
+
+if (!notCanceled) {
+    PerformAdditionalHousekeepingTasks()
+}
+
+return notCanceled;</code></pre><p>}
+Re-emitting the event is optional; if <code>notCanceled</code> is never defined, the caller will take care of it. If your handler does choose to re-emit the event itself by calling <code>dispatchGridEvent</code>, you should propagate its return value (the result of its internal call to <a href="https://developer.mozilla.org/docs/Web/API/EventTarget/dispatchEvent"><code>dispatchEvent</code></a>, which is either <code>false</code> if the event was canceled or <code>true</code> if it was not).</p></div>
+        
+
+        
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+        
+    
+    </div>
+
+    
+
+    
+
+    
+
+     
+
+    
+
+    
+
+    
+        <h3 class="subsection-title">Methods</h3>
+
+        
+            
+
+    
+
+    <h4 class="name" id=".%22fin-hypergrid-data-loaded%22"><span class="type-signature">(static) </span>"fin-hypergrid-data-loaded"<span class="signature">(event)</span><span class="type-signature"> &rarr; {undefined|boolean}</span></h4>
+
+    
+
+
+
+<div class="description">
+    <p><em>See the data model API page for event semantics (link below).</em></p>
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>event</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="global.html#NormalizedDataModelEvent">NormalizedDataModelEvent</a></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-see">See:</dt>
+    <dd class="tag-see">
+        <ul>
+            <li><a href="DataModel.html#event:fin-hypergrid-data-loaded"><code>DataModel#event:fin-hypergrid-data-loaded</code></a></li>
+        </ul>
+    </dd>
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    <p>Result of re-emitted event or <code>undefined</code> if event not re-emitted.</p>
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">undefined</span>
+|
+
+<span class="param-type">boolean</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id=".%22fin-hypergrid-data-postreindex%22"><span class="type-signature">(static) </span>"fin-hypergrid-data-postreindex"<span class="signature">(event)</span><span class="type-signature"> &rarr; {undefined|boolean}</span></h4>
+
+    
+
+
+
+<div class="description">
+    <p><em>See the data model API page for event semantics (link below).</em></p>
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>event</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Object</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-see">See:</dt>
+    <dd class="tag-see">
+        <ul>
+            <li><a href="DataModel.html#event:fin-hypergrid-data-postreindex"><code>DataModel#event:fin-hypergrid-data-postreindex</code></a></li>
+        </ul>
+    </dd>
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    <p>Result of re-emitted event or <code>undefined</code> if event not re-emitted.</p>
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">undefined</span>
+|
+
+<span class="param-type">boolean</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id=".%22fin-hypergrid-data-prereindex%22"><span class="type-signature">(static) </span>"fin-hypergrid-data-prereindex"<span class="signature">(event)</span><span class="type-signature"> &rarr; {undefined|boolean}</span></h4>
+
+    
+
+
+
+<div class="description">
+    <p><em>See the data model API page for event semantics (link below).</em></p>
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>event</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="global.html#NormalizedDataModelEvent">NormalizedDataModelEvent</a></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-see">See:</dt>
+    <dd class="tag-see">
+        <ul>
+            <li><a href="DataModel.html#event:fin-hypergrid-data-prereindex"><code>DataModel#event:fin-hypergrid-data-prereindex</code></a></li>
+        </ul>
+    </dd>
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    <p>Result of re-emitted event or <code>undefined</code> if event not re-emitted.</p>
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">undefined</span>
+|
+
+<span class="param-type">boolean</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id=".%22fin-hypergrid-data-shape-changed%22"><span class="type-signature">(static) </span>"fin-hypergrid-data-shape-changed"<span class="signature">(event)</span><span class="type-signature"> &rarr; {undefined|boolean}</span></h4>
+
+    
+
+
+
+<div class="description">
+    <p><em>See the data model API page for event semantics (link below).</em></p>
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>event</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="global.html#NormalizedDataModelEvent">NormalizedDataModelEvent</a></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-see">See:</dt>
+    <dd class="tag-see">
+        <ul>
+            <li><a href="DataModel.html#event:fin-hypergrid-data-shape-changed"><code>DataModel#event:fin-hypergrid-data-shape-changed</code></a></li>
+        </ul>
+    </dd>
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    <p>Result of re-emitted event or <code>undefined</code> if event not re-emitted.</p>
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">undefined</span>
+|
+
+<span class="param-type">boolean</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id=".%22fin-hypergrid-schema-loaded%22"><span class="type-signature">(static) </span>"fin-hypergrid-schema-loaded"<span class="signature">(event)</span><span class="type-signature"> &rarr; {undefined|boolean}</span></h4>
+
+    
+
+
+
+<div class="description">
+    <p><em>See the data model API page for event semantics (link below).</em></p>
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>event</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="global.html#NormalizedDataModelEvent">NormalizedDataModelEvent</a></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-see">See:</dt>
+    <dd class="tag-see">
+        <ul>
+            <li><a href="DataModel.html#event:fin-hypergrid-schema-loaded"><code>DataModel#event:fin-hypergrid-schema-loaded</code></a></li>
+        </ul>
+    </dd>
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    <p>Result of re-emitted event or <code>undefined</code> if event not re-emitted.</p>
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">undefined</span>
+|
+
+<span class="param-type">boolean</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+        
+    
+
+    
+
+    
+</article>
+
+</section>
+
+
+
+
+</div>
+
+<br class="clear">
+
+<footer>
+    &copy; 2015-2019 <a href="https://openfin.co" target="_blank">Openfin</a> and <a href="https://github.com/fin-hypergrid" target="_blank">The Hypergrid Authors</a>. All Rights Reserved.
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

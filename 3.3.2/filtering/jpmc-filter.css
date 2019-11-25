@@ -1,0 +1,57 @@
+.filter-cell-tray {
+    position: absolute;
+    top: 40px;
+    left: 30px;
+    font: 13px/1.5 Helvetica, Arial, sans-serif;
+    font-weight: lighter;
+    letter-spacing: .5px;
+    color: #a0a0a0;
+    width: 160px;
+    overflow: hidden;
+    height: 0; /* code resets this for transition effect */
+    visibility: hidden; /* when height reaches 0, hide so shadow not seen */
+    transition: height 300ms;
+    border: 1px solid #d5d5d5;
+    box-shadow: 0px 2px 5px #b4b4b4;
+}
+.filter-cell-tray > div:first-child {
+    height: 32px;
+    border-bottom: 1px solid #989898;
+}
+.filter-cell-tray > div:nth-child(2) {
+    border-bottom: 1px solid #989898;
+}
+.filter-cell-tray > div:last-child {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    overflow-y: scroll;
+}
+.filter-icon-expander,
+.filter-icon-settings {
+    float: right;
+    transition: transform 150ms linear;
+}
+.filter-icon-expander:hover,
+.filter-icon-settings:hover {
+    cursor: pointer;
+}
+.filter-cell-tray > div:last-child > div:not(.filter-cell-item) {
+    transition: height 200ms linear;
+    overflow-y: hidden;
+}
+.filter-cell-tray > div:last-child > div:not(:first-child) > div.filter-cell-item {
+    padding-left: 1.5em;
+}
+.filter-cell-tray div.filter-cell-item {
+    padding: .3em 0 .3em .8em;
+    white-space: nowrap;
+    overflow-x: hidden;
+    user-select: none;
+}
+.filter-cell-tray div.filter-cell-item:hover {
+    background-color: #f6f6f6;
+}
+.filter-cell-hilite {
+    background-color: yellow;
+}
