@@ -1,5 +1,4 @@
 /* eslint-env browser */
-/* global requestAnimationFrame */
 
 'use strict';
 
