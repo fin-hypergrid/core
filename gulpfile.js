@@ -2,7 +2,6 @@
 
 var gulp        = require('gulp'),
     $$          = require('gulp-load-plugins')(),
-    runSequence = require('run-sequence'),
     exec        = require('child_process').exec,
     path        = require('path'),
     pkg         = require('./package.json');
@@ -22,25 +21,22 @@ gulp.task('css-templates', function() {
     return templates('./css/*.css', 'css');
 });
 
-gulp.task('build', function(callback) {
-    clearBashScreen();
-    runSequence(
+gulp.task('build', gulp.series(
         'lint',
-        'images',
+        //'images',
         'css-templates',
         'test',
         //'doc',
-        callback
-    );
-});
+    )
+);
 
-gulp.task('default', ['build']);
+gulp.task('default',  gulp.series('build'));
 
 //  //  //  //  //  //  //  //  //  //  //  //
 
 function lint() {
     return gulp.src([
-        'index.js',
+        // 'index.js',
         srcDir + jsFiles,
         testDir + jsFiles
     ])
@@ -60,11 +56,6 @@ function doc(cb) {
         console.log(stderr);
         cb(err);
     });
-}
-
-function clearBashScreen() {
-    var ESC = '\x1B';
-    console.log(ESC + 'c'); // (VT-100 escape sequence)
 }
 
 function swallowImages() {
