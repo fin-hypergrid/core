@@ -1,4 +1,8 @@
-'use strict';
+
+/**
+ * @typedef {any} CellEvent TODO
+ * @typedef {any} DataModel TODO
+ */
 
 /**
  * Behavior.js mixes this module into its prototype.
@@ -50,7 +54,7 @@ exports.mixin = {
      * @desc If there is no cell properties object, defers to column properties object.
      * @param {CellEvent|number} xOrCellEvent - Data x coordinate.
      * @param {number} [y] - Grid row coordinate._ Omit when `xOrCellEvent` is a `CellEvent`._
-     * @param {string} key - Name of property to get. _When `y` omitted, this param promoted to 2nd arg._
+     * @param {string|number} [key] - Name of property to get. _When `y` omitted, this param promoted to 2nd arg._
      * @param {DataModel} [dataModel=this.dataModel] - For use only when `xOrCellEvent` is _not_ a `CellEvent`: Provide a subgrid.
      * @return {object} The specified property for the cell at x,y in the grid.
      * @memberOf Behavior#
@@ -69,7 +73,7 @@ exports.mixin = {
      * @desc update the data at point x, y with value
      * @param {CellEvent|number} xOrCellEvent - Data x coordinate.
      * @param {number} [y] - Grid row coordinate. _Omit when `xOrCellEvent` is a `CellEvent`._
-     * @param {Object} properties - Hash of cell properties. _When `y` omitted, this param promoted to 2nd arg._
+     * @param {Object} [properties] - Hash of cell properties. _When `y` omitted, this param promoted to 2nd arg._
      * @param {DataModel} [dataModel=this.dataModel] - For use only when `xOrCellEvent` is _not_ a `CellEvent`: Provide a subgrid.
      */
     setCellProperties: function(xOrCellEvent, y, properties, dataModel) {
@@ -86,7 +90,7 @@ exports.mixin = {
      * @desc update the data at point x, y with value
      * @param {CellEvent|number} xOrCellEvent - Data x coordinate.
      * @param {number} [y] - Grid row coordinate. _Omit when `xOrCellEvent` is a `CellEvent`._
-     * @param {Object} properties - Hash of cell properties. _When `y` omitted, this param promoted to 2nd arg._
+     * @param {Object} [properties] - Hash of cell properties. _When `y` omitted, this param promoted to 2nd arg._
      * @param {DataModel} [dataModel=this.dataModel] - For use only when `xOrCellEvent` is _not_ a `CellEvent`: Provide a subgrid.
      */
     addCellProperties: function(xOrCellEvent, y, properties, dataModel) {
@@ -109,8 +113,8 @@ exports.mixin = {
      * The raw coordinates overload calls the `resetCellPropertiesCache(x, y)` overload for you.
      * @param {CellEvent|number} xOrCellEvent - `CellEvent` or data x coordinate.
      * @param {number} [y] - Grid row coordinate. _Omit when `xOrCellEvent` is a `CellEvent`._
-     * @param {string} key - Name of property to get. _When `y` omitted, this param promoted to 2nd arg._
-     * @param value
+     * @param {string|number} [key] - Name of property to get. _When `y` omitted, this param promoted to 2nd arg._
+     * @param {string|number} [value]
      * @param {DataModel} [dataModel=this.dataModel] - For use only when `xOrCellEvent` is _not_ a `CellEvent`: Provide a subgrid.
      * @memberOf Behavior#
      */

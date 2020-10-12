@@ -1,10 +1,10 @@
+// @ts-nocheck
 /* eslint-env browser */
 
 /**
  * @module localization
  */
 
-'use strict';
 
 var Base = require('../Base');
 

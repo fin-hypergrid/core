@@ -1,4 +1,3 @@
-'use strict';
 
 function silent() {}
 
@@ -33,7 +32,9 @@ module.exports = {
     addListener: function(handler) {
         if (!this.handlers) {
             this.handlers = [handler];
+        // @ts-ignore
         } else if (this.handlers.indexOf(handler) < 0) {
+            // @ts-ignore
             this.handlers.push(handler);
         }
     },

@@ -1,11 +1,16 @@
-'use strict';
 
 var Feature = require('./Feature');
+
+/**
+ * @typedef {import("../Hypergrid")} Hypergrid
+ * @typedef {any} CellSelectionType TODO
+ */
 
 /**
  * @constructor
  * @extends Feature
  */
+// @ts-ignore TODO use classes
 var CellSelection = Feature.extend('CellSelection', {
 
     /**
@@ -40,6 +45,7 @@ var CellSelection = Feature.extend('CellSelection', {
 
     /**
      * @memberOf CellSelection.prototype
+     * @this CellSelectionType
      * @param {Hypergrid} grid
      * @param {Object} event - the event details
      */
@@ -54,6 +60,7 @@ var CellSelection = Feature.extend('CellSelection', {
 
     /**
      * @memberOf CellSelection.prototype
+     * @this CellSelectionType
      * @param {Hypergrid} grid
      * @param {Object} event - the event details
      */
@@ -75,6 +82,7 @@ var CellSelection = Feature.extend('CellSelection', {
 
     /**
      * @memberOf CellSelection.prototype
+     * @this CellSelectionType
      * @param {Hypergrid} grid
      * @param {Object} event - the event details
      */
@@ -175,6 +183,7 @@ var CellSelection = Feature.extend('CellSelection', {
 
     /**
      * @memberOf CellSelection.prototype
+     * @this CellSelectionType
      * @desc this function makes sure that while we are dragging outside of the grid visible bounds, we srcroll accordingly
      * @param {Hypergrid} grid
      */
@@ -377,6 +386,7 @@ var CellSelection = Feature.extend('CellSelection', {
 
     /**
      * @memberOf CellSelection.prototype
+     * @this CellSelectionType
      * @desc update the autoscroll start time if we haven't autoscrolled within the last 500ms otherwise update the current autoscroll time
      */
     pingAutoScroll: function() {

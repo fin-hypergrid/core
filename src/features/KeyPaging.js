@@ -1,6 +1,9 @@
-'use strict';
 
 var Feature = require('./Feature');
+
+/**
+ * @typedef {import("../Hypergrid")} Hypergrid
+ */
 
 var commands = {
     PAGEDOWN: function(grid) { grid.pageDown(); },
@@ -12,6 +15,7 @@ var commands = {
 /**
  * @constructor
  */
+// @ts-ignore TODO use classes
 var KeyPaging = Feature.extend('KeyPaging', {
 
     /**

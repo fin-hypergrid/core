@@ -1,11 +1,16 @@
-'use strict';
 
 var Feature = require('./Feature');
+
+/**
+ * @typedef {import("../Hypergrid")} Hypergrid
+ * @typedef {any} ColumnSorting
+ */
 
 /**
  * @constructor
  * @extends Feature
  */
+// @ts-ignore Need to refactor to use classes
 var ColumnSorting = Feature.extend('ColumnSorting', {
 
     /**
@@ -28,6 +33,7 @@ var ColumnSorting = Feature.extend('ColumnSorting', {
 
     /**
      * @memberOf ColumnSorting.prototype
+     * @this {ColumnSorting}
      * @param {Hypergrid} grid
      * @param {Object} event - the event details
      */

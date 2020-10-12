@@ -1,12 +1,16 @@
-'use strict';
 
 var Feature = require('./Feature');
 var CellEditor = require('../cellEditors/CellEditor');
 
 /**
+ * @typedef {import("../Hypergrid")} Hypergrid
+ */
+
+/**
  * @constructor
  * @extends Feature
  */
+// @ts-ignore TODO use classes
 var CellEditing = Feature.extend('CellEditing', {
 
     /**

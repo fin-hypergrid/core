@@ -1,6 +1,10 @@
 /* globals CustomEvent */
 
-'use strict';
+
+/**
+ * @typedef {import("../Hypergrid")} Hypergrid
+ * @typedef {any} CellEvent TODO
+ */
 
 var details = [
     'gridCell',
@@ -18,7 +22,7 @@ var details = [
  * @param {string} eventName
  * @param {boolean} [cancelable=false] - Event implements `preventDefault()`. Must be boolean if given.
  * _If omitted, `event` and `primitiveEvent` are promoted to 2nd and 3rd argument positions, respecitvely._
- * @param {object} event
+ * @param {object} [event]
  * @param {CellEvent|MouseEvent|KeyboardEvent|object} [primitiveEvent]
  * @returns {undefined|boolean}
  */
@@ -38,6 +42,7 @@ module.exports = function(eventName, cancelable, event, primitiveEvent) {
     if (!event) {
         event = {};
     } else if (event instanceof CustomEvent) {
+        // @ts-ignore TODO
         event = Object({}, event);
     }
 

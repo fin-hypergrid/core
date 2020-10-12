@@ -1,8 +1,12 @@
 /* eslint-env browser */
 
-'use strict';
 
 var SelectionRectangle = require('../lib/SelectionRectangle');
+
+/**
+ * @typedef {any} CellEvent TODO
+ * @typedef {any} Column TODO
+ */
 
 /**
  * Additions to `Hypergrid.prototype` for modeling cell, row, and column selections.
@@ -11,6 +15,9 @@ var SelectionRectangle = require('../lib/SelectionRectangle');
  * @mixin selection.mixin
  */
 exports.mixin = {
+    /**
+     * @this {any} TODO
+     */
     selectionInitialize: function() {
         var grid = this;
 

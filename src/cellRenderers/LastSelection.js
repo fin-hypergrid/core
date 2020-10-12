@@ -1,4 +1,3 @@
-'use strict';
 
 var CellRenderer = require('./CellRenderer');
 
@@ -7,6 +6,7 @@ var CellRenderer = require('./CellRenderer');
  * @desc A rendering of the last Selection Model
  * @extends CellRenderer
  */
+// @ts-ignore TODO - uses classes
 var LastSelection = CellRenderer.extend('LastSelection', {
     paint: function(gc, config) {
         var visOverlay = gc.alpha(config.selectionRegionOverlayColor) > 0,

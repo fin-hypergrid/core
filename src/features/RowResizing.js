@@ -1,11 +1,15 @@
-'use strict';
 
 var ColumnResizing = require('./ColumnResizing');
+
+/**
+ * @typedef {import("../Hypergrid")} Hypergrid
+ */
 
 /**
  * @constructor
  * @extends ColumnResizing
  */
+// @ts-ignore TODO use classes
 var RowResizing = ColumnResizing.extend('RowResizing', {
 
     /**
@@ -36,7 +40,7 @@ var RowResizing = ColumnResizing.extend('RowResizing', {
      * @memberOf RowResizing.prototype
      * @desc get the mouse x,y coordinate
      * @returns {number}
-     * @param {MouseEvent} event - the mouse event to query
+     * @param {MouseEvent|any} event - the mouse event to query
      */
     getMouseValue: function(event) {
         return event.primitiveEvent.detail.mouse.y;
@@ -80,7 +84,6 @@ var RowResizing = ColumnResizing.extend('RowResizing', {
      * @function
      * @memberOf RowResizing.prototype
      * @desc set the width/height of the row/column at index
-     * @returns {number}
      * @param {Hypergrid} grid
      * @param {number} index - the row/column index of interest
      * @param {number} value - the width/height to set to
@@ -93,7 +96,6 @@ var RowResizing = ColumnResizing.extend('RowResizing', {
      * @function
      * @memberOf RowResizing.prototype
      * @desc returns the index of which divider I'm over
-     * @returns {number}
      * @param {Hypergrid} grid
      * @param {Object} event - the event details
      */

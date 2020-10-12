@@ -1,4 +1,10 @@
 /**
+ * @typedef {any} CellEditor TODO
+ * @typedef {any} CellEvent TODO
+ */
+
+
+/**
  * @interface DataModel
  * @desc Hypergrid 3 data models have a minimal required interface, as outlined on the [Data Model API](https://github.com/fin-hypergrid/core/wiki/Data-Model-API) wiki page.
 
@@ -6,7 +12,7 @@
  The minimum interface is an object with just three methods: {@link DataModel#getRowCount getRowCount()} {@link DataModel#getSchema getSchema()} and {@link DataModel#getValue getValue(x, y)}.
  */
 
-/** @typedef {object} columnSchema
+/** @typedef {Record<string, any>} columnSchema
  * @property {string} name
  * @property {string} [header=name]
  * @property {number} index
@@ -14,14 +20,14 @@
  * @property {string} [calculator]
  */
 
-/** @typedef {columnSchema|string} rawColumnSchema
+/** @typedef {columnSchema} rawColumnSchema
  * Column schema may be expressed as a string primitive on input to {@link DataModel#setData setData}.
  */
 
 /** @typedef {object} dataRowObject
  * @desc A data row representation.
  * The properties of this object are the data fields.
- * The property keys are the column names.
+ * The property keys are the column names
  * All row objects should be congruent, meaning that each data row should have the same property keys.
  */
 
@@ -455,7 +461,7 @@
  * Blah.
  * #### Parameters:
  * @param {dataRowObject[]} data - An array of congruent raw data objects.
- * @param {rawColumnSchema[]} - Ordered array of column schema.
+ * @param {rawColumnSchema[]} schema - Ordered array of column schema.
  */
 
 /**
@@ -483,7 +489,7 @@
  * Overriding `getCell` still has great facility when the rendering needs to be a function of the data values, but other than that, every effort should be made to avoid overriding `getCell` whenever possible.
  *
  * #### Parameters:
- * @param {CellEditor#renderConfig} config
+ * @param {CellEditor["renderConfig"]} config
  * @param {string} rendererName - Same as `config.renderer`, the proposed cell renderer name.
  * @returns {CellRenderer} An instantiated cell renderer.
  */

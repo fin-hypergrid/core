@@ -1,10 +1,10 @@
-'use strict';
 
 var Feature = require('./Feature');
 
 /**
  * @constructor
  */
+// @ts-ignore TODO use classes
 var Filters = Feature.extend('Filters', {
 
     /**

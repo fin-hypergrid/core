@@ -1,4 +1,3 @@
-'use strict';
 
 var CellRenderer = require('./CellRenderer');
 
@@ -6,6 +5,7 @@ var CellRenderer = require('./CellRenderer');
  * @constructor
  * @extends CellRenderer
  */
+// @ts-ignore TODO use classes
 var Tag = CellRenderer.extend('Tag', {
 
     /**

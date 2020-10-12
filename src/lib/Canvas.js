@@ -1,8 +1,8 @@
 /* eslint-env browser */
 
-'use strict';
 
 if (typeof window.CustomEvent !== 'function') {
+    // @ts-ignore
     window.CustomEvent = function(event, params) {
         params = params || { bubbles: false, cancelable: false, detail: undefined };
         var evt = document.createEvent('CustomEvent');
@@ -10,6 +10,7 @@ if (typeof window.CustomEvent !== 'function') {
         return evt;
     };
 
+    // @ts-ignore
     window.CustomEvent.prototype = window.Event.prototype;
 }
 
@@ -24,8 +25,15 @@ var RESIZE_POLLING_INTERVAL = 200,
 
 // We still support IE 11; we do NOT support older versions of IE (and we do NOT officially support Edge)
 // https://stackoverflow.com/questions/21825157/internet-explorer-11-detection#answer-21825207
+// @ts-ignore
 var isIE11 = !!(window.MSInputMethodContext && document.documentMode);
 
+/**
+ * @param {HTMLDivElement} div
+ * @param {any} component
+ * @param {any} contextAttributes
+ * @this {any} TODO
+ */
 function Canvas(div, component, contextAttributes) {
     var self = this;
 
@@ -121,6 +129,9 @@ function Canvas(div, component, contextAttributes) {
     this.beginPainting();
 }
 
+/**
+ * @typedef {any} CanvasType TODO need to formalise this
+ */
 Canvas.prototype = {
     constructor: Canvas.prototype.constructor,
     div: null,
@@ -148,10 +159,16 @@ Canvas.prototype = {
     currentFPS: 0,
     lastFPSComputeTime: 0,
 
+    /**
+     * @this CanvasType
+     */
     addEventListener: function(name, callback) {
         this.canvas.addEventListener(name, callback);
     },
 
+    /**
+     * @this CanvasType
+     */
     removeEventListener: function(name, callback) {
         this.canvas.removeEventListener(name, callback);
     },
@@ -171,7 +188,9 @@ Canvas.prototype = {
         return this.currentFPS;
     },
 
-
+    /**
+     * @this CanvasType
+     */
     tickPaint: function(now) {
         var isContinuousRepaint = this.component.properties.enableContinuousRepaint,
             fps = this.component.properties.repaintIntervalRate;
@@ -196,6 +215,9 @@ Canvas.prototype = {
         }
     },
 
+    /**
+     * @this CanvasType
+     */
     beginPainting: function() {
         var self = this;
         this.requestRepaint();
@@ -209,6 +231,9 @@ Canvas.prototype = {
         paintables.splice(paintables.indexOf(this), 1);
     },
 
+    /**
+     * @this CanvasType
+     */
     beginResizing: function() {
         var self = this;
         this.tickResizer = function() {
@@ -231,6 +256,9 @@ Canvas.prototype = {
         this.stopResizing();
     },
 
+    /**
+     * @this CanvasType
+     */
     getBoundingClientRect: function(el) {
         var rect = el.getBoundingClientRect();
 
@@ -276,6 +304,9 @@ Canvas.prototype = {
         };
     },
 
+    /**
+     * @this CanvasType
+     */
     checksize: function() {
         var sizeNow = this.getDivBoundingClientRect();
         if (sizeNow.width !== this.size.width || sizeNow.height !== this.size.height) {
@@ -283,6 +314,9 @@ Canvas.prototype = {
         }
     },
 
+    /**
+     * @this CanvasType
+     */
     resize: function(box) {
         box = this.size = box || this.getDivBoundingClientRect();
 
@@ -309,6 +343,9 @@ Canvas.prototype = {
         this.paintNow();
     },
 
+    /**
+     * @this CanvasType
+     */
     resizeNotification: function() {
         this.dispatchNewEvent(undefined, 'fin-canvas-resized', {
             width: this.width,
@@ -316,6 +353,9 @@ Canvas.prototype = {
         });
     },
 
+    /**
+     * @this CanvasType
+     */
     resetZoom: function() {
         var factor = 1;
 
@@ -344,6 +384,9 @@ Canvas.prototype = {
         return this.bounds;
     },
 
+    /**
+     * @this CanvasType
+     */
     paintNow: function() {
         try {
             this.gc.cache.save();
@@ -369,6 +412,9 @@ Canvas.prototype = {
         return new CustomEvent(name, event);
     },
 
+    /**
+     * @this CanvasType
+     */
     dispatchNewEvent: function(primitiveEvent, name, detail) {
         return this.canvas.dispatchEvent(this.newEvent(primitiveEvent, name, detail));
     },
@@ -391,6 +437,9 @@ Canvas.prototype = {
         return this.dispatchNewEvent(event, name, detail);
     },
 
+    /**
+     * @this CanvasType
+     */
     finmousemove: function(e) {
         if (!this.isDragging() && this.mousedown) {
             this.beDragging();
@@ -412,6 +461,9 @@ Canvas.prototype = {
         }
     },
 
+    /**
+     * @this CanvasType
+     */
     finmousedown: function(e) {
         this.mouseLocation = this.mouseDownLocation = this.getLocal(e);
         this.mousedown = true;
@@ -596,6 +648,9 @@ Canvas.prototype = {
         this.dirty = true;
     },
 
+    /**
+     * @this CanvasType
+     */
     repaint: function() {
         this.requestRepaint();
         if (!paintRequest || this.component.properties.repaintIntervalRate === 0) {
@@ -613,6 +668,9 @@ Canvas.prototype = {
         return p;
     },
 
+    /**
+     * @this CanvasType
+     */
     getLocal: function(e) {
         var rect = this.getBoundingClientRect(this.canvas);
 
@@ -628,6 +686,9 @@ Canvas.prototype = {
         return document.activeElement === this.canvas;
     },
 
+    /**
+     * @this CanvasType
+     */
     takeFocus: function() {
         var self = this;
         if (!this.hasFocus()) {
@@ -661,6 +722,9 @@ Canvas.prototype = {
         style.cssText = style.cssText.replace('-webkit-user-select: none', '');
     },
 
+    /**
+     * @this CanvasType
+     */
     setFocusable: function(truthy) {
         this.focuser.style.display = truthy ? '' : 'none';
     },
@@ -677,6 +741,9 @@ Canvas.prototype = {
         return isRightMB;
     },
 
+    /**
+     * @this CanvasType
+     */
     dispatchEvent: function(e) {
         return this.canvas.dispatchEvent(e);
     },
@@ -891,6 +958,7 @@ function defKeysProp(event, propName, object) {
     var canvas = this;
     Object.defineProperty(object, propName, {
         configurable: true,
+        // @ts-ignore TODO this is a spelling mistake, need to check if it has any consequences when fixing
         ennumerable: true,
         get: function() {
             var shiftKey;

@@ -1,5 +1,7 @@
-'use strict';
 
+/**
+ * @this {*} TODO - Hypergrid
+ */
 function bundleColumns(resetCellEvents) {
     var gridProps = this.grid.properties,
         vr, visibleRows = this.visibleRows,

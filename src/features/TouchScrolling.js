@@ -1,12 +1,20 @@
-'use strict';
 
 var Feature = require('./Feature');
+
+/**
+ * @typedef {any} TouchScrollingType TODO
+ */
 
 /**
  * @constructor
  * @extends Feature
  */
+// @ts-ignore TODO use classes
 var TouchScrolling = Feature.extend('TouchScrolling', {
+
+    /**
+     * @this TouchScrollingType
+     */
     handleTouchStart: function(grid, event) {
         this.stopDeceleration();
         this.touches = [this.getTouchedCell(grid, event)];
@@ -67,6 +75,9 @@ var TouchScrolling = Feature.extend('TouchScrolling', {
         this.decelerate(grid.sbHScroller, offset, timeOffset);
     },
 
+    /**
+     * @this TouchScrollingType
+     */
     decelerate: function(scroller, offset, timeOffset) {
         var velocity = (Math.abs(offset) / timeOffset) * 100;
         var dir = -Math.sign(offset);
@@ -74,6 +85,7 @@ var TouchScrolling = Feature.extend('TouchScrolling', {
 
         var step = function() {
             if (velocity > 0) {
+                // @ts-ignore
                 var delta = this.getDelta(velocity);
                 var index = scroller.index + (dir * delta);
                 scroller.index = index;
@@ -86,6 +98,7 @@ var TouchScrolling = Feature.extend('TouchScrolling', {
 
                 this.timer = setTimeout(step, interval);
 
+                // @ts-ignore
                 interval = this.updateInterval(interval, velocity);
             }
         }.bind(this);

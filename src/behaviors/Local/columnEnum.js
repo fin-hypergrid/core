@@ -1,4 +1,3 @@
-'use strict';
 
 // `columnEnum` et al, have been deprecated as of 3.0.0 in favor of accessing column schema
 // through .schema, .columns, and .allColumns, all of which now sport self-referential dictionaries.
@@ -21,6 +20,7 @@ exports.mixin = {
         this._columnEnumKey = this._columnEnumKey || 'toAllCaps';
 
         var columnEnum = this._columnEnum || (this._columnEnum = {}),
+            // @ts-ignore
             allColumns = this.allColumns,
             arrayDecorator = new ArrayDecorator({ transformations: [this._columnEnumKey] }),
             dict = arrayDecorator.decorateArray(allColumns.slice());

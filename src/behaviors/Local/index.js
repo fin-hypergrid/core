@@ -1,6 +1,10 @@
-'use strict';
 
 var Behavior = require('../Behavior');
+
+/**
+ * @typedef {any} DataModel TODO
+ * @typedef {any} CellEvent TODO
+ */
 
 /** @memberOf Local~
  * @default require('datasaur-local')
@@ -20,6 +24,7 @@ var dispatchDataModelEvent = require('./dispatchDataModelEvent');
  * @constructor
  * @extends Behavior
  */
+// @ts-ignore TODO use classes
 var Local = Behavior.extend('Local', {
 
     initialize: function(grid, options) {
@@ -152,6 +157,7 @@ var Local = Behavior.extend('Local', {
 
         newDataModel.setMetadataStore(options && options.metadata);
 
+        // @ts-ignore
         this.boundDispatchEvent = this.boundDispatchEvent || dispatchDataModelEvent.bind(this.grid);
         newDataModel.addListener(this.boundDispatchEvent);
 
@@ -175,7 +181,7 @@ var Local = Behavior.extend('Local', {
      * To tell if the click was consumed by the data model, add event listeners for {@link DataModel#fin-hypergrid-data-loaded} and/or {@link DataModel#fin-hypergrid-data-postreindex}.
      * @see {@link https://fin-hypergrid.github.io/doc/DataModel.html#toggleRow toggleRow}
      * @param {CellEvent} event
-     * @returns {@link DataModel#toggleRow}'s return value which may or may not be implemented.
+     * @returns {DataModel["toggleRow"]}'s return value which may or may not be implemented.
      * @memberOf Local#
      */
     cellClicked: function(event) {

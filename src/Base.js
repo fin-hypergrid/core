@@ -1,6 +1,5 @@
 /* globals alert */
 
-'use strict';
 
 /**
  * @constructor

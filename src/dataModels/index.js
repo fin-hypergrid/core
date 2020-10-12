@@ -1,4 +1,3 @@
-'use strict';
 
 var Registry = require('../lib/Registry');
 

@@ -1,4 +1,7 @@
-'use strict';
+
+/**
+ * @typedef {any} DataModel TODO
+ */
 
 /**
  * Behavior.js mixes this module into its prototype.

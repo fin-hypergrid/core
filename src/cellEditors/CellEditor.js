@@ -1,10 +1,14 @@
 /* eslint-env browser */
 
-'use strict';
 
 var Base = require('../Base');
 var effects = require('../lib/DOM/effects');
 var Localization = require('../lib/Localization');
+
+/**
+ * @typedef {import("../Hypergrid")} Hypergrid
+ * @typedef {any} CellEditor TODO
+ */
 
 /**
  * @constructor
@@ -23,6 +27,9 @@ var Localization = require('../lib/Localization');
  */
 var CellEditor = Base.extend('CellEditor', {
 
+    /**
+     * @this CellEditor
+     */
     initialize: function(grid, options) {
         // Mix in all enumerable properties for mustache use, typically `column` and `format`.
         for (var key in options) {
@@ -190,6 +197,9 @@ var CellEditor = Base.extend('CellEditor', {
         this.setBounds(this.event.bounds);
     },
 
+    /**
+     * @this CellEditor
+     */
     beginEditing: function() {
         if (this.grid.fireRequestCellEdit(this.event, this.initialValue)) {
             this.checkEditorPositionFlag = true;
@@ -302,6 +312,7 @@ var CellEditor = Base.extend('CellEditor', {
      * Calls the effect function indicated in the {@link module:defaults.feedbackEffect|feedbackEffect} property, which triggers a series of CSS transitions.
      * @param {boolean|string|Error} [error] - If defined, call the {@link CellEditor#errorEffectEnd|errorEffectEnd} method at the end of the last effect transition with this error.
      * @memberOf CellEditor.prototype
+     * @this CellEditor
      */
     errorEffectBegin: function(error) {
         if (this.effecting) {
@@ -321,8 +332,9 @@ var CellEditor = Base.extend('CellEditor', {
 
     /**
      * This function expects to be passed an error. There is no point in calling this function if there is no error. Nevertheless, if called with a falsy `error`, returns without doing anything.
-     * @this {CellEditor}
-     * @param {boolean|string|Error} [error]
+     * @this CellEditor
+     * @param {any} [error] TODO
+     * @param {any} [options] TODO
      */
     errorEffectEnd: function(error, options) {
         if (error) {
@@ -447,6 +459,7 @@ var CellEditor = Base.extend('CellEditor', {
     /**
      * @desc check that the editor is in the correct location, and is showing/hidden appropriately
      * @memberOf CellEditor.prototype
+     * @this CellEditor
      */
     checkEditor: function() {
         if (this.checkEditorPositionFlag) {

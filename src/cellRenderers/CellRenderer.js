@@ -1,4 +1,8 @@
-'use strict';
+
+/**
+ * @typedef {any} dataCellCoords
+ * @typedef {any} gridCellCoords
+ */
 
 /** @typedef {object} CellRenderer#renderConfig
  *
@@ -68,9 +72,11 @@
  *
  * @property {boolean} config.mouseDown - The last mousedown event occurred over this cell and the mouse is still down. Note, however, that the mouse may no longer be hovering over this cell when it has been dragged away.
  *
- * @property {} [config.prefillColor] - **_Write-only._** This is the color _already painted_ by the grid renderer behind the cell to be rendered. If the cell's specified background color is the same, renderer may (and should!) skip painting it. If `undefined`, this signals a "partial render"; cell renderers that support partial rendering can use `config.snapshot` to determine whether or not to rerender the cell.
+* @property {any} [config.prefillColor] - **_Write-only._** This is the color _already painted_ by the grid renderer behind the cell to be rendered. If the cell's specified background color is the same, renderer may (and should!) skip painting it. If `undefined`, this signals a "partial render"; cell renderers that support partial rendering can use `config.snapshot` to determine whether or not to rerender the cell.
  *
  * @property {object} [config.snapshot] - **_Write-only._** Supports _partial render._ In support of the {@link Renderer#paintCellsAsNeeded by-cells} "partial" grid renderer, cell renderers can save the essential render parameters in this property so that on subsequent calls, when the parameters are the same, cell renderers can skip the actual rendering. Only when the parameters have changed is the cell rendered and this property reset (with the new parameters). This object would typically include at the very least the (formatted) `value`, plus additional properties as needed to fully describe the appearance of the render, such as color, _etc._ This property is undefined the first time a cell is rendered by the `by-cells` grid renderer. See also the {@link DataModel#configObject}'s `prefillColor` property.
+ *
+ * @property {any} [renderConfig] TODO
  *
  * @property config.value - Value to be rendered.
  *
@@ -96,9 +102,9 @@ var CellRenderer = Base.extend('CellRenderer', {
      *
      * @param {CanvasRenderingContext2D} gc
      *
-     * @param {CellRenderer#renderConfig} config
+     * @param {CellRenderer["renderConfig"]} config
      *
-     * @returns {number} Preferred pixel width of content. The content may or may not be rendered at that width depending on whether or not `config.bounds` was respected and whether or not the grid renderer is using clipping. (Clipping is generally not used due to poor performance.)
+     * @returns {void} Preferred pixel width of content. The content may or may not be rendered at that width depending on whether or not `config.bounds` was respected and whether or not the grid renderer is using clipping. (Clipping is generally not used due to poor performance.)
      *
      * @memberOf CellRenderer.prototype
      */
@@ -113,7 +119,7 @@ var CellRenderer = Base.extend('CellRenderer', {
      * @param {number} height - the height I'm allowed to draw within
      * @param {number} radius
      * @param {number} fill
-     * @param {number} stroke
+     * @param {number|boolean} stroke
      * @memberOf CellRenderer.prototype
      */
     roundRect: function(gc, x, y, width, height, radius, fill, stroke) {

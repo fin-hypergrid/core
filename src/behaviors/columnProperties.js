@@ -1,4 +1,7 @@
-'use strict';
+
+/**
+ * @typedef {any} Column TODO
+ */
 
 /**
  * @this {Column}

@@ -1,4 +1,12 @@
-'use strict';
+
+/**
+ * @typedef {import("../Hypergrid")} Hypergrid
+ * @typedef {any} CellEvent TODO
+ * @typedef {any} visibleColumnArray TODO
+ * @typedef {any} visibleRowArray TODO
+ * @typedef {any} DataModel TODO
+ * @typedef {any} Column TODO
+ */
 
 var cellEventProperties = Object.defineProperties({}, { // all props non-enumerable
     /**
@@ -35,39 +43,54 @@ var cellEventProperties = Object.defineProperties({}, { // all props non-enumera
      * @property {number} height
      * @memberOf CellEvent#
      */
-    bounds: { get: function() {
-        return this._bounds || (this._bounds = {
-            x: this.visibleColumn.left,
-            y: this.visibleRow.top,
-            width: this.visibleColumn.width,
-            height: this.visibleRow.height
-        });
-    } },
+    bounds: {
+        /**
+         * @this {any} TODO - should be CellEvent
+         */
+        get: function() {
+            return this._bounds || (this._bounds = {
+                x: this.visibleColumn.left,
+                y: this.visibleRow.top,
+                width: this.visibleColumn.width,
+                height: this.visibleRow.height
+            });
+        }
+    },
 
-    columnProperties: { get: function() {
-        var cp = this._columnProperties;
-        if (!cp) {
-            cp = this.column.properties;
-            if (this.isHeaderRow || this.isSummaryRow) {
-                cp = cp.columnHeader;
-            } else if (this.isFilterRow) {
-                cp = cp.filterProperties;
+    columnProperties: {
+        /**
+         * @this {any} TODO
+         */
+        get: function() {
+            var cp = this._columnProperties;
+            if (!cp) {
+                cp = this.column.properties;
+                if (this.isHeaderRow || this.isSummaryRow) {
+                    cp = cp.columnHeader;
+                } else if (this.isFilterRow) {
+                    cp = cp.filterProperties;
+                }
+
+                // isDataColumn: cp already set to cp.rowHeader or cp.treeHeader
+                // isDataRow: cp already set to basic props
+
+                this._columnProperties = cp;
             }
-
-            // isDataColumn: cp already set to cp.rowHeader or cp.treeHeader
-            // isDataRow: cp already set to basic props
-
-            this._columnProperties = cp;
+            return cp;
         }
-        return cp;
-    } },
-    cellOwnProperties: { get: function() {
-        // do not use for get/set prop because may return null; instead use .getCellProperty('prop') or .properties.prop (preferred) to get, setCellProperty('prop', value) to set
-        if (this._cellOwnProperties === undefined) {
-            this._cellOwnProperties = this.column.getCellOwnProperties(this.dataCell.y, this.subgrid);
+    },
+    cellOwnProperties: {
+         /**
+         * @this {any} TODO
+         */
+        get: function() {
+            // do not use for get/set prop because may return null; instead use .getCellProperty('prop') or .properties.prop (preferred) to get, setCellProperty('prop', value) to set
+            if (this._cellOwnProperties === undefined) {
+                this._cellOwnProperties = this.column.getCellOwnProperties(this.dataCell.y, this.subgrid);
+            }
+            return this._cellOwnProperties; // null return means there is no cell properties object
         }
-        return this._cellOwnProperties; // null return means there is no cell properties object
-    } },
+    },
     /**
      * @returns {string} Cell properties object if it exists, else the column properties object it would have as a prototype if did exist.
      * @method
@@ -92,10 +115,15 @@ var cellEventProperties = Object.defineProperties({}, { // all props non-enumera
      * @method
      * @memberOf CellEvent#
      */
-    setCellProperty: { value: function(key, value) {
-        // do not use `.cellOwnProperties[key] = value` because object may be null (this method creates new object as needed)
-        this._cellOwnProperties = this.column.setCellProperty(this.dataCell.y, key, value, this.subgrid);
-    } },
+    setCellProperty: {
+         /**
+         * @this {any} TODO
+         */
+        value: function(key, value) {
+            // do not use `.cellOwnProperties[key] = value` because object may be null (this method creates new object as needed)
+            this._cellOwnProperties = this.column.setCellProperty(this.dataCell.y, key, value, this.subgrid);
+        }
+    },
 
     rowOwnProperties: {
         // undefined return means there is no row properties object
@@ -124,30 +152,35 @@ var cellEventProperties = Object.defineProperties({}, { // all props non-enumera
     } },
 
     // special method for use by renderer which reuses cellEvent object for performance reasons
-    reset: { value: function(visibleColumn, visibleRow) {
-        // getter caches
-        this._columnProperties = undefined;
-        this._cellOwnProperties = undefined;
-        this._bounds = undefined;
+    reset: {
+         /**
+         * @this {any} TODO
+         */
+        value: function(visibleColumn, visibleRow) {
+            // getter caches
+            this._columnProperties = undefined;
+            this._cellOwnProperties = undefined;
+            this._bounds = undefined;
 
-        // partial render support
-        this.snapshot = [];
-        this.minWidth = undefined;
-        // this.disabled = undefined;
+            // partial render support
+            this.snapshot = [];
+            this.minWidth = undefined;
+            // this.disabled = undefined;
 
-        this.visibleColumn = visibleColumn;
-        this.visibleRow = visibleRow;
+            this.visibleColumn = visibleColumn;
+            this.visibleRow = visibleRow;
 
-        this.subgrid = visibleRow.subgrid;
+            this.subgrid = visibleRow.subgrid;
 
-        this.column = visibleColumn.column; // enumerable so will be copied to cell renderer object
+            this.column = visibleColumn.column; // enumerable so will be copied to cell renderer object
 
-        this.gridCell.x = visibleColumn.columnIndex;
-        this.gridCell.y = visibleRow.index;
+            this.gridCell.x = visibleColumn.columnIndex;
+            this.gridCell.y = visibleRow.index;
 
-        this.dataCell.x = this.column && this.column.index;
-        this.dataCell.y = visibleRow.rowIndex;
-    } },
+            this.dataCell.x = this.column && this.column.index;
+            this.dataCell.y = visibleRow.rowIndex;
+        }
+    },
 
     /**
      * Set up this `CellEvent` instance to point to the cell at the given grid coordinates.
@@ -292,162 +325,162 @@ var cellEventProperties = Object.defineProperties({}, { // all props non-enumera
     },
 
     /** "Visible" means scrolled into view.
-     * @type {boolean}
+     * @type {PropertyDescriptor} TODO should be {PropertyDescriptor<boolean>} however PropertyDescriptor is not generic
      * @memberOf CellEvent#
      */
     isRowVisible:    { get: function() { return !!this.visibleRow; } },
     /** "Visible" means scrolled into view.
-     * @type {boolean}
+     * @type {PropertyDescriptor} TODO should be {PropertyDescriptor<boolean>} however PropertyDescriptor is not generic
      * @memberOf CellEvent#
      */
     isColumnVisible: { get: function() { return !!this.visibleColumn; } },
     /** "Visible" means scrolled into view.
-     * @type {boolean}
+     * @type {PropertyDescriptor} TODO should be {PropertyDescriptor<boolean>} however PropertyDescriptor is not generic
      * @memberOf CellEvent#
      */
     isCellVisible:   { get: function() { return this.isRowVisible && this.isColumnVisible; } },
 
 
     /** A data row is any row in the data subgrid; all other rows (headers, footers, _etc._) are not data rows.
-     * @type {boolean}
+     * @type {PropertyDescriptor} TODO should be {PropertyDescriptor<boolean>} however PropertyDescriptor is not generic
      * @memberOf CellEvent#
      */
     isDataRow:    { get: function() { return this.subgrid.isData; } },
     /** A data column is any column that is not the row number column or the tree column.
-     * @type {boolean}
+     * @type {PropertyDescriptor} TODO should be {PropertyDescriptor<boolean>} however PropertyDescriptor is not generic
      * @memberOf CellEvent#
      */
     isDataColumn: { get: function() { return this.gridCell.x >= 0; } },
     /** A data cell is a cell in both a data row and a data column.
-     * @type {boolean}
+     * @type {PropertyDescriptor} TODO should be {PropertyDescriptor<boolean>} however PropertyDescriptor is not generic
      * @memberOf CellEvent#
      */
     isDataCell:   { get: function() { return this.isDataRow && this.isDataColumn; } },
 
 
-    /** @type {boolean}
+    /** @type {PropertyDescriptor} TODO should be {PropertyDescriptor<boolean>} however PropertyDescriptor is not generic
      * @memberOf CellEvent#
      */
     isRowSelected:    { get: function() { return this.isDataRow && this.selectionModel.isRowSelected(this.dataCell.y); } },
-    /** @type {boolean}
+    /** @type {PropertyDescriptor} TODO should be {PropertyDescriptor<boolean>} however PropertyDescriptor is not generic
      * @memberOf CellEvent#
      */
     isColumnSelected: { get: function() { return this.isDataColumn && this.selectionModel.isColumnSelected(this.gridCell.x); } },
-    /** @type {boolean}
+    /** @type {PropertyDescriptor} TODO should be {PropertyDescriptor<boolean>} however PropertyDescriptor is not generic
      * @memberOf CellEvent#
      */
     isCellSelected:   { get: function() { return this.selectionModel.isCellSelected(this.gridCell.x, this.dataCell.y); } },
 
 
-    /** @type {boolean}
+    /** @type {PropertyDescriptor} TODO should be {PropertyDescriptor<boolean>} however PropertyDescriptor is not generic
      * @memberOf CellEvent#
      */
     isRowHovered:    { get: function() { return this.grid.canvas.hasMouse && this.isDataRow && this.grid.hoverCell && this.grid.hoverCell.y === this.gridCell.y; } },
-    /** @type {boolean}
+    /** @type {PropertyDescriptor} TODO should be {PropertyDescriptor<boolean>} however PropertyDescriptor is not generic
      * @memberOf CellEvent#
      */
     isColumnHovered: { get: function() { return this.grid.canvas.hasMouse && this.isDataColumn && this.grid.hoverCell && this.grid.hoverCell.x === this.gridCell.x; } },
-    /** @type {boolean}
+    /** @type {PropertyDescriptor} TODO should be {PropertyDescriptor<boolean>} however PropertyDescriptor is not generic
      * @memberOf CellEvent#
      */
     isCellHovered:   { get: function() { return this.isRowHovered && this.isColumnHovered; } },
 
 
-    /** @type {boolean}
+    /** @type {PropertyDescriptor} TODO should be {PropertyDescriptor<boolean>} however PropertyDescriptor is not generic
      * @memberOf CellEvent#
      */
     isRowFixed:    { get: function() { return this.isDataRow && this.dataCell.y < this.grid.properties.fixedRowCount; } },
-    /** @type {boolean}
+    /** @type {PropertyDescriptor} TODO should be {PropertyDescriptor<boolean>} however PropertyDescriptor is not generic
      * @memberOf CellEvent#
      */
     isColumnFixed: { get: function() { return this.isDataColumn && this.gridCell.x < this.grid.properties.fixedColumnCount; } },
-    /** @type {boolean}
+    /** @type {PropertyDescriptor} TODO should be {PropertyDescriptor<boolean>} however PropertyDescriptor is not generic
      * @memberOf CellEvent#
      */
     isCellFixed:   { get: function() { return this.isRowFixed && this.isColumnFixed; } },
 
 
-    /** @type {boolean}
+    /** @type {PropertyDescriptor} TODO should be {PropertyDescriptor<boolean>} however PropertyDescriptor is not generic
      * @memberOf CellEvent#
      */
     isHandleColumn: { get: function() { return this.gridCell.x === this.behavior.rowColumnIndex && this.grid.properties.showRowNumbers; } },
-    /** @type {boolean}
+    /** @type {PropertyDescriptor} TODO should be {PropertyDescriptor<boolean>} however PropertyDescriptor is not generic
      * @memberOf CellEvent#
      */
     isHandleCell:   { get: function() { return this.isHandleColumn && this.isDataRow; } },
 
 
-    /** @type {boolean}
+    /** @type {PropertyDescriptor} TODO should be {PropertyDescriptor<boolean>} however PropertyDescriptor is not generic
      * @memberOf CellEvent#
      */
     isTreeColumn: { get: function() { return this.gridCell.x === this.behavior.treeColumnIndex; } },
 
 
-    /** @type {boolean}
+    /** @type {PropertyDescriptor} TODO should be {PropertyDescriptor<boolean>} however PropertyDescriptor is not generic
      * @memberOf CellEvent#
      */
     isHeaderRow:    { get: function() { return this.subgrid.isHeader; } },
-    /** @type {boolean}
+    /** @type {PropertyDescriptor} TODO should be {PropertyDescriptor<boolean>} however PropertyDescriptor is not generic
      * @memberOf CellEvent#
      */
     isHeaderHandle: { get: function() { return this.isHeaderRow && this.isHandleColumn; } },
-    /** @type {boolean}
+    /** @type {PropertyDescriptor} TODO should be {PropertyDescriptor<boolean>} however PropertyDescriptor is not generic
      * @memberOf CellEvent#
      */
     isHeaderCell:   { get: function() { return this.isHeaderRow && this.isDataColumn; } },
 
 
-    /** @type {boolean}
+    /** @type {PropertyDescriptor} TODO should be {PropertyDescriptor<boolean>} however PropertyDescriptor is not generic
      * @memberOf CellEvent#
      */
     isFilterRow:    { get: function() { return this.subgrid.isFilter; } },
-    /** @type {boolean}
+    /** @type {PropertyDescriptor} TODO should be {PropertyDescriptor<boolean>} however PropertyDescriptor is not generic
      * @memberOf CellEvent#
      */
     isFilterHandle: { get: function() { return this.isFilterRow && this.isHandleColumn; } },
-    /** @type {boolean}
+    /** @type {PropertyDescriptor} TODO should be {PropertyDescriptor<boolean>} however PropertyDescriptor is not generic
      * @memberOf CellEvent#
      */
     isFilterCell:   { get: function() { return this.isFilterRow && this.isDataColumn; } },
 
 
-    /** @type {boolean}
+    /** @type {PropertyDescriptor} TODO should be {PropertyDescriptor<boolean>} however PropertyDescriptor is not generic
      * @memberOf CellEvent#
      */
     isSummaryRow:    { get: function() { return this.subgrid.isSummary; } },
-    /** @type {boolean}
+    /** @type {PropertyDescriptor} TODO should be {PropertyDescriptor<boolean>} however PropertyDescriptor is not generic
      * @memberOf CellEvent#
      */
     isSummaryHandle: { get: function() { return this.isSummaryRow && this.isHandleColumn; } },
-    /** @type {boolean}
+    /** @type {PropertyDescriptor} TODO should be {PropertyDescriptor<boolean>} however PropertyDescriptor is not generic
      * @memberOf CellEvent#
      */
     isSummaryCell:   { get: function() { return this.isSummaryRow && this.isDataColumn; } },
 
 
-    /** @type {boolean}
+    /** @type {PropertyDescriptor} TODO should be {PropertyDescriptor<boolean>} however PropertyDescriptor is not generic
      * @memberOf CellEvent#
      */
     isTopTotalsRow:    { get: function() { return this.subgrid === this.behavior.subgrids.lookup.topTotals; } },
-    /** @type {boolean}
+    /** @type {PropertyDescriptor} TODO should be {PropertyDescriptor<boolean>} however PropertyDescriptor is not generic
      * @memberOf CellEvent#
      */
     isTopTotalsHandle: { get: function() { return this.isTopTotalsRow && this.isHandleColumn; } },
-    /** @type {boolean}
+    /** @type {PropertyDescriptor} TODO should be {PropertyDescriptor<boolean>} however PropertyDescriptor is not generic
      * @memberOf CellEvent#
      */
     isTopTotalsCell:   { get: function() { return this.isTopTotalsRow && this.isDataColumn; } },
 
 
-    /** @type {boolean}
+    /** @type {PropertyDescriptor} TODO should be {PropertyDescriptor<boolean>} however PropertyDescriptor is not generic
      * @memberOf CellEvent#
      */
     isBottomTotalsRow:    { get: function() { return this.subgrid === this.behavior.subgrids.lookup.bottomTotals; } },
-    /** @type {boolean}
+    /** @type {PropertyDescriptor} TODO should be {PropertyDescriptor<boolean>} however PropertyDescriptor is not generic
      * @memberOf CellEvent#
      */
     isBottomTotalsHandle: { get: function() { return this.isBottomTotalsRow && this.isHandleColumn; } },
-    /** @type {boolean}
+    /** @type {PropertyDescriptor} TODO should be {PropertyDescriptor<boolean>} however PropertyDescriptor is not generic
      * @memberOf CellEvent#
      */
     isBottomTotalsCell:   { get: function() { return this.isBottomTotalsRow && this.isDataColumn; } },
@@ -491,7 +524,7 @@ var enumerableDescriptor = { writable: true, enumerable: true };
  *
  * @desc Create a custom definition of `CellEvent` for each grid instance, setting the `grid`, `behavior`, and `dataModel` properties on the prototype. As this happens once per grid instantiation, it avoids having to perform this set up work on every `CellEvent` instantiation.
  *
- * @param {HyperGrid} grid
+ * @param {Hypergrid} grid
  *
  * @returns {function}
  */
@@ -588,6 +621,7 @@ function factory(grid) {
         });
 
         if (arguments.length) {
+            // @ts-ignore TODO
             this.resetGridCY(gridX, gridY);
         }
     }

@@ -1,7 +1,10 @@
-'use strict';
 
 var bundleColumns = require('./bundle-columns');
 var bundleRows = require('./bundle-rows');
+
+/**
+ * @typedef {import("./index")} Renderer
+ */
 
 /** @summary Render the grid with consolidated row OR column rects.
  * @desc Paints all the cells of a grid, one column at a time.
@@ -19,7 +22,7 @@ var bundleRows = require('./bundle-rows');
  *
  * See also the discussion of clipping in {@link Renderer#paintCellsByColumns|paintCellsByColumns}.
  * @this {Renderer}
- * @param {CanvasRenderingContext2D} gc
+ * @param {CanvasRenderingContext2D & any} gc TODO need to remove any type
  * @memberOf Renderer.prototype
  */
 function paintCellsByColumnsAndRows(gc) {

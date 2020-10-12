@@ -11,7 +11,6 @@
  * @param {object} [options.styles=defaultGlowerStyles] - Hash of CSS styles and values to transition. (For {@link effects~glower|glower} only.
  */
 
-'use strict';
 
 /**
  * Shake element back and fourth a few times as if to say, "Nope!"

@@ -1,4 +1,3 @@
-'use strict';
 
 // This file creates the Hypergrid theme registry, exposed via:
 // shared methods `Hypergrid.registerTheme` and `Hypergrid.applyTheme`
@@ -7,6 +6,10 @@
 // Application developers can add additional themes to this registry.
 
 var _ = require('object-iterators'); // fyi: installs the Array.prototype.find polyfill, as needed
+
+/**
+ * @typedef {any} HypergridThemeObject TODO
+ */
 
 var defaults = require('../defaults');
 var dynamicPropertyDescriptors = require('../lib/dynamicProperties');
@@ -167,6 +170,9 @@ function applyTheme(theme) {
  * @mixin themes.mixin
  */
 var mixin = {
+    /**
+     * @this {any} TODO
+     */
     initThemeLayer: function() {
         /**
          * Descends from {@link module:defaults|defaults}.

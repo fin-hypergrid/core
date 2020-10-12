@@ -1,4 +1,3 @@
-'use strict';
 
 var CellEditor = require('./CellEditor');
 var Localization = require('../lib/Localization');
@@ -10,6 +9,7 @@ var Localization = require('../lib/Localization');
  * @constructor
  * @extends CellEditor
  */
+// @ts-ignore TODO use classes
 var Textfield = CellEditor.extend('Textfield', {
 
     template: '<input type="text" lang="{{locale}}" class="hypergrid-textfield" style="{{style}}">',

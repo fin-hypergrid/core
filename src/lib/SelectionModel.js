@@ -1,4 +1,3 @@
-'use strict';
 
 var RangeSelectionModel = require('sparse-boolean-array');
 
@@ -16,6 +15,10 @@ function SelectionModel(grid) {
     this.reset();
 }
 
+/**
+ * @typedef {SelectionModel.prototype} SelectionModelType TODO - needs to become one type
+ */
+
 SelectionModel.prototype = {
 
     constructor: SelectionModel.prototype.constructor,
@@ -26,6 +29,9 @@ SelectionModel.prototype = {
      */
     allRowsSelected: false,
 
+    /**
+     * @this {SelectionModelType}
+     */
     reset: function() {
         /**
          * @name selections
@@ -77,6 +83,7 @@ SelectionModel.prototype = {
 
     /**
      * @memberOf SelectionModel.prototype
+     * @this {SelectionModelType}
      * @returns {*}
      */
     getLastSelection: function() {
@@ -92,6 +99,7 @@ SelectionModel.prototype = {
      *
      * Returns empty string (`''`) if there are no selections.
      * @memberOf SelectionModel.prototype
+     * @this {SelectionModelType}
      * @returns {*}
      */
     getLastSelectionType: function(n) {
@@ -106,6 +114,7 @@ SelectionModel.prototype = {
      * @param {string} type - One of: `'cell'`, `'row'`, or `'column'`
      * @param {boolean} [reset=false] - Remove the given `type` from the stack. Specify truthy when the only remaining previous selection of `type` has been deselected.
      * @memberOf SelectionModel.prototype
+     * @this {SelectionModelType}
      */
     setLastSelectionType: function(type, reset) {
         var i = this.lastSelectionType.indexOf(type);
@@ -122,6 +131,7 @@ SelectionModel.prototype = {
 
     /**
      * @memberOf SelectionModel.prototype
+     * @this {SelectionModelType}
      * @description Select the region described by the given coordinates.
      *
      * @param {number} ox - origin x coordinate
@@ -159,6 +169,7 @@ SelectionModel.prototype = {
 
     /**
      * @memberOf SelectionModel.prototype
+     * @this {SelectionModelType}
      * @param {number} ox - origin x coordinate
      * @param {number} oy - origin y coordinate
      * @param {number} ex - extent x coordinate
@@ -186,6 +197,7 @@ SelectionModel.prototype = {
 
     /**
      * @memberOf SelectionModel.prototype
+     * @this {SelectionModelType}
      * @desc Remove the last selection that was created.
      */
     clearMostRecentSelection: function(keepRowSelections) {
@@ -201,6 +213,7 @@ SelectionModel.prototype = {
 
     /**
      * @memberOf SelectionModel.prototype
+     * @this {SelectionModelType}
      */
     clearMostRecentColumnSelection: function() {
         this.columnSelectionModel.clearMostRecentSelection();
@@ -209,6 +222,7 @@ SelectionModel.prototype = {
 
     /**
      * @memberOf SelectionModel.prototype
+     * @this {SelectionModelType}
      */
     clearMostRecentRowSelection: function() {
         this.rowSelectionModel.clearMostRecentSelection();
@@ -217,6 +231,7 @@ SelectionModel.prototype = {
 
     /**
      * @memberOf SelectionModel.prototype
+     * @this {SelectionModelType}
      */
     clearRowSelection: function() {
         this.rowSelectionModel.clear();
@@ -225,6 +240,7 @@ SelectionModel.prototype = {
 
     /**
      * @memberOf SelectionModel.prototype
+     * @this {SelectionModelType}
      * @returns {*}
      */
     getSelections: function() {
@@ -233,6 +249,7 @@ SelectionModel.prototype = {
 
     /**
      * @memberOf SelectionModel.prototype
+     * @this {SelectionModelType}
      * @returns {boolean} There are active selection(s).
      */
     hasSelections: function() {
@@ -241,6 +258,7 @@ SelectionModel.prototype = {
 
     /**
      * @memberOf SelectionModel.prototype
+     * @this {SelectionModelType}
      * @returns {boolean}
      */
     hasRowSelections: function() {
@@ -249,6 +267,7 @@ SelectionModel.prototype = {
 
     /**
      * @memberOf SelectionModel.prototype
+     * @this {SelectionModelType}
      * @returns {boolean}
      */
     hasColumnSelections: function() {
@@ -257,6 +276,7 @@ SelectionModel.prototype = {
 
     /**
      * @memberOf SelectionModel.prototype
+     * @this {SelectionModelType}
      * @return {boolean} Selection covers a specific column.
      * @param {number} y
      */
@@ -266,6 +286,7 @@ SelectionModel.prototype = {
 
     /**
      * @memberOf SelectionModel.prototype
+     * @this {SelectionModelType}
      * @returns Selection covers a specific row.
      * @param {number} x
      */
@@ -275,6 +296,7 @@ SelectionModel.prototype = {
 
     /**
      * @memberOf SelectionModel.prototype
+     * @this {SelectionModelType}
      * @summary Selection query function.
      * @returns {boolean} The given cell is selected (part of an active selection).
      * @param {Rectangle[]} selections - Selection rectangles to search through.
@@ -291,6 +313,7 @@ SelectionModel.prototype = {
 
     /**
      * @memberOf SelectionModel.prototype
+     * @this {SelectionModelType}
      * @param x
      * @param y
      * @returns {*}
@@ -301,6 +324,7 @@ SelectionModel.prototype = {
 
     /**
      * @memberOf SelectionModel.prototype
+     * @this {SelectionModelType}
      * @param selections
      * @param x
      * @param y
@@ -316,6 +340,7 @@ SelectionModel.prototype = {
 
     /**
      * @memberOf SelectionModel.prototype
+     * @this {SelectionModelType}
      * @desc empty out all our state
      *
      */
@@ -338,6 +363,7 @@ SelectionModel.prototype = {
 
     /**
      * @memberOf SelectionModel.prototype
+     * @this {SelectionModelType}
      * @param {number} ox - origin x coordinate
      * @param {number} oy - origin y coordinate
      * @param {number} ex - extent x coordinate
@@ -355,6 +381,7 @@ SelectionModel.prototype = {
 
     /**
      * @memberOf SelectionModel.prototype
+     * @this {SelectionModelType}
      * @param x
      * @returns {*}
      */
@@ -364,6 +391,7 @@ SelectionModel.prototype = {
 
     /**
      * @memberOf SelectionModel.prototype
+     * @this {SelectionModelType}
      * @param y
      * @returns {boolean|*}
      */
@@ -373,6 +401,7 @@ SelectionModel.prototype = {
 
     /**
      * @memberOf SelectionModel.prototype
+     * @this {SelectionModelType}
      * @param x1
      * @param x2
      */
@@ -383,6 +412,7 @@ SelectionModel.prototype = {
 
     /**
      * @memberOf SelectionModel.prototype
+     * @this {SelectionModelType}
      */
     selectAllRows: function() {
         this.clear();
@@ -391,9 +421,8 @@ SelectionModel.prototype = {
 
     /**
      * @memberOf SelectionModel.prototype
-     * @returns {boolean}
+     * @this {SelectionModelType}
      */
-
     setAllRowsSelected: function(isIt) {
         this.allRowsSelected = isIt;
     },
@@ -404,6 +433,7 @@ SelectionModel.prototype = {
 
     /**
      * @memberOf SelectionModel.prototype
+     * @this {SelectionModelType}
      * @param y1
      * @param y2
      */
@@ -414,6 +444,7 @@ SelectionModel.prototype = {
 
     /**
      * @memberOf SelectionModel.prototype
+     * @this {SelectionModelType}
      * @param x1
      * @param x2
      */
@@ -424,6 +455,7 @@ SelectionModel.prototype = {
 
     /**
      * @memberOf SelectionModel.prototype
+     * @this {SelectionModelType}
      * @param y1
      * @param y2
      */
@@ -440,6 +472,7 @@ SelectionModel.prototype = {
 
     /**
      * @memberOf SelectionModel.prototype
+     * @this {SelectionModelType}
      * @returns {*}
      */
     getSelectedRows: function() {
@@ -456,7 +489,8 @@ SelectionModel.prototype = {
 
     /**
      * @memberOf SelectionModel.prototype
-     * @returns {*|Array.Array.number}
+     * @this {SelectionModelType}
+     * @returns {any} TODO
      */
     getSelectedColumns: function() {
         return this.columnSelectionModel.getSelections();
@@ -464,6 +498,7 @@ SelectionModel.prototype = {
 
     /**
      * @memberOf SelectionModel.prototype
+     * @this {SelectionModelType}
      * @returns {boolean}
      */
      isColumnOrRowSelected: function() {
@@ -472,6 +507,7 @@ SelectionModel.prototype = {
 
     /**
      * @memberOf SelectionModel.prototype
+     * @this {SelectionModelType}
      * @returns {Array}
      */
     getFlattenedYs: function() {
@@ -496,6 +532,7 @@ SelectionModel.prototype = {
 
     /**
      * @memberOf SelectionModel.prototype
+     * @this {SelectionModelType}
      * @param offset
      */
     selectRowsFromCells: function(offset, keepRowSelections) {
@@ -518,6 +555,7 @@ SelectionModel.prototype = {
 
     /**
      * @memberOf SelectionModel.prototype
+     * @this {SelectionModelType}
      * @param offset
      */
     selectColumnsFromCells: function(offset) {
@@ -536,6 +574,7 @@ SelectionModel.prototype = {
 
     /**
      * @memberOf SelectionModel.prototype
+     * @this {SelectionModelType}
      * @param x
      * @param y
      * @returns {*}
@@ -547,6 +586,7 @@ SelectionModel.prototype = {
 
     /**
      * @memberOf SelectionModel.prototype
+     * @this {SelectionModelType}
      * @param rect
      * @param x
      * @param y

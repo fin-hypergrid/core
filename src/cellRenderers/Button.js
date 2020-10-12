@@ -1,4 +1,3 @@
-'use strict';
 
 var CellRenderer = require('./CellRenderer');
 
@@ -7,6 +6,7 @@ var CellRenderer = require('./CellRenderer');
  * @constructor
  * @extends CellRenderer
  */
+// @ts-ignore TODO use classes
 var Button = CellRenderer.extend('Button', {
     paint: function(gc, config) {
         var val = config.value,

@@ -1,4 +1,7 @@
-'use strict';
+
+/**
+ * @typedef {any} Hypergrid TODO
+ */
 
 /**
  * Hypergrid/index.js mixes this module into its prototype.

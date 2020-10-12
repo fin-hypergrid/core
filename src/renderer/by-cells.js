@@ -1,6 +1,9 @@
-'use strict';
 
 var paintCellsByColumnsAndRows = require('./by-columns-and-rows');
+
+/**
+ * @typedef {import("./index")} Renderer
+ */
 
 /** @summary Render the grid only as needed ("partial render").
  * @desc Paints all the cells of a grid, one column at a time, but only as needed.
@@ -26,7 +29,7 @@ var paintCellsByColumnsAndRows = require('./by-columns-and-rows');
  *
  * See also the discussion of clipping in {@link Renderer#paintCellsByColumns|paintCellsByColumns}.
  * @this {Renderer}
- * @param {CanvasRenderingContext2D} gc
+ * @param {CanvasRenderingContext2D & any} gc TODO need to remove any type
  * @memberOf Renderer.prototype
  */
 function paintCellsAsNeeded(gc) {

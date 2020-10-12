@@ -1,11 +1,16 @@
-'use strict';
 
 var Feature = require('./Feature');
+
+/**
+ * @typedef {import("../Hypergrid")} Hypergrid
+ * @typedef {any} ColumnResizingType TODO
+ */
 
 /**
  * @constructor
  * @extends Feature
  */
+// @ts-ignore TODO use classes
 var ColumnResizing = Feature.extend('ColumnResizing', {
 
     /**
@@ -26,18 +31,20 @@ var ColumnResizing = Feature.extend('ColumnResizing', {
 
     /**
      * @memberOf ColumnResizing.prototype
+     * @this ColumnResizingType
      * @desc get the mouse x,y coordinate
      * @returns {number}
      * @param {MouseEvent} event - the mouse event to query
      */
     getMouseValue: function(event) {
+        // @ts-ignore
         return event.primitiveEvent.detail.mouse.x;
     },
 
     /**
      * @memberOf ColumnResizing.prototype
      * @desc returns the index of which divider I'm over
-     * @returns {number}
+     * @returns {boolean}
      * @param {Hypergrid} grid
      * @param {Object} event - the event details
      */
@@ -88,6 +95,7 @@ var ColumnResizing = Feature.extend('ColumnResizing', {
 
     /**
      * @memberOf ColumnResizing.prototype
+     * @this ColumnResizingType
      * @param {Hypergrid} grid
      * @param {Object} event - the event details
      */
@@ -132,6 +140,7 @@ var ColumnResizing = Feature.extend('ColumnResizing', {
 
     /**
      * @memberOf ColumnResizing.prototype
+     * @this ColumnResizingType
      * @param {Hypergrid} grid
      * @param {Object} event - the event details
      */
@@ -150,6 +159,7 @@ var ColumnResizing = Feature.extend('ColumnResizing', {
 
     /**
      * @memberOf ColumnResizing.prototype
+     * @this ColumnResizingType
      * @param {Hypergrid} grid
      * @param {Object} event - the event details
      */

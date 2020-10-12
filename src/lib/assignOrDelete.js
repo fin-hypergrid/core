@@ -1,4 +1,3 @@
-'use strict';
 
 /**
  * For each key in src:

@@ -1,4 +1,3 @@
-'use strict';
 
 var CellRenderer = require('./CellRenderer');
 
@@ -8,6 +7,7 @@ var CellRenderer = require('./CellRenderer');
  * @constructor
  * @extends CellRenderer
  */
+// @ts-ignore TODO use classes
 var SparkLine = CellRenderer.extend('SparkLine', {
     paint: function(gc, config) {
         var x = config.bounds.x,
