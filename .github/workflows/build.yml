@@ -18,4 +18,4 @@ jobs:
         with:
           node-version: 14
       - run: npm run build:gulp
-      - run: npm run build
+      #- run: npm run build # Pending
