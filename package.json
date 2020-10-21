@@ -7,7 +7,6 @@
     "type": "git",
     "url": "git://github.com/EclipseTrading/hypergrid/core.git"
   },
-  "private": "true",
   "contributors": [
     "Jonathan Eiten (https://github.com/joneit)",
     "Dwayne Jones (https://github.com/dwaynekj)",
