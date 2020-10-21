@@ -1,11 +1,11 @@
 {
-  "name": "hypergrid",
-  "version": "4.0.0-alpha.0",
+  "name": "@eclipsetrading/hypergrid",
+  "version": "4.0.0-alpha.1",
   "description": "Canvas-based high-performance grid",
   "main": "src/Hypergrid",
   "repository": {
     "type": "git",
-    "url": "git://github.com/EclipseTrading/hypergrid/core.git"
+    "url": "git://github.com/EclipseTrading/hypergrid.git"
   },
   "contributors": [
     "Jonathan Eiten (https://github.com/joneit)",
