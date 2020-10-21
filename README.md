@@ -3,9 +3,6 @@
 
 Forked as `eclipsetrading-hypergrid`. With the aim of converting to TypeScript and updating to use ES6 classes over `extend-me`.
 
-**v4.0.0-alpha.1**
-21 October 2020
-
 ### Distribution
 
 #### npm module _(recommended)_
