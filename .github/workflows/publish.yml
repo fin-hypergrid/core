@@ -10,14 +10,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - uses: actions/setup-node@v1
+      - uses: actions/setup-node@v1.4.4
         with:
           node-version: 14
       - run: npm install
       - run: npm run build:gulp
-      - uses: actions/setup-node@v1
+      - uses: actions/setup-node@v1.4.4
         with:
-           registry-url: 'https://npm.pkg.github.com'
+          registry-url: 'https://registry.npmjs.org'
+          scope: '@eclipsetrading'
       - run: npm publish
         env:
-          NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
+          NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
