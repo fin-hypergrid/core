@@ -48,15 +48,15 @@ var cellEventProperties = Object.defineProperties({}, { // all props non-enumera
         var cp = this._columnProperties;
         if (!cp) {
             cp = this.column.properties;
-            if (!this.isDataColumn) {
-                // cp already set to cp.rowHeader or cp.treeHeader
-            } else if (this.isDataRow) {
-                // cp already set to basic props
+            if (this.isHeaderRow || this.isSummaryRow) {
+                cp = cp.columnHeader;
             } else if (this.isFilterRow) {
                 cp = cp.filterProperties;
-            } else { // unselected header, summary, etc., all have save look as unselected header
-                cp = cp.columnHeader;
             }
+
+            // isDataColumn: cp already set to cp.rowHeader or cp.treeHeader
+            // isDataRow: cp already set to basic props
+
             this._columnProperties = cp;
         }
         return cp;
