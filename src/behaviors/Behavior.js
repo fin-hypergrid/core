@@ -1089,12 +1089,12 @@ var Behavior = Base.extend('Behavior', {
     swapColumns: function(source, target) {
         var columns = this.columns;
         var sourceColumn = columns[source];
-        if (sourceColumn == undefined) {
+        if (sourceColumn === undefined) {
             return;
         }
         var targetColumn = columns[target];
         columns[source] = targetColumn;
-        if (sourceColumn == undefined) {
+        if (sourceColumn === undefined) {
             return;
         }
         columns[target] = sourceColumn;
