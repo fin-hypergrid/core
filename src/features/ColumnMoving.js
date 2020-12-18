@@ -382,7 +382,8 @@ var ColumnMoving = Feature.extend('ColumnMoving', {
         style.borderTop = '1px solid ' + grid.properties.lineColor;
         style.backgroundColor = grid.properties.backgroundColor;
 
-        var startX = grid.renderer.visibleColumns[columnIndex - scrollLeft].left * hdpiRatio;
+        const foundCol = grid.renderer.visibleColumns[columnIndex - scrollLeft];
+        var startX = (foundCol ? foundCol.left : 0) * hdpiRatio;
 
         floatColumnCTX.scale(hdpiRatio, hdpiRatio);
 
@@ -511,7 +512,7 @@ var ColumnMoving = Feature.extend('ColumnMoving', {
         x = Math.max(minX - 15, x);
 
         //am I at my lower bound
-        var atMin = x < minX && dragColumnIndex !== 0;
+        var atMin = x < minX; // && dragColumnIndex !== 0;
 
         //am I at my upper bound
         var atMax = x > maxX;
