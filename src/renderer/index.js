@@ -309,10 +309,12 @@ var Renderer = Base.extend('Renderer', {
             isPseudoCol = true;
         }
 
-        var cellEvent = new this.grid.behavior.CellEvent(vc.columnIndex, vr.index),
-            cellEventFromPool = this.findCell(cellEvent);
-        result.cellEvent = cellEventFromPool ? Object.create(cellEventFromPool) : cellEvent;
-        result.cellEvent.mousePoint = this.grid.newPoint(x - vc.left, y - vr.top);
+        if (vc !== undefined) {
+            var cellEvent = new this.grid.behavior.CellEvent(vc.columnIndex, vr.index),
+                cellEventFromPool = this.findCell(cellEvent);
+            result.cellEvent = cellEventFromPool ? Object.create(cellEventFromPool) : cellEvent;
+            result.cellEvent.mousePoint = this.grid.newPoint(x - vc.left, y - vr.top);
+        }
 
         if (isPseudoCol || isPseudoRow) {
             result.fake = true;
