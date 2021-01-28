@@ -70,11 +70,12 @@ var ELLIPSIS = '\u2026'; // The "…" (dot-dot-dot) character
  * @param {number} width - Width of target cell; overflow point.
  * @param {boolean|null|undefined} truncateTextWithEllipsis - _Per {@link module:defaults.truncateTextWithEllipsis}._
  * @param {boolean} [abort=false] - Abort measuring upon overflow. Returned `width` sum will reflect truncated string rather than untruncated string. Note that returned `string` is truncated in either case.
+ * @param {boolean} [truncateFromStart=true] - by default it will truncate the string from the position 0
  * @returns {{string:string,width:number}}
  * * `object.string` - `undefined` if it fits; truncated version of provided `string` if it does not.
  * * `object.width` - Width of provided `string` if it fits; width of truncated string if it does not.
  */
-function getTextWidthTruncated(string, width, truncateTextWithEllipsis, abort, truncateFromStart = true) {
+function getTextWidthTruncated(string, width, truncateTextWithEllipsis, abort, truncateFromStart) {
     var metrics = fontMetrics[this.cache.font],
         truncating = truncateTextWithEllipsis !== undefined,
         truncString, truncWidth, truncAt;
@@ -86,10 +87,11 @@ function getTextWidthTruncated(string, width, truncateTextWithEllipsis, abort, t
 
     string += ''; // convert to string
     width += truncateTextWithEllipsis === false ? 2 : -1; // fudge for inequality
+    var char, charWidth, sum = 0;
     if (truncateFromStart) {
-        for (var i = 0, sum = 0, len = string.length; i < len; ++i) {
-            var char = string[i];
-            var charWidth = metrics[char] = metrics[char] || this.measureText(char).width;
+        for (var i = 0, len = string.length; i < len; ++i) {
+            char = string[i];
+            charWidth = metrics[char] = metrics[char] || this.measureText(char).width;
             sum += charWidth;
             if (!truncString && truncating && sum > width) {
                 truncAt = i;
@@ -115,9 +117,9 @@ function getTextWidthTruncated(string, width, truncateTextWithEllipsis, abort, t
             }
         }
     } else {
-        for (var j = string.length, sum = 0; j > 0; --j) {
-            var char = string[j - 1];
-            var charWidth = metrics[char] = metrics[char] || this.measureText(char).width;
+        for (var j = string.length; j > 0; --j) {
+            char = string[j - 1];
+            charWidth = metrics[char] = metrics[char] || this.measureText(char).width;
             sum += charWidth;
             if (!truncString && truncating && sum > width) {
                 truncString = string.substr(j);

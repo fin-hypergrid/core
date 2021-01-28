@@ -279,7 +279,7 @@ function renderSingleLineText(gc, config, val, leftPadding, rightPadding) {
         metrics = gc.getTextWidthTruncated(val, width - leftPadding, config.truncateTextWithEllipsis, false, halign !== 'right');
         minWidth = metrics.width;
         val = metrics.string || val;
-        if (halign == 'center') {
+        if (halign === 'center') {
             halignOffset = (width - metrics.width) / 2;
         }
     } else {
@@ -290,7 +290,7 @@ function renderSingleLineText(gc, config, val, leftPadding, rightPadding) {
             val = metrics.string;
         } else {
             // enought space to show the entire text
-            if (halign == 'center') {
+            if (halign === 'center') {
                 halignOffset = (width - metrics.width) / 2;
             }
         }
@@ -332,7 +332,7 @@ function renderSingleLineText(gc, config, val, leftPadding, rightPadding) {
 
         gc.cache.textAlign = halign === 'right'
             ? 'right'
-            : 'left'
+            : 'left';
         gc.cache.textBaseline = 'middle';
         gc.simpleText(val, x, y);
     }
