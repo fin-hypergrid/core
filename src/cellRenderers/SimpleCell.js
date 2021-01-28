@@ -276,36 +276,34 @@ function renderSingleLineText(gc, config, val, leftPadding, rightPadding) {
         metrics;
 
     if (config.columnAutosizing) {
-        metrics = gc.getTextWidthTruncated(val, width - leftPadding, config.truncateTextWithEllipsis);
+        metrics = gc.getTextWidthTruncated(val, width - leftPadding, config.truncateTextWithEllipsis, false, halign !== 'right');
         minWidth = metrics.width;
         val = metrics.string || val;
-        switch (halign) {
-            case 'right':
-                halignOffset = width - rightPadding - metrics.width;
-                break;
-            case 'center':
-                halignOffset = (width - metrics.width) / 2;
-                break;
+        if (halign == 'center') {
+            halignOffset = (width - metrics.width) / 2;
         }
     } else {
-        metrics = gc.getTextWidthTruncated(val, width - leftPadding, config.truncateTextWithEllipsis, true);
+        metrics = gc.getTextWidthTruncated(val, width - leftPadding, config.truncateTextWithEllipsis, true, halign !== 'right');
         minWidth = 0;
         if (metrics.string !== undefined) {
+            // not enough space to show the extire text, the text is truncated to fit for the width
             val = metrics.string;
         } else {
-            switch (halign) {
-                case 'right':
-                    halignOffset = width - rightPadding - metrics.width;
-                    break;
-                case 'center':
-                    halignOffset = (width - metrics.width) / 2;
-                    break;
+            // enought space to show the entire text
+            if (halign == 'center') {
+                halignOffset = (width - metrics.width) / 2;
             }
         }
     }
 
     if (val !== null) {
-        x += Math.max(leftPadding, halignOffset);
+        // the position for x need to be relocated.
+        // for canvas to print text, when textAlign is 'end' or 'right'
+        // it will start with position x and print the text on the left
+        // so the exact position for x need to increase by the acutal width - rightPadding
+        x += halign === 'right'
+            ? width - rightPadding
+            : Math.max(leftPadding, halignOffset);
         y += Math.floor(config.bounds.height / 2);
 
         if (config.isUserDataArea) {
@@ -332,7 +330,9 @@ function renderSingleLineText(gc, config, val, leftPadding, rightPadding) {
             }
         }
 
-        gc.cache.textAlign = 'left';
+        gc.cache.textAlign = halign === 'right'
+            ? 'right'
+            : 'left'
         gc.cache.textBaseline = 'middle';
         gc.simpleText(val, x, y);
     }

@@ -74,7 +74,7 @@ var ELLIPSIS = '\u2026'; // The "…" (dot-dot-dot) character
  * * `object.string` - `undefined` if it fits; truncated version of provided `string` if it does not.
  * * `object.width` - Width of provided `string` if it fits; width of truncated string if it does not.
  */
-function getTextWidthTruncated(string, width, truncateTextWithEllipsis, abort) {
+function getTextWidthTruncated(string, width, truncateTextWithEllipsis, abort, truncateFromStart = true) {
     var metrics = fontMetrics[this.cache.font],
         truncating = truncateTextWithEllipsis !== undefined,
         truncString, truncWidth, truncAt;
@@ -86,31 +86,43 @@ function getTextWidthTruncated(string, width, truncateTextWithEllipsis, abort) {
 
     string += ''; // convert to string
     width += truncateTextWithEllipsis === false ? 2 : -1; // fudge for inequality
-    for (var i = 0, sum = 0, len = string.length; i < len; ++i) {
-        var char = string[i];
-        var charWidth = metrics[char] = metrics[char] || this.measureText(char).width;
-        sum += charWidth;
-        if (!truncString && truncating && sum > width) {
-            truncAt = i;
-            switch (truncateTextWithEllipsis) {
-                case true: // truncate sufficient characters to fit ellipsis if possible
-                    truncWidth = sum - charWidth + metrics[ELLIPSIS];
-                    while (truncAt && truncWidth > width) {
-                        truncWidth -= metrics[string[--truncAt]];
-                    }
-                    truncString = truncWidth > width
-                        ? '' // not enough room even for ellipsis
-                        : truncString = string.substr(0, truncAt) + ELLIPSIS;
-                    break;
-                case false: // truncate *before* last partially visible character
-                    truncString = string.substr(0, truncAt);
-                    break;
-                default: // truncate *after* partially visible character
-                    if (++truncAt < string.length) {
+    if (truncateFromStart) {
+        for (var i = 0, sum = 0, len = string.length; i < len; ++i) {
+            var char = string[i];
+            var charWidth = metrics[char] = metrics[char] || this.measureText(char).width;
+            sum += charWidth;
+            if (!truncString && truncating && sum > width) {
+                truncAt = i;
+                switch (truncateTextWithEllipsis) {
+                    case true: // truncate sufficient characters to fit ellipsis if possible
+                        truncWidth = sum - charWidth + metrics[ELLIPSIS];
+                        while (truncAt && truncWidth > width) {
+                            truncWidth -= metrics[string[--truncAt]];
+                        }
+                        truncString = truncWidth > width
+                            ? '' // not enough room even for ellipsis
+                            : truncString = string.substr(0, truncAt) + ELLIPSIS;
+                        break;
+                    case false: // truncate *before* last partially visible character
                         truncString = string.substr(0, truncAt);
-                    }
+                        break;
+                    default: // truncate *after* partially visible character
+                        if (++truncAt < string.length) {
+                            truncString = string.substr(0, truncAt);
+                        }
+                }
+                if (abort) { break; }
             }
-            if (abort) { break; }
+        }
+    } else {
+        for (var j = string.length, sum = 0; j > 0; --j) {
+            var char = string[j - 1];
+            var charWidth = metrics[char] = metrics[char] || this.measureText(char).width;
+            sum += charWidth;
+            if (!truncString && truncating && sum > width) {
+                truncString = string.substr(j);
+                if (abort) { break; }
+            }
         }
     }
     return {
