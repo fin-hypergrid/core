@@ -131,6 +131,7 @@ function Canvas(div, component, contextAttributes) {
 
 /**
  * @typedef {any} CanvasType TODO need to formalise this
+ * @this {CanvasType}
  */
 Canvas.prototype = {
     constructor: Canvas.prototype.constructor,
@@ -160,6 +161,7 @@ Canvas.prototype = {
     lastFPSComputeTime: 0,
 
     /**
+     * @type {any} // Handle TS bug, remove this issue after resolved {@link https://github.com/microsoft/TypeScript/issues/41672)
      * @this CanvasType
      */
     addEventListener: function(name, callback) {
@@ -167,6 +169,7 @@ Canvas.prototype = {
     },
 
     /**
+     * @type {any} // Handle TS bug, remove this issue after resolved {@link https://github.com/microsoft/TypeScript/issues/41672)
      * @this CanvasType
      */
     removeEventListener: function(name, callback) {
@@ -189,6 +192,7 @@ Canvas.prototype = {
     },
 
     /**
+     * @type {any} // Handle TS bug, remove this issue after resolved {@link https://github.com/microsoft/TypeScript/issues/41672)
      * @this CanvasType
      */
     tickPaint: function(now) {
@@ -216,6 +220,7 @@ Canvas.prototype = {
     },
 
     /**
+     * @type {any} // Handle TS bug, remove this issue after resolved {@link https://github.com/microsoft/TypeScript/issues/41672)
      * @this CanvasType
      */
     beginPainting: function() {
@@ -232,6 +237,7 @@ Canvas.prototype = {
     },
 
     /**
+     * @type {any} // Handle TS bug, remove this issue after resolved {@link https://github.com/microsoft/TypeScript/issues/41672)
      * @this CanvasType
      */
     beginResizing: function() {
@@ -257,6 +263,7 @@ Canvas.prototype = {
     },
 
     /**
+     * @type {any} // Handle TS bug, remove this issue after resolved {@link https://github.com/microsoft/TypeScript/issues/41672)
      * @this CanvasType
      */
     getBoundingClientRect: function(el) {
@@ -305,6 +312,7 @@ Canvas.prototype = {
     },
 
     /**
+     * @type {any} // Handle TS bug, remove this issue after resolved {@link https://github.com/microsoft/TypeScript/issues/41672)
      * @this CanvasType
      */
     checksize: function() {
@@ -315,6 +323,7 @@ Canvas.prototype = {
     },
 
     /**
+     * @type {any} // Handle TS bug, remove this issue after resolved {@link https://github.com/microsoft/TypeScript/issues/41672)
      * @this CanvasType
      */
     resize: function(box) {
@@ -344,6 +353,7 @@ Canvas.prototype = {
     },
 
     /**
+     * @type {any} // Handle TS bug, remove this issue after resolved {@link https://github.com/microsoft/TypeScript/issues/41672)
      * @this CanvasType
      */
     resizeNotification: function() {
@@ -354,6 +364,7 @@ Canvas.prototype = {
     },
 
     /**
+     * @type {any} // Handle TS bug, remove this issue after resolved {@link https://github.com/microsoft/TypeScript/issues/41672)
      * @this CanvasType
      */
     resetZoom: function() {
@@ -385,6 +396,7 @@ Canvas.prototype = {
     },
 
     /**
+     * @type {any} // Handle TS bug, remove this issue after resolved {@link https://github.com/microsoft/TypeScript/issues/41672)
      * @this CanvasType
      */
     paintNow: function() {
@@ -413,6 +425,7 @@ Canvas.prototype = {
     },
 
     /**
+     * @type {any} // Handle TS bug, remove this issue after resolved {@link https://github.com/microsoft/TypeScript/issues/41672)
      * @this CanvasType
      */
     dispatchNewEvent: function(primitiveEvent, name, detail) {
@@ -438,6 +451,7 @@ Canvas.prototype = {
     },
 
     /**
+     * @type {any} // Handle TS bug, remove this issue after resolved {@link https://github.com/microsoft/TypeScript/issues/41672)
      * @this CanvasType
      */
     finmousemove: function(e) {
@@ -462,6 +476,7 @@ Canvas.prototype = {
     },
 
     /**
+     * @type {any} // Handle TS bug, remove this issue after resolved {@link https://github.com/microsoft/TypeScript/issues/41672)
      * @this CanvasType
      */
     finmousedown: function(e) {
@@ -474,6 +489,10 @@ Canvas.prototype = {
         this.takeFocus();
     },
 
+    /**
+     * @type {any} // Handle TS bug, remove this issue after resolved {@link https://github.com/microsoft/TypeScript/issues/41672)
+     * @this CanvasType
+     */
     finmouseup: function(e) {
         if (!this.mousedown) {
             // ignore document:mouseup unless preceded by a canvas:mousedown
@@ -495,6 +514,10 @@ Canvas.prototype = {
         //this.mouseLocation = new rectangular.Point(-1, -1);
     },
 
+    /**
+     * @type {any} // Handle TS bug, remove this issue after resolved {@link https://github.com/microsoft/TypeScript/issues/41672)
+     * @this CanvasType
+     */
     finmouseout: function(e) {
         if (!this.mousedown) {
             this.mouseLocation = new rectangular.Point(-1, -1);
@@ -505,6 +528,10 @@ Canvas.prototype = {
         });
     },
 
+    /**
+     * @type {any} // Handle TS bug, remove this issue after resolved {@link https://github.com/microsoft/TypeScript/issues/41672)
+     * @this CanvasType
+     */
     finwheelmoved: function(e) {
         if (this.isDragging() || !this.hasFocus()) {
             return;
@@ -515,6 +542,10 @@ Canvas.prototype = {
         });
     },
 
+    /**
+     * @type {any} // Handle TS bug, remove this issue after resolved {@link https://github.com/microsoft/TypeScript/issues/41672)
+     * @this CanvasType
+     */
     finclick: function(e) {
         this.mouseLocation = this.getLocal(e);
         this.dispatchNewMouseKeysEvent(e, 'fin-canvas-click', {
@@ -522,6 +553,10 @@ Canvas.prototype = {
         });
     },
 
+    /**
+     * @type {any} // Handle TS bug, remove this issue after resolved {@link https://github.com/microsoft/TypeScript/issues/41672)
+     * @this CanvasType
+     */
     findblclick: function(e) {
         this.mouseLocation = this.getLocal(e);
         this.dispatchNewMouseKeysEvent(e, 'fin-canvas-dblclick', {
@@ -550,6 +585,10 @@ Canvas.prototype = {
         );
     },
 
+    /**
+     * @type {any} // Handle TS bug, remove this issue after resolved {@link https://github.com/microsoft/TypeScript/issues/41672)
+     * @this CanvasType
+     */
     finkeydown: function(e) {
         if (!this.hasFocus()) {
             return;
@@ -585,6 +624,10 @@ Canvas.prototype = {
         }));
     },
 
+    /**
+     * @type {any} // Handle TS bug, remove this issue after resolved {@link https://github.com/microsoft/TypeScript/issues/41672)
+     * @this CanvasType
+     */
     finkeyup: function(e) {
         if (!this.hasFocus()) {
             return;
@@ -644,11 +687,16 @@ Canvas.prototype = {
         return !!paintRequest;
     },
 
+    /**
+     * @type {any} // Handle TS bug, remove this issue after resolved {@link https://github.com/microsoft/TypeScript/issues/41672)
+     * @this CanvasType
+     */
     requestRepaint: function() {
         this.dirty = true;
     },
 
     /**
+     * @type {any} // Handle TS bug, remove this issue after resolved {@link https://github.com/microsoft/TypeScript/issues/41672)
      * @this CanvasType
      */
     repaint: function() {
@@ -669,6 +717,7 @@ Canvas.prototype = {
     },
 
     /**
+     * @type {any} // Handle TS bug, remove this issue after resolved {@link https://github.com/microsoft/TypeScript/issues/41672)
      * @this CanvasType
      */
     getLocal: function(e) {
@@ -687,6 +736,7 @@ Canvas.prototype = {
     },
 
     /**
+     * @type {any} // Handle TS bug, remove this issue after resolved {@link https://github.com/microsoft/TypeScript/issues/41672)
      * @this CanvasType
      */
     takeFocus: function() {
@@ -698,11 +748,19 @@ Canvas.prototype = {
         }
     },
 
+    /**
+     * @type {any} // Handle TS bug, remove this issue after resolved {@link https://github.com/microsoft/TypeScript/issues/41672)
+     * @this CanvasType
+     */
     beDragging: function() {
         this.dragging = true;
         this.disableDocumentElementSelection();
     },
 
+    /**
+     * @type {any} // Handle TS bug, remove this issue after resolved {@link https://github.com/microsoft/TypeScript/issues/41672)
+     * @this CanvasType
+     */
     beNotDragging: function() {
         this.dragging = false;
         this.enableDocumentElementSelection();
@@ -723,6 +781,7 @@ Canvas.prototype = {
     },
 
     /**
+     * @type {any} // Handle TS bug, remove this issue after resolved {@link https://github.com/microsoft/TypeScript/issues/41672)
      * @this CanvasType
      */
     setFocusable: function(truthy) {
@@ -742,6 +801,7 @@ Canvas.prototype = {
     },
 
     /**
+     * @type {any} // Handle TS bug, remove this issue after resolved {@link https://github.com/microsoft/TypeScript/issues/41672)
      * @this CanvasType
      */
     dispatchEvent: function(e) {

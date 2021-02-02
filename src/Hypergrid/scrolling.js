@@ -60,6 +60,7 @@ exports.mixin = {
     scrollingNow: false,
 
     /**
+     * @type {any} // Handle TS bug, remove this issue after resolved {@link https://github.com/microsoft/TypeScript/issues/41672)
      * @memberOf Hypergrid#
      * @summary Set for `scrollingNow` field.
      * @param {boolean} isItNow - The type of event we are interested in.
@@ -154,6 +155,7 @@ exports.mixin = {
     },
 
     /**
+     * @type {any} // Handle TS bug, remove this issue after resolved {@link https://github.com/microsoft/TypeScript/issues/41672)
      * @memberOf Hypergrid#
      * @this {Hypergrid}
      * @desc Set the vertical scroll value.
@@ -185,6 +187,7 @@ exports.mixin = {
     },
 
     /**
+     * @type {any} // Handle TS bug, remove this issue after resolved {@link https://github.com/microsoft/TypeScript/issues/41672)
      * @memberOf Hypergrid#
      * @this {Hypergrid}
      * @desc Set the horizontal scroll value.
@@ -217,6 +220,7 @@ exports.mixin = {
     },
 
     /**
+     * @type {any} // Handle TS bug, remove this issue after resolved {@link https://github.com/microsoft/TypeScript/issues/41672)
      * @memberOf Hypergrid#
      * @this {Hypergrid}
      * @desc Initialize the scroll bars.
@@ -292,6 +296,7 @@ exports.mixin = {
     },
 
     /**
+     * @type {any} // Handle TS bug, remove this issue after resolved {@link https://github.com/microsoft/TypeScript/issues/41672)
      * @this {Hypergrid}
      */
     scrollValueChangedNotification: function() {

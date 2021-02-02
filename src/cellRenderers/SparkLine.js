@@ -3,7 +3,7 @@ var CellRenderer = require('./CellRenderer');
 
 /**
  * Renders a sparkline.
- * @see [Edward Tufte sparkline](http://www.edwardtufte.com/bboard/q-and-a-fetch-msg?msg_id=0001OR)
+ * {@link http://www.edwardtufte.com/bboard/q-and-a-fetch-msg?msg_id=0001OR|Edward Tufte sparkline}
  * @constructor
  * @extends CellRenderer
  */

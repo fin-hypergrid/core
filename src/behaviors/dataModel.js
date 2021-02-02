@@ -19,7 +19,7 @@ exports.mixin = {
 
     /**
      * @summary Gets the number of rows in the data subgrid.
-     * @see {@link https://fin-hypergrid.github.io/doc/DataModel.html#getRowCount|getRowCount}
+     * {@link https://fin-hypergrid.github.io/doc/DataModel.html#getRowCount|getRowCount}
      * @memberOf Behavior#
      */
     getRowCount: function() {
@@ -74,7 +74,7 @@ exports.mixin = {
 
     /**
      * @summary Calls `apply()` on the data model.
-     * @see {@link https://fin-hypergrid.github.io/doc/DataModel.html#reindex|reindex}
+     * {@link https://fin-hypergrid.github.io/doc/DataModel.html#reindex|reindex}
      * @memberOf Behavior#
      */
     reindex: function() {
@@ -83,7 +83,7 @@ exports.mixin = {
 
     /**
      * Retrieve a data row from the data model.
-     * @see {@link https://fin-hypergrid.github.io/doc/DataModel.html#getRow|getRow}
+     * {@link https://fin-hypergrid.github.io/doc/DataModel.html#getRow|getRow}
      * @memberOf Behavior#
      * @return {dataRowObject} The data row object at y index.
      * @param {number} y - the row index of interest
@@ -95,7 +95,7 @@ exports.mixin = {
     /**
      * Retrieve all data rows from the data model.
      * > Use with caution!
-     * @see {@link https://fin-hypergrid.github.io/doc/DataModel.html#getData|getData}
+     * {@link https://fin-hypergrid.github.io/doc/DataModel.html#getData|getData}
      * @return {dataRowObject[]}
      * @memberOf Behavior#
      */

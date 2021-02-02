@@ -29,6 +29,9 @@ module.exports = {
         }
     },
 
+    /**
+     * @type {any} // Handle TS bug, remove this issue after resolved {@link https://github.com/microsoft/TypeScript/issues/41672)
+     */
     addListener: function(handler) {
         if (!this.handlers) {
             this.handlers = [handler];

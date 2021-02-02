@@ -97,7 +97,7 @@ images['checkbox-off'] = images.unchecked;
  * Possible styles must be one of those listed in {*link https://github.com/joneit/svg-themer/blob/master/README.md#cssimagepropertynames svgThemer.cssImagePropertyNames} (which you can extend if needed).
  * * Will be automatically themed when the grid is themed (which is the whole point).
  *
- * @see {@link https://github.com/joneit/svg-themer}
+ * {@link https://github.com/joneit/svg-themer}
  * @memberOf module:images
  */
 function add(name, img, themeable, setSvgProps, styles) {

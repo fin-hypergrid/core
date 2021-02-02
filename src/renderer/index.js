@@ -2,7 +2,7 @@
 
 
 var Base = require('../Base');
-// var images = require('../../images');
+var images = require('../../images');
 var layerProps = require('./layer-props');
 var InclusiveRectangle = require('../lib/InclusiveRectangle');
 
@@ -27,7 +27,7 @@ var paintCellsFunctions = [];
 
 
 /** @typedef {object} CanvasRenderingContext2D
- * @see [CanvasRenderingContext2D](https://developer.mozilla.org/docs/Web/API/CanvasRenderingContext2D)
+ * {@link https://developer.mozilla.org/docs/Web/API/CanvasRenderingContext2D|CanvasRenderingContext2D}
  */
 
 /** @typedef {object} visibleColumnArray
@@ -1534,9 +1534,9 @@ function resetRowHeaderColumnWidth(gc, rowCount) {
         width = 2 * columnProperties.cellPadding;
 
     // Checking images.checked also supports a legacy feature in which checkbox could be hidden by undefining the image.
-    // if (gridProps.rowHeaderCheckboxes && images.checked) {
-    //     width += images.checked.width;
-    // }
+    if (gridProps.rowHeaderCheckboxes && images.checked) {
+        width += images.checked.width;
+    }
 
     if (gridProps.rowHeaderNumbers) {
         var cellProperties = columnProperties.rowHeader;

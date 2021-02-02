@@ -30,7 +30,10 @@ SelectionModel.prototype = {
     allRowsSelected: false,
 
     /**
+     * @type {any} // Handle TS bug, remove this issue after resolved {@link https://github.com/microsoft/TypeScript/issues/41672)
      * @this {SelectionModelType}
+     * @memberof SelectionModel.prototype
+     * @return {Void}
      */
     reset: function() {
         /**
@@ -339,6 +342,7 @@ SelectionModel.prototype = {
     },
 
     /**
+     * @type {any} // Handle TS bug, remove this issue after resolved {@link https://github.com/microsoft/TypeScript/issues/41672)
      * @memberOf SelectionModel.prototype
      * @this {SelectionModelType}
      * @desc empty out all our state
@@ -420,6 +424,7 @@ SelectionModel.prototype = {
     },
 
     /**
+     * @type {any} // Handle TS bug, remove this issue after resolved {@link https://github.com/microsoft/TypeScript/issues/41672)
      * @memberOf SelectionModel.prototype
      * @this {SelectionModelType}
      */

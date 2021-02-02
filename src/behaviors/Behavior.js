@@ -17,7 +17,6 @@ var dispatchGridEvent = require('../lib/dispatchGridEvent');
  * @typedef {any} DataModel TODO
  * @typedef {any} BehaviorType TODO
  * @typedef {any} Feature TODO
- * @typedef {any} Column TODO
  * @typedef {any} cellEditor TODO
  */
 

@@ -610,7 +610,7 @@ var Hypergrid = Base.extend('Hypergrid', {
      * @memberOf Hypergrid#
      * @desc Set the state object to return to the given user configuration; then re-render the grid.
      * @param {object} state - A grid state object.
-     * @see [Memento pattern](http://en.wikipedia.org/wiki/Memento_pattern)
+     * {@link http://en.wikipedia.org/wiki/Memento_pattern|Memento pattern}
      */
     setState: function(state) {
         this.addState(state, true);
@@ -859,7 +859,7 @@ var Hypergrid = Base.extend('Hypergrid', {
 
     /**
      * @memberOf Hypergrid#
-     * @see {@link Behavior#getValue}
+     * {@link Behavior#getValue}
      */
     getValue: function(x, y, dataModel) {
         return this.behavior.getValue(x, y, dataModel);
@@ -867,7 +867,7 @@ var Hypergrid = Base.extend('Hypergrid', {
 
     /**
      * @memberOf Hypergrid#
-     * @see {@link Behavior#setValue}
+     * {@link Behavior#setValue}
      */
     setValue: function(x, y, value, dataModel) {
         this.behavior.setValue(x, y, value, dataModel);
@@ -903,7 +903,7 @@ var Hypergrid = Base.extend('Hypergrid', {
 
     /**
      * @memberOf Behavior#
-     * @this {Behavior}
+     * @this {Behavior & any}
      */
     reindex: function() {
         if (paintLoopRunning.call(this)) {
@@ -1109,7 +1109,7 @@ var Hypergrid = Base.extend('Hypergrid', {
      * @memberOf Hypergrid#
      * @desc Switch the cursor for a grid instance.
      * @param {string|string[]} cursorName - A well know cursor name.
-     * @see [cursor names](http://www.javascripter.net/faq/stylesc.htm)
+     * {@link http://www.javascripter.net/faq/stylesc.htm|cursor names}
      */
     beCursor: function(cursorName) {
         if (!cursorName) {
@@ -1288,9 +1288,9 @@ var Hypergrid = Base.extend('Hypergrid', {
      * @memberOf Hypergrid#
      * @summary A click event occurred.
      * @desc Determine the cell and delegate to the behavior (model).
-     * @see {@link Local#cellClicked}
+     * {@link Local#cellClicked}
      * @param {CellEvent} event - The cell event to interrogate.
-     * @see {@link DataModel#toggleRow}'s return value which may or may not be implemented.
+     * {@link DataModel#toggleRow}'s return value which may or may not be implemented.
      */
     cellClicked: function(event) {
         return this.behavior.cellClicked(event);

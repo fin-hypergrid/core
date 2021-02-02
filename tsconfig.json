@@ -3,6 +3,7 @@
     "target": "ES2019",
     "module": "commonjs",
     "lib": ["ES2019", "dom"],
+    "outDir": "dist",
     "allowJs": true,
     "checkJs": true,
     "declaration": true,

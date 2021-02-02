@@ -14,6 +14,7 @@ exports.mixin = {
      *
      * This call should be paired with a subsequent call to `reselectRowsByUnderlyingIndexes`.
      * @private
+     * @type {any} // Handle TS bug, remove this issue after resolved {@link https://github.com/microsoft/TypeScript/issues/41672)
      * @this {Hypergrid}
      * @returns {number|undefined} Number of selected rows or `undefined` if `restoreRowSelections` is falsy.
      */
@@ -71,6 +72,7 @@ exports.mixin = {
      *
      * This call should be paired with a subsequent call to `reselectColumnsByNames`.
      * @private
+     * @type {any} // Handle TS bug, remove this issue after resolved {@link https://github.com/microsoft/TypeScript/issues/41672)
      * @this {Hypergrid}
      * @param sourceColumnNames
      * @returns {number|undefined} Number of selected columns or `undefined` if `restoreColumnSelections` is falsy.

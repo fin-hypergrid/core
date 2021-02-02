@@ -110,6 +110,9 @@ createColumnProperties.treeHeaderDescriptors = {
         get: function() {
             return this.treeHeaderFont;
         },
+        /**
+         * @type {any} // Handle TS bug, remove this issue after resolved {@link https://github.com/microsoft/TypeScript/issues/41672)
+         */
         set: function(value) {
             this.treeHeaderFont = value;
         }
@@ -120,6 +123,9 @@ createColumnProperties.treeHeaderDescriptors = {
         get: function() {
             return this.treeHeaderColor;
         },
+        /**
+         * @type {any} // Handle TS bug, remove this issue after resolved {@link https://github.com/microsoft/TypeScript/issues/41672)
+         */
         set: function(value) {
             this.treeHeaderColor = value;
         }
@@ -130,6 +136,9 @@ createColumnProperties.treeHeaderDescriptors = {
         get: function() {
             return this.treeHeaderBackgroundColor;
         },
+        /**
+         * @type {any} // Handle TS bug, remove this issue after resolved {@link https://github.com/microsoft/TypeScript/issues/41672)
+         */
         set: function(value) {
             this.treeHeaderBackgroundColor = value;
         }
@@ -140,6 +149,9 @@ createColumnProperties.treeHeaderDescriptors = {
         get: function() {
             return this.treeHeaderForegroundSelectionFont;
         },
+        /**
+         * @type {any} // Handle TS bug, remove this issue after resolved {@link https://github.com/microsoft/TypeScript/issues/41672)
+         */
         set: function(value) {
             this.treeHeaderForegroundSelectionFont = value;
         }
@@ -150,6 +162,9 @@ createColumnProperties.treeHeaderDescriptors = {
         get: function() {
             return this.treeHeaderForegroundSelectionColor;
         },
+        /**
+         * @type {any} // Handle TS bug, remove this issue after resolved {@link https://github.com/microsoft/TypeScript/issues/41672)
+         */
         set: function(value) {
             this.treeHeaderForegroundSelectionColor = value;
         }
@@ -160,6 +175,9 @@ createColumnProperties.treeHeaderDescriptors = {
         get: function() {
             return this.isDataRow ? this.treeRenderer : this.grid.properties.renderer;
         },
+        /**
+         * @type {any} // Handle TS bug, remove this issue after resolved {@link https://github.com/microsoft/TypeScript/issues/41672)
+         */
         set: function(value) {
             this.treeRenderer = value;
         }
@@ -170,6 +188,9 @@ createColumnProperties.treeHeaderDescriptors = {
         get: function() {
             return this.treeHeaderBackgroundSelectionColor;
         },
+        /**
+         * @type {any} // Handle TS bug, remove this issue after resolved {@link https://github.com/microsoft/TypeScript/issues/41672)
+         */
         set: function(value) {
             this.treeHeaderBackgroundSelectionColor = value;
         }
@@ -180,6 +201,9 @@ createColumnProperties.treeHeaderDescriptors = {
         get: function() {
             return this.treeColumnAutosizing;
         },
+        /**
+         * @type {any} // Handle TS bug, remove this issue after resolved {@link https://github.com/microsoft/TypeScript/issues/41672)
+         */
         set: function(value) {
             this.treeColumnAutosizing = value;
         }
@@ -190,6 +214,9 @@ createColumnProperties.treeHeaderDescriptors = {
         get: function() {
             return this.treeColumnAutosizingMax;
         },
+        /**
+         * @type {any} // Handle TS bug, remove this issue after resolved {@link https://github.com/microsoft/TypeScript/issues/41672)
+         */
         set: function(value) {
             this.treeColumnAutosizingMax = value;
         }
@@ -204,6 +231,9 @@ createColumnProperties.rowHeaderDescriptors = {
         get: function() {
             return this.rowHeaderFont;
         },
+        /**
+         * @type {any} // Handle TS bug, remove this issue after resolved {@link https://github.com/microsoft/TypeScript/issues/41672)
+         */
         set: function(value) {
             this.rowHeaderFont = value;
         }
@@ -214,6 +244,9 @@ createColumnProperties.rowHeaderDescriptors = {
         get: function() {
             return this.rowHeaderColor;
         },
+        /**
+         * @type {any} // Handle TS bug, remove this issue after resolved {@link https://github.com/microsoft/TypeScript/issues/41672)
+         */
         set: function(value) {
             this.rowHeaderColor = value;
         }
@@ -224,6 +257,9 @@ createColumnProperties.rowHeaderDescriptors = {
         get: function() {
             return this.rowHeaderBackgroundColor;
         },
+        /**
+         * @type {any} // Handle TS bug, remove this issue after resolved {@link https://github.com/microsoft/TypeScript/issues/41672)
+         */
         set: function(value) {
             this.rowHeaderBackgroundColor = value;
         }
@@ -234,6 +270,9 @@ createColumnProperties.rowHeaderDescriptors = {
         get: function() {
             return this.rowHeaderForegroundSelectionFont;
         },
+        /**
+         * @type {any} // Handle TS bug, remove this issue after resolved {@link https://github.com/microsoft/TypeScript/issues/41672)
+         */
         set: function(value) {
             this.rowHeaderForegroundSelectionFont = value;
         }
@@ -244,6 +283,9 @@ createColumnProperties.rowHeaderDescriptors = {
         get: function() {
             return this.rowHeaderForegroundSelectionColor;
         },
+        /**
+         * @type {any} // Handle TS bug, remove this issue after resolved {@link https://github.com/microsoft/TypeScript/issues/41672)
+         */
         set: function(value) {
             this.rowHeaderForegroundSelectionColor = value;
         }
@@ -254,6 +296,9 @@ createColumnProperties.rowHeaderDescriptors = {
         get: function() {
             return this.rowHeaderBackgroundSelectionColor;
         },
+        /**
+         * @type {any} // Handle TS bug, remove this issue after resolved {@link https://github.com/microsoft/TypeScript/issues/41672)
+         */
         set: function(value) {
             this.rowHeaderBackgroundSelectionColor = value;
         }
@@ -274,6 +319,9 @@ createColumnProperties.rowHeaderDescriptors = {
                 return result;
             }
         },
+        /**
+         * @type {any} // Handle TS bug, remove this issue after resolved {@link https://github.com/microsoft/TypeScript/issues/41672)
+         */
         set: function(value) {
             // replace self with a simple instance var
             Object.defineProperty(this, 'leftIcon', {
@@ -290,6 +338,9 @@ createColumnProperties.rowHeaderDescriptors = {
         get: function() {
             return this.rowNumberAutosizing;
         },
+        /**
+         * @type {any} // Handle TS bug, remove this issue after resolved {@link https://github.com/microsoft/TypeScript/issues/41672)
+         */
         set: function(value) {
             this.rowNumberAutosizing = value;
         }
@@ -303,6 +354,9 @@ createColumnProperties.filterDescriptors = {
         get: function() {
             return this.filterFont;
         },
+        /**
+         * @type {any} // Handle TS bug, remove this issue after resolved {@link https://github.com/microsoft/TypeScript/issues/41672)
+         */
         set: function(value) {
             this.filterFont = value;
         }
@@ -313,6 +367,9 @@ createColumnProperties.filterDescriptors = {
         get: function() {
             return this.filterColor;
         },
+        /**
+         * @type {any} // Handle TS bug, remove this issue after resolved {@link https://github.com/microsoft/TypeScript/issues/41672)
+         */
         set: function(value) {
             this.filterColor = value;
         }
@@ -323,6 +380,9 @@ createColumnProperties.filterDescriptors = {
         get: function() {
             return this.filterBackgroundColor;
         },
+        /**
+         * @type {any} // Handle TS bug, remove this issue after resolved {@link https://github.com/microsoft/TypeScript/issues/41672)
+         */
         set: function(value) {
             this.filterBackgroundColor = value;
         }
@@ -333,6 +393,9 @@ createColumnProperties.filterDescriptors = {
         get: function() {
             return this.filterForegroundSelectionColor;
         },
+        /**
+         * @type {any} // Handle TS bug, remove this issue after resolved {@link https://github.com/microsoft/TypeScript/issues/41672)
+         */
         set: function(value) {
             this.filterForegroundSelectionColor = value;
         }
@@ -343,6 +406,9 @@ createColumnProperties.filterDescriptors = {
         get: function() {
             return this.filterBackgroundSelectionColor;
         },
+        /**
+         * @type {any} // Handle TS bug, remove this issue after resolved {@link https://github.com/microsoft/TypeScript/issues/41672)
+         */
         set: function(value) {
             this.filterBackgroundSelectionColor = value;
         }
@@ -353,6 +419,9 @@ createColumnProperties.filterDescriptors = {
         get: function() {
             return this.filterHalign;
         },
+        /**
+         * @type {any} // Handle TS bug, remove this issue after resolved {@link https://github.com/microsoft/TypeScript/issues/41672)
+         */
         set: function(value) {
             this.filterHalign = value;
         }
@@ -363,6 +432,9 @@ createColumnProperties.filterDescriptors = {
         get: function() {
             return this.filterRenderer;
         },
+        /**
+         * @type {any} // Handle TS bug, remove this issue after resolved {@link https://github.com/microsoft/TypeScript/issues/41672)
+         */
         set: function(value) {
             this.filterRenderer = value;
         }
@@ -373,6 +445,9 @@ createColumnProperties.filterDescriptors = {
         get: function() {
             return this.filterEditor;
         },
+        /**
+         * @type {any} // Handle TS bug, remove this issue after resolved {@link https://github.com/microsoft/TypeScript/issues/41672)
+         */
         set: function(value) {
             this.filterEditor = value;
         }
@@ -387,6 +462,9 @@ createColumnProperties.filterDescriptors = {
             }
             return result;
         },
+        /**
+         * @type {any} // Handle TS bug, remove this issue after resolved {@link https://github.com/microsoft/TypeScript/issues/41672)
+         */
         set: function(value) {
             // replace self with a simple instance var
             Object.defineProperty(this, 'rightIcon', {
@@ -406,6 +484,9 @@ createColumnProperties.columnHeaderDescriptors = {
         get: function() {
             return this.columnHeaderFont;
         },
+        /**
+         * @type {any} // Handle TS bug, remove this issue after resolved {@link https://github.com/microsoft/TypeScript/issues/41672)
+         */
         set: function(value) {
             this.columnHeaderFont = value;
         }
@@ -416,6 +497,9 @@ createColumnProperties.columnHeaderDescriptors = {
         get: function() {
             return this.columnHeaderColor;
         },
+        /**
+         * @type {any} // Handle TS bug, remove this issue after resolved {@link https://github.com/microsoft/TypeScript/issues/41672)
+         */
         set: function(value) {
             this.columnHeaderColor = value;
         }
@@ -426,6 +510,9 @@ createColumnProperties.columnHeaderDescriptors = {
         get: function() {
             return this.columnHeaderBackgroundColor;
         },
+        /**
+         * @type {any} // Handle TS bug, remove this issue after resolved {@link https://github.com/microsoft/TypeScript/issues/41672)
+         */
         set: function(value) {
             this.columnHeaderBackgroundColor = value;
         }
@@ -436,6 +523,9 @@ createColumnProperties.columnHeaderDescriptors = {
         get: function() {
             return this.columnHeaderForegroundSelectionFont;
         },
+        /**
+         * @type {any} // Handle TS bug, remove this issue after resolved {@link https://github.com/microsoft/TypeScript/issues/41672)
+         */
         set: function(value) {
             this.columnHeaderForegroundSelectionFont = value;
         }
@@ -446,6 +536,9 @@ createColumnProperties.columnHeaderDescriptors = {
         get: function() {
             return this.columnHeaderForegroundSelectionColor;
         },
+        /**
+         * @type {any} // Handle TS bug, remove this issue after resolved {@link https://github.com/microsoft/TypeScript/issues/41672)
+         */
         set: function(value) {
             this.columnHeaderForegroundSelectionColor = value;
         }
@@ -456,6 +549,9 @@ createColumnProperties.columnHeaderDescriptors = {
         get: function() {
             return this.columnHeaderBackgroundSelectionColor;
         },
+        /**
+         * @type {any} // Handle TS bug, remove this issue after resolved {@link https://github.com/microsoft/TypeScript/issues/41672)
+         */
         set: function(value) {
             this.columnHeaderBackgroundSelectionColor = value;
         }
@@ -466,6 +562,9 @@ createColumnProperties.columnHeaderDescriptors = {
         get: function() {
             return this.columnHeaderHalign;
         },
+        /**
+         * @type {any} // Handle TS bug, remove this issue after resolved {@link https://github.com/microsoft/TypeScript/issues/41672)
+         */
         set: function(value) {
             this.columnHeaderHalign = value;
         }
@@ -476,6 +575,9 @@ createColumnProperties.columnHeaderDescriptors = {
         get: function() {
             return this.columnHeaderFormat;
         },
+        /**
+         * @type {any} // Handle TS bug, remove this issue after resolved {@link https://github.com/microsoft/TypeScript/issues/41672)
+         */
         set: function(value) {
             this.columnHeaderFormat = value;
         }
@@ -486,6 +588,9 @@ createColumnProperties.columnHeaderDescriptors = {
         get: function() {
             return this.columnHeaderRenderer;
         },
+        /**
+         * @type {any} // Handle TS bug, remove this issue after resolved {@link https://github.com/microsoft/TypeScript/issues/41672)
+         */
         set: function(value) {
             this.columnHeaderRenderer = value;
         }

@@ -301,6 +301,7 @@ Column.prototype = {
      * @param {object|undefined} properties - Properties to copy to column's properties object. If `undefined`, this call is a no-op.
      * @param {boolean} [settingState] - Clear column's properties object before copying properties.
      * @this ColumnType
+     * @type {any} // Handle TS bug, remove this issue after resolved {@link https://github.com/microsoft/TypeScript/issues/41672)
      */
     addProperties: function(properties, settingState) {
         if (!properties) {

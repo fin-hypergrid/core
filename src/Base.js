@@ -65,7 +65,7 @@ Base.prototype.unwrap = function(value) {
  * @example
  * // define prototype members: Hypergrid.prototype.fix(), etc.
  * Hypergrid.prototype.mixIn({ fix: function() {...}, ... });
- * @See {@link https://joneit.github.io/overrider/module-overrider.htm#.mixIn}
+ * {@link https://joneit.github.io/overrider/module-overrider.htm#.mixIn}
  * @param {object} source
  */
 Base.prototype.mixIn = require('overrider').mixIn;

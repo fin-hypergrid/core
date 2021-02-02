@@ -96,9 +96,9 @@
  * grid.addEventListener('fin-hypergrid-schema-loaded', myHandlerFunction);
  * ```
  * This event is not cancelable.
- * @see {@link module:fields.normalizeSchema normalizeSchema}
- * @see {@link module:fields.decorateSchema decorateSchema}
- * @see {@link module:fields.decorateColumnSchema decorateColumnSchema}
+ * {@link module:fields.normalizeSchema normalizeSchema}
+ * {@link module:fields.decorateSchema decorateSchema}
+ * {@link module:fields.decorateColumnSchema decorateColumnSchema}
  */
 
 /** @event DataModel#fin-hypergrid-data-loaded

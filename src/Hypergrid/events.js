@@ -1,6 +1,5 @@
 /* eslint-env browser */
 
-
 var dispatchGridEvent = require('../lib/dispatchGridEvent');
 var Button = require('../cellRenderers/Button');
 
@@ -96,6 +95,7 @@ exports.mixin = {
     },
 
     /**
+     * @type {any} // Handle TS bug, remove this issue after resolved {@link https://github.com/microsoft/TypeScript/issues/41672)
      * @param {boolean} allow
      * @this {any}
      */
@@ -541,13 +541,12 @@ exports.mixin = {
                  * @param {any} mouseEvent
                  */
                 function(mouseEvent) {
-                    mouseEvent.keys = e.detail.keys;
-                    this.mouseDownState = mouseEvent;
-                    this.delegateMouseDown(mouseEvent);
-                    this.fireSyntheticMouseDownEvent(mouseEvent);
-                    this.repaint();
-                }
-            );
+                mouseEvent.keys = e.detail.keys;
+                this.mouseDownState = mouseEvent;
+                this.delegateMouseDown(mouseEvent);
+                this.fireSyntheticMouseDownEvent(mouseEvent);
+                this.repaint();
+            });
         });
 
         this.addInternalEventListener('fin-canvas-click', function(e) {
@@ -559,21 +558,108 @@ exports.mixin = {
                  * @this {any}
                  * @param {{ gridCell: any; mousePointInClickRect: any; keys: any; }} mouseEvent
                  */
-                    function(mouseEvent) {
-                    var isMouseDownCell = this.mouseDownState && this.mouseDownState.gridCell.equals(mouseEvent.gridCell);
-                    if (isMouseDownCell && mouseEvent.mousePointInClickRect) {
-                        mouseEvent.keys = e.detail.keys; // todo: this was in fin-tap but wasn't here
-                        if (this.mouseDownState) {
-                            this.fireSyntheticButtonPressedEvent(this.mouseDownState);
-                        }
-                        this.fireSyntheticClickEvent(mouseEvent);
-                        this.delegateClick(mouseEvent);
+                function(mouseEvent) {
+                var isMouseDownCell = this.mouseDownState && this.mouseDownState.gridCell.equals(mouseEvent.gridCell);
+                if (isMouseDownCell && mouseEvent.mousePointInClickRect) {
+                    mouseEvent.keys = e.detail.keys; // todo: this was in fin-tap but wasn't here
+                    if (this.mouseDownState) {
+                        this.fireSyntheticButtonPressedEvent(this.mouseDownState);
                     }
-                    this.mouseDownState = null;
+                    this.fireSyntheticClickEvent(mouseEvent);
+                    this.delegateClick(mouseEvent);
                 }
-            );
+                this.mouseDownState = null;
+            });
         });
 
+        this.addInternalEventListener('fin-canvas-mouseup', function(e) {
+            if (grid.properties.readOnly) {
+                return;
+            }
+            grid.dragging = false;
+            if (grid.isScrollingNow()) {
+                grid.setScrollingNow(false);
+            }
+            if (grid.columnDragAutoScrolling) {
+                grid.columnDragAutoScrolling = false;
+            }
+            handleMouseEvent(e, function(mouseEvent) {
+                this.delegateMouseUp(mouseEvent);
+                this.fireSyntheticMouseUpEvent(mouseEvent);
+            });
+        });
+
+        this.addInternalEventListener('fin-canvas-dblclick', function(e) {
+            if (grid.properties.readOnly) {
+                return;
+            }
+            handleMouseEvent(e, function(mouseEvent) {
+                this.fireSyntheticDoubleClickEvent(mouseEvent, e);
+                this.delegateDoubleClick(mouseEvent);
+            });
+        });
+
+        this.addInternalEventListener('fin-canvas-drag', function(e) {
+            if (grid.properties.readOnly) {
+                return;
+            }
+            grid.dragging = true;
+            handleMouseEvent(e, grid.delegateMouseDrag);
+        });
+
+        this.addInternalEventListener('fin-canvas-keydown', function(e) {
+            if (grid.properties.readOnly) {
+                return;
+            }
+            grid.fireSyntheticKeydownEvent(e);
+            grid.delegateKeyDown(e);
+        });
+
+        this.addInternalEventListener('fin-canvas-keyup', function(e) {
+            if (grid.properties.readOnly) {
+                return;
+            }
+            grid.fireSyntheticKeyupEvent(e);
+            grid.delegateKeyUp(e);
+        });
+
+        this.addInternalEventListener('fin-canvas-wheelmoved', function(e) {
+            handleMouseEvent(e, grid.delegateWheelMoved);
+        });
+
+        this.addInternalEventListener('fin-canvas-mouseout', function(e) {
+            if (grid.properties.readOnly) {
+                return;
+            }
+            handleMouseEvent(e, grid.delegateMouseExit);
+        });
+
+        this.addInternalEventListener('fin-canvas-context-menu', function(e) {
+            handleMouseEvent(e, function(mouseEvent) {
+                grid.delegateContextMenu(mouseEvent);
+                grid.fireSyntheticContextMenuEvent(mouseEvent);
+            });
+        });
+
+        this.addInternalEventListener('fin-canvas-touchstart', function(e) {
+            grid.delegateTouchStart(e);
+            grid.fireSyntheticTouchStartEvent(e);
+        });
+
+        this.addInternalEventListener('fin-canvas-touchmove', function(e) {
+            grid.delegateTouchMove(e);
+            grid.fireSyntheticTouchMoveEvent(e);
+        });
+
+        this.addInternalEventListener('fin-canvas-touchend', function(e) {
+            grid.delegateTouchEnd(e);
+            grid.fireSyntheticTouchEndEvent(e);
+        });
+
+        //Register a listener for the copy event so we can copy our selected region to the pastebuffer if conditions are right.
+        document.body.addEventListener('copy', function(evt) {
+            grid.checkClipboardCopy(evt);
+        });
     },
 
     /**
