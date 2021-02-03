@@ -1,6 +1,10 @@
-'use strict';
 
 var Behavior = require('../Behavior');
+
+/**
+ * @typedef {any} DataModel TODO
+ * @typedef {any} CellEvent TODO
+ */
 
 /** @memberOf Local~
  * @default require('datasaur-local')
@@ -20,6 +24,7 @@ var dispatchDataModelEvent = require('./dispatchDataModelEvent');
  * @constructor
  * @extends Behavior
  */
+// @ts-ignore TODO use classes
 var Local = Behavior.extend('Local', {
 
     initialize: function(grid, options) {
@@ -29,8 +34,8 @@ var Local = Behavior.extend('Local', {
     /**
      * @summary Convenience getter/setter.
      * @desc Calls the data model's `getSchema`/`setSchema` methods.
-     * @see {@link https://fin-hypergrid.github.io/doc/DataModel.html#getSchema|getSchema}
-     * @see {@link https://fin-hypergrid.github.io/doc/DataModel.html#setSchema|setSchema}
+     * {@link https://fin-hypergrid.github.io/doc/DataModel.html#getSchema|getSchema}
+     * {@link https://fin-hypergrid.github.io/doc/DataModel.html#setSchema|setSchema}
      * @type {Array}
      * @memberOf Local#
      */
@@ -115,7 +120,7 @@ var Local = Behavior.extend('Local', {
      * @desc Installs data model events, fallbacks, and hooks.
      *
      * Called from {@link Behavior#reset}.
-     * @this {Behavior}
+     * @this {Behavior & any}
      * @param {object} [options]
      * @param {DataModel} [options.dataModel] - A fully instantiated data model object.
      * @param {function} [options.DataModel=require('datasaur-local')] - Data model will be instantiated from this constructor unless `options.dataModel` was given.
@@ -138,9 +143,9 @@ var Local = Behavior.extend('Local', {
 
     /**
      * Decorate data model object, initialize its metadata store, and subscribe to its events.
-     * @see {@link module:decorators.injectPolyfills injectPolyfills}
-     * @see {@link module:decorators.injectCode injectCode}
-     * @see {@link module:decorators.injectDefaulthooks injectDefaulthooks}
+     * {@link module:decorators.injectPolyfills injectPolyfills}
+     * {@link module:decorators.injectCode injectCode}
+     * {@link module:decorators.injectDefaulthooks injectDefaulthooks}
      * @param {DataModel} newDataModel
      * @param {DataModel} [options.metadata] - Passed to {@link DataModel#setMetadataStore setMetadataStore}.
      * @memberOf Local#
@@ -152,6 +157,7 @@ var Local = Behavior.extend('Local', {
 
         newDataModel.setMetadataStore(options && options.metadata);
 
+        // @ts-ignore
         this.boundDispatchEvent = this.boundDispatchEvent || dispatchDataModelEvent.bind(this.grid);
         newDataModel.addListener(this.boundDispatchEvent);
 
@@ -160,7 +166,7 @@ var Local = Behavior.extend('Local', {
 
     /**
      * @summary Map of drill down characters used by the data model.
-     * @see {@link https://fin-hypergrid.github.io/doc/DataModel.html#charMap|charMap}
+     * {@link https://fin-hypergrid.github.io/doc/DataModel.html#charMap|charMap}
      * @type {{OPEN:string, CLOSE:string, INDENT:string}}
      * @memberOf Local#
      */
@@ -173,9 +179,9 @@ var Local = Behavior.extend('Local', {
      * @desc Sends clicked cell's coordinates to the data model.
      *
      * To tell if the click was consumed by the data model, add event listeners for {@link DataModel#fin-hypergrid-data-loaded} and/or {@link DataModel#fin-hypergrid-data-postreindex}.
-     * @see {@link https://fin-hypergrid.github.io/doc/DataModel.html#toggleRow toggleRow}
+     * {@link https://fin-hypergrid.github.io/doc/DataModel.html#toggleRow toggleRow}
      * @param {CellEvent} event
-     * @returns {@link DataModel#toggleRow}'s return value which may or may not be implemented.
+     * @returns {DataModel["toggleRow"]}'s return value which may or may not be implemented.
      * @memberOf Local#
      */
     cellClicked: function(event) {

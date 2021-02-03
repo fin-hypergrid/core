@@ -1,10 +1,10 @@
+// @ts-nocheck
 /* eslint-env browser */
 
 /**
  * @module localization
  */
 
-'use strict';
 
 var Base = require('../Base');
 
@@ -384,6 +384,7 @@ Localization.prototype = {
      * 3. Uses the newly bound constructor to create a new localized localizer with the provided options.
      * 4. Adds new localizer to this object via {@link Localization#add|add}.
      *
+     * @type {any} // Handle TS bug, remove this issue after resolved {@link https://github.com/microsoft/TypeScript/issues/41672)
      * @param {string} localizerName
      * @param {Constructor
      * @param {object} {factoryOptions}
@@ -402,6 +403,7 @@ Localization.prototype = {
     /** @summary Register a localizer.
      * @desc Checks the provided localizer that it conforms to {@link localizerInterface}
      * and adds it to the object using localizerName all lower case as the key.
+     * @type {any} // Handle TS bug, remove this issue after resolved {@link https://github.com/microsoft/TypeScript/issues/41672)
      * @param {string} name
      * @param {localizerInterface} localizer
      * @memberOf Localization.prototype

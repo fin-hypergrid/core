@@ -1,8 +1,11 @@
-'use strict';
 
 var CellRenderer = require('./CellRenderer');
 var Rectangle = require('rectangular').Rectangle;
 var images = require('../../images');
+
+/**
+ * @typedef {any} SimpleCellType TODO
+ */
 
 var WHITESPACE = /\s\s+/g;
 
@@ -17,6 +20,7 @@ var WHITESPACE = /\s\s+/g;
  *
  * @extends CellRenderer
  */
+// @ts-ignore TODO - use classes
 var SimpleCell = CellRenderer.extend('SimpleCell', {
     paint: function(gc, config) {
         var val = config.value,
@@ -202,11 +206,11 @@ var SimpleCell = CellRenderer.extend('SimpleCell', {
 
 /**
  * @summary Renders single line text.
- * @param {CanvasRenderingContext2D} gc
- * @param {object} config
- * @param {Rectangle} config.bounds - The clipping rect of the cell to be rendered.
+ * @param {CanvasRenderingContext2D|any} gc TODO
+ * @param {any} config TODO
  * @param {*} val - The text to render in the cell.
  * @memberOf SimpleCell.prototype
+ * @this SimpleCellType
  */
 function renderMultiLineText(gc, config, val, leftPadding, rightPadding) {
     var x = config.bounds.x,
@@ -260,11 +264,11 @@ function renderMultiLineText(gc, config, val, leftPadding, rightPadding) {
 
 /**
  * @summary Renders single line text.
- * @param {CanvasRenderingContext2D} gc
- * @param {object} config
- * @param {Rectangle} config.bounds - The clipping rect of the cell to be rendered.
+ * @param {CanvasRenderingContext2D|any} gc TODO
+ * @param {any} config TODO
  * @param {*} val - The text to render in the cell.
  * @memberOf SimpleCell.prototype
+ * @this SimpleCellType
  */
 function renderSingleLineText(gc, config, val, leftPadding, rightPadding) {
     var x = config.bounds.x,

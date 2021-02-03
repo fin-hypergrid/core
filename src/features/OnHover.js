@@ -1,10 +1,14 @@
-'use strict';
 
 var Feature = require('./Feature');
 
 /**
+ * @typedef {import("../Hypergrid")} Hypergrid
+ */
+
+/**
  * @constructor
  */
+// @ts-ignore TODO use classes
 var OnHover = Feature.extend('OnHover', {
 
     /**

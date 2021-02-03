@@ -1,4 +1,3 @@
-'use strict';
 
 var Textfield = require('./Textfield');
 
@@ -7,6 +6,7 @@ var Textfield = require('./Textfield');
  * @constructor
  * @extends Textfield
  */
+// @ts-ignore TODO use classes
 var Number = Textfield.extend('Number', {
 
     initialize: function(grid) {

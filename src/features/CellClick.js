@@ -1,11 +1,16 @@
-'use strict';
 
 var Feature = require('./Feature');
+
+/**
+ * @typedef {import("../Hypergrid")} Hypergrid
+ * @typedef {any} CellEvent TODO
+ */
 
 /**
  * @constructor
  * @extends Feature
  */
+// @ts-ignore TODO use classes
 var CellClick = Feature.extend('CellClick', {
 
     handleMouseMove: function(grid, event) {
@@ -14,7 +19,9 @@ var CellClick = Feature.extend('CellClick', {
 
         this.cursor = isActionableLink ? 'pointer' : null;
 
+        // @ts-ignore
         if (this.next) {
+            // @ts-ignore
             this.next.handleMouseMove(grid, event);
         }
     },

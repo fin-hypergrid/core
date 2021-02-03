@@ -1,6 +1,9 @@
-'use strict';
 
 var DataSourceBase = require('datasaur-base');
+
+/**
+ * @typedef {import("../Hypergrid")} Hypergrid
+ */
 
 /**
  * @implements DataModel
@@ -9,6 +12,7 @@ var DataSourceBase = require('datasaur-base');
  * @param {string} [options.name]
  * @constructor
  */
+// @ts-ignore TODO use classes
 var HeaderSubgrid = DataSourceBase.extend('HeaderSubgrid', {
     type: 'header',
 

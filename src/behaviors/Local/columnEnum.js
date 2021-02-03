@@ -1,4 +1,3 @@
-'use strict';
 
 // `columnEnum` et al, have been deprecated as of 3.0.0 in favor of accessing column schema
 // through .schema, .columns, and .allColumns, all of which now sport self-referential dictionaries.
@@ -17,10 +16,14 @@ function warnColumnEnumDeprecation(method, msg) {
 }
 
 exports.mixin = {
+    /**
+     * @type {any} // Handle TS bug, remove this issue after resolved {@link https://github.com/microsoft/TypeScript/issues/41672)
+     */
     columnEnumSynchronize: function() {
         this._columnEnumKey = this._columnEnumKey || 'toAllCaps';
 
         var columnEnum = this._columnEnum || (this._columnEnum = {}),
+            // @ts-ignore
             allColumns = this.allColumns,
             arrayDecorator = new ArrayDecorator({ transformations: [this._columnEnumKey] }),
             dict = arrayDecorator.decorateArray(allColumns.slice());

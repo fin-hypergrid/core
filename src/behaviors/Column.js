@@ -1,6 +1,5 @@
 /* eslint-env browser */
 
-'use strict';
 
 var overrider = require('overrider');
 
@@ -9,6 +8,12 @@ var assignOrDelete = require('../lib/assignOrDelete');
 var HypergridError = require('../lib/error');
 var images = require('../../images');
 
+/**
+ * @typedef {any} DataModel TODO
+ * @typedef {any} Behavior TODO
+ * @typedef {any} CellEvent TODO
+ * @typedef {any} CellEditor TODO
+ */
 
 var warned = {};
 
@@ -40,6 +45,7 @@ function Column(behavior, columnSchema) {
                 console.warn('Column(behavior: object, index: number) overload has been deprecated as of v2.1.6 in favor of Column(behavior: object, columnSchema: object) overload with defined columnSchema.index. (Will be removed in a future release.)');
                 warned.number = true;
             }
+            // @ts-ignore
             columnSchema = {
                 index: columnSchema
             };
@@ -117,6 +123,10 @@ function Column(behavior, columnSchema) {
     }
 }
 
+/**
+ * @typedef {any} ColumnType TODO
+ */
+
 Column.prototype = {
     constructor: Column.prototype.constructor,
     $$CLASS_NAME: 'Column',
@@ -174,10 +184,16 @@ Column.prototype = {
         return this.schema.type;
     },
 
+    /**
+     * @this ColumnType
+     */
     getValue: function(y, dataModel) {
         return this.dataModel.getValue(this.index, y, dataModel);
     },
 
+    /**
+     * @this ColumnType
+     */
     setValue: function(y, value, dataModel) {
         return this.dataModel.setValue(this.index, y, value, dataModel);
     },
@@ -284,6 +300,8 @@ Column.prototype = {
      * When a value is `undefined` or `null`, the property is deleted except when a setter or non-configurable in which case it's set to `undefined`.
      * @param {object|undefined} properties - Properties to copy to column's properties object. If `undefined`, this call is a no-op.
      * @param {boolean} [settingState] - Clear column's properties object before copying properties.
+     * @this ColumnType
+     * @type {any} // Handle TS bug, remove this issue after resolved {@link https://github.com/microsoft/TypeScript/issues/41672)
      */
     addProperties: function(properties, settingState) {
         if (!properties) {
@@ -314,6 +332,7 @@ Column.prototype = {
      * @param {CellEvent} cellEvent
      *
      * @returns {undefined|CellEditor} Falsy value means either no declared cell editor _or_ instantiation aborted by falsy return from `fireRequestCellEdit`.
+     * * @this ColumnType
      */
     getCellEditorAt: function(cellEvent) {
         var columnIndex = this.index,
@@ -371,6 +390,7 @@ function resolveCalculator(calculator) {
         return undefined;
     }
 
+    // @ts-ignore
     var forColumnName = ' (for column "' + this.name + '").';
 
     if (typeof calculator === 'function') {

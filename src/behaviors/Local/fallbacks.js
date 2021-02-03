@@ -1,4 +1,3 @@
-'use strict';
 
 /**
  * @module fallbacks
@@ -92,7 +91,10 @@ module.exports = {
         return metadata;
     },
 
-    /** @implements DataModel#setMetadataStore */
+    /**
+     * @type {any} // Handle TS bug, remove this issue after resolved {@link https://github.com/microsoft/TypeScript/issues/41672)
+     * @implements DataModel#setMetadataStore
+     */
     setMetadataStore: function(newMetadataStore) {
         this.metadata = newMetadataStore || [];
     }

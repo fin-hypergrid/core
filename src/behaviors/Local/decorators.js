@@ -1,9 +1,11 @@
-'use strict';
 
 
 /**
  * @typedef {object} NormalizedDataModelEvent
  * @property {string} type - Event string.
+ *
+ * @typedef {any} DataModel TODO
+ * @typedef {any} Local TODO
  */
 
 /**

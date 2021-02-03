@@ -1,4 +1,3 @@
-'use strict';
 
 var Base = require('../Base');
 
@@ -54,7 +53,7 @@ var Registry = Base.extend('Registry', {
      * @summary Register a synonym for an existing item.
      * @param {string} synonymName
      * @param {string} existingName
-     * @returns {function|Constructor} The previously registered item this new synonym points to.
+     * @returns {function} The previously registered item this new synonym points to.
      * @memberOf Registry#
      */
     addSynonym: function(synonymName, existingName) {

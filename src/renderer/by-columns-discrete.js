@@ -1,6 +1,9 @@
-'use strict';
 
 var bundleColumns = require('./bundle-columns');
+
+/**
+ * @typedef {import("../renderer")} Renderer
+ */
 
 /** @summary Render the grid with discrete column rects.
  * @desc Paints all the cells of a grid, one column at a time.
@@ -21,7 +24,7 @@ var bundleColumns = require('./bundle-columns');
  * See also the discussion of clipping in {@link Renderer#paintCellsByColumnsDiscrete|paintCellsByColumnsDiscrete}.
 
  * @this {Renderer}
- * @param {CanvasRenderingContext2D} gc
+ * @param {CanvasRenderingContext2D & any} gc TODO need to remove any type
  * @memberOf Renderer.prototype
  */
 function paintCellsByColumnsDiscrete(gc) {

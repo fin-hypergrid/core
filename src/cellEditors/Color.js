@@ -1,4 +1,3 @@
-'use strict';
 
 var CellEditor = require('./CellEditor');
 
@@ -8,6 +7,7 @@ var CellEditor = require('./CellEditor');
  * @constructor
  * @extends CellEditor
  */
+// @ts-ignore TODO use classes
 var Color = CellEditor.extend('Color', {
 
     template: '<input type="color" lang="{{locale}}" style="{{style}}">'

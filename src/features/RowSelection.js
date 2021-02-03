@@ -1,10 +1,15 @@
-'use strict';
 
 var Feature = require('./Feature');
 
 /**
+ * @typedef {import("../Hypergrid")} Hypergrid
+ * @typedef {any} RowSelectionType TODO
+ */
+
+/**
  * @constructor
  */
+// @ts-ignore TODO use classes
 var RowSelection = Feature.extend('RowSelection', {
 
     /**
@@ -45,6 +50,7 @@ var RowSelection = Feature.extend('RowSelection', {
      * @memberOf RowSelection.prototype
      * @param {Hypergrid} grid
      * @param {Object} event - the event details
+     * @this {RowSelectionType}
      */
     handleMouseUp: function(grid, event) {
         if (this.dragArmed) {
@@ -64,6 +70,7 @@ var RowSelection = Feature.extend('RowSelection', {
      * @memberOf RowSelection.prototype
      * @param {Hypergrid} grid
      * @param {Object} event - the event details
+     * @this {RowSelectionType}
      */
     handleMouseDown: function(grid, event) {
         var leftClick = !event.primitiveEvent.detail.isRightClick,
@@ -94,6 +101,7 @@ var RowSelection = Feature.extend('RowSelection', {
      * @memberOf RowSelection.prototype
      * @param {Hypergrid} grid
      * @param {Object} event - the event details
+     * @this {RowSelectionType}
      */
     handleMouseDrag: function(grid, event) {
         if (
@@ -330,6 +338,7 @@ var RowSelection = Feature.extend('RowSelection', {
 
     /**
      * @memberOf RowSelection.prototype
+     * @this {RowSelectionType}
      * @desc update the autoscroll start time if we haven't autoscrolled within the last 500ms otherwise update the current autoscroll time
      */
     pingAutoScroll: function() {

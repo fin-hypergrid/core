@@ -1,9 +1,9 @@
 /* eslint-env browser */
 
-'use strict';
 
 var CellEditor = require('./CellEditor');
 
+// @ts-ignore
 var isChromium = window.chrome,
     winNav = window.navigator,
     vendorName = winNav.vendor,
@@ -26,6 +26,7 @@ var isChromium = window.chrome,
  * @constructor
  * @extends CellEditor
  */
+// @ts-ignore TODO use classes
 var Date = CellEditor.extend('Date', {
 
     initialize: function(grid) {
@@ -41,7 +42,9 @@ var Date = CellEditor.extend('Date', {
             this.template = '<input type="text" lang="{{locale}}">';
 
             this.selectAll = function() {
+                // @ts-ignore
                 var lastCharPlusOne = this.getEditorValue().length;
+                // @ts-ignore
                 this.input.setSelectionRange(0, lastCharPlusOne);
             };
         }

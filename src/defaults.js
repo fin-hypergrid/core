@@ -1,8 +1,10 @@
-'use strict';
 
 var version = require('../package.json').version;
 var HypergridError = require('./lib/error');
 
+/**
+ * @typedef {any} subgridSpec TODO
+ */
 
 var propClassEnum = {
     COLUMNS: 1,
@@ -451,9 +453,9 @@ var defaults = {
      * Overrides {@link module:defaults.cellPadding|cellPadding}:
      * * Left icon + `iconPadding` overrides left {@link module:defaults.cellPddingg|cellPddingg}.
      * * Right icon + `iconPadding` overrides right {@link module:defaults.cellPddingg|cellPddingg}.
-     * @see {@link module:defaults.leftIcon|leftIcon}
-     * @see {@link module:defaults.centerIcon|centerIcon}
-     * @see {@link module:defaults.rightIcon|rightIcon}
+     * {@link module:defaults.leftIcon|leftIcon}
+     * {@link module:defaults.centerIcon|centerIcon}
+     * {@link module:defaults.rightIcon|rightIcon}
      * @default
      * @type {number}
      * @memberOf module:defaults
@@ -465,9 +467,9 @@ var defaults = {
      * @desc Must be a key from {@link module:images|images}.
      *
      * Used by {@link SimpleCell} cell renderer.
-     * @see {@link module:defaults.centerIcon|centerIcon}
-     * @see {@link module:defaults.rightIcon|rightIcon}
-     * @see {@link module:defaults.iconPadding|iconPadding}
+     * {@link module:defaults.centerIcon|centerIcon}
+     * {@link module:defaults.rightIcon|rightIcon}
+     * {@link module:defaults.iconPadding|iconPadding}
      * @default
      * @type {string}
      * @memberOf module:defaults
@@ -479,9 +481,9 @@ var defaults = {
      * @desc Must be a key from {@link module:images|images}.
      *
      * Used by {@link SimpleCell} cell renderer.
-     * @see {@link module:defaults.leftIcon|leftIcon}
-     * @see {@link module:defaults.rightIcon|rightIcon}
-     * @see {@link module:defaults.iconPadding|iconPadding}
+     * {@link module:defaults.leftIcon|leftIcon}
+     * {@link module:defaults.rightIcon|rightIcon}
+     * {@link module:defaults.iconPadding|iconPadding}
      * @default
      * @type {string}
      * @memberOf module:defaults
@@ -493,9 +495,9 @@ var defaults = {
      * @desc Must be a key from {@link module:images|images}.
      *
      * Used by {@link SimpleCell} cell renderer.
-     * @see {@link module:defaults.leftIcon|leftIcon}
-     * @see {@link module:defaults.centerIcon|centerIcon}
-     * @see {@link module:defaults.iconPadding|iconPadding}
+     * {@link module:defaults.leftIcon|leftIcon}
+     * {@link module:defaults.centerIcon|centerIcon}
+     * {@link module:defaults.iconPadding|iconPadding}
      * @default
      * @type {string}
      * @memberOf module:defaults
@@ -538,7 +540,7 @@ var defaults = {
      * @type {number}
      * @default
      * @memberOf module:defaults
-     * @see {@link module:dynamicProperties.lineWidth lineWidth}
+     * {@link module:dynamicProperties.lineWidth lineWidth}
      */
     gridLinesHWidth: 1,
 
@@ -547,7 +549,7 @@ var defaults = {
      * @type {string}
      * @default
      * @memberOf module:defaults
-     * @see {@link module:dynamicProperties.lineColor lineColor}
+     * {@link module:dynamicProperties.lineColor lineColor}
      */
     gridLinesHColor: 'rgb(199, 199, 199)',
 
@@ -564,7 +566,7 @@ var defaults = {
      * @type {number}
      * @default
      * @memberOf module:defaults
-     * @see {@link module:dynamicProperties.lineWidth lineWidth}
+     * {@link module:dynamicProperties.lineWidth lineWidth}
      */
     gridLinesVWidth: 1,
 
@@ -573,7 +575,7 @@ var defaults = {
      * @type {string}
      * @default
      * @memberOf module:defaults
-     * @see {@link module:dynamicProperties.lineColor lineColor}
+     * {@link module:dynamicProperties.lineColor lineColor}
      */
     gridLinesVColor: 'rgb(199, 199, 199)',
 
@@ -709,7 +711,7 @@ var defaults = {
      * Define this property to render just the edges of the lines between fixed & scrolling columns, creating a double-line effect.
      * The value is the thickness of the edges.
      * Typical definition would be `1` in tandem with setting {@link module:defaults.fixedLinesVWidth fixedLinesVWidth} to `3`.
-     * @see {@link module:defaults.fixedLinesVWidth}
+     * {@link module:defaults.fixedLinesVWidth}
      * @default
      * @type {number}
      * @memberOf module:defaults
@@ -737,15 +739,15 @@ var defaults = {
      * @type {string}
      * @memberOf module:defaults
      */
-    boxSizing: version > 2 ? 'content-box' : 'border-box',
+    boxSizing: Number(version) > 2 ? 'content-box' : 'border-box',
 
     /**
      * @default
      * @type {number}
-     * @see {@link module:defaults.boxSizing boxSizing}
+     * {@link module:defaults.boxSizing boxSizing}
      * @memberOf module:defaults
      */
-    defaultRowHeight: version > 2 ? 14 : 15,
+    defaultRowHeight: Number(version) > 2 ? 14 : 15,
 
     /**
      * This default column width is used when `width` property is undefined.
@@ -926,7 +928,7 @@ var defaults = {
      * @default
      * @type {{name:string,options:object}|string}
      * @memberOf module:defaults
-     * @see {@link module:defaults.feedbackCount|feedbackCount}
+     * {@link module:defaults.feedbackCount|feedbackCount}
      */
     feedbackEffect: 'shaker',
 
@@ -955,7 +957,7 @@ var defaults = {
      * @default
      * @type {boolean}
      * @memberOf module:defaults
-     * @see {@link module:dynamicProperties.showRowNumbers}
+     * {@link module:dynamicProperties.showRowNumbers}
      */
     rowHeaderNumbers: true,
 
@@ -963,7 +965,7 @@ var defaults = {
      * @default
      * @type {boolean}
      * @memberOf module:defaults
-     * @see {@link module:dynamicProperties.showRowNumbers}
+     * {@link module:dynamicProperties.showRowNumbers}
      */
     rowHeaderCheckboxes: true,
 
@@ -1078,7 +1080,7 @@ var defaults = {
      *
      * Note this property only specifies a maximum column width for _auto-sizing;_ it places no limit on manual resizing of column width.
      * @default
-     * @type {boolean}
+     * @type {number}
      * @memberOf module:defaults
      */
     columnAutosizingMax: 400,
@@ -1088,7 +1090,7 @@ var defaults = {
      * @desc `grid.properties.treeColumnAutosizingMax` is the store for `grid.behavior.columns[-1].columnAutosizingMax`.
      * Supports tree column styling via the `rowColumn_______` grid state properties.
      * @default
-     * @type {boolean}
+     * @type {number}
      * @memberOf module:defaults
      */
     treeColumnAutosizingMax: 400,
@@ -1276,7 +1278,7 @@ var defaults = {
     /**
      * Name of grid renderer.
      * Renderer must have been registered.
-     * @see {@link Renderer#registerGridRenderer}.
+     * {@link Renderer#registerGridRenderer}.
      * @default
      * @type {string}
      * @memberOf module:defaults
@@ -1286,7 +1288,7 @@ var defaults = {
     /********** HOVER COLORS **********/
 
     /** @typedef hoverColors
-     * @property {boolean} [enable=false] - `false` means not hilite on hover
+     * @property {boolean} [enabled=false] - `false` means not hilite on hover
      * @property {cssColor} backgroundColor - cell, row, or column background color. Alpha channel will be respected and if given will be painted over the cells predetermined color.
      * @property {cssColor} [header.backgroundColor=backgroundColor] - for columns and rows, this is the background color of the column or row "handle" (header rows or columns, respectively). (Not used for cells.)
      */
@@ -1345,7 +1347,6 @@ var defaults = {
      * grid.behavior.setCellProperty(0, 0, 'mypage.com?id=%value'); // cell's value will replace %value
      * grid.behavior.setCellProperty(0, 0, ['//www.newyorker.com', 'ny', undefined, true]) // target='ny', replace=true
      * @type {boolean|string|Array}
-     * @type {boolean}
      * @default
      * @memberOf module:defaults
      */
@@ -1604,7 +1605,7 @@ function mappedNavKey(keyChar, ctrlKey) {
 }
 
 /** @summary Reapply cell properties after `getCell`.
- * @type {boolean}
+ * @param {boolean} value
  * @default
  * @memberOf module:defaults
  */

@@ -1,6 +1,9 @@
-'use strict';
 
 var bundleRows = require('./bundle-rows');
+
+/**
+ * @typedef {import("./index")} Renderer
+ */
 
 /** @summary Render the grid.
  * @desc _**NOTE:** This grid renderer is not as performant as the others and it's use is not recommended if you care about performance. The reasons for the wanting performance are unclear, possibly having to do with the way Chrome optimizes access to the column objects?_
@@ -18,7 +21,7 @@ var bundleRows = require('./bundle-rows');
  *
  * See also the discussion of clipping in {@link Renderer#paintCellsByColumns|paintCellsByColumns}.
  * @this {Renderer}
- * @param {CanvasRenderingContext2D} gc
+ * @param {CanvasRenderingContext2D & any} gc TODO need to remove any type
  * @memberOf Renderer.prototype
  */
 function paintCellsByRows(gc) {

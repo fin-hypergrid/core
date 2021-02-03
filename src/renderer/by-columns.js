@@ -1,6 +1,9 @@
-'use strict';
 
 var bundleColumns = require('./bundle-columns');
+
+/**
+ * @typedef {import("./index")} Renderer
+ */
 
 /** @summary Render the grid with consolidated column rects.
  * @desc Paints all the cells of a grid, one column at a time.
@@ -25,7 +28,7 @@ var bundleColumns = require('./bundle-columns');
  * Note that text never overflows to left because text starting point is never < 0. The reason we don't clip to the left is for cell renderers that need to re-render to the left to produce a merged cell effect, such as grouped column header.
 
  * @this {Renderer}
- * @param {CanvasRenderingContext2D} gc
+ * @param {CanvasRenderingContext2D & any} gc TODO need to remove any type
  * @memberOf Renderer.prototype
  */
 function paintCellsByColumns(gc) {

@@ -1,4 +1,8 @@
-'use strict';
+
+/**
+ * @typedef {any} CellEvent
+ * @typedef {any} DataModel
+ */
 
 /**
  * Behavior.js mixes this module into its prototype.
@@ -59,6 +63,7 @@ exports.mixin = {
         }
 
         var metadata = (dataModel || this.dataModel).getRowMetadata(yOrCellEvent, prototype === undefined ? undefined : null);
+        // @ts-ignore
         return metadata && (metadata.__ROW || prototype !== undefined && (metadata.__ROW = Object.create(prototype)));
     },
 
@@ -123,6 +128,7 @@ exports.mixin = {
      * @param {number|CellEvent} yOrCellEvent - Data row index local to `dataModel`; or a `CellEvent` object.
      * @param {object|undefined} properties - An object containing new property values(s) to assign to the row properties. If `undefined`, this call is a no-op.
      * @param {DataModel} [dataModel=this.dataModel] - This is the subgrid. You only need to provide the subgrid when it is not the data subgrid _and_ you did not give a `CellEvent` object in the first param (which already knows what subgrid it's in).
+     * @param {any} [rowProps]
      */
     addRowProperties: function(yOrCellEvent, properties, dataModel, rowProps) {
         if (!properties) {

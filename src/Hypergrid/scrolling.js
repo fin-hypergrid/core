@@ -1,6 +1,10 @@
-'use strict';
 
 var Scrollbar = require('./modules').Scrollbar;
+
+/**
+ * @typedef {any} Hypergrid TODO
+ * @typedef {any} FinBar TODO
+ */
 
 /**
  * @summary Scrollbar support.
@@ -56,6 +60,7 @@ exports.mixin = {
     scrollingNow: false,
 
     /**
+     * @type {any} // Handle TS bug, remove this issue after resolved {@link https://github.com/microsoft/TypeScript/issues/41672)
      * @memberOf Hypergrid#
      * @summary Set for `scrollingNow` field.
      * @param {boolean} isItNow - The type of event we are interested in.
@@ -150,7 +155,9 @@ exports.mixin = {
     },
 
     /**
+     * @type {any} // Handle TS bug, remove this issue after resolved {@link https://github.com/microsoft/TypeScript/issues/41672)
      * @memberOf Hypergrid#
+     * @this {Hypergrid}
      * @desc Set the vertical scroll value.
      * @param {number} newValue - The new scroll value.
      */
@@ -172,6 +179,7 @@ exports.mixin = {
 
     /**
      * @memberOf Hypergrid#
+     * @this {Hypergrid}
      * @return {number} The vertical scroll value.
      */
     getVScrollValue: function() {
@@ -179,7 +187,9 @@ exports.mixin = {
     },
 
     /**
+     * @type {any} // Handle TS bug, remove this issue after resolved {@link https://github.com/microsoft/TypeScript/issues/41672)
      * @memberOf Hypergrid#
+     * @this {Hypergrid}
      * @desc Set the horizontal scroll value.
      * @param {number} newValue - The new scroll value.
      */
@@ -202,6 +212,7 @@ exports.mixin = {
 
     /**
      * @memberOf Hypergrid#
+     * @this {Hypergrid}
      * @returns The vertical scroll value.
      */
     getHScrollValue: function() {
@@ -209,7 +220,9 @@ exports.mixin = {
     },
 
     /**
+     * @type {any} // Handle TS bug, remove this issue after resolved {@link https://github.com/microsoft/TypeScript/issues/41672)
      * @memberOf Hypergrid#
+     * @this {Hypergrid}
      * @desc Initialize the scroll bars.
      */
     initScrollbars: function() {
@@ -265,6 +278,7 @@ exports.mixin = {
 
     /**
      * @memberOf Hypergrid#
+     * @this {Hypergrid}
      * @desc Scroll values have changed, we've been notified.
      */
     setVScrollbarValues: function(max) {
@@ -281,6 +295,10 @@ exports.mixin = {
         };
     },
 
+    /**
+     * @type {any} // Handle TS bug, remove this issue after resolved {@link https://github.com/microsoft/TypeScript/issues/41672)
+     * @this {Hypergrid}
+     */
     scrollValueChangedNotification: function() {
         if (
             this.hScrollValue !== this.sbPrevHScrollValue ||
@@ -299,6 +317,7 @@ exports.mixin = {
 
     /**
      * @memberOf Hypergrid#
+     * @this {Hypergrid}
      * @desc The data dimensions have changed, or our pixel boundaries have changed.
      * Adjust the scrollbar properties as necessary.
      */
@@ -361,6 +380,7 @@ exports.mixin = {
 
     /**
      * @memberOf Hypergrid#
+     * @this {Hypergrid}
      * @desc Scroll up one full page.
      * @returns {number}
      */
@@ -372,6 +392,7 @@ exports.mixin = {
 
     /**
      * @memberOf Hypergrid#
+     * @this {Hypergrid}
      * @desc Scroll down one full page.
      * @returns {number}
      */
@@ -383,6 +404,7 @@ exports.mixin = {
 
     /**
      * @memberOf Hypergrid#
+     * @this {Hypergrid}
      * @desc Not yet implemented.
      */
     pageLeft: function() {
@@ -391,6 +413,7 @@ exports.mixin = {
 
     /**
      * @memberOf Hypergrid#
+     * @this {Hypergrid}
      * @desc Not yet implemented.
      */
     pageRight: function() {

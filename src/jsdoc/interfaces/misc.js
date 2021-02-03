@@ -1,4 +1,4 @@
-/** @typedef BoundingRect
+/** @typedef {object} BoundingRect
  * @summary A bounding rectangle.
  * @property {number} x - Horizontal coordinate of upper-left corner of bounding rect.
  * @property {number} y - Vertical coordinate of upper-left corner of bounding rect.

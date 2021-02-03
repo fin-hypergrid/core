@@ -1,11 +1,16 @@
-'use strict';
 
 var Feature = require('./Feature');
+
+/**
+ * @typedef {import("../Hypergrid")} Hypergrid
+ * @typedef {any} ColumnSelectionType TODO
+ */
 
 /**
  * @constructor
  * @extends Feature
  */
+// @ts-ignore TODO use classes
 var ColumnSelection = Feature.extend('ColumnSelection', {
 
     /**
@@ -43,6 +48,7 @@ var ColumnSelection = Feature.extend('ColumnSelection', {
 
     /**
      * @memberOf ColumnSelection.prototype
+     * @this {ColumnSelectionType}
      * @param {Hypergrid} grid
      * @param {Object} event - the event details
      */
@@ -55,6 +61,9 @@ var ColumnSelection = Feature.extend('ColumnSelection', {
         }
     },
 
+    /**
+     * @this {ColumnSelectionType}
+     */
     handleDoubleClick: function(grid, event) {
         if (this.doubleClickTimer) {
             clearTimeout(this.doubleClickTimer); // prevent mouseDown from continuing
@@ -67,6 +76,7 @@ var ColumnSelection = Feature.extend('ColumnSelection', {
 
     /**
      * @memberOf ColumnSelection.prototype
+     * @this {ColumnSelectionType}
      * @param {Hypergrid} grid
      * @param {Object} event - the event details
      */
@@ -96,6 +106,7 @@ var ColumnSelection = Feature.extend('ColumnSelection', {
 
     /**
      * @memberOf ColumnSelection.prototype
+     * @this {ColumnSelectionType}
      * @param {Hypergrid} grid
      * @param {Object} event - the event details
      */
@@ -334,6 +345,7 @@ var ColumnSelection = Feature.extend('ColumnSelection', {
 
     /**
      * @memberOf ColumnSelection.prototype
+     * @this {ColumnSelectionType}
      * @desc update the autoscroll start time if we haven't autoscrolled within the last 500ms otherwise update the current autoscroll time
      */
     pingAutoScroll: function() {
@@ -440,6 +452,7 @@ function doubleClickDelay(grid, event) {
 function doubleClickTimerCallback(grid, event) {
     this.doubleClickTimer = undefined;
     this.dragging = true;
+    // @ts-ignore
     this.extendSelection(grid, event.gridCell.x, event.primitiveEvent.detail.keys);
 }
 

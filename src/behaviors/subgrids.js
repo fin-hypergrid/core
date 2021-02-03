@@ -1,15 +1,19 @@
-'use strict';
 
 var dataModels = require('../dataModels/index');
 
-/** @typedef subgridConstructorRef
+/**
+ * @typedef {any} Behavior
+ * @typedef {any} DataModel
+ */
+
+/** @typedef {any} subgridConstructorRef
  * @summary Type definition.
  * @desc One of:
  * * **`function` type** - Assumed to already be a data model constructor.
  * * **`string` type** - The name of a data model "class" (constructor) registered in the {@link src/dataModels} namespace. Used to look up the constructor in the namespace.
  */
 
-/** @typedef subgridSpec
+/** @typedef {any} subgridSpec
  * @summary Type definition.
  * @desc One of:
  * * **`object` type** _(except when an array)_ - Assumed to be a reference to an already-instantiated data model. Used as is.
@@ -50,6 +54,7 @@ exports.mixin = {
     set subgrids(subgridSpecs) {
         var subgrids = this._subgrids = [];
 
+        // @ts-ignore
         subgrids.lookup = {};
 
         subgridSpecs.forEach(function(spec) {

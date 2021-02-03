@@ -19,5 +19,4 @@ build
 /*.sh
 /*.md
 
-/src/behaviors/index.js
-/src/lib/index.js
+/src

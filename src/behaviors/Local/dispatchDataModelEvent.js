@@ -1,10 +1,14 @@
-'use strict';
 
 var dataModelEventHandlers = require('./events');
 var dispatchGridEvent = require('../../lib/dispatchGridEvent');
 
 
 var REGEX_DATA_EVENT_STRING = /^fin-hypergrid-(data|schema)(-[a-z]+)+$/;
+
+/**
+ * @typedef {import("../../Hypergrid")} Hypergrid
+ * @typedef {any} NormalizedDataModelEvent TODO
+ */
 
 /**
  * @summary Hypergrid data model event handler.

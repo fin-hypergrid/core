@@ -1,4 +1,3 @@
-'use strict';
 
 var Rectangle = require('rectangular').Rectangle;
 

@@ -1,13 +1,13 @@
-'use strict';
 
 var CellRenderer = require('./CellRenderer');
 
 /**
  * Renders a sparkline.
- * @see [Edward Tufte sparkline](http://www.edwardtufte.com/bboard/q-and-a-fetch-msg?msg_id=0001OR)
+ * {@link http://www.edwardtufte.com/bboard/q-and-a-fetch-msg?msg_id=0001OR|Edward Tufte sparkline}
  * @constructor
  * @extends CellRenderer
  */
+// @ts-ignore TODO use classes
 var SparkLine = CellRenderer.extend('SparkLine', {
     paint: function(gc, config) {
         var x = config.bounds.x,

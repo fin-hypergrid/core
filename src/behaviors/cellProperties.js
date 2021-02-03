@@ -1,6 +1,10 @@
-'use strict';
 
 var assignOrDelete = require('../lib/assignOrDelete');
+
+/**
+ * @typedef {any} DataModel TODO
+ * @typedef {any} Column TODO
+ */
 
 /**
  * Column.js mixes this module into its prototype.

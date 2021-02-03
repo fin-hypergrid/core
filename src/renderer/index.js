@@ -1,11 +1,20 @@
 /* eslint-env browser */
 
-'use strict';
 
 var Base = require('../Base');
 var images = require('../../images');
 var layerProps = require('./layer-props');
 var InclusiveRectangle = require('../lib/InclusiveRectangle');
+
+/**
+ * TODO - DataModel type should be imported from a "*.d.ts" file e.g.:
+ * #typedef { import("../jsdoc/interfaces/DataModel").DataModel } DataModel
+ * @typedef {any} DataModel TODO
+ * @typedef {any} CellEditor TODO
+ * @typedef {any} CellEvent TODO
+ * @typedef {any} RendererType TODO
+ * @typedef {any} OverrideObject TODO
+ */
 
 /**
  * @summary List of grid renderers available to new grid instances.
@@ -18,7 +27,7 @@ var paintCellsFunctions = [];
 
 
 /** @typedef {object} CanvasRenderingContext2D
- * @see [CanvasRenderingContext2D](https://developer.mozilla.org/docs/Web/API/CanvasRenderingContext2D)
+ * {@link https://developer.mozilla.org/docs/Web/API/CanvasRenderingContext2D|CanvasRenderingContext2D}
  */
 
 /** @typedef {object} visibleColumnArray
@@ -72,6 +81,9 @@ var Renderer = Base.extend('Renderer', {
 
     scrollHeight: 0,
 
+    /**
+     * @this {RendererType}
+     */
     reset: function() {
         this.bounds = {
             width: 0,
@@ -117,6 +129,7 @@ var Renderer = Base.extend('Renderer', {
      * @desc This method will be called upon instantiation of this class or of any class that extends from this class.
      * > All `initialize()` methods in the inheritance chain are called, in turn, each with the same parameters that were passed to the constructor, beginning with that of the most "senior" class through that of the class of the new instance.
      * @memberOf Renderer.prototype
+     * @this {RendererType}
      */
     initialize: function(grid) {
         this.grid = grid;
@@ -138,6 +151,9 @@ var Renderer = Base.extend('Renderer', {
         };
     },
 
+    /**
+     * @this {RendererType}
+     */
     setGridRenderer: function(key) {
         var gridRenderer = this.gridRenderers[key];
 
@@ -279,7 +295,7 @@ var Renderer = Base.extend('Renderer', {
      * @memberOf Renderer.prototype
      * @desc Answer specific data cell coordinates given mouse coordinates in pixels.
      * @param {Point} point
-     * @returns {{cellEvent:CellEvent,fake:boolean}} Cell coordinates
+     * @returns {{cellEvent?:CellEvent,fake:boolean}} Cell coordinates
      */
     getGridCellFromMousePoint: function(point) {
         var x = point.x,
@@ -535,6 +551,7 @@ var Renderer = Base.extend('Renderer', {
      * running as it will be rendered on the next tick. We let it call it anyway in case (1) fetch returns quickly
      * enough to be rendered on this tick rather than next or (2) clock isn't running (for debugging purposes).
      * @param {CanvasRenderingContext2D} gc
+     * @this {RendererType}
      */
     renderGrid: function(gc) {
         var grid = this.grid;

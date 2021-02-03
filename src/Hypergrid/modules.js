@@ -1,4 +1,3 @@
-'use strict';
 
 /*
  * This module is the namespace of loaded external modules known to `Hypergrid.require`,

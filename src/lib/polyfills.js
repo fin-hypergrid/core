@@ -1,4 +1,3 @@
-'use strict';
 
 
 /* IMPORTANT NOTE:
@@ -12,6 +11,7 @@
 
 // https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Math/sign#Polyfill
 // (Safari now supports Math.sign but IE still does not as of v11.)
+// @ts-ignore TODO - resolve this typedef
 Math.sign = Math.sign = function(x) {
     x = +x; // convert to a number
     if (x === 0 || isNaN(x)) {
@@ -63,6 +63,10 @@ if (typeof Object.assign !== 'function') {
 }
 
 if (typeof Object.getOwnPropertyDescriptors !== 'function') {
+    /**
+     * @param {any} object TODO
+     * @returns {any} TODO
+     */
     Object.getOwnPropertyDescriptors = function(object) {
         return Object.getOwnPropertyNames(object).reduce(function(descriptors, key) {
             descriptors[key] = Object.getOwnPropertyDescriptor(object, key);

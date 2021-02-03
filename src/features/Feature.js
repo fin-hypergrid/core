@@ -1,6 +1,10 @@
-'use strict';
 
 var Base = require('../Base');
+
+/**
+ * @typedef {any} Hypergrid TODO
+ * @typedef {any} FeatureType TODO
+ */
 
 /**
  * Instances of features are connected to one another to make a chain of responsibility for handling all the input to the hypergrid.
@@ -49,6 +53,7 @@ var Feature = Base.extend('Feature', {
      */
     setNext: function(nextFeature) {
         if (this.next) {
+            // @ts-ignore TODO
             this.next.setNext(nextFeature);
         } else {
             this.next = nextFeature;
@@ -66,6 +71,7 @@ var Feature = Base.extend('Feature', {
 
     /**
      * @memberOf Feature.prototype
+     * @this {FeatureType} TODO
      * @desc reattach my child from the detached reference
      */
     attachChain: function() {

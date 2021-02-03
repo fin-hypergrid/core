@@ -1,4 +1,3 @@
-'use strict';
 
 var CellEditor = require('./CellEditor');
 
@@ -6,6 +5,7 @@ var CellEditor = require('./CellEditor');
  * @constructor
  * @extends CellEditor
  */
+// @ts-ignore TODO use classes
 var Combo = CellEditor.extend('Combo', {
 
     /**

@@ -1,4 +1,3 @@
-'use strict';
 
 var defaults = require('../defaults');
 

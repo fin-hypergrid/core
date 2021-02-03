@@ -1,7 +1,5 @@
 /* eslint-env browser */
 
-'use strict';
-
 var dispatchGridEvent = require('../lib/dispatchGridEvent');
 var Button = require('../cellRenderers/Button');
 
@@ -96,6 +94,11 @@ exports.mixin = {
         }, this);
     },
 
+    /**
+     * @type {any} // Handle TS bug, remove this issue after resolved {@link https://github.com/microsoft/TypeScript/issues/41672)
+     * @param {boolean} allow
+     * @this {any}
+     */
     allowEvents: function(allow){
         this.allowEventHandlers = !!allow;
 
@@ -206,7 +209,7 @@ exports.mixin = {
     /**
      * @memberOf Hypergrid#
      * @desc Synthesize and fire a `fin-context-menu` event
-     * @param {keyEvent} event - The canvas event.
+     * @param {KeyboardEvent} event - The canvas event.
      * @returns {boolean} Proceed; event was not [canceled](https://developer.mozilla.org/docs/Web/API/EventTarget/dispatchEvent#Return_Value `EventTarget.dispatchEvent`).
      */
     fireSyntheticContextMenuEvent: function(event) {
@@ -419,7 +422,7 @@ exports.mixin = {
      * @desc Synthesize and fire a fin-request-cell-edit event.
      *
      * This event is cancelable.
-     * @param {CellEvent} cellEvent
+     * @param {unknown} cellEvent
      * @param {*} value
      * @returns {boolean} Proceed; event was not [canceled](https://developer.mozilla.org/docs/Web/API/EventTarget/dispatchEvent#Return_Value `EventTarget.dispatchEvent`).
      */
@@ -446,7 +449,6 @@ exports.mixin = {
 
     /**
      * @memberOf Hypergrid#
-     * @returns {Renderer} sub-component
      * @param {Point} cell - The x,y coordinates.
      * @param {Object} oldValue - The old value.
      * @param {Object} newValue - The new value.
@@ -533,7 +535,12 @@ exports.mixin = {
                 return;
             }
 
-            handleMouseEvent(e, function(mouseEvent) {
+            handleMouseEvent(e,
+                /**
+                 * @this {any}
+                 * @param {any} mouseEvent
+                 */
+                function(mouseEvent) {
                 mouseEvent.keys = e.detail.keys;
                 this.mouseDownState = mouseEvent;
                 this.delegateMouseDown(mouseEvent);
@@ -546,7 +553,12 @@ exports.mixin = {
             if (grid.properties.readOnly) {
                 return;
             }
-            handleMouseEvent(e, function(mouseEvent) {
+            handleMouseEvent(e,
+                /**
+                 * @this {any}
+                 * @param {{ gridCell: any; mousePointInClickRect: any; keys: any; }} mouseEvent
+                 */
+                function(mouseEvent) {
                 var isMouseDownCell = this.mouseDownState && this.mouseDownState.gridCell.equals(mouseEvent.gridCell);
                 if (isMouseDownCell && mouseEvent.mousePointInClickRect) {
                     mouseEvent.keys = e.detail.keys; // todo: this was in fin-tap but wasn't here
@@ -680,7 +692,7 @@ exports.mixin = {
     /**
      * @memberOf Hypergrid#
      * @desc Delegate MouseMove to the behavior (model).
-     * @param {mouseDetails} mouseDetails - An enriched mouse event from fin-canvas.
+     * @param {unknown} mouseDetails - An enriched mouse event from fin-canvas.
      */
     delegateMouseMove: function(mouseDetails) {
         this.behavior.onMouseMove(this, mouseDetails);
@@ -689,7 +701,7 @@ exports.mixin = {
     /**
      * @memberOf Hypergrid#
      * @desc Delegate mousedown to the behavior (model).
-     * @param {mouseDetails} mouseDetails - An enriched mouse event from fin-canvas.
+     * @param {unknown} mouseDetails - An enriched mouse event from fin-canvas.
      */
     delegateMouseDown: function(mouseDetails) {
         this.behavior.handleMouseDown(this, mouseDetails);
@@ -698,7 +710,7 @@ exports.mixin = {
     /**
      * @memberOf Hypergrid#
      * @desc Delegate mouseup to the behavior (model).
-     * @param {mouseDetails} mouseDetails - An enriched mouse event from fin-canvas.
+     * @param {unknown} mouseDetails - An enriched mouse event from fin-canvas.
      */
     delegateMouseUp: function(mouseDetails) {
         this.behavior.onMouseUp(this, mouseDetails);
@@ -707,7 +719,7 @@ exports.mixin = {
     /**
      * @memberOf Hypergrid#
      * @desc Delegate click to the behavior (model).
-     * @param {mouseDetails} mouseDetails - An enriched mouse event from fin-canvas.
+     * @param {unknown} mouseDetails - An enriched mouse event from fin-canvas.
      */
     delegateClick: function(mouseDetails) {
         this.behavior.onClick(this, mouseDetails);
@@ -716,7 +728,7 @@ exports.mixin = {
     /**
      * @memberOf Hypergrid#
      * @desc Delegate mouseDrag to the behavior (model).
-     * @param {mouseDetails} mouseDetails - An enriched mouse event from fin-canvas.
+     * @param {unknown} mouseDetails - An enriched mouse event from fin-canvas.
      */
     delegateMouseDrag: function(mouseDetails) {
         this.behavior.onMouseDrag(this, mouseDetails);
@@ -725,7 +737,7 @@ exports.mixin = {
     /**
      * @memberOf Hypergrid#
      * @desc We've been doubleclicked on. Delegate through the behavior (model).
-     * @param {mouseDetails} mouseDetails - An enriched mouse event from fin-canvas.
+     * @param {unknown} mouseDetails - An enriched mouse event from fin-canvas.
      */
     delegateDoubleClick: function(mouseDetails) {
         this.behavior.onDoubleClick(this, mouseDetails);

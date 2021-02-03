@@ -1,11 +1,15 @@
 /* eslint-env browser */
 
-'use strict';
 
 // This feature is responsible for column drag and drop reordering.
 // This object is a mess and desperately needs a complete rewrite.....
 
 var Feature = require('./Feature');
+
+/**
+ * @typedef {import("../Hypergrid")} Hypergrid
+ * @typedef {any} ColumnMovingType TODO
+ */
 
 var GRAB = ['grab', '-moz-grab', '-webkit-grab'],
     GRABBING = ['grabbing', '-moz-grabbing', '-webkit-grabbing'],
@@ -30,6 +34,7 @@ function translate(grid, x, y) {
  * @constructor
  * @extends Feature
  */
+// @ts-ignore TODO use classes
 var ColumnMoving = Feature.extend('ColumnMoving', {
 
     /**
@@ -83,6 +88,7 @@ var ColumnMoving = Feature.extend('ColumnMoving', {
 
     /**
      * @memberOf CellMoving.prototype
+     * @this {ColumnMovingType}
      * @desc give me an opportunity to initialize stuff on the grid
      * @param {Hypergrid} grid
      */
@@ -123,6 +129,7 @@ var ColumnMoving = Feature.extend('ColumnMoving', {
 
     /**
      * @memberOf CellMoving.prototype
+     * @this {ColumnMovingType}
      * @param {Hypergrid} grid
      * @param {Object} event - the event details
      */
@@ -162,6 +169,7 @@ var ColumnMoving = Feature.extend('ColumnMoving', {
 
     /**
      * @memberOf CellMoving.prototype
+     * @this {ColumnMovingType}
      * @param {Hypergrid} grid
      * @param {Object} event - the event details
      */
@@ -182,6 +190,7 @@ var ColumnMoving = Feature.extend('ColumnMoving', {
 
     /**
      * @memberOf CellMoving.prototype
+     * @this {ColumnMovingType}
      * @param {Hypergrid} grid
      * @param {Object} event - the event details
      */
@@ -210,6 +219,7 @@ var ColumnMoving = Feature.extend('ColumnMoving', {
 
     /**
      * @memberOf CellMoving.prototype
+     * @this {ColumnMovingType}
      * @param {Hypergrid} grid
      * @param {Object} event - the event details
      */
@@ -237,6 +247,7 @@ var ColumnMoving = Feature.extend('ColumnMoving', {
 
     /**
      * @memberOf CellMoving.prototype
+     * @this {ColumnMovingType}
      * @desc this is the main event handler that manages the dragging of the column
      * @param {Hypergrid} grid
      * @param {boolean} draggedToTheRight - are we moving to the right
@@ -332,6 +343,7 @@ var ColumnMoving = Feature.extend('ColumnMoving', {
 
     /**
      * @memberOf CellMoving.prototype
+     * @this {ColumnMovingType}
      * @desc manifest the floater animation
      * @param {Hypergrid} grid
      */
@@ -491,6 +503,7 @@ var ColumnMoving = Feature.extend('ColumnMoving', {
 
     /**
      * @memberOf CellMoving.prototype
+     * @this {ColumnMovingType}
      * @desc this function is the main dragging logic
      * @param {Hypergrid} grid
      * @param {number} x - the start position
@@ -572,6 +585,7 @@ var ColumnMoving = Feature.extend('ColumnMoving', {
 
     /**
      * @memberOf CellMoving.prototype
+     * @this {ColumnMovingType}
      * @desc autoscroll to the right if necessary
      * @param {Hypergrid} grid
      * @param {number} x - the start position
@@ -604,6 +618,7 @@ var ColumnMoving = Feature.extend('ColumnMoving', {
 
     /**
      * @memberOf CellMoving.prototype
+     * @this {ColumnMovingType}
      * @desc autoscroll to the left if necessary
      * @param {Hypergrid} grid
      * @param {number} x - the start position

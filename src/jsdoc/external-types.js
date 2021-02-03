@@ -1,7 +1,7 @@
-/** @typedef Point
+/** @typedef {any} Point TODO
  * @see http://fin-hypergrid.github.io/rectangular/doc/Point.html
  */
 
-/** @typedef Rectangle
+/** @typedef {any} Rectangle TODO
  * @see http://fin-hypergrid.github.io/rectangular/doc/Rectangle.html
  */

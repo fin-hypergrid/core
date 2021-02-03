@@ -1,4 +1,3 @@
-'use strict';
 
 /**
  * @module fields
@@ -128,8 +127,11 @@ var fields = {
      * @memberOf module:fields
      */
     getSchema: function(data) {
-        var dataRow = data && data[0] || {},
-            schema = fields.getFieldNames(dataRow);
+        var dataRow = data && data[0] || {};
+        /**
+         * @type {any} schema TODO
+         */
+        var schema = fields.getFieldNames(dataRow);
 
         fields.normalizeSchema(schema);
         fields.decorateSchema(schema);

@@ -1,6 +1,5 @@
 /* eslint-env browser */
 
-'use strict';
 
 var API;
 
@@ -45,9 +44,8 @@ var fontMetrics = {};
  *
  * NOTE: There is a minor measuring error when taking the sum of the pixel widths of individual characters that make up a string vs. the pixel width of the string taken as a whole. This is possibly due to kerning or rounding. The error is typically about 0.1%.
  * @memberOf module:defaults
- * @param {CanvasRenderingContext2D} gc
  * @param {string} string - Text to measure.
- * @returns {nubmer} Width of string in pixels.
+ * @returns {number} Width of string in pixels.
  */
 function getTextWidth(string) {
     var metrics = fontMetrics[this.cache.font] = fontMetrics[this.cache.font] || {};
@@ -65,7 +63,6 @@ var ELLIPSIS = '\u2026'; // The "…" (dot-dot-dot) character
  * Similar to `getTextWidth` except:
  * 1. Aborts accumulating when sum exceeds given `width`.
  * 2. Returns an object containing both the truncated string and the sum (rather than a number primitive containing the sum alone).
- * @param {CanvasRenderingContext2D} gc
  * @param {string} string - Text to measure.
  * @param {number} width - Width of target cell; overflow point.
  * @param {boolean|null|undefined} truncateTextWithEllipsis - _Per {@link module:defaults.truncateTextWithEllipsis}._

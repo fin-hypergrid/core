@@ -1,4 +1,3 @@
-'use strict';
 
 var Point = require('rectangular').Point;
 
@@ -11,6 +10,15 @@ var ArrayDecorator = require('synonomous');
 var assignOrDelete = require('../lib/assignOrDelete');
 var dispatchGridEvent = require('../lib/dispatchGridEvent');
 
+/**
+ * @typedef {any} Hypergrid TODO
+ * @typedef {any} menuItem TODO
+ * @typedef {any} subgridSpec TODO
+ * @typedef {any} DataModel TODO
+ * @typedef {any} BehaviorType TODO
+ * @typedef {any} Feature TODO
+ * @typedef {any} cellEditor TODO
+ */
 
 var noExportProperties = [
     'columnHeader',
@@ -44,6 +52,9 @@ var noExportProperties = [
  */
 var Behavior = Base.extend('Behavior', {
 
+    /**
+     * @this {BehaviorType}
+     */
     initialize: function(grid, options) {
         /**
          * @type {Hypergrid}
@@ -61,6 +72,7 @@ var Behavior = Base.extend('Behavior', {
      * @desc Create the feature chain - this is the [chain of responsibility](http://c2.com/cgi/wiki?ChainOfResponsibilityPattern) pattern.
      * @param {Hypergrid} [grid] Unnecesary legacy parameter. May be omitted.
      * @memberOf Behavior#
+     * @this BehaviorType
      */
     initializeFeatureChain: function(grid) {
         var constructors;
@@ -91,16 +103,20 @@ var Behavior = Base.extend('Behavior', {
             warnBehaviorFeaturesDeprecation.call(this);
         }
 
-        constructors.forEach(function(FeatureConstructor, i) {
-            var feature = new FeatureConstructor;
+        constructors.forEach(
+            /**
+             * @this BehaviorType
+             */
+                function(FeatureConstructor, i) {
+                var feature = new FeatureConstructor;
 
-            this.featureMap[feature.$$CLASS_NAME] = feature;
+                this.featureMap[feature.$$CLASS_NAME] = feature;
 
-            if (i) {
-                this.featureChain.setNext(feature);
-            } else {
-                this.featureChain = feature;
-            }
+                if (i) {
+                    this.featureChain.setNext(feature);
+                } else {
+                    this.featureChain = feature;
+                }
         }, this);
 
         if (this.featureChain) {
@@ -115,6 +131,7 @@ var Behavior = Base.extend('Behavior', {
      * @param {object} [options] - _Same as constructor's `options`._<br>
      * _Passed to {@link Behavior#resetDataModel resetDataModel} and {@link Behavior#setData setData} (both of which see)._
      * @memberOf Behavior#
+     * @this BehaviorType
      */
     reset: function(options) {
         var dataModelChanged = this.resetDataModel(options);
@@ -186,6 +203,7 @@ var Behavior = Base.extend('Behavior', {
      * @param {boolean} [options.apply=true] Apply data transformations to the new data.
      *
      * @memberOf Behavior#
+     * @this BehaviorType
      */
     setData: function(dataRows, options) {
         if (!(Array.isArray(dataRows) || typeof dataRows === 'function')) {
@@ -235,6 +253,9 @@ var Behavior = Base.extend('Behavior', {
         return this.grid.properties.showRowNumbers ? this.rowColumnIndex : (this.hasTreeColumn() ? this.treeColumnIndex : 0);
     },
 
+    /**
+     * @this BehaviorType
+     */
     clearColumns: function() {
         var schema = this.schema,
             tc = this.treeColumnIndex,
@@ -282,9 +303,12 @@ var Behavior = Base.extend('Behavior', {
      * @param {Column|number} columnOrIndex
      * @returns {undefined|number} The grid index of the column or undefined if column not in grid.
      * @memberOf Hypergrid#
+     * @this Hypergrid
      */
     getActiveColumnIndex: function(columnOrIndexOrName) {
+        // @ts-ignore
         var value = columnOrIndexOrName instanceof Column ? columnOrIndexOrName.index : columnOrIndexOrName,
+        // @ts-ignore
             key = typeof index === 'number' ? 'index' : 'name';
 
         return this.columns.findIndex(function(column) { return column[key] === value; });
@@ -312,6 +336,9 @@ var Behavior = Base.extend('Behavior', {
         return column;
     },
 
+    /**
+     * @this Hypergrid
+     */
     createColumns: function(realImplementation) {
         var schema = this.dataModel.getSchema();
 
@@ -515,7 +542,7 @@ var Behavior = Base.extend('Behavior', {
      * * `true` - The active column list. This can only move columns around within the active column list; it cannot add inactive columns (because it can only refer to columns in the active column list).
      * * `false` - The full column list (as per column schema array). This inserts columns from the "inactive" column list, moving columns that are already active.
      *
-     * @param {number|number[]} columnIndexes - Column index(es) into list as determined by `isActiveColumnIndexes`. One of:
+     * @param {number|number[]} [columnIndexes] - Column index(es) into list as determined by `isActiveColumnIndexes`. One of:
      * * **Scalar column index** - Adds single column at insertion point.
      * * **Array of column indexes** - Adds multiple consecutive columns at insertion point.
      *
@@ -534,7 +561,9 @@ var Behavior = Base.extend('Behavior', {
     showColumns: function(isActiveColumnIndexes, columnIndexes, referenceIndex, allowDuplicateColumns) {
         // Promote args when isActiveColumnIndexes omitted
         if (typeof isActiveColumnIndexes === 'number' || Array.isArray(isActiveColumnIndexes)) {
+            // @ts-ignore TODO
             allowDuplicateColumns = referenceIndex;
+            // @ts-ignore TODO
             referenceIndex = columnIndexes;
             columnIndexes = isActiveColumnIndexes;
             isActiveColumnIndexes = false;
@@ -585,7 +614,7 @@ var Behavior = Base.extend('Behavior', {
      * @param {boolean} [isActiveColumnIndexes=false] - Which list `columnIndexes` refers to:
      * * `true` - The active column list.
      * * `false` - The full column list (as per column schema array).
-     * @param {number|number[]} columnIndexes - Column index(es) into list as determined by `isActiveColumnIndexes`. One of:
+     * @param {number|number[]} [columnIndexes] - Column index(es) into list as determined by `isActiveColumnIndexes`. One of:
      * * **Scalar column index** - Adds single column at insertion point.
      * * **Array of column indexes** - Adds multiple consecutive columns at insertion point.
      *
@@ -868,7 +897,7 @@ var Behavior = Base.extend('Behavior', {
     },
 
     /**
-     * @param {index} x - Data x coordinate.
+     * @param {number} x - Data x coordinate.
      * @return {Object} The properties for a specific column.
      * @memberOf Behavior#
      */
@@ -878,7 +907,7 @@ var Behavior = Base.extend('Behavior', {
     },
 
     /**
-     * @param {index} x - Data x coordinate.
+     * @param {number} x - Data x coordinate.
      * @return {Object} The properties for a specific column.
      * @memberOf Behavior#
      */
@@ -917,7 +946,7 @@ var Behavior = Base.extend('Behavior', {
 
     /**
      * @memberOf Behavior#
-     * @return {string[]} All the currently hidden column header labels.
+     * @return {any[]} All the currently hidden column header labels.
      */
     getHiddenColumnDescriptors: function() {
         var tableState = this.grid.properties;
@@ -978,7 +1007,7 @@ var Behavior = Base.extend('Behavior', {
      *    3. The top total rows (0 or more)
      * 2. The non-scrolling rows (externally called "the fixed rows")
      *
-     * @returns {number} Sum of the above or 0 if none of the above are in use.
+     * @returns {void} Sum of the above or 0 if none of the above are in use.
      *
      * @param {number} The number of rows.
      */
@@ -1170,6 +1199,7 @@ var Behavior = Base.extend('Behavior', {
                 hidden.push(all[i]);
             }
         }
+        // @ts-ignore TODO
         hidden.sort(function(a, b) {
             return a.header < b.header;
         });

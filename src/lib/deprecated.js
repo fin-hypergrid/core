@@ -1,5 +1,3 @@
-'use strict';
-
 // console.warn polyfill as needed
 // used for deprecation warnings
 if (!console.warn) {
@@ -12,10 +10,11 @@ var regexIsMethod = /^[\w\.]+\(.*\)$/;
 
 /**
  * User is warned and new property is returned or new method is called and the result is returned.
+ * @type {any} // Handle TS bug, remove this issue after resolved {@link https://github.com/microsoft/TypeScript/issues/41672)
  * @param {string} methodName - Warning key paired with arbitrary warning in `dotProps` OR deprecated method name with parentheses containing optional argument list paired with replacement property or method in `dotProps`.
  * @param {string} dotProps - Arbitrary warning paired with warning key in `methodName` OR dot-separated new property name to invoke or method name to call. Method names are indicated by including parentheses with optional argument list. The arguments in each list are drawn from the arguments presented in the `methodName` parameter.
  * @param {string} since - Version in which the name was deprecated.
- * @param {Arguments|Array} [args] - The actual arguments in the order listed in `methodName`. Only needed when arguments need to be forwarded.
+ * @param {Array} [args] - The actual arguments in the order listed in `methodName`. Only needed when arguments need to be forwarded.
  * @param {string} [notes] - Notes to add to message.
  * @returns {*} Return value of new property or method call.
  */
