@@ -15,6 +15,7 @@ jobs:
           node-version: 14
       - run: npm install
       - run: npm run build:gulp
+      - run: npm run build
       - uses: actions/setup-node@v1.4.4
         with:
           registry-url: 'https://registry.npmjs.org'
