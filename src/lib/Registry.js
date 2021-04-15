@@ -32,7 +32,7 @@ var Registry = Base.extend('Registry', {
         }
 
         // getClassName defined if new item derived from extend-me
-        name = name || item.getClassName && item.getClassName();
+        name = name || item.getClassName && item.getClassName() || item.name;
 
         if (!name) {
             throw new this.HypergridError('Cannot register ' + this.friendlyName() + ' without a name.');

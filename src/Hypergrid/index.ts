@@ -2022,4 +2022,4 @@ Hypergrid.defaults = Hypergrid.properties = defaults;
 Hypergrid.modules = modules;
 
 
-module.exports = Hypergrid;
+export = Hypergrid;

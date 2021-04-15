@@ -31,6 +31,13 @@ var noExportProperties = [
     'treeColumnPropertiesColumnSelection',
 ];
 
+function move(arr: any[], oldIndex: number, newIndex: number) {
+    var old = arr[oldIndex];
+    arr.splice(oldIndex, 1);
+    arr.splice(newIndex > oldIndex ? newIndex - 1 : newIndex, 0, old);
+    return arr;
+}
+
 /**
  * @mixes cellProperties.behaviorMixin
  * @mixes rowProperties.mixin
@@ -55,7 +62,7 @@ var Behavior = Base.extend('Behavior', {
     /**
      * @this {BehaviorType}
      */
-    initialize: function(grid, options) {
+    initialize: function (grid, options) {
         /**
          * @type {Hypergrid}
          * @memberOf Behavior#
@@ -74,7 +81,7 @@ var Behavior = Base.extend('Behavior', {
      * @memberOf Behavior#
      * @this BehaviorType
      */
-    initializeFeatureChain: function(grid) {
+    initializeFeatureChain: function (grid) {
         var constructors;
 
         /**
@@ -107,7 +114,7 @@ var Behavior = Base.extend('Behavior', {
             /**
              * @this BehaviorType
              */
-                function(FeatureConstructor, i) {
+            function (FeatureConstructor, i) {
                 var feature = new FeatureConstructor;
 
                 this.featureMap[feature.$$CLASS_NAME] = feature;
@@ -117,7 +124,7 @@ var Behavior = Base.extend('Behavior', {
                 } else {
                     this.featureChain = feature;
                 }
-        }, this);
+            }, this);
 
         if (this.featureChain) {
             this.featureChain.initializeOn(this.grid);
@@ -133,7 +140,7 @@ var Behavior = Base.extend('Behavior', {
      * @memberOf Behavior#
      * @this BehaviorType
      */
-    reset: function(options) {
+    reset: function (options) {
         var dataModelChanged = this.resetDataModel(options);
 
         if (dataModelChanged) {
@@ -168,16 +175,16 @@ var Behavior = Base.extend('Behavior', {
      * * _If an array:_ Must contain all headers in column order.
      * * _If a hash:_ May contain any headers, keyed by field name, in any order.
      */
-    setHeaders: function(headers) {
+    setHeaders: function (headers) {
         if (headers instanceof Array) {
             // Reset all headers
             var allColumns = this.allColumns;
-            headers.forEach(function(header, index) {
+            headers.forEach(function (header, index) {
                 allColumns[index].header = header; // setter updates header in both column and data source objects
             });
         } else if (typeof headers === 'object') {
             // Adjust just the headers in the hash
-            this.allColumns.forEach(function(column) {
+            this.allColumns.forEach(function (column) {
                 if (headers[column.name]) {
                     column.header = headers[column.name];
                 }
@@ -205,7 +212,7 @@ var Behavior = Base.extend('Behavior', {
      * @memberOf Behavior#
      * @this BehaviorType
      */
-    setData: function(dataRows, options) {
+    setData: function (dataRows, options) {
         if (!(Array.isArray(dataRows) || typeof dataRows === 'function')) {
             options = dataRows;
             dataRows = options && options.data;
@@ -226,7 +233,7 @@ var Behavior = Base.extend('Behavior', {
         var schema = this.unwrap(options.schema);
 
         // Inform interested data models of data.
-        this.subgrids.forEach(function(dataModel) {
+        this.subgrids.forEach(function (dataModel) {
             dataModel.setData(dataRows, schema);
         });
 
@@ -256,7 +263,7 @@ var Behavior = Base.extend('Behavior', {
     /**
      * @this BehaviorType
      */
-    clearColumns: function() {
+    clearColumns: function () {
         var schema = this.schema,
             tc = this.treeColumnIndex,
             rc = this.rowColumnIndex;
@@ -294,7 +301,7 @@ var Behavior = Base.extend('Behavior', {
         this.grid.renderer.resetRowHeaderColumnWidth();
     },
 
-    getActiveColumn: function(x) {
+    getActiveColumn: function (x) {
         return this.columns[x];
     },
 
@@ -305,24 +312,24 @@ var Behavior = Base.extend('Behavior', {
      * @memberOf Hypergrid#
      * @this Hypergrid
      */
-    getActiveColumnIndex: function(columnOrIndexOrName) {
+    getActiveColumnIndex: function (columnOrIndexOrName) {
         // @ts-ignore
         var value = columnOrIndexOrName instanceof Column ? columnOrIndexOrName.index : columnOrIndexOrName,
-        // @ts-ignore
+            // @ts-ignore
             key = typeof index === 'number' ? 'index' : 'name';
 
-        return this.columns.findIndex(function(column) { return column[key] === value; });
+        return this.columns.findIndex(function (column) { return column[key] === value; });
     },
 
-    getColumn: function(x) {
+    getColumn: function (x) {
         return this.allColumns[x];
     },
 
-    newColumn: function(options) {
+    newColumn: function (options) {
         return new Column(this, options);
     },
 
-    addColumn: function(options) {
+    addColumn: function (options) {
         var column = this.newColumn(options),
             arrayDecorator = new ArrayDecorator,
             synonyms = arrayDecorator.getSynonyms(column.name);
@@ -339,7 +346,7 @@ var Behavior = Base.extend('Behavior', {
     /**
      * @this Hypergrid
      */
-    createColumns: function(realImplementation) {
+    createColumns: function (realImplementation) {
         var schema = this.dataModel.getSchema();
 
         fields.normalizeSchema(schema);
@@ -361,11 +368,11 @@ var Behavior = Base.extend('Behavior', {
         dispatchGridEvent.call(this.grid, 'fin-hypergrid-columns-created');
     },
 
-    createDataRowProxy: function() {
+    createDataRowProxy: function () {
         // concrete implementation here if behavior doesn't implement its own getRow()
     },
 
-    getColumnWidth: function(x) {
+    getColumnWidth: function (x) {
         var column = (x !== this.treeColumnIndex || this.hasTreeColumn()) && this.getActiveColumn(x);
         return column ? column.getWidth() : 0;
     },
@@ -375,7 +382,7 @@ var Behavior = Base.extend('Behavior', {
      * @param width
      * @memberOf Hypergrid#
      */
-    setColumnWidth: function(columnOrIndex, width) {
+    setColumnWidth: function (columnOrIndex, width) {
         var column = columnOrIndex >= -2 ? // relation operator tests for number (index) vs column (object)
             this.getActiveColumn(columnOrIndex) : columnOrIndex;
         column.setWidth(width);
@@ -385,7 +392,7 @@ var Behavior = Base.extend('Behavior', {
     /**
      * @memberOf Behavior#
      */
-    reindex: function() {
+    reindex: function () {
         this.dataModel.reindex();
     },
 
@@ -398,7 +405,7 @@ var Behavior = Base.extend('Behavior', {
      * * **falsy** - delete *only* the export properties
      * * **truthy** - delete all properties *except* the export properties
      */
-    clearObjectProperties: function(obj, exportProps) {
+    clearObjectProperties: function (obj, exportProps) {
         for (var key in obj) {
             if (
                 obj.hasOwnProperty(key) && (
@@ -413,7 +420,7 @@ var Behavior = Base.extend('Behavior', {
     },
 
     //this is effectively a clone, with certain things removed....
-    getState: function() {
+    getState: function () {
         var copy = JSON.parse(JSON.stringify(this.grid.properties));
         this.clearObjectProperties(copy.columnProperties, false);
         return copy;
@@ -422,7 +429,7 @@ var Behavior = Base.extend('Behavior', {
      * @memberOf Behavior#
      * @desc clear all table state
      */
-    clearState: function() {
+    clearState: function () {
         this.grid.clearState();
         this.createColumns();
     },
@@ -433,7 +440,7 @@ var Behavior = Base.extend('Behavior', {
      * See the [memento pattern](http://c2.com/cgi/wiki?MementoPattern).
      * @param {Object} properties - assignable grid properties
      */
-    setState: function(properties) {
+    setState: function (properties) {
         this.addState(properties, true);
     },
 
@@ -442,7 +449,7 @@ var Behavior = Base.extend('Behavior', {
      * @param {Object} properties - assignable grid properties
      * @param {boolean} [settingState] - Clear properties object before assignments.
      */
-    addState: function(properties, settingState) {
+    addState: function (properties, settingState) {
         if (settingState) {
             this.clearState();
         }
@@ -461,7 +468,7 @@ var Behavior = Base.extend('Behavior', {
      * @desc Sets multiple columns' properties from elements of given array or collection. Keys may be column indexes or column names. The properties collection is cleared first. Falsy elements are ignored.
      * @param {object[]|undefined} columnsHash - If undefined, this call is a no-op.
      */
-    setAllColumnProperties: function(columnsHash) {
+    setAllColumnProperties: function (columnsHash) {
         this.addAllColumnProperties(columnsHash, true);
     },
 
@@ -471,14 +478,14 @@ var Behavior = Base.extend('Behavior', {
      * @param {object[]|undefined} columnsHash - If undefined, this call is a no-op.
      * @param {boolean} [settingState] - Clear columns' properties objects before copying properties.
      */
-    addAllColumnProperties: function(columnsHash, settingState) {
+    addAllColumnProperties: function (columnsHash, settingState) {
         if (!columnsHash) {
             return;
         }
 
         var columns = this.grid.behavior.getColumns();
 
-        Object.keys(columnsHash).forEach(function(key) {
+        Object.keys(columnsHash).forEach(function (key) {
             var column = columns[key];
             if (column) {
                 column.addProperties(columnsHash[key], settingState);
@@ -486,8 +493,8 @@ var Behavior = Base.extend('Behavior', {
         });
     },
 
-    setColumnOrder: function(columnIndexes) {
-        if (Array.isArray(columnIndexes)){
+    setColumnOrder: function (columnIndexes) {
+        if (Array.isArray(columnIndexes)) {
             var columns = this.columns,
                 allColumns = this.allColumns,
                 arrayDecorator = new ArrayDecorator;
@@ -495,7 +502,7 @@ var Behavior = Base.extend('Behavior', {
             // avoid recreating the `columns` array object to keep refs valid; just empty it
             columns.length = 0;
             var tc = this.treeColumnIndex.toString(), rc = this.rowColumnIndex.toString();
-            Object.keys(columns).forEach(function(key) {
+            Object.keys(columns).forEach(function (key) {
                 switch (key) {
                     case tc:
                     case rc:
@@ -505,7 +512,7 @@ var Behavior = Base.extend('Behavior', {
                 }
             });
 
-            columnIndexes.forEach(function(index) {
+            columnIndexes.forEach(function (index) {
                 columns.push(allColumns[index]);
             });
 
@@ -513,10 +520,10 @@ var Behavior = Base.extend('Behavior', {
         }
     },
 
-    setColumnOrderByName: function(columnNames) {
+    setColumnOrderByName: function (columnNames) {
         if (Array.isArray(columnNames)) {
             var allColumns = this.allColumns;
-            this.setColumnOrder(columnNames.map(function(name) { return allColumns[name].index; }));
+            this.setColumnOrder(columnNames.map(function (name) { return allColumns[name].index; }));
         }
     },
 
@@ -526,7 +533,7 @@ var Behavior = Base.extend('Behavior', {
      * @param {Array} columnIndexes - list of column indexes
      * @param {Boolean} [silent=false] - whether to trigger column changed event
      */
-    setColumnIndexes: function(columnIndexes, silent) {
+    setColumnIndexes: function (columnIndexes, silent) {
         this.grid.properties.columnIndexes = columnIndexes;
         if (!silent) {
             this.grid.fireSyntheticOnColumnsChangedEvent();
@@ -558,7 +565,7 @@ var Behavior = Base.extend('Behavior', {
      *
      * @memberOf Behavior#
      */
-    showColumns: function(isActiveColumnIndexes, columnIndexes, referenceIndex, allowDuplicateColumns) {
+    showColumns: function (isActiveColumnIndexes, columnIndexes, referenceIndex, allowDuplicateColumns) {
         // Promote args when isActiveColumnIndexes omitted
         if (typeof isActiveColumnIndexes === 'number' || Array.isArray(isActiveColumnIndexes)) {
             // @ts-ignore TODO
@@ -578,8 +585,8 @@ var Behavior = Base.extend('Behavior', {
         }
 
         var newColumns = columnIndexes
-            .map(function(index) { return sourceColumnList[index]; }) // Look up columns using provided indexes
-            .filter(function(column) { return column; }); // Remove any undefined columns
+            .map(function (index) { return sourceColumnList[index]; }) // Look up columns using provided indexes
+            .filter(function (column) { return column; }); // Remove any undefined columns
 
         // Default insertion point is end (i.e., before (last+1)th element)
         if (typeof referenceIndex !== 'number') {
@@ -589,7 +596,7 @@ var Behavior = Base.extend('Behavior', {
 
         // Remove already visible columns and adjust insertion point
         if (!allowDuplicateColumns) {
-            newColumns.forEach(function(column) {
+            newColumns.forEach(function (column) {
                 var i = activeColumns.indexOf(column);
                 if (i >= 0) {
                     activeColumns.splice(i, 1);
@@ -605,7 +612,7 @@ var Behavior = Base.extend('Behavior', {
             activeColumns.splice.apply(activeColumns, [referenceIndex, 0].concat(newColumns));
         }
 
-        this.grid.properties.columnIndexes = activeColumns.map(function(column) { return column.index; });
+        this.grid.properties.columnIndexes = activeColumns.map(function (column) { return column.index; });
     },
 
     /**
@@ -621,10 +628,14 @@ var Behavior = Base.extend('Behavior', {
      * _This required parameter is promoted left one arg position when `isActiveColumnIndexes` omitted._
      * @memberOf Behavior#
      */
-    hideColumns: function(isActiveColumnIndexes, columnIndexes) {
+    hideColumns: function (isActiveColumnIndexes, columnIndexes) {
         var args = Array.prototype.slice.call(arguments); // Convert to array so we can add an argument (element)
         args.push(-1); // Remove only; do not reinsert.
         this.showColumns.apply(this, args);
+    },
+    removeColumn: function(columnIndex: number) {
+        this.columns.splice(columnIndex, 1);
+        this.changed();
     },
 
     /**
@@ -633,12 +644,12 @@ var Behavior = Base.extend('Behavior', {
      * @returns {*} The value of the given property.
      * @param {string} key - a property name
      */
-    resolveProperty: function(key) {
+    resolveProperty: function (key) {
         // todo: remove when we remove the deprecated grid.resolveProperty
         return this.grid.resolveProperty(key);
     },
 
-    lookupFeature: function(key) {
+    lookupFeature: function (key) {
         return this.featureMap[key];
     },
 
@@ -646,7 +657,7 @@ var Behavior = Base.extend('Behavior', {
      * @memberOf Behavior#
      * @return {number} The width of the fixed column area in the hypergrid.
      */
-    getFixedColumnsWidth: function() {
+    getFixedColumnsWidth: function () {
         var count = this.getFixedColumnCount(),
             columnWidth,
             total = 0,
@@ -678,7 +689,7 @@ var Behavior = Base.extend('Behavior', {
      * @desc This exists to support "floating" columns.
      * @return {number} The total width of the fixed columns area.
      */
-    getFixedColumnsMaxWidth: function() {
+    getFixedColumnsMaxWidth: function () {
         return this.getFixedColumnsWidth();
     },
 
@@ -687,7 +698,7 @@ var Behavior = Base.extend('Behavior', {
      * @desc delegate setting the cursor up the feature chain of responsibility
      * @param {Hypergrid} grid
      */
-    setCursor: function(grid) {
+    setCursor: function (grid) {
         grid.updateCursor();
         this.featureChain.setCursor(grid);
     },
@@ -698,7 +709,7 @@ var Behavior = Base.extend('Behavior', {
      * @param {Hypergrid} grid
      * @param {Object} event - the event details
      */
-    onMouseMove: function(grid, event) {
+    onMouseMove: function (grid, event) {
         if (this.featureChain) {
             this.featureChain.handleMouseMove(grid, event);
             this.setCursor(grid);
@@ -711,7 +722,7 @@ var Behavior = Base.extend('Behavior', {
      * @param {Hypergrid} grid
      * @param {Object} event - the event details
      */
-    onClick: function(grid, event) {
+    onClick: function (grid, event) {
         if (this.featureChain) {
             this.featureChain.handleClick(grid, event);
             this.setCursor(grid);
@@ -724,7 +735,7 @@ var Behavior = Base.extend('Behavior', {
      * @param {Hypergrid} grid
      * @param {Object} event - the event details
      */
-    onContextMenu: function(grid, event) {
+    onContextMenu: function (grid, event) {
         if (this.featureChain) {
             this.featureChain.handleContextMenu(grid, event);
             this.setCursor(grid);
@@ -737,7 +748,7 @@ var Behavior = Base.extend('Behavior', {
      * @param {Hypergrid} grid
      * @param {Object} event - the event details
      */
-    onWheelMoved: function(grid, event) {
+    onWheelMoved: function (grid, event) {
         if (this.featureChain) {
             this.featureChain.handleWheelMoved(grid, event);
             this.setCursor(grid);
@@ -750,7 +761,7 @@ var Behavior = Base.extend('Behavior', {
      * @param {Hypergrid} grid
      * @param {Object} event - the event details
      */
-    onMouseUp: function(grid, event) {
+    onMouseUp: function (grid, event) {
         if (this.featureChain) {
             this.featureChain.handleMouseUp(grid, event);
             this.setCursor(grid);
@@ -763,7 +774,7 @@ var Behavior = Base.extend('Behavior', {
      * @param {Hypergrid} grid
      * @param {Object} event - the event details
      */
-    onMouseDrag: function(grid, event) {
+    onMouseDrag: function (grid, event) {
         if (this.featureChain) {
             this.featureChain.handleMouseDrag(grid, event);
             this.setCursor(grid);
@@ -776,7 +787,7 @@ var Behavior = Base.extend('Behavior', {
      * @param {Hypergrid} grid
      * @param {Object} event - the event details
      */
-    onKeyDown: function(grid, event) {
+    onKeyDown: function (grid, event) {
         if (this.featureChain) {
             this.featureChain.handleKeyDown(grid, event);
             this.setCursor(grid);
@@ -789,7 +800,7 @@ var Behavior = Base.extend('Behavior', {
      * @param {Hypergrid} grid
      * @param {Object} event - the event details
      */
-    onKeyUp: function(grid, event) {
+    onKeyUp: function (grid, event) {
         if (this.featureChain) {
             this.featureChain.handleKeyUp(grid, event);
             this.setCursor(grid);
@@ -802,7 +813,7 @@ var Behavior = Base.extend('Behavior', {
      * @param {Hypergrid} grid
      * @param {Object} event - the event details
      */
-    onDoubleClick: function(grid, event) {
+    onDoubleClick: function (grid, event) {
         if (this.featureChain) {
             this.featureChain.handleDoubleClick(grid, event);
             this.setCursor(grid);
@@ -814,7 +825,7 @@ var Behavior = Base.extend('Behavior', {
      * @param {Hypergrid} grid
      * @param {Object} event - the event details
      */
-    handleMouseDown: function(grid, event) {
+    handleMouseDown: function (grid, event) {
         if (this.featureChain) {
             this.featureChain.handleMouseDown(grid, event);
             this.setCursor(grid);
@@ -827,7 +838,7 @@ var Behavior = Base.extend('Behavior', {
      * @param {Hypergrid} grid
      * @param {Object} event - the event details
      */
-    handleMouseExit: function(grid, event) {
+    handleMouseExit: function (grid, event) {
         if (this.featureChain) {
             this.featureChain.handleMouseExit(grid, event);
             this.setCursor(grid);
@@ -840,7 +851,7 @@ var Behavior = Base.extend('Behavior', {
      * @param {Hypergrid} grid The grid instance.
      * @param {Object} event - The event details.
      */
-    onTouchStart: function(grid, event) {
+    onTouchStart: function (grid, event) {
         if (this.featureChain) {
             this.featureChain.handleTouchStart(grid, event);
         }
@@ -852,7 +863,7 @@ var Behavior = Base.extend('Behavior', {
      * @param {Hypergrid} grid The grid instance.
      * @param {Object} event - The event details.
      */
-    onTouchMove: function(grid, event) {
+    onTouchMove: function (grid, event) {
         if (this.featureChain) {
             this.featureChain.handleTouchMove(grid, event);
         }
@@ -864,7 +875,7 @@ var Behavior = Base.extend('Behavior', {
      * @param {Hypergrid} grid The grid instance.
      * @param {Object} event - The event details.
      */
-    onTouchEnd: function(grid, event) {
+    onTouchEnd: function (grid, event) {
         if (this.featureChain) {
             this.featureChain.handleTouchEnd(grid, event);
         }
@@ -874,25 +885,25 @@ var Behavior = Base.extend('Behavior', {
      * @memberOf Behavior#
      * @desc I've been notified that the behavior has changed.
      */
-    changed: function() { this.grid.behaviorChanged(); },
+    changed: function () { this.grid.behaviorChanged(); },
 
     /**
      * @memberOf Behavior#
      * @desc The dimensions of the grid data have changed. You've been notified.
      */
-    shapeChanged: function() { this.grid.behaviorShapeChanged(); },
+    shapeChanged: function () { this.grid.behaviorShapeChanged(); },
 
     /**
      * @memberOf Behavior#
      * @desc The dimensions of the grid data have changed. You've been notified.
      */
-    stateChanged: function() { this.grid.behaviorStateChanged(); },
+    stateChanged: function () { this.grid.behaviorStateChanged(); },
 
     /**
      * @memberOf Behavior#
      * @return {boolean} Can re-order columns.
      */
-    isColumnReorderable: function() {
+    isColumnReorderable: function () {
         return this.deprecated('isColumnReorderable()', 'grid.properties.columnsReorderable', '2.1.3');
     },
 
@@ -901,7 +912,7 @@ var Behavior = Base.extend('Behavior', {
      * @return {Object} The properties for a specific column.
      * @memberOf Behavior#
      */
-    getColumnProperties: function(x) {
+    getColumnProperties: function (x) {
         var column = (x !== this.treeColumnIndex || this.hasTreeColumn()) && this.getColumn(x);
         return column && column.properties;
     },
@@ -911,7 +922,7 @@ var Behavior = Base.extend('Behavior', {
      * @return {Object} The properties for a specific column.
      * @memberOf Behavior#
      */
-    setColumnProperties: function(x, properties) {
+    setColumnProperties: function (x, properties) {
         var column = this.getColumn(x);
         if (!column) {
             throw 'Expected column.';
@@ -926,7 +937,7 @@ var Behavior = Base.extend('Behavior', {
      * @param {number} [x] - Omit for all columns.
      * @memberOf Behavior#
      */
-    clearAllCellProperties: function(x) {
+    clearAllCellProperties: function (x) {
         var X;
 
         if (x === undefined) {
@@ -948,7 +959,7 @@ var Behavior = Base.extend('Behavior', {
      * @memberOf Behavior#
      * @return {any[]} All the currently hidden column header labels.
      */
-    getHiddenColumnDescriptors: function() {
+    getHiddenColumnDescriptors: function () {
         var tableState = this.grid.properties;
         var indexes = tableState.columnIndexes;
         var labels = [];
@@ -970,7 +981,7 @@ var Behavior = Base.extend('Behavior', {
      * @memberOf Behavior#
      * @return {number} The number of fixed columns.
      */
-    getFixedColumnCount: function() {
+    getFixedColumnCount: function () {
         return this.grid.properties.fixedColumnCount;
     },
 
@@ -979,7 +990,7 @@ var Behavior = Base.extend('Behavior', {
      * @desc set the number of fixed columns
      * @param {number} n - the integer count of how many columns to be fixed
      */
-    setFixedColumnCount: function(n) {
+    setFixedColumnCount: function (n) {
         this.grid.properties.fixedColumnCount = n;
     },
 
@@ -991,7 +1002,7 @@ var Behavior = Base.extend('Behavior', {
      * 1. All rows of all subgrids preceding the data subgrid.
      * 2. The first `fixedRowCount` rows of the data subgrid.
      */
-    getFixedRowCount: function() {
+    getFixedRowCount: function () {
         return (
             this.getHeaderRowCount() +
             this.grid.properties.fixedRowCount
@@ -1011,7 +1022,7 @@ var Behavior = Base.extend('Behavior', {
      *
      * @param {number} The number of rows.
      */
-    setFixedRowCount: function(n) {
+    setFixedRowCount: function (n) {
         this.grid.properties.fixedRowCount = n;
     },
 
@@ -1019,7 +1030,7 @@ var Behavior = Base.extend('Behavior', {
      * @memberOf Behavior#
      * @desc a dnd column has just been dropped, we've been notified
      */
-    endDragColumnNotification: function() {},
+    endDragColumnNotification: function () { },
 
     /**
      * @memberOf Behavior#
@@ -1027,7 +1038,7 @@ var Behavior = Base.extend('Behavior', {
      * @param {number} x - the x coordinate
      * @param {number} y - the y coordinate
      */
-    getCursorAt: function(x, y) {
+    getCursorAt: function (x, y) {
         return null;
     },
 
@@ -1036,7 +1047,7 @@ var Behavior = Base.extend('Behavior', {
      * @memberOf Behavior#
      * @return {number} The total number of columns.
      */
-    getActiveColumnCount: function() {
+    getActiveColumnCount: function () {
         return this.columns.length;
     },
 
@@ -1052,7 +1063,7 @@ var Behavior = Base.extend('Behavior', {
      * @desc Quietly set the horizontal scroll position.
      * @param {number} x - The new position in pixels.
      */
-    setScrollPositionX: function(x) {
+    setScrollPositionX: function (x) {
         /**
          * @memberOf Behavior#
          * @type {number}
@@ -1060,7 +1071,7 @@ var Behavior = Base.extend('Behavior', {
         this.scrollPositionX = x;
     },
 
-    getScrollPositionX: function() {
+    getScrollPositionX: function () {
         return this.scrollPositionX;
     },
 
@@ -1069,7 +1080,7 @@ var Behavior = Base.extend('Behavior', {
      * @desc Quietly set the vertical scroll position.
      * @param {number} y - The new position in pixels.
      */
-    setScrollPositionY: function(y) {
+    setScrollPositionY: function (y) {
         /**
          * @memberOf Behavior#
          * @type {number}
@@ -1077,7 +1088,7 @@ var Behavior = Base.extend('Behavior', {
         this.scrollPositionY = y;
     },
 
-    getScrollPositionY: function() {
+    getScrollPositionY: function () {
         return this.scrollPositionY;
     },
 
@@ -1086,7 +1097,7 @@ var Behavior = Base.extend('Behavior', {
      * @return {cellEditor} The cell editor for the cell at the given coordinates.
      * @param {CellEvent} editPoint - The grid cell coordinates.
      */
-    getCellEditorAt: function(event) {
+    getCellEditorAt: function (event) {
         return event.isDataColumn && event.column.getCellEditorAt(event);
     },
 
@@ -1096,7 +1107,7 @@ var Behavior = Base.extend('Behavior', {
      * @param {boolean} isColumnHovered - the column is hovered or not
      * @param {boolean} isRowHovered - the row is hovered or not
      */
-    highlightCellOnHover: function(isColumnHovered, isRowHovered) {
+    highlightCellOnHover: function (isColumnHovered, isRowHovered) {
         return isColumnHovered && isRowHovered;
     },
 
@@ -1115,7 +1126,7 @@ var Behavior = Base.extend('Behavior', {
      * @param {number} src - column index
      * @param {number} tar - column index
      */
-    swapColumns: function(source, target) {
+    swapColumns: function (source, target) {
         var columns = this.columns;
         var sourceColumn = columns[source];
         if (sourceColumn === undefined) {
@@ -1130,67 +1141,94 @@ var Behavior = Base.extend('Behavior', {
         this.changed();
     },
 
-    convertViewPointToDataPoint: function(unscrolled) {
+    moveColumnBefore: function (sourceIndex, targetIndex) {
+        var columns = this.columns;
+        var sourceColumn = columns[sourceIndex];
+        if (sourceColumn === undefined) {
+            return;
+        }
+        var targetColumn = columns[targetIndex];
+        if (targetColumn === undefined) {
+            return;
+        }
+        move(columns, sourceIndex, targetIndex);
+        this.changed();
+    },
+    moveColumnAfter: function (sourceIndex, targetIndex) {
+        var columns = this.columns;
+        var sourceColumn = columns[sourceIndex];
+        if (sourceColumn === undefined) {
+            return;
+        }
+        var targetColumn = columns[targetIndex];
+        if (targetColumn === undefined) {
+            return;
+        }
+        move(columns, sourceIndex, targetIndex + 1);
+        this.changed();
+    },
+
+    convertViewPointToDataPoint: function (unscrolled) {
         return new Point(
             this.getActiveColumn(unscrolled.x).index,
             unscrolled.y
         );
     },
 
-    hasTreeColumn: function(columnIndex) {
+    hasTreeColumn: function (columnIndex) {
         return false;
     },
 
-    getSelectionMatrixFunction: function(selectedRows) {
-        return function() {
+    getSelectionMatrixFunction: function (selectedRows) {
+        return function () {
             return null;
         };
     },
 
-    getRowHeaderColumn: function() {
+    getRowHeaderColumn: function () {
         return this.allColumns[this.rowColumnIndex];
     },
 
-    getTreeColumn: function() {
+    getTreeColumn: function () {
         return this.allColumns[this.treeColumnIndex];
     },
 
-    autosizeAllColumns: function() {
+    autosizeAllColumns: function () {
         this.checkColumnAutosizing(true);
         this.changed();
     },
 
-    checkColumnAutosizing: function(force) {
+    checkColumnAutosizing: function (force) {
         var autoSized = this.autoSizeRowNumberColumn(force) || this.autoSizeTreeColumn(force);
 
-        this.allColumns.findWithNeg(function(column) {
+        this.allColumns.findWithNeg(function (column) {
             autoSized = column.checkColumnAutosizing(force) || autoSized;
         });
 
         return autoSized;
     },
 
-    autoSizeRowNumberColumn: function(force) {
+    autoSizeRowNumberColumn: function (force) {
         if (this.grid.properties.showRowNumbers && this.grid.properties.rowNumberAutosizing) {
             return this.getRowHeaderColumn().checkColumnAutosizing(force);
         }
     },
 
-    autoSizeTreeColumn: function(force) {
+    autoSizeTreeColumn: function (force) {
         if (this.grid.properties.showTreeColumn && this.grid.properties.treeColumnAutosizing) {
             return this.getTreeColumn().checkColumnAutosizing(force);
         }
     },
 
-    getColumns: function() {
+    getColumns: function () {
         return this.allColumns;
     },
 
-    getActiveColumns: function() {
+    getActiveColumns: function () {
         return this.columns;
     },
 
-    getHiddenColumns: function() {
+    getHiddenColumns: function () {
         var visible = this.columns;
         var all = this.allColumns;
         var hidden = [];
@@ -1200,25 +1238,25 @@ var Behavior = Base.extend('Behavior', {
             }
         }
         // @ts-ignore TODO
-        hidden.sort(function(a, b) {
+        hidden.sort(function (a, b) {
             return a.header < b.header;
         });
         return hidden;
     },
 
-    getSelectedRows: function() {
+    getSelectedRows: function () {
         return this.grid.selectionModel.getSelectedRows();
     },
 
-    getSelectedColumns: function() {
+    getSelectedColumns: function () {
         return this.grid.selectionModel.getSelectedColumns();
     },
 
-    getSelections: function() {
+    getSelections: function () {
         return this.grid.selectionModel.getSelections();
     },
 
-    getIndexedData: function() {
+    getIndexedData: function () {
         return this.deprecated('getIndexedData()', 'getData()', '3.0.0');
     }
 });
@@ -1238,7 +1276,7 @@ Object.defineProperties(Behavior.prototype, {
 function warnBehaviorFeaturesDeprecation() {
     var featureNames = [], unregisteredFeatures = [], n = 0;
 
-    this.features.forEach(function(FeatureConstructor) {
+    this.features.forEach(function (FeatureConstructor) {
         var className = FeatureConstructor.prototype.$$CLASS_NAME || FeatureConstructor.name,
             featureName = className || 'feature' + n++;
 
@@ -1296,4 +1334,4 @@ Behavior.prototype.mixIn(require('./dataModel').mixin);
 Behavior.prototype.mixIn(require('./subgrids').mixin);
 
 
-module.exports = Behavior;
+export = Behavior;

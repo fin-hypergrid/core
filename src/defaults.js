@@ -1433,7 +1433,7 @@ var defaults = {
      * @default
      * @memberOf module:defaults
      */
-    columnGrabMargin: 5,
+    columnGrabMargin: 10,
 
     /** @summary Set up a clipping region around each column before painting cells.
      * @desc One of:
@@ -1485,7 +1485,6 @@ var defaults = {
         'cellselection',
         'keypaging',
         'columnresizing',
-        // 'rowresizing',
         'rowselection',
         'columnselection',
         'columnmoving',

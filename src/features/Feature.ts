@@ -1,3 +1,4 @@
+import { IFeature } from "./IFeature";
 
 var Base = require('../Base');
 
@@ -10,7 +11,7 @@ var Base = require('../Base');
  * Instances of features are connected to one another to make a chain of responsibility for handling all the input to the hypergrid.
  * @constructor
  */
-var Feature = Base.extend('Feature', {
+var Feature: IFeature = Base.extend('Feature', {
 
     /**
      * the next feature to be given a chance to handle incoming events
