@@ -201,6 +201,7 @@ exports.mixin = {
             this.behavior.changed();
             var oldX = this.hScrollValue;
             this.hScrollValue = x;
+            this.sbHScroller.index = x;
             this.scrollValueChangedNotification();
             setTimeout(function() {
                 //self.sbHRangeAdapter.subjectChanged();

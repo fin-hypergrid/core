@@ -91,7 +91,7 @@ var ColumnSelection = Feature.extend('ColumnSelection', {
             !event.primitiveEvent.detail.isRightClick &&
             (
                 grid.properties.autoSelectColumns ||
-                event.isHeaderCell && event.mousePoint.y >= 5
+                event.isHeaderCell && event.mousePoint.y >= grid.properties.columnGrabMargin
             )
         ) {
             // HOLD OFF WHILE WAITING FOR DOUBLE-CLICK
