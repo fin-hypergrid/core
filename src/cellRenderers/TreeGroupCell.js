@@ -9,12 +9,12 @@ var simpleCell = require('./SimpleCell.js')
  */
 // @ts-ignore TODO use classes
 
-const drillDown = '\u25bc'
-const drillRight = '\u25b6'
-const space = '    '
-const error = 'value is not valid treeInfo'
+var drillDown = '\u25bc'
+var drillRight = '\u25b6'
+var space = '    '
+var error = 'value is not valid treeInfo'
 
-const CreateDisplayValue = (treeGroup) => {
+var CreateDisplayValue = (treeGroup) => {
     if (typeof treeGroup.level !== 'number' || !treeGroup.groupName) {
         return error
     }
@@ -28,7 +28,7 @@ const CreateDisplayValue = (treeGroup) => {
     }
 }
 
-const whitespace = (count) => {
+var whitespace = (count) => {
     return space.repeat(count - 1)
 }
 
