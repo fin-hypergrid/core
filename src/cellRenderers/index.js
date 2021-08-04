@@ -23,6 +23,7 @@ var CellRenderers = Registry.extend('CellRenderers', {
         this.add(require('./ErrorCell'));
         this.add(require('./Tag'));
         this.add(require('./TreeCell'));
+        this.add(require('./TreeGroupCell'));
         this.add('emptycell', this.BaseClass); // remove this when deprecation below retired
     },
 
