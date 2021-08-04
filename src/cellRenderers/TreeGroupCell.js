@@ -12,8 +12,13 @@ var simpleCell = require('./SimpleCell.js')
 const drillDown = '\u25bc'
 const drillRight = '\u25b6'
 const space = '    '
+const error = 'value is not valid treeInfo'
 
 const CreateDisplayValue = (treeGroup) => {
+    if (typeof treeGroup.level !== 'number' || !treeGroup.groupName) {
+        return error
+    }
+
     if (treeGroup.isLeaf) {
         return `${whitespace(treeGroup.level + 1)} ${treeGroup.groupName}`
     } else if (treeGroup.isExpanded) {
