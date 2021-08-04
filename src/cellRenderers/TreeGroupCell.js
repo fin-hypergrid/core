@@ -14,7 +14,16 @@ var drillRight = '\u25b6'
 var space = '    '
 var error = 'value is not valid treeInfo'
 
-var CreateDisplayValue = (treeGroup) => {
+var TreeGroupCell = CellRenderer.extend('TreeGroupCell', {
+    paint: function (gc, config) {
+        config.value = CreateDisplayValue(config.value)
+        config.halign = 'left'
+
+        simpleCell.prototype.paint(gc, config)
+    }
+});
+
+function CreateDisplayValue(treeGroup) {
     if (typeof treeGroup.level !== 'number' || !treeGroup.groupName) {
         return error
     }
@@ -28,17 +37,8 @@ var CreateDisplayValue = (treeGroup) => {
     }
 }
 
-var whitespace = (count) => {
+function whitespace(count) {
     return space.repeat(count - 1)
 }
-
-var TreeGroupCell = CellRenderer.extend('TreeGroupCell', {
-    paint: function (gc, config) {
-        config.value = CreateDisplayValue(config.value)
-        config.halign = 'left'
-
-        simpleCell.prototype.paint(gc, config)
-    }
-});
 
 module.exports = TreeGroupCell;
