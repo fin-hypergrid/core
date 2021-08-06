@@ -87,6 +87,11 @@ var CellSelection = Feature.extend('CellSelection', {
      * @param {Object} event - the event details
      */
     handleMouseDrag: function(grid, event) {
+        if (event.primitiveEvent?.detail?.primitiveEvent?.ctrlKey === true) {
+            this.dragging = false;
+            return;
+        }
+
         if (this.dragging && grid.properties.cellSelection && !event.primitiveEvent.detail.isRightClick) {
             this.currentDrag = event.primitiveEvent.detail.mouse;
             this.lastDragCell = grid.newPoint(event.gridCell.x, event.dataCell.y);
@@ -245,26 +250,14 @@ var CellSelection = Feature.extend('CellSelection', {
      * @param {Array} keys - array of the keys that are currently pressed down
      */
     extendSelection: function(grid, gridCell, keys) {
-        var hasCTRL = keys.indexOf('CTRL') >= 0,
-            hasSHIFT = keys.indexOf('SHIFT') >= 0,
-            mousePoint = grid.getMouseDown(),
-            x = gridCell.x, // - numFixedColumns + scrollLeft;
-            y = gridCell.y; // - numFixedRows + scrollTop;
+        const hasCTRL = keys.includes("CTRL");
+        const hasSHIFT = keys.includes("SHIFT");
+        const mousePoint = grid.getMouseDown();
+        const x = gridCell.x;
+        const y = gridCell.y;
 
-        //were outside of the grid do nothing
+        // when outside of the grid do nothing
         if (x < 0 || y < 0) {
-            return;
-        }
-
-        //we have repeated a click in the same spot deslect the value from last time
-        if (
-            hasCTRL &&
-            x === mousePoint.x &&
-            y === mousePoint.y
-        ) {
-            grid.clearMostRecentSelection();
-            grid.popMouseDown();
-            grid.repaint();
             return;
         }
 
