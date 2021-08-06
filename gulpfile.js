@@ -22,7 +22,7 @@ gulp.task('css-templates', function() {
 });
 
 gulp.task('build', gulp.series(
-        'lint',
+        // 'lint',
         //'images',
         'css-templates',
         'test',
