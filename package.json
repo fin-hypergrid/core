@@ -1,6 +1,6 @@
 {
   "name": "@eclipsetrading/hypergrid",
-  "version": "4.1.1",
+  "version": "4.2.1",
   "description": "Canvas-based high-performance grid",
   "main": "dist/src/Hypergrid/index.js",
   "typings": "dist/src/Hypergrid/index.d.ts",
