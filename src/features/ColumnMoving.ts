@@ -224,6 +224,7 @@ export class ColumnMoving extends FeatureBase {
                 }
                 break;
         }
+        grid.fireSyntheticOnColumnsChangedEvent()
     }
 
     private getDragAction(grid, event) {
