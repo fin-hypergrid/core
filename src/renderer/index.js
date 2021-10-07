@@ -933,19 +933,25 @@ var Renderer = Base.extend('Renderer', {
                 });
             }
 
+            const printRowGapLine = (gap) => {
+                gc.cache.fillStyle = gridProps.fixedLinesHColor || gridLinesHColor;
+                edgeWidth = gridProps.fixedLinesHEdge;
+                if (edgeWidth) {
+                    gc.fillRect(0, gap.top, viewWidth, edgeWidth);
+                    gc.fillRect(0, gap.bottom - edgeWidth, viewWidth, edgeWidth);
+                } else {
+                    gc.fillRect(0, gap.top, viewWidth, gap.bottom - gap.top);
+                }
+            }
             // draw fixed rule lines over grid rule lines
-            var edgeWidth, gap;
+            var edgeWidth, gap, additionalGaps;
 
             if (gridProps.fixedLinesHWidth !== undefined) {
                 if ((gap = visibleRows.gap)) {
-                    gc.cache.fillStyle = gridProps.fixedLinesHColor || gridLinesHColor;
-                    edgeWidth = gridProps.fixedLinesHEdge;
-                    if (edgeWidth) {
-                        gc.fillRect(0, gap.top, viewWidth, edgeWidth);
-                        gc.fillRect(0, gap.bottom - edgeWidth, viewWidth, edgeWidth);
-                    } else {
-                        gc.fillRect(0, gap.top, viewWidth, gap.bottom - gap.top);
-                    }
+                    printRowGapLine(gap)
+                }
+                if ((additionalGaps = visibleRows.additionalGaps) && additionalGaps.length) {
+                    additionalGaps.forEach(g => printRowGapLine(g));
                 }
             }
 
@@ -1215,7 +1221,7 @@ function fetchCompletion(gc, fetchError) {
  *
  * @this {Renderer}
  */
-function computeCellsBounds() {
+ function computeCellsBounds() {
     var scrollTop = this.getScrollTop(),
         scrollLeft = this.getScrollLeft(),
 
@@ -1319,6 +1325,7 @@ function computeCellsBounds() {
 
     this.visibleRows.length = 0;
     this.visibleRows.gap = undefined;
+    this.visibleRows.additionalGaps = []
 
     this.visibleColumnsByIndex = []; // array because number of columns will always be reasonable
     this.visibleRowsByDataRowIndex = {}; // hash because keyed by (fixed and) scrolled row indexes
@@ -1382,11 +1389,37 @@ function computeCellsBounds() {
         previousInsertionBoundsCursorValue = Math.round(width / 2);
     }
 
-    // get height of total number of rows in all subgrids following the data subgrid
-    footerHeight = gridProps.defaultRowHeight * behavior.getFooterRowCount();
+    // VC-5699
+    // We dont use the footerHeight to limit the height that we used for draw the entire datagrid
+    // instead we calculate the reserved height for the subgrid
+    // and only limit the data-subgrid by the reserved height
 
+    // footerHeight = gridProps.defaultRowHeight * behavior.getFooterRowCount();
+
+    // VC-5699
+    // We always assume non-data subgrid have priority over data subgrid
+    var datagridIndex = subgrids.findIndex(sg => sg.isData)
+    var remainingSubGrids = subgrids.slice(datagridIndex + 1)
+
+    var reservedHeight = 0
+    for (g = 0, G = remainingSubGrids.length; g < G; g++) {
+        subgrid = remainingSubGrids[g]
+        var rowCount = subgrid.getRowCount()
+        for (r = 0; r < rowCount; r++) {
+            reservedHeight += behavior.getRowHeight(r, subgrid);
+            reservedHeight += r == 0 ? fixedGapH : lineGapH
+        }
+    }
+
+    // VC-5699
+    // Hypergrid allows last row to be shown partially when the window is not high enough
+    // In the case of total row/subgrid we dont want to do that
+    // So we reserved some room for last row
+    var reservedRoomForLastRow = remainingSubGrids.length
+        ? gridProps.defaultRowHeight * 2 / 3
+        : 0
     for (
-        base = r = g = y = 0, G = subgrids.length, Y = bounds.height - footerHeight;
+        base = r = g = y = 0, G = subgrids.length, Y = bounds.height - reservedRoomForLastRow;
         g < G;
         g++, base += subrows
     ) {
@@ -1395,9 +1428,12 @@ function computeCellsBounds() {
         scrollableSubgrid = subgrid.isData;
         isSubgridEd = (sgEd === subgrid);
         topR = r;
-
+        
+        var availableHeight = subgrid.isData
+            ? Y - reservedHeight
+            : Y
         // For each row of each subgrid...
-        for (R = r + subrows; r < R && y < Y; r++) {
+        for (R = r + subrows; r < R && y < availableHeight; r++) {
             if ((gap = scrollableSubgrid && r === fixedRowIndex)) {
                 this.visibleRows.gap = {
                     top: vr.bottom + fixedOverlapH,
@@ -1408,6 +1444,15 @@ function computeCellsBounds() {
                 y += lineGapH;
             }
 
+            // VC-5699
+            // Add additional gaps incase the subgrid is below data grid and it is the first row of the subgrid.
+            if (g > datagridIndex && r === topR) {
+                y += (fixedGapH - lineGapH);
+                this.visibleRows.additionalGaps.push({
+                    top: vr.bottom + fixedOverlapH,
+                    bottom: y
+                });
+            }
 
             vy = r;
             if (scrollableSubgrid && r >= fixedRowCount) {
