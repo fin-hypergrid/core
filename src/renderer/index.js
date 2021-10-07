@@ -1389,10 +1389,11 @@ function fetchCompletion(gc, fetchError) {
         previousInsertionBoundsCursorValue = Math.round(width / 2);
     }
 
+    // VC-5699
     // get height of total number of rows in all subgrids following the data subgrid
-    footerHeight = gridProps.defaultRowHeight * behavior.getFooterRowCount();
+    // footerHeight = gridProps.defaultRowHeight * behavior.getFooterRowCount();
 
-    
+    // VC-5699
     // We always assume non-data subgrid have priority over data subgrid
     var datagridIndex = subgrids.map(sg => sg.isData).indexOf(true)
     var remainingSubGrids = subgrids.slice(datagridIndex + 1)
@@ -1407,8 +1408,15 @@ function fetchCompletion(gc, fetchError) {
         }
     }
 
+    // VC-5699
+    // We dont use the footerHeight to limit the height that we used for draw the entire datagrid
+    // instead we calculate the reserved height for the subgrid
+    // and only limit the data-subgrid by the reserved height
+    var reservedRoomForLastRow = remainingSubGrids.length
+        ? gridProps.defaultRowHeight * 2 / 3
+        : 0
     for (
-        base = r = g = y = 0, G = subgrids.length, Y = bounds.height - footerHeight;
+        base = r = g = y = 0, G = subgrids.length, Y = bounds.height - reservedRoomForLastRow;
         g < G;
         g++, base += subrows
     ) {
