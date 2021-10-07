@@ -1434,7 +1434,7 @@ function fetchCompletion(gc, fetchError) {
             }
 
             // Add additional gaps incase the subgrid is below data grid and it is the first row of the subgrid.
-            if (g > datagridIndex && r == topR) {
+            if (g > datagridIndex && r === topR) {
                 y += (fixedGapH - lineGapH);
                 this.visibleRows.additionalGaps.push({
                     top: vr.bottom + fixedOverlapH,
