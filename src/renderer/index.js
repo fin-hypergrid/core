@@ -1390,7 +1390,10 @@ function fetchCompletion(gc, fetchError) {
     }
 
     // VC-5699
-    // get height of total number of rows in all subgrids following the data subgrid
+    // We dont use the footerHeight to limit the height that we used for draw the entire datagrid
+    // instead we calculate the reserved height for the subgrid
+    // and only limit the data-subgrid by the reserved height
+
     // footerHeight = gridProps.defaultRowHeight * behavior.getFooterRowCount();
 
     // VC-5699
@@ -1409,9 +1412,9 @@ function fetchCompletion(gc, fetchError) {
     }
 
     // VC-5699
-    // We dont use the footerHeight to limit the height that we used for draw the entire datagrid
-    // instead we calculate the reserved height for the subgrid
-    // and only limit the data-subgrid by the reserved height
+    // Hypergrid allows last row to be shown partially when the window is not width enough
+    // In the case of total row/subgrid we dont want to do that
+    // So we reserved some room for last row
     var reservedRoomForLastRow = remainingSubGrids.length
         ? gridProps.defaultRowHeight * 2 / 3
         : 0
@@ -1425,11 +1428,11 @@ function fetchCompletion(gc, fetchError) {
         scrollableSubgrid = subgrid.isData;
         isSubgridEd = (sgEd === subgrid);
         topR = r;
-
-        // For each row of each subgrid...
+        
         var availableHeight = subgrid.isData
             ? Y - reservedHeight
             : Y
+        // For each row of each subgrid...
         for (R = r + subrows; r < R && y < availableHeight; r++) {
             if ((gap = scrollableSubgrid && r === fixedRowIndex)) {
                 this.visibleRows.gap = {
@@ -1441,6 +1444,7 @@ function fetchCompletion(gc, fetchError) {
                 y += lineGapH;
             }
 
+            // VC-5699
             // Add additional gaps incase the subgrid is below data grid and it is the first row of the subgrid.
             if (g > datagridIndex && r === topR) {
                 y += (fixedGapH - lineGapH);
