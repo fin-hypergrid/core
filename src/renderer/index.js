@@ -1398,7 +1398,7 @@ function fetchCompletion(gc, fetchError) {
 
     // VC-5699
     // We always assume non-data subgrid have priority over data subgrid
-    var datagridIndex = subgrids.map(sg => sg.isData).indexOf(true)
+    var datagridIndex = subgrids.findIndex(sg => sg.isData)
     var remainingSubGrids = subgrids.slice(datagridIndex + 1)
 
     var reservedHeight = 0
@@ -1412,7 +1412,7 @@ function fetchCompletion(gc, fetchError) {
     }
 
     // VC-5699
-    // Hypergrid allows last row to be shown partially when the window is not width enough
+    // Hypergrid allows last row to be shown partially when the window is not high enough
     // In the case of total row/subgrid we dont want to do that
     // So we reserved some room for last row
     var reservedRoomForLastRow = remainingSubGrids.length
