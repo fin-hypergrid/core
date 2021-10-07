@@ -1393,11 +1393,12 @@ function fetchCompletion(gc, fetchError) {
     footerHeight = gridProps.defaultRowHeight * behavior.getFooterRowCount();
 
     
+    // We always assume non-data subgrid have priority over data subgrid
     var datagridIndex = subgrids.map(sg => sg.isData).indexOf(true)
     var remainingSubGrids = subgrids.slice(datagridIndex + 1)
 
     var reservedHeight = 0
-    for (g = 0, G = remainingSubGrids.length, Y = bounds.height - footerHeight; g < G; g++) {
+    for (g = 0, G = remainingSubGrids.length; g < G; g++) {
         subgrid = remainingSubGrids[g]
         var rowCount = subgrid.getRowCount()
         for (r = 0; r < rowCount; r++) {
