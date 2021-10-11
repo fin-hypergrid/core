@@ -560,7 +560,7 @@ exports.mixin = {
                  */
                 function(mouseEvent) {
                 var isMouseDownCell = this.mouseDownState && this.mouseDownState.gridCell.equals(mouseEvent.gridCell);
-                if (isMouseDownCell && mouseEvent.mousePointInClickRect) {
+                if (isMouseDownCell) {
                     mouseEvent.keys = e.detail.keys; // todo: this was in fin-tap but wasn't here
                     if (this.mouseDownState) {
                         this.fireSyntheticButtonPressedEvent(this.mouseDownState);

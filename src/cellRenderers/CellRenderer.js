@@ -25,8 +25,10 @@
  * @property {boolean} config.allRowsSelected
  *
  * @property {BoundingRect} config.bounds - Bounding rect of the cell or subcell to be rendered.
- *
- * @property {object} [config.clickRect] - **_Write-only._** The Cell renderer may return in this property a subrect in the cell's local coordinates that represents a click region. If defined by the cell renderer, the CellClick feature will ignore clicks outside the click region. If not defined by the cell renderer, the entire cell is clickable.
+ * 
+ * @property {object} [config.leftClickRect] - **_Write-only._** The Cell renderer may return in this property a subrect in the cell's local coordinates that represents a click region. If defined by the cell renderer, the CellClick feature will ignore clicks outside the click region. If not defined by the cell renderer, the entire cell is clickable.
+ * 
+ * @property {object} [config.rightClickRect] - **_Write-only._** The Cell renderer may return in this property a subrect in the cell's local coordinates that represents a click region. If defined by the cell renderer, the CellClick feature will ignore clicks outside the click region. If not defined by the cell renderer, the entire cell is clickable.
  *
  * @property {dataCellCoords} config.dataCell - **_Read-only._** Data coordinates of the cell.
  *

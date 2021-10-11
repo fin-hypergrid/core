@@ -8,6 +8,19 @@
  * @typedef {any} Column TODO
  */
 
+ function mousePointInRect(rect, mousePoint) {
+    if (!rect) {
+        return true;
+    } else if (typeof rect.contains === 'function') {
+        return rect.contains(mousePoint);
+    } else {
+        return (
+            rect.x <= mousePoint.x && mousePoint.x < rect.x + rect.width &&
+            rect.y <= mousePoint.y && mousePoint.y < rect.y + rect.height
+        );
+    }
+}
+
 var cellEventProperties = Object.defineProperties({}, { // all props non-enumerable
     /**
      * The raw value of the cell, unformatted.
@@ -308,21 +321,20 @@ var cellEventProperties = Object.defineProperties({}, { // all props non-enumera
         }
     },
 
-    mousePointInClickRect: {
+    mousePointInLeftClickRect: {
         get: function() {
-            var clickRect = 'clickRect' in this ? this.clickRect : this.properties.clickRect;
-            if (!clickRect) {
-                return true;
-            } else if (typeof clickRect.contains === 'function') {
-                return clickRect.contains(this.mousePoint);
-            } else {
-                return (
-                    clickRect.x <= this.mousePoint.x && this.mousePoint.x < clickRect.x + clickRect.width &&
-                    clickRect.y <= this.mousePoint.y && this.mousePoint.y < clickRect.y + clickRect.height
-                );
-            }
+            var leftClickRect = 'leftClickRect' in this ? this.leftClickRect : this.properties.leftClickRect;
+            return mousePointInRect(leftClickRect, this.mousePoint)
         }
     },
+
+    mousePointInRightClickRect: {
+        get: function() {
+            var rightClickRect = 'rightClickRect' in this ? this.rightClickRect : this.properties.rightClickRect;
+            return mousePointInRect(rightClickRect, this.mousePoint)
+        }
+    },    
+    
 
     /** "Visible" means scrolled into view.
      * @type {PropertyDescriptor} TODO should be {PropertyDescriptor<boolean>} however PropertyDescriptor is not generic
@@ -484,6 +496,11 @@ var cellEventProperties = Object.defineProperties({}, { // all props non-enumera
      * @memberOf CellEvent#
      */
     isBottomTotalsCell:   { get: function() { return this.isBottomTotalsRow && this.isDataColumn; } },
+
+    /** Added by VC-5714
+     * @memberOf CellEvent#
+     */
+    mouseLocation: { get: function () { return this.grid.canvas.mouseLocation } },
 
     $$CLASS_NAME: { value: 'CellEvent' }
 });
