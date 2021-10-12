@@ -37,7 +37,6 @@ var SimpleCell = CellRenderer.extend('SimpleCell', {
             textColor, textFont,
             ixoffset, iyoffset,
             leftIcon, rightIcon, centerIcon,
-            leftIconId, rightIconId,
             leftPadding, rightPadding,
             hover, hoverColor, selectColor, foundationColor, inheritsBackgroundColor,
             c, colors;
@@ -47,13 +46,15 @@ var SimpleCell = CellRenderer.extend('SimpleCell', {
         if (val && val.constructor === Array) {
             leftIcon = val[0];
             rightIcon = val[2];
-            leftIconId = leftIcon?.id
-            rightIconId = rightIcon?.id
             val = config.exec(val[1]);
             if (val && val.naturalWidth !== undefined) { // must be an image (much faster than instanceof HTMLImageElement)
                 centerIcon = val;
                 val = null;
             }
+        } else {
+            leftIcon = images[config.leftIcon];
+            centerIcon = images[config.centerIcon];
+            rightIcon = images[config.rightIcon];
         }
 
         // Note: vf == 0 is fastest equivalent of vf === 0 || vf === false which excludes NaN, null, undefined
@@ -111,15 +112,8 @@ var SimpleCell = CellRenderer.extend('SimpleCell', {
             same = same && hoverColor === snapshot.colors[c++];
         }
 
-        // VC-5714 instead of comparing the entire image object, we use id to check if the images has been updated.
-        same = same &&
-            leftIconId === snapshot.leftIconId &&
-            rightIconId === snapshot.rightIconId
-
+        // todo check if icons have changed
         if (same && c === snapshot.colors.length) {
-            // VC-5714 incase nothing changed we still need to get the click rect from the last snapshot
-            config.leftClickRect = config.snapshot?.leftClickRect
-            config.rightClickRect = config.snapshot?.rightClickRect
             return;
         }
 
@@ -129,9 +123,7 @@ var SimpleCell = CellRenderer.extend('SimpleCell', {
             textColor: textColor,
             textFont: textFont,
             foundationColor: foundationColor,
-            colors: colors,
-            leftIconId: leftIconId,
-            rightIconId: rightIconId
+            colors: colors
         };
 
         layerColors(gc, colors, x, y, width, height, foundationColor);
@@ -149,24 +141,25 @@ var SimpleCell = CellRenderer.extend('SimpleCell', {
                 : renderSingleLineText(gc, config, val, leftPadding, rightPadding);
         }
 
-        // VC-5714 commented out because we never use center icon for anything, also clickRect has been removed from config
-        // if (centerIcon) {
-        //     // Measure & draw center icon
-        //     iyoffset = Math.round((height - centerIcon.height) / 2);
-        //     ixoffset = width - Math.round((width - centerIcon.width) / 2) - centerIcon.width;
-        //     gc.drawImage(centerIcon, x + ixoffset, y + iyoffset, centerIcon.width, centerIcon.height); // see [SIZE NOTE]!
-        //     valWidth = iconPadding + centerIcon.width + iconPadding;
-        //     if (config.hotIcon === 'center') {
-        //         config.clickRect = new Rectangle(ixoffset, iyoffset, centerIcon.width, centerIcon.height);
-        //     }
-        // }
+        if (centerIcon) {
+            // Measure & draw center icon
+            iyoffset = Math.round((height - centerIcon.height) / 2);
+            ixoffset = width - Math.round((width - centerIcon.width) / 2) - centerIcon.width;
+            gc.drawImage(centerIcon, x + ixoffset, y + iyoffset, centerIcon.width, centerIcon.height); // see [SIZE NOTE]!
+            valWidth = iconPadding + centerIcon.width + iconPadding;
+            if (config.hotIcon === 'center') {
+                config.clickRect = new Rectangle(ixoffset, iyoffset, centerIcon.width, centerIcon.height);
+            }
+        }
+
 
         if (leftIcon) {
             // Draw left icon
             iyoffset = Math.round((height - leftIcon.height) / 2);
             gc.drawImage(leftIcon, x + iconPadding, y + iyoffset, leftIcon.width, leftIcon.height); // see [SIZE NOTE]!
-            config.leftClickRect = new Rectangle(iconPadding, config.appendHeightToClickRect ? y + iyoffset: iyoffset, leftIcon.width, leftIcon.height);
-            config.snapshot.leftClickRect = config.leftClickRect
+            if (config.hotIcon === 'left') {
+                config.clickRect = new Rectangle(iconPadding, iyoffset, leftIcon.width, leftIcon.height);
+            }
         }
 
         if (rightIcon) {
@@ -183,8 +176,9 @@ var SimpleCell = CellRenderer.extend('SimpleCell', {
             // Draw right icon
             iyoffset = Math.round((height - rightIcon.height) / 2);
             gc.drawImage(rightIcon, rightX, y + iyoffset, rightIcon.width, rightIcon.height); // see [SIZE NOTE]!
-            config.rightClickRect =  new Rectangle(ixoffset, config.appendHeightToClickRect ? y + iyoffset: iyoffset, rightIcon.width, rightIcon.height);
-            config.snapshot.rightClickRect = config.rightClickRect
+            if (config.hotIcon === 'right') {
+                config.clickRect =  new Rectangle(ixoffset, iyoffset, rightIcon.width, rightIcon.height);
+            }
         }
 
         if (config.cellBorderThickness) {
@@ -435,4 +429,9 @@ function layerColors(gc, colors, x, y, width, height, foundationColor) {
     }
 }
 
-module.exports = SimpleCell;
+module.exports = {
+    SimpleCell,
+    renderMultiLineText,
+    renderSingleLineText,
+    layerColors
+}

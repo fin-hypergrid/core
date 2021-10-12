@@ -1,6 +1,6 @@
 
 var CellRenderer = require('./CellRenderer');
-var simpleCell = require('./SimpleCell.js');
+import { SimpleCell } from './SimpleCell.js';
 
 /**
  * Renders a tree group cell.
@@ -19,7 +19,7 @@ var TreeGroupCell = CellRenderer.extend('TreeGroupCell', {
         config.value = createDisplayValue(config.value);
         config.halign = 'left';
 
-        simpleCell.prototype.paint(gc, config);
+        SimpleCell.prototype.paint(gc, config);
     }
 });
 
