@@ -2,13 +2,6 @@
 var CellRenderer = require('./CellRenderer');
 var Rectangle = require('rectangular').Rectangle;
 import { renderMultiLineText, renderSingleLineText, layerColors } from './SimpleCell';
-
-/**
- * @typedef {any} SimpleCellType TODO
- */
-
-var WHITESPACE = /\s\s+/g;
-
 /**
  * @constructor
  * @summary This class is a copy of SimpleCell render with extra implementation on supporting two buttons on the same cell

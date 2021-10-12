@@ -18,6 +18,9 @@ var OnHover = Feature.extend('OnHover', {
      */
     handleMouseMove: function(grid, event) {
         var hoverCell = grid.hoverCell;
+        if (event.mousePointInLeftClickRect || event.mousePointInRightClickRect) {
+            grid.repaint()
+        }
         if (!event.gridCell.equals(hoverCell)) {
             if (hoverCell) {
                 this.handleMouseExit(grid, hoverCell);
