@@ -18,6 +18,7 @@ var OnHover = Feature.extend('OnHover', {
      */
     handleMouseMove: function(grid, event) {
         var hoverCell = grid.hoverCell;
+        // VC-5715 this is added for quickly repaint the images incase the button is hovered
         if (event.mousePointInLeftClickRect || event.mousePointInRightClickRect) {
             grid.repaint()
         }

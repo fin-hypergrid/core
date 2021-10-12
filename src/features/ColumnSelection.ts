@@ -92,7 +92,9 @@ var ColumnSelection = Feature.extend('ColumnSelection', {
             (
                 grid.properties.autoSelectColumns ||
                 event.isHeaderCell && event.mousePoint.y >= grid.properties.columnGrabMargin
-            )
+            ) && 
+            (!event.mousePointInLeftClickRect && !event.mousePointInRightClickRect)
+            // VC-5715 the above checking is to avoid selecting the entire column when user is trying to click the button
         ) {
             // HOLD OFF WHILE WAITING FOR DOUBLE-CLICK
             this.doubleClickTimer = setTimeout(
