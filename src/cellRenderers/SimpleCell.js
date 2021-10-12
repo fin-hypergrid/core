@@ -38,7 +38,6 @@ var SimpleCell = CellRenderer.extend('SimpleCell', {
             ixoffset, iyoffset,
             leftIcon, rightIcon, centerIcon,
             leftIconId, rightIconId,
-            leftClickRect, rightClickRect,
             leftPadding, rightPadding,
             hover, hoverColor, selectColor, foundationColor, inheritsBackgroundColor,
             c, colors;
