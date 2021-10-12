@@ -37,7 +37,8 @@ var SimpleCell = CellRenderer.extend('SimpleCell', {
             textColor, textFont,
             ixoffset, iyoffset,
             leftIcon, rightIcon, centerIcon,
-            leftIconId, rightIconId, centerIconId,
+            leftIconId, rightIconId,
+            leftClickRect, rightClickRect,
             leftPadding, rightPadding,
             hover, hoverColor, selectColor, foundationColor, inheritsBackgroundColor,
             c, colors;
@@ -117,6 +118,9 @@ var SimpleCell = CellRenderer.extend('SimpleCell', {
             rightIconId === snapshot.rightIconId
 
         if (same && c === snapshot.colors.length) {
+            // VC-5714 incase nothing changed we still need to get the click rect from the last snapshot
+            config.leftClickRect = config.snapshot?.leftClickRect
+            config.rightClickRect = config.snapshot?.rightClickRect
             return;
         }
 
@@ -163,6 +167,7 @@ var SimpleCell = CellRenderer.extend('SimpleCell', {
             iyoffset = Math.round((height - leftIcon.height) / 2);
             gc.drawImage(leftIcon, x + iconPadding, y + iyoffset, leftIcon.width, leftIcon.height); // see [SIZE NOTE]!
             config.leftClickRect = new Rectangle(iconPadding, config.appendHeightToClickRect ? y + iyoffset: iyoffset, leftIcon.width, leftIcon.height);
+            config.snapshot.leftClickRect = config.leftClickRect
         }
 
         if (rightIcon) {
@@ -180,6 +185,7 @@ var SimpleCell = CellRenderer.extend('SimpleCell', {
             iyoffset = Math.round((height - rightIcon.height) / 2);
             gc.drawImage(rightIcon, rightX, y + iyoffset, rightIcon.width, rightIcon.height); // see [SIZE NOTE]!
             config.rightClickRect =  new Rectangle(ixoffset, config.appendHeightToClickRect ? y + iyoffset: iyoffset, rightIcon.width, rightIcon.height);
+            config.snapshot.rightClickRect = config.rightClickRect
         }
 
         if (config.cellBorderThickness) {

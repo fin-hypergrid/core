@@ -10,7 +10,7 @@
 
  function mousePointInRect(rect, mousePoint) {
     if (!rect) {
-        return true;
+        return false;
     } else if (typeof rect.contains === 'function') {
         return rect.contains(mousePoint);
     } else {

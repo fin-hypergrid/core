@@ -1114,7 +1114,6 @@ var Renderer = Base.extend('Renderer', {
         }
 
         // Following supports clicking in a renderer-defined Rectangle of a cell (in the cell's local coordinates)
-        cellEvent.clickRect = config.clickRect;
         cellEvent.leftClickRect = config.leftClickRect
         cellEvent.rightClickRect = config.rightClickRect
         cellEvent.cellRenderer = cellRenderer; // renderer actually used per getCell; used by fireSyntheticButtonPressedEvent
