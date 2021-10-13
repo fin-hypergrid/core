@@ -1049,6 +1049,7 @@ var Renderer = Base.extend('Renderer', {
         config.isUserDataArea = isUserDataArea;
         config.isColumnHovered = cellEvent.isColumnHovered;
         config.isRowHovered = cellEvent.isRowHovered;
+        config.isHeaderCellHovered = cellEvent.isHeaderCellHovered;
         config.isCellHovered = cellEvent.isCellHovered;
         config.bounds = cellEvent.bounds;
         config.isCellSelected = isCellSelected;

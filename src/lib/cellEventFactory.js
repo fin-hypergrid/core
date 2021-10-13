@@ -391,12 +391,15 @@ var cellEventProperties = Object.defineProperties({}, { // all props non-enumera
     /** @type {PropertyDescriptor} TODO should be {PropertyDescriptor<boolean>} however PropertyDescriptor is not generic
      * @memberOf CellEvent#
      */
+    isHeaderRowHovered:    { get: function() { return this.grid.canvas.hasMouse && this.isHeaderRow && this.grid.hoverCell && this.grid.hoverCell.y === this.gridCell.y; } },
+    
     isColumnHovered: { get: function() { return this.grid.canvas.hasMouse && this.isDataColumn && this.grid.hoverCell && this.grid.hoverCell.x === this.gridCell.x; } },
     /** @type {PropertyDescriptor} TODO should be {PropertyDescriptor<boolean>} however PropertyDescriptor is not generic
      * @memberOf CellEvent#
      */
     isCellHovered:   { get: function() { return this.isRowHovered && this.isColumnHovered; } },
 
+    isHeaderCellHovered:   { get: function() { return this.isHeaderRowHovered && this.isColumnHovered; } },
 
     /** @type {PropertyDescriptor} TODO should be {PropertyDescriptor<boolean>} however PropertyDescriptor is not generic
      * @memberOf CellEvent#
