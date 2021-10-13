@@ -1,5 +1,6 @@
 
 import { ColumnMoving } from "./ColumnMoving"
+import { OnHover } from "./OnHover";
 var Registry = require('../lib/Registry');
 
 
@@ -23,7 +24,7 @@ var Features = Registry.extend('Features', {
         this.add(Features.ColumnSorting);
         this.add(Features.Filters);
         this.add(Features.KeyPaging);
-        this.add(Features.OnHover);
+        this.add(OnHover);
         this.add(Features.RowSelection);
         this.add(Features.ThumbwheelScrolling);
         this.add(Features.TouchScrolling);
@@ -44,7 +45,6 @@ Features.ColumnSelection = require('./ColumnSelection');
 Features.ColumnSorting = require('./ColumnSorting');
 Features.Filters = require('./Filters');
 Features.KeyPaging = require('./KeyPaging');
-Features.OnHover = require('./OnHover');
 Features.RowSelection = require('./RowSelection');
 Features.ThumbwheelScrolling = require('./ThumbwheelScrolling');
 Features.TouchScrolling = require('./TouchScrolling');

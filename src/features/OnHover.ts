@@ -1,26 +1,22 @@
+import { Subject } from 'rxjs';
+import { bufferTime } from 'rxjs/operators';
+import { FeatureBase } from './FeatureBase';
 
-var Feature = require('./Feature');
+export class OnHover extends FeatureBase {
+    private hoverButtonSource = new Subject()
 
-/**
- * @typedef {import("../Hypergrid")} Hypergrid
- */
+    initializeOn(grid: any) {
+        this.hoverButtonSource
+            .pipe(bufferTime(100))
+            .subscribe(_ => grid.repaint())
+        this.next?.initializeOn(grid)
+    }
 
-/**
- * @constructor
- */
-// @ts-ignore TODO use classes
-var OnHover = Feature.extend('OnHover', {
-
-    /**
-     * @param {Hypergrid} grid
-     * @param {Object} event - the event details
-     * @memberOf OnHover.prototype
-     */
-    handleMouseMove: function(grid, event) {
+    handleMouseMove(grid, event) {
         var hoverCell = grid.hoverCell;
         // VC-5715 this is added for quickly repaint the images incase the button is hovered
         if (event.mousePointInLeftClickRect || event.mousePointInRightClickRect) {
-            grid.repaint()
+            this.hoverButtonSource.next(null)
         }
         if (!event.gridCell.equals(hoverCell)) {
             if (hoverCell) {
@@ -32,7 +28,4 @@ var OnHover = Feature.extend('OnHover', {
             this.next.handleMouseMove(grid, event);
         }
     }
-
-});
-
-module.exports = OnHover;
+}

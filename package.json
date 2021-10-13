@@ -36,6 +36,7 @@
     "object-iterators": "1.3.0",
     "overrider": "0.3.0",
     "rectangular": "1.0.1",
+    "rxjs": "7.4.0",
     "sparse-boolean-array": "1.0.1",
     "svg-themer": "^1.1.2",
     "synonomous": "^2.1.2"
