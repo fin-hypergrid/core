@@ -429,4 +429,9 @@ function layerColors(gc, colors, x, y, width, height, foundationColor) {
     }
 }
 
-module.exports = SimpleCell;
+module.exports = {
+    SimpleCell,
+    renderMultiLineText,
+    renderSingleLineText,
+    layerColors
+}

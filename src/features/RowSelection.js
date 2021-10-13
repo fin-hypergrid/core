@@ -76,9 +76,8 @@ var RowSelection = Feature.extend('RowSelection', {
         var leftClick = !event.primitiveEvent.detail.isRightClick,
             rowNumberClick = leftClick &&
                 grid.properties.showRowNumbers &&
-                event.isHandleColumn &&
-                event.mousePointInClickRect;
-
+                event.isHandleColumn;
+                
         if (rowNumberClick && !grid.fireSyntheticRowHeaderClickedEvent(event)) {
             return;
         }

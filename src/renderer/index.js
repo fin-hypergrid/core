@@ -1049,6 +1049,7 @@ var Renderer = Base.extend('Renderer', {
         config.isUserDataArea = isUserDataArea;
         config.isColumnHovered = cellEvent.isColumnHovered;
         config.isRowHovered = cellEvent.isRowHovered;
+        config.isHeaderCellHovered = cellEvent.isHeaderCellHovered;
         config.isCellHovered = cellEvent.isCellHovered;
         config.bounds = cellEvent.bounds;
         config.isCellSelected = isCellSelected;
@@ -1056,6 +1057,7 @@ var Renderer = Base.extend('Renderer', {
         config.isColumnSelected = isColumnSelected;
         config.isInCurrentSelectionRectangle = selectionModel.isInCurrentSelectionRectangle(x, r);
         config.prefillColor = prefillColor;
+        config.mouseLocation = cellEvent.mouseLocation
 
         if (grid.mouseDownState) {
             config.mouseDown = grid.mouseDownState.gridCell.equals(cellEvent.gridCell);
@@ -1113,7 +1115,8 @@ var Renderer = Base.extend('Renderer', {
         }
 
         // Following supports clicking in a renderer-defined Rectangle of a cell (in the cell's local coordinates)
-        cellEvent.clickRect = config.clickRect;
+        cellEvent.leftClickRect = config.leftClickRect
+        cellEvent.rightClickRect = config.rightClickRect
         cellEvent.cellRenderer = cellRenderer; // renderer actually used per getCell; used by fireSyntheticButtonPressedEvent
 
         return config.minWidth;
