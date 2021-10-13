@@ -1,14 +1,11 @@
-import { Subject } from 'rxjs';
-import { bufferTime } from 'rxjs/operators';
 import { FeatureBase } from './FeatureBase';
+import _ from "lodash";
 
 export class OnHover extends FeatureBase {
-    private hoverButtonSource = new Subject()
+    private throttledButtonHoverEvent: _.DebouncedFunc<()=>void>
 
     initializeOn(grid: any) {
-        this.hoverButtonSource
-            .pipe(bufferTime(100))
-            .subscribe(_ => grid.repaint())
+        this.throttledButtonHoverEvent = _.throttle(()=> grid.repaint(), 100)
         this.next?.initializeOn(grid)
     }
 
@@ -16,7 +13,7 @@ export class OnHover extends FeatureBase {
         var hoverCell = grid.hoverCell;
         // VC-5715 this is added for quickly repaint the images incase the button is hovered
         if (event.mousePointInLeftClickRect || event.mousePointInRightClickRect) {
-            this.hoverButtonSource.next(null)
+            this.throttledButtonHoverEvent()
         }
         if (!event.gridCell.equals(hoverCell)) {
             if (hoverCell) {
