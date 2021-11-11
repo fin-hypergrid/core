@@ -34,6 +34,7 @@ var SimpleCell = CellRenderer.extend('SimpleCell', {
             snapshot = config.snapshot,
             same = snapshot && partialRender,
             valWidth = 0,
+            rightEmptyWidth = false,
             textColor, textFont,
             ixoffset, iyoffset,
             leftIcon, rightIcon, centerIcon,
@@ -136,7 +137,7 @@ var SimpleCell = CellRenderer.extend('SimpleCell', {
             // draw text
             gc.cache.fillStyle = textColor;
             gc.cache.font = textFont;
-            valWidth = config.isHeaderRow && config.headerTextWrapping
+            [valWidth, rightEmptyWidth] = config.isHeaderRow && config.headerTextWrapping
                 ? renderMultiLineText(gc, config, val, leftPadding, rightPadding)
                 : renderSingleLineText(gc, config, val, leftPadding, rightPadding);
         }
@@ -152,7 +153,6 @@ var SimpleCell = CellRenderer.extend('SimpleCell', {
             }
         }
 
-
         if (leftIcon) {
             // Draw left icon
             iyoffset = Math.round((height - leftIcon.height) / 2);
@@ -162,8 +162,7 @@ var SimpleCell = CellRenderer.extend('SimpleCell', {
             }
         }
 
-        // if (rightIcon && (width - valWidth) > rightPadding) {
-        if (rightIcon) {
+        if (rightIcon && rightEmptyWidth > rightPadding) {
             // Repaint background before painting right icon, because text may have flowed under where it will be.
             // This is a work-around to clipping which is too expensive to perform here.
             ixoffset = width - (rightIcon.width + iconPadding);
@@ -260,7 +259,7 @@ function renderMultiLineText(gc, config, val, leftPadding, rightPadding) {
 
     gc.cache.restore(); // discard clipping region
 
-    return width;
+    return [width, width];
 }
 
 /**
@@ -280,27 +279,33 @@ function renderSingleLineText(gc, config, val, leftPadding, rightPadding) {
         minWidth,
         metrics,
         rightAligned = halign === "right",
-        contentWidth = width - leftPadding;
+        availWidth = width - leftPadding,
+        truncated = false;
 
     if (config.columnAutosizing) {
-        metrics = gc.getTextWidthTruncated(val, contentWidth, config.truncateTextWithEllipsis, false, rightAligned);
+        metrics = gc.getTextWidthTruncated(val, availWidth, config.truncateTextWithEllipsis, false, rightAligned);
         minWidth = metrics.width;
         val = metrics.string || val;
     } else {
-        metrics = gc.getTextWidthTruncated(val, contentWidth, config.truncateTextWithEllipsis, true, rightAligned);
+        metrics = gc.getTextWidthTruncated(val, availWidth, config.truncateTextWithEllipsis, true, rightAligned);
         minWidth = 0;
         // not enough space to show the extire text, the text is truncated to fit for the width
-        if(metrics.string !== undefined) {
+        truncated = metrics.string !== undefined;
+        if(truncated) {
             val = metrics.string;
         }
     }
+
+    const rightEmptyWidth = availWidth - metrics.width;
 
     switch (halign) {
         case 'left':
             halignOffset = leftPadding;
             break;
         case 'right':
-            halignOffset = width - rightPadding;
+            halignOffset = rightEmptyWidth > rightPadding // has enough room for right icon
+                ? Math.max(width - rightEmptyWidth, width - rightPadding)
+                : width - config.cellPadding;
             break;
         case 'center':
             halignOffset = Math.max(leftPadding, (width - metrics.width) / 2);
@@ -343,7 +348,7 @@ function renderSingleLineText(gc, config, val, leftPadding, rightPadding) {
         gc.simpleText(val, x, y);
     }
 
-    return minWidth;
+    return [minWidth, rightEmptyWidth];
 }
 
 function findLines(gc, config, words, width) {

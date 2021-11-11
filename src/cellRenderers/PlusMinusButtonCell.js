@@ -27,6 +27,7 @@ var PlusMinusButtonCell = CellRenderer.extend('PlusMinusButtonCell', {
             snapshot = config.snapshot,
             same = snapshot && partialRender,
             valWidth = 0,
+            rightEmptyWidth = 0,
             textColor, textFont,
             ixoffset, iyoffset,
             leftIcon, rightIcon, centerIcon,
@@ -137,7 +138,7 @@ var PlusMinusButtonCell = CellRenderer.extend('PlusMinusButtonCell', {
             // draw text
             gc.cache.fillStyle = textColor;
             gc.cache.font = textFont;
-            valWidth = config.isHeaderRow && config.headerTextWrapping
+            [valWidth, rightEmptyWidth] = config.isHeaderRow && config.headerTextWrapping
                 ? renderMultiLineText(gc, config, val, leftPadding, rightPadding)
                 : renderSingleLineText(gc, config, val, leftPadding, rightPadding);
         }
