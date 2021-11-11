@@ -34,6 +34,7 @@ var SimpleCell = CellRenderer.extend('SimpleCell', {
             snapshot = config.snapshot,
             same = snapshot && partialRender,
             valWidth = 0,
+            rightEmptyWidth = 0,
             textColor, textFont,
             ixoffset, iyoffset,
             leftIcon, rightIcon, centerIcon,
@@ -136,9 +137,9 @@ var SimpleCell = CellRenderer.extend('SimpleCell', {
             // draw text
             gc.cache.fillStyle = textColor;
             gc.cache.font = textFont;
-            valWidth = config.isHeaderRow && config.headerTextWrapping
+            [valWidth, rightEmptyWidth] = config.isHeaderRow && config.headerTextWrapping
                 ? renderMultiLineText(gc, config, val, leftPadding, rightPadding)
-                : renderSingleLineText(gc, config, val, leftPadding, rightPadding);
+                : renderSingleLineText(gc, config, val, leftPadding, rightPadding, true);
         }
 
         if (centerIcon) {
@@ -152,7 +153,6 @@ var SimpleCell = CellRenderer.extend('SimpleCell', {
             }
         }
 
-
         if (leftIcon) {
             // Draw left icon
             iyoffset = Math.round((height - leftIcon.height) / 2);
@@ -162,7 +162,7 @@ var SimpleCell = CellRenderer.extend('SimpleCell', {
             }
         }
 
-        if (rightIcon) {
+        if (rightIcon && rightEmptyWidth > rightPadding) {
             // Repaint background before painting right icon, because text may have flowed under where it will be.
             // This is a work-around to clipping which is too expensive to perform here.
             ixoffset = width - (rightIcon.width + iconPadding);
@@ -221,7 +221,7 @@ function renderMultiLineText(gc, config, val, leftPadding, rightPadding) {
         lines = findLines(gc, config, cleanVal.split(' '), width);
 
     if (lines.length === 1) {
-        return renderSingleLineText(gc, config, cleanVal, leftPadding, rightPadding);
+        return renderSingleLineText(gc, config, cleanVal, leftPadding, rightPadding, false);
     }
 
     var halignOffset = leftPadding,
@@ -259,7 +259,7 @@ function renderMultiLineText(gc, config, val, leftPadding, rightPadding) {
 
     gc.cache.restore(); // discard clipping region
 
-    return width;
+    return [width, width];
 }
 
 /**
@@ -267,47 +267,57 @@ function renderMultiLineText(gc, config, val, leftPadding, rightPadding) {
  * @param {CanvasRenderingContext2D|any} gc TODO
  * @param {any} config TODO
  * @param {*} val - The text to render in the cell.
+ * @param {boolean} hideRightIcon - When true, hide right icon when there is not enough room
  * @memberOf SimpleCell.prototype
  * @this SimpleCellType
  */
-function renderSingleLineText(gc, config, val, leftPadding, rightPadding) {
+function renderSingleLineText(gc, config, val, leftPadding, rightPadding, hideRightIcon) {
     var x = config.bounds.x,
         y = config.bounds.y,
         width = config.bounds.width,
         halignOffset = leftPadding,
         halign = config.halign,
         minWidth,
-        metrics;
+        metrics,
+        rightAligned = halign === "right",
+        availWidth = width - leftPadding,
+        truncated = false;
 
     if (config.columnAutosizing) {
-        metrics = gc.getTextWidthTruncated(val, width - leftPadding, config.truncateTextWithEllipsis, false, halign !== 'right');
+        metrics = gc.getTextWidthTruncated(val, availWidth, config.truncateTextWithEllipsis, false, rightAligned);
         minWidth = metrics.width;
         val = metrics.string || val;
-        if (halign === 'center') {
-            halignOffset = (width - metrics.width) / 2;
-        }
     } else {
-        metrics = gc.getTextWidthTruncated(val, width - leftPadding, config.truncateTextWithEllipsis, true, halign !== 'right');
+        metrics = gc.getTextWidthTruncated(val, availWidth, config.truncateTextWithEllipsis, true, rightAligned);
         minWidth = 0;
-        if (metrics.string !== undefined) {
-            // not enough space to show the extire text, the text is truncated to fit for the width
+        // not enough space to show the extire text, the text is truncated to fit for the width
+        truncated = metrics.string !== undefined;
+        if(truncated) {
             val = metrics.string;
-        } else {
-            // enought space to show the entire text
-            if (halign === 'center') {
-                halignOffset = (width - metrics.width) / 2;
-            }
         }
     }
 
+    const rightEmptyWidth = availWidth - metrics.width;
+
+    switch (halign) {
+        case 'left':
+            halignOffset = leftPadding;
+            break;
+        case 'right':
+            halignOffset = !hideRightIcon || rightEmptyWidth > rightPadding // has enough room for right icon
+                ? Math.max(width - rightEmptyWidth, width - rightPadding)
+                : width - config.cellPadding;
+            break;
+        case 'center':
+            halignOffset = Math.max(leftPadding, (width - metrics.width) / 2);
+            break;
+        default:
+            halignOffset = leftPadding;
+            break;
+    }
+
     if (val !== null) {
-        // the position for x need to be relocated.
-        // for canvas to print text, when textAlign is 'end' or 'right'
-        // it will start with position x and print the text on the left
-        // so the exact position for x need to increase by the acutal width - rightPadding
-        x += halign === 'right'
-            ? width - rightPadding
-            : Math.max(leftPadding, halignOffset);
+        x += halignOffset;
         y += Math.floor(config.bounds.height / 2);
 
         if (config.isUserDataArea) {
@@ -334,14 +344,12 @@ function renderSingleLineText(gc, config, val, leftPadding, rightPadding) {
             }
         }
 
-        gc.cache.textAlign = halign === 'right'
-            ? 'right'
-            : 'left';
+        gc.cache.textAlign = rightAligned ? "right" : "left";
         gc.cache.textBaseline = 'middle';
         gc.simpleText(val, x, y);
     }
 
-    return minWidth;
+    return [minWidth, rightEmptyWidth];
 }
 
 function findLines(gc, config, words, width) {
