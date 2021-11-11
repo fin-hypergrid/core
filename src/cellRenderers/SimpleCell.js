@@ -162,6 +162,7 @@ var SimpleCell = CellRenderer.extend('SimpleCell', {
             }
         }
 
+        // if (rightIcon && (width - valWidth) > rightPadding) {
         if (rightIcon) {
             // Repaint background before painting right icon, because text may have flowed under where it will be.
             // This is a work-around to clipping which is too expensive to perform here.
@@ -277,37 +278,40 @@ function renderSingleLineText(gc, config, val, leftPadding, rightPadding) {
         halignOffset = leftPadding,
         halign = config.halign,
         minWidth,
-        metrics;
+        metrics,
+        rightAligned = halign === "right",
+        contentWidth = width - leftPadding;
 
     if (config.columnAutosizing) {
-        metrics = gc.getTextWidthTruncated(val, width - leftPadding, config.truncateTextWithEllipsis, false, halign !== 'right');
+        metrics = gc.getTextWidthTruncated(val, contentWidth, config.truncateTextWithEllipsis, false, rightAligned);
         minWidth = metrics.width;
         val = metrics.string || val;
-        if (halign === 'center') {
-            halignOffset = (width - metrics.width) / 2;
-        }
     } else {
-        metrics = gc.getTextWidthTruncated(val, width - leftPadding, config.truncateTextWithEllipsis, true, halign !== 'right');
+        metrics = gc.getTextWidthTruncated(val, contentWidth, config.truncateTextWithEllipsis, true, rightAligned);
         minWidth = 0;
-        if (metrics.string !== undefined) {
-            // not enough space to show the extire text, the text is truncated to fit for the width
+        // not enough space to show the extire text, the text is truncated to fit for the width
+        if(metrics.string !== undefined) {
             val = metrics.string;
-        } else {
-            // enought space to show the entire text
-            if (halign === 'center') {
-                halignOffset = (width - metrics.width) / 2;
-            }
         }
     }
 
+    switch (halign) {
+        case 'left':
+            halignOffset = leftPadding;
+            break;
+        case 'right':
+            halignOffset = width - rightPadding;
+            break;
+        case 'center':
+            halignOffset = Math.max(leftPadding, (width - metrics.width) / 2);
+            break;
+        default:
+            halignOffset = leftPadding;
+            break;
+    }
+
     if (val !== null) {
-        // the position for x need to be relocated.
-        // for canvas to print text, when textAlign is 'end' or 'right'
-        // it will start with position x and print the text on the left
-        // so the exact position for x need to increase by the acutal width - rightPadding
-        x += halign === 'right'
-            ? width - rightPadding
-            : Math.max(leftPadding, halignOffset);
+        x += halignOffset;
         y += Math.floor(config.bounds.height / 2);
 
         if (config.isUserDataArea) {
@@ -334,9 +338,7 @@ function renderSingleLineText(gc, config, val, leftPadding, rightPadding) {
             }
         }
 
-        gc.cache.textAlign = halign === 'right'
-            ? 'right'
-            : 'left';
+        gc.cache.textAlign = rightAligned ? "right" : "left";
         gc.cache.textBaseline = 'middle';
         gc.simpleText(val, x, y);
     }
