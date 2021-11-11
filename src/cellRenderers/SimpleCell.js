@@ -139,7 +139,7 @@ var SimpleCell = CellRenderer.extend('SimpleCell', {
             gc.cache.font = textFont;
             [valWidth, rightEmptyWidth] = config.isHeaderRow && config.headerTextWrapping
                 ? renderMultiLineText(gc, config, val, leftPadding, rightPadding)
-                : renderSingleLineText(gc, config, val, leftPadding, rightPadding);
+                : renderSingleLineText(gc, config, val, leftPadding, rightPadding, true);
         }
 
         if (centerIcon) {
@@ -221,7 +221,7 @@ function renderMultiLineText(gc, config, val, leftPadding, rightPadding) {
         lines = findLines(gc, config, cleanVal.split(' '), width);
 
     if (lines.length === 1) {
-        return renderSingleLineText(gc, config, cleanVal, leftPadding, rightPadding);
+        return renderSingleLineText(gc, config, cleanVal, leftPadding, rightPadding, false);
     }
 
     var halignOffset = leftPadding,
@@ -267,10 +267,11 @@ function renderMultiLineText(gc, config, val, leftPadding, rightPadding) {
  * @param {CanvasRenderingContext2D|any} gc TODO
  * @param {any} config TODO
  * @param {*} val - The text to render in the cell.
+ * @param {boolean} hideRightIcon - When true, hide right icon when there is not enough room
  * @memberOf SimpleCell.prototype
  * @this SimpleCellType
  */
-function renderSingleLineText(gc, config, val, leftPadding, rightPadding) {
+function renderSingleLineText(gc, config, val, leftPadding, rightPadding, hideRightIcon) {
     var x = config.bounds.x,
         y = config.bounds.y,
         width = config.bounds.width,
@@ -303,7 +304,7 @@ function renderSingleLineText(gc, config, val, leftPadding, rightPadding) {
             halignOffset = leftPadding;
             break;
         case 'right':
-            halignOffset = rightEmptyWidth > rightPadding // has enough room for right icon
+            halignOffset = !hideRightIcon || rightEmptyWidth > rightPadding // has enough room for right icon
                 ? Math.max(width - rightEmptyWidth, width - rightPadding)
                 : width - config.cellPadding;
             break;

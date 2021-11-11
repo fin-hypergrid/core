@@ -140,7 +140,7 @@ var PlusMinusButtonCell = CellRenderer.extend('PlusMinusButtonCell', {
             gc.cache.font = textFont;
             [valWidth, rightEmptyWidth] = config.isHeaderRow && config.headerTextWrapping
                 ? renderMultiLineText(gc, config, val, leftPadding, rightPadding)
-                : renderSingleLineText(gc, config, val, leftPadding, rightPadding);
+                : renderSingleLineText(gc, config, val, leftPadding, rightPadding, false);
         }
 
         if (leftIcon) {
