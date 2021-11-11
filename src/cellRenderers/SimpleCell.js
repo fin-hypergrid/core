@@ -34,7 +34,7 @@ var SimpleCell = CellRenderer.extend('SimpleCell', {
             snapshot = config.snapshot,
             same = snapshot && partialRender,
             valWidth = 0,
-            rightEmptyWidth = false,
+            rightEmptyWidth = 0,
             textColor, textFont,
             ixoffset, iyoffset,
             leftIcon, rightIcon, centerIcon,
