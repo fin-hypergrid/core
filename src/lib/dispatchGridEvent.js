@@ -75,6 +75,9 @@ module.exports = function(eventName, cancelable, event, primitiveEvent) {
             // reference (without invoking) cellEvent's `dataRow` getter when available
             Object.defineProperty(detail, 'row', { get: function() { return primitiveEvent.dataRow; } });
         }
+        if ('isHeaderRow' in primitiveEvent) {
+            Object.defineProperty(detail, 'isHeaderRow', { get: function() { return primitiveEvent.isHeaderRow; } });
+        }
         if('mousePointInLeftClickRect' in primitiveEvent && 'mousePointInRightClickRect' in primitiveEvent) {
             Object.defineProperty(detail, 'mousePointInLeftClickRect', { get: function() { return primitiveEvent.mousePointInLeftClickRect; } });
             Object.defineProperty(detail, 'mousePointInRightClickRect', { get: function() { return primitiveEvent.mousePointInRightClickRect; } });
