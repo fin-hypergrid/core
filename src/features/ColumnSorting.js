@@ -60,6 +60,7 @@ function sort(grid, event, onDoubleClick) {
     var columnProperties;
     if (
         event.isHeaderCell &&
+        !(event.mousePointInLeftClickRect || event.mousePointInRightClickRect) &&
         !(columnProperties = event.columnProperties).unsortable &&
         !(columnProperties.sortOnDoubleClick ^ onDoubleClick) // both same (true or falsy)?
     ) {
