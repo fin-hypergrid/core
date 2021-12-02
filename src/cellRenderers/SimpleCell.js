@@ -320,6 +320,10 @@ function renderSingleLineText(gc, config, val, leftPadding, rightPadding, hideRi
         x += halignOffset;
         y += Math.floor(config.bounds.height / 2);
 
+        if (config.topPadding) {
+            y += config.topPadding;
+        }
+
         if (config.isUserDataArea) {
             if (config.link) {
                 if (config.isCellHovered || !config.linkOnHover) {
