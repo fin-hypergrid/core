@@ -320,8 +320,9 @@ function renderSingleLineText(gc, config, val, leftPadding, rightPadding, hideRi
         x += halignOffset;
         y += Math.floor(config.bounds.height / 2);
 
-        const fontHeight = gc.getTextHeight(config.font).height;
-        y += fontHeight * 0.075;
+        if (config.topPadding) {
+            y += config.topPadding;
+        }
 
         if (config.isUserDataArea) {
             if (config.link) {
