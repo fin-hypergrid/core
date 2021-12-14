@@ -86,7 +86,6 @@ function getTextWidthTruncated(string, width, truncateTextWithEllipsis, abort, t
     width += truncateTextWithEllipsis === false ? 2 : -1; // fudge for inequality
     var char, charWidth, sum = 0;
     if(truncateFromRight) {
-        sum = 10;
         for (var j = string.length; j > 0; --j) {
             char = string[j - 1];
             charWidth = metrics[char] = metrics[char] || this.measureText(char).width;
