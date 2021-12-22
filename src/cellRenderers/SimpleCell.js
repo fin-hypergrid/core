@@ -76,7 +76,9 @@ var SimpleCell = CellRenderer.extend('SimpleCell', {
         same = same &&
             val === snapshot.value &&
             textFont === snapshot.textFont &&
-            textColor === snapshot.textColor;
+            textColor === snapshot.textColor &&
+            leftIcon === snapshot.leftIcon &&
+            rightIcon === snapshot.rightIcon;
 
         // fill background only if our bgColor is populated or we are a selected cell
         colors = [];
@@ -121,6 +123,8 @@ var SimpleCell = CellRenderer.extend('SimpleCell', {
         // return a snapshot to save in cellEvent for future comparisons by partial renderer
         config.snapshot = {
             value: val,
+            leftIcon: leftIcon,
+            rightIcon: rightIcon,
             textColor: textColor,
             textFont: textFont,
             foundationColor: foundationColor,
