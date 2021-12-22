@@ -115,7 +115,6 @@ var SimpleCell = CellRenderer.extend('SimpleCell', {
             same = same && hoverColor === snapshot.colors[c++];
         }
 
-        // todo check if icons have changed
         if (same && c === snapshot.colors.length) {
             return;
         }
