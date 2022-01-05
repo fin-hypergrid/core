@@ -133,6 +133,11 @@ exports.mixin = {
             } else if ((c - dw.corner.x) > 0) {
                 this.sbHScroller.index = this.renderer.getMinimumLeftPositionToShowColumn(c);
             }
+            // VC-6393
+            // move the scroll bar to right incase the target column is the last one
+            if (c === this.renderer?.grid.numColumns - 1) {
+                this.renderer.grid.scrollBy(1, 0);
+            }
         }
 
         if (
