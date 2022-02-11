@@ -52,6 +52,10 @@ var CellSelection = Feature.extend('CellSelection', {
     handleMouseUp: function(grid, event) {
         if (this.dragging) {
             this.dragging = false;
+            if(this.dragSelect){
+                grid.selectionChanged(false);
+                this.dragSelect = false
+            }
         }
         if (this.next) {
             this.next.handleMouseUp(grid, event);
@@ -95,8 +99,10 @@ var CellSelection = Feature.extend('CellSelection', {
         if (this.dragging && grid.properties.cellSelection && !event.primitiveEvent.detail.isRightClick) {
             this.currentDrag = event.primitiveEvent.detail.mouse;
             this.lastDragCell = grid.newPoint(event.gridCell.x, event.dataCell.y);
+
+            this.dragSelect = true
             this.checkDragScroll(grid, this.currentDrag);
-            this.handleMouseDragCellSelection(grid, this.lastDragCell, event.primitiveEvent.detail.keys);
+            this.handleMouseDragCellSelection(grid, this.lastDragCell, event.primitiveEvent.detail.keys, true);
         } else if (this.next) {
             this.next.handleMouseDrag(grid, event);
         }
@@ -144,7 +150,7 @@ var CellSelection = Feature.extend('CellSelection', {
      * @param {Object} mouse - the event details
      * @param {Array} keys - array of the keys that are currently pressed down
      */
-    handleMouseDragCellSelection: function(grid, gridCell, keys) {
+    handleMouseDragCellSelection: function(grid, gridCell, keys, silent) {
         var x = Math.max(0, gridCell.x),
             y = Math.max(0, gridCell.y),
             previousDragExtent = grid.getDragExtent(),
@@ -158,7 +164,7 @@ var CellSelection = Feature.extend('CellSelection', {
 
         grid.clearMostRecentSelection();
 
-        grid.select(mouseDown.x, mouseDown.y, newX, newY);
+        grid.select(mouseDown.x, mouseDown.y, newX, newY, silent);
         grid.setDragExtent(grid.newPoint(newX, newY));
 
         grid.repaint();

@@ -142,14 +142,15 @@ exports.mixin = {
      * @param {number} oy - origin y
      * @param {number} ex - extent x
      * @param {number} ex - extent y
+     * @param {Boolean} [silent=false] - whether to trigger selection changed event
      */
-    select: function(ox, oy, ex, ey) {
+    select: function(ox, oy, ex, ey, silent = false) {
         if (ox < 0 || oy < 0) {
             //we don't select negative area
             //also this means there is no origin mouse down for a selection rect
             return;
         }
-        this.selectionModel.select(ox, oy, ex, ey);
+        this.selectionModel.select(ox, oy, ex, ey, silent);
     },
 
     /**
