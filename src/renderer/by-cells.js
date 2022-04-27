@@ -71,7 +71,8 @@ function paintCellsAsNeeded(gc) {
 
             try {
                 // Partial render signaled by calling `_paintCell` with undefined 3rd param (formal `prefillColor`).
-                preferredWidth = Math.max(preferredWidth, this._paintCell(gc, pool[p]));
+                // VC-6892 Use _simplifiedPaintCell instead of _paintCell for performance reason
+                preferredWidth = Math.max(preferredWidth, this._simplifiedPaintCell(gc, pool[p]));
             } catch (e) {
                 this.renderErrorCell(e, gc, vc, pool[p].visibleRow);
             }
