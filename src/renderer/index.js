@@ -970,6 +970,103 @@ var Renderer = Base.extend('Renderer', {
         }
     },
 
+
+    /**
+     * @summary Added from VC-6892. This is a simplified version of _paintCell by removing some unnecessary property assignments
+     * @param {CanvasRenderingContext2D} gc
+     * @param {CellEvent} cellEvent
+     * @param {string} [prefillColor] If omitted, this is a partial renderer; all other renderers must provide this.
+     * @returns {number} Preferred width of renndered cell.
+     * @private
+     * @memberOf Renderer
+     */
+     _simplifiedPaintCell: function(gc, cellEvent, prefillColor) {
+        var grid = this.grid,
+            selectionModel = grid.selectionModel,
+
+            isRowSelected = cellEvent.isRowSelected,
+            isCellSelected = cellEvent.isCellSelected,
+            isColumnSelected = cellEvent.isColumnSelected,
+
+            isDataRow = cellEvent.isDataRow,
+            isHeaderRow = cellEvent.isHeaderRow,
+            isUserDataArea = isDataRow,
+
+            config = this.assignProps(cellEvent),
+
+            x = (config.gridCell = cellEvent.gridCell).x,
+            r = (config.dataCell = cellEvent.dataCell).y,
+
+            isSelected;
+
+        if (isDataRow) {
+            isSelected = isCellSelected || isRowSelected || isColumnSelected;
+        } else if (isColumnSelected) {
+            isSelected = true;
+        } else {
+            isSelected = selectionModel.isCellSelectedInColumn(x); // header or summary or other non-meta
+        }
+
+        // Set cell contents:
+        // * For all cells: set `config.value` (writable property)
+        // * For cells outside of row handle column: also set `config.dataRow` for use by valOrFunc
+        // * For non-data row tree column cells, do nothing (these cells render blank so value is undefined)
+
+        config.dataRow = cellEvent.dataRow;
+        if (isHeaderRow) {
+            // row handle for header row: gets "master" checkbox
+            config.allRowsSelected = selectionModel.areAllRowsSelected();
+        }
+
+        config.isSelected = isSelected;
+        config.isDataRow = isDataRow;
+        config.isHeaderRow = isHeaderRow;
+        config.isUserDataArea = isUserDataArea;
+        config.isColumnHovered = cellEvent.isColumnHovered;
+        config.isRowHovered = cellEvent.isRowHovered;
+        config.isHeaderCellHovered = cellEvent.isHeaderCellHovered;
+        config.isCellHovered = cellEvent.isCellHovered;
+        config.bounds = cellEvent.bounds;
+        config.isCellSelected = isCellSelected;
+        config.isRowSelected = isRowSelected;
+        config.isColumnSelected = isColumnSelected;
+        config.isInCurrentSelectionRectangle = selectionModel.isInCurrentSelectionRectangle(x, r);
+        config.prefillColor = prefillColor;
+        config.mouseLocation = cellEvent.mouseLocation
+
+        if (grid.mouseDownState) {
+            config.mouseDown = grid.mouseDownState.gridCell.equals(cellEvent.gridCell);
+        }
+
+        config.value = cellEvent.value;
+        // eslint-disable-line
+        // This call's dataModel.getCell which developer can override to:
+        // * mutate the (writable) properties of `config` (including config.value)
+        // * mutate cell renderer choice (instance of which is returned)
+        var cellRenderer = cellEvent.subgrid.getCell(config, config.renderer);
+
+        config.formatValue = grid.getFormatter(config.format);
+
+        config.snapshot = cellEvent.snapshot[0]; // supports partial render
+
+        config.minWidth = cellEvent.minWidth; // in case `paint` aborts before setting `minWidth`
+
+        // Render the cell
+        cellRenderer.paint(gc, config);
+        cellEvent.snapshot[0] = config.snapshot; // supports partial render
+
+        if (cellEvent.minWidth === undefined || config.minWidth > cellEvent.minWidth) {
+            cellEvent.minWidth = config.minWidth;
+        }
+
+        // Following supports clicking in a renderer-defined Rectangle of a cell (in the cell's local coordinates)
+        cellEvent.leftClickRect = config.leftClickRect
+        cellEvent.rightClickRect = config.rightClickRect
+        cellEvent.cellRenderer = cellRenderer; // renderer actually used per getCell; used by fireSyntheticButtonPressedEvent
+
+        return config.minWidth;
+    },
+
     /**
      * @summary Render a single cell.
      * @param {CanvasRenderingContext2D} gc
@@ -1431,7 +1528,7 @@ function fetchCompletion(gc, fetchError) {
         scrollableSubgrid = subgrid.isData;
         isSubgridEd = (sgEd === subgrid);
         topR = r;
-        
+
         var availableHeight = subgrid.isData
             ? Y - reservedHeight
             : Y
