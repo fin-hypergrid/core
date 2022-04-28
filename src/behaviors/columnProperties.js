@@ -313,8 +313,6 @@ createColumnProperties.rowHeaderDescriptors = {
                     result = this.isRowSelected ? 'checked' : 'unchecked';
                 } else if (this.isHeaderRow) {
                     result = this.allRowsSelected ? 'checked' : 'unchecked';
-                } else if (this.isFilterRow) {
-                    result = 'filter-off';
                 }
                 return result;
             }

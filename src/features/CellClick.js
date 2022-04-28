@@ -32,7 +32,7 @@ var CellClick = Feature.extend('CellClick', {
      * @memberOf CellClick#
      */
     handleClick: function(grid, event) {
-        var consumed = (event.isDataCell || event.isTreeColumn) && (
+        var consumed = event.isDataCell && (
             this.openLink(grid, event) !== undefined ||
             grid.cellClicked(event)
         );
