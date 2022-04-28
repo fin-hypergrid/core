@@ -970,8 +970,8 @@ var Renderer = Base.extend('Renderer', {
         }
     },
 
-
     /**
+     * @summary Render a single cell.
      * @summary Added from VC-6892. This is a simplified version of _paintCell by removing some unnecessary property assignments
      * @param {CanvasRenderingContext2D} gc
      * @param {CellEvent} cellEvent
@@ -980,7 +980,7 @@ var Renderer = Base.extend('Renderer', {
      * @private
      * @memberOf Renderer
      */
-     _simplifiedPaintCell: function(gc, cellEvent, prefillColor) {
+    _paintCell: function(gc, cellEvent, prefillColor) {
         var grid = this.grid,
             selectionModel = grid.selectionModel,
 
@@ -1057,158 +1057,6 @@ var Renderer = Base.extend('Renderer', {
 
         if (cellEvent.minWidth === undefined || config.minWidth > cellEvent.minWidth) {
             cellEvent.minWidth = config.minWidth;
-        }
-
-        // Following supports clicking in a renderer-defined Rectangle of a cell (in the cell's local coordinates)
-        cellEvent.leftClickRect = config.leftClickRect
-        cellEvent.rightClickRect = config.rightClickRect
-        cellEvent.cellRenderer = cellRenderer; // renderer actually used per getCell; used by fireSyntheticButtonPressedEvent
-
-        return config.minWidth;
-    },
-
-    /**
-     * @summary Render a single cell.
-     * @param {CanvasRenderingContext2D} gc
-     * @param {CellEvent} cellEvent
-     * @param {string} [prefillColor] If omitted, this is a partial renderer; all other renderers must provide this.
-     * @returns {number} Preferred width of renndered cell.
-     * @private
-     * @memberOf Renderer
-     */
-    _paintCell: function(gc, cellEvent, prefillColor) {
-        var grid = this.grid,
-            selectionModel = grid.selectionModel,
-
-            isHandleColumn = cellEvent.isHandleColumn,
-            isTreeColumn = cellEvent.isTreeColumn,
-            isColumnSelected = cellEvent.isColumnSelected,
-
-            isDataRow = cellEvent.isDataRow,
-            isRowSelected = cellEvent.isRowSelected,
-            isCellSelected = cellEvent.isCellSelected,
-
-            isHeaderRow = cellEvent.isHeaderRow,
-            isFilterRow = cellEvent.isFilterRow,
-
-            isRowHandleOrHierarchyColumn = isHandleColumn || isTreeColumn,
-            isUserDataArea = !isRowHandleOrHierarchyColumn && isDataRow,
-
-            config = this.assignProps(cellEvent),
-
-            x = (config.gridCell = cellEvent.gridCell).x,
-            r = (config.dataCell = cellEvent.dataCell).y,
-
-            value,
-            isSelected;
-
-        if (isHandleColumn) {
-            isSelected = isRowSelected || selectionModel.isCellSelectedInRow(r);
-            config.halign = 'right';
-        } else if (isTreeColumn) {
-            isSelected = isRowSelected || selectionModel.isCellSelectedInRow(r);
-            config.halign = 'left';
-        } else if (isDataRow) {
-            isSelected = isCellSelected || isRowSelected || isColumnSelected;
-        } else if (isFilterRow) {
-            isSelected = false;
-        } else if (isColumnSelected) {
-            isSelected = true;
-        } else {
-            isSelected = selectionModel.isCellSelectedInColumn(x); // header or summary or other non-meta
-        }
-
-        // Set cell contents:
-        // * For all cells: set `config.value` (writable property)
-        // * For cells outside of row handle column: also set `config.dataRow` for use by valOrFunc
-        // * For non-data row tree column cells, do nothing (these cells render blank so value is undefined)
-        if (!isHandleColumn) {
-            // including tree column
-            config.dataRow = cellEvent.dataRow;
-            value = cellEvent.value;
-        } else if (isDataRow) {
-            // row handle for a data row
-            if (config.rowHeaderNumbers) {
-                value = r + 1; // row number is 1-based
-            }
-        } else if (isHeaderRow) {
-            // row handle for header row: gets "master" checkbox
-            config.allRowsSelected = selectionModel.areAllRowsSelected();
-        }
-
-        config.isSelected = isSelected;
-        config.isDataColumn = !isRowHandleOrHierarchyColumn;
-        config.isHandleColumn = isHandleColumn;
-        config.isTreeColumn = isTreeColumn;
-        config.isDataRow = isDataRow;
-        config.isHeaderRow = isHeaderRow;
-        config.isFilterRow = isFilterRow;
-        config.isUserDataArea = isUserDataArea;
-        config.isColumnHovered = cellEvent.isColumnHovered;
-        config.isRowHovered = cellEvent.isRowHovered;
-        config.isHeaderCellHovered = cellEvent.isHeaderCellHovered;
-        config.isCellHovered = cellEvent.isCellHovered;
-        config.bounds = cellEvent.bounds;
-        config.isCellSelected = isCellSelected;
-        config.isRowSelected = isRowSelected;
-        config.isColumnSelected = isColumnSelected;
-        config.isInCurrentSelectionRectangle = selectionModel.isInCurrentSelectionRectangle(x, r);
-        config.prefillColor = prefillColor;
-        config.mouseLocation = cellEvent.mouseLocation
-
-        if (grid.mouseDownState) {
-            config.mouseDown = grid.mouseDownState.gridCell.equals(cellEvent.gridCell);
-        }
-
-        config.subrow = 0;
-
-        // subrow logic - coded for efficiency when no subrows (!value.subrows)
-        var isArray = isUserDataArea && value && value.constructor === Array, // fastest array determination
-            subrows = isArray && value.subrows && value.length;
-
-        if (subrows) {
-            var bounds = config.bounds = Object.assign({}, config.bounds);
-            bounds.height /= subrows;
-            config.subrows = subrows;
-            config.value = config.exec(value[0]);
-        } else {
-            subrows = 1;
-            config.value = !isArray && isUserDataArea ? config.exec(value) : value;
-        }
-
-        while (true) { // eslint-disable-line
-            // This call's dataModel.getCell which developer can override to:
-            // * mutate the (writable) properties of `config` (including config.value)
-            // * mutate cell renderer choice (instance of which is returned)
-            var cellRenderer = cellEvent.subgrid.getCell(config, config.renderer);
-
-            config.formatValue = grid.getFormatter(config.format);
-
-            config.snapshot = cellEvent.snapshot[config.subrow]; // supports partial render
-
-            config.minWidth = cellEvent.minWidth; // in case `paint` aborts before setting `minWidth`
-
-            // Render the cell
-            if (cellRenderer.forEach) {
-                cellRenderer.forEach(function(subrenderer) {
-                    subrenderer.paint(gc, config);
-                });
-            } else {
-                cellRenderer.paint(gc, config);
-            }
-
-            cellEvent.snapshot[config.subrow] = config.snapshot; // supports partial render
-
-            if (cellEvent.minWidth === undefined || config.minWidth > cellEvent.minWidth) {
-                cellEvent.minWidth = config.minWidth;
-            }
-
-            if (++config.subrow === subrows) {
-                break;
-            }
-
-            bounds.y += bounds.height;
-            config.value = config.exec(value[config.subrow]);
         }
 
         // Following supports clicking in a renderer-defined Rectangle of a cell (in the cell's local coordinates)

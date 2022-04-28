@@ -253,11 +253,6 @@ exports.mixin = {
      */
     fireSyntheticButtonPressedEvent: function(event) {
         if (event.cellRenderer instanceof Button) { // Button or subclass thereof?
-            if (event.value && event.value.subrows) {
-                var y = event.primitiveEvent.detail.mouse.y - event.bounds.y,
-                    subheight = event.bounds.height / event.value.subrows;
-                event.subrow = Math.floor(y / subheight);
-            }
             return dispatchGridEvent.call(this, 'fin-button-pressed', {}, event);
         }
     },
