@@ -174,6 +174,7 @@ exports.mixin = {
             this.behavior.changed();
             var oldY = this.vScrollValue;
             this.vScrollValue = y;
+            this.sbVScroller.index = y;
             this.scrollValueChangedNotification();
             setTimeout(function() {
                 // self.sbVRangeAdapter.subjectChanged();
