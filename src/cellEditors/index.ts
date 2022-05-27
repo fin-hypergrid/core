@@ -1,9 +1,10 @@
-import Slider from "../cellRenderers/SliderCell";
 import Registry from "../lib/Registry";
 import { Color } from "./Color";
 import { Number } from './Number'
+import { Slider } from "./Slider";
 import { Spinner } from "./Spinner";
 import { Textfield } from './Textfield';
+import { Date } from './Date'
 
 export class CellEditors extends Registry {
 
