@@ -5,18 +5,20 @@ export class CellEditing extends FeatureBase {
 
     handleClick(grid: any, event: any): void {
 
-        var enable = false
+        var activate = false
         switch (event.cellEditorMode) {
             case 'CtrlClick':
-                enable = event.keys.includes('CTRL')
+                activate = event.keys.includes('CTRL')
                 break;
             case 'SingleClick':
-                enable = true
+                activate = true
                 break;
             default:
                 break;
         }
-        this.edit(grid, event, enable)
+        if (activate) {
+            this.edit(grid, event)
+        }
 
         if (this.next) {
             this.next.handleClick(grid, event);
@@ -24,15 +26,17 @@ export class CellEditing extends FeatureBase {
     }
 
     handleDoubleClick(grid: any, event: any): void {
-        var enable = false
+        var activate = false
         switch (event.cellEditorMode) {
             case 'DoubleClick':
-                enable = true
+                activate = true
                 break;
             default:
                 break;
         }
-        this.edit(grid, event, enable)
+        if (activate) {
+            this.edit(grid, event)
+        }
 
         if (this.next) {
             this.next.handleDoubleClick(grid, event);
@@ -70,8 +74,8 @@ export class CellEditing extends FeatureBase {
         return undefined
     }
 
-    private edit(grid: any, event: any, activate: boolean): any {
-        if (event.isDataCell && activate) {
+    private edit(grid: any, event: any): any {
+        if (event.isDataCell) {
             grid.onEditorActivate(event)
         }
     }
