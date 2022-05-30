@@ -40,7 +40,7 @@ export abstract class CellEditor extends Base {
             this.localizer = localizer;
         }
 
-        this.initialValue = options.value;
+        this.initialValue = options.displayValue;
 
         var container = document.createElement('DIV');
         container.innerHTML = this.grid.modules.templater.render(this.template, this);
@@ -140,7 +140,7 @@ export abstract class CellEditor extends Base {
     }
 
     setEditorValue(value: any) {
-        this.input.value = this.localizer.format(value);
+        this.input.value = value
     }
 
     showEditor() {
@@ -165,6 +165,7 @@ export abstract class CellEditor extends Base {
 
         if (!error && this.grid.fireSyntheticEditorDataChangeEvent(this, this.initialValue, value)) {
             try {
+                // do not save value here
                 this.saveEditorValue(value);
             } catch (err) {
                 error = err;
@@ -182,6 +183,13 @@ export abstract class CellEditor extends Base {
         }
 
         return !error;
+    }
+
+    abortEditing() {
+        this.hideEditor();
+        this.grid.cellEditor = null;
+        this.el.remove();
+        this.grid.takeFocus();
     }
 
     cancelEditing(): boolean {
@@ -249,12 +257,14 @@ export abstract class CellEditor extends Base {
     saveEditorValue(value: any): boolean {
         var save = (
             !(value && value === this.initialValue) && // data changed
-            this.grid.fireBeforeCellEdit(this.event.gridCell, this.initialValue, value, this) // proceed
+            this.grid.fireBeforeCellEdit(this.event, this.initialValue, value, this) // proceed
         );
 
         if (save) {
-            this.event.value = value;
-            this.grid.fireAfterCellEdit(this.event.gridCell, this.initialValue, value, this);
+            // we dont directly edit the value in the event
+            // we fire the edited value and pass it to the event
+            // this.event.value = value;
+            this.grid.fireAfterCellEdit(this.event, this.initialValue, value, this);
         }
 
         return save;
@@ -265,7 +275,8 @@ export abstract class CellEditor extends Base {
     }
 
     validateEditorValue(str: any) {
-        return this.localizer.invalid && this.localizer.invalid(str || this.input.value);
+        const val = this.getEditorValue(str)
+        return this.localizer.invalid && this.localizer.invalid(val || str || this.input.value);
     }
 
     takeFocus() {
