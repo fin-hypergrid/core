@@ -4,6 +4,8 @@
 // @ts-ignore TODO
 require('../lib/polyfills'); // Installs misc. polyfills into global objects, as needed
 
+import { CellEditors } from "../cellEditors";
+
 var Point = require('rectangular').Point;
 var Rectangle = require('rectangular').Rectangle;
 var _ = require('object-iterators'); // fyi: installs the Array.prototype.find polyfill, as needed
@@ -19,7 +21,6 @@ var Localization = require('../lib/Localization');
 var Behavior = require('../behaviors/Behavior');
 var behaviorJSON = require('../behaviors/Local');
 var cellRenderers = require('../cellRenderers');
-var cellEditors = require('../cellEditors');
 var modules = require('./modules');
 
 var EDGE_STYLES = ['top', 'bottom', 'left', 'right'],
@@ -150,7 +151,7 @@ var Hypergrid = Base.extend('Hypergrid', {
          * @type {Registry}
          * @memberOf Hypergrid#
          */
-        this.cellEditors = Object.create(cellEditors);
+        this.cellEditors = new CellEditors()
         Object.defineProperty(this.cellEditors, 'create', { value: createCellEditor.bind(this) });
 
         this.initCanvas(options);
@@ -1913,7 +1914,7 @@ function deepClone(object) {
 }
 
 function createCellEditor(name, props) {
-    var CellEditor = cellEditors.get(name);
+    var CellEditor = this.cellEditors.get(name);
     if (CellEditor) {
         return new CellEditor(this, props);
     }

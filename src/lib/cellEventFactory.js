@@ -333,6 +333,11 @@ var cellEventProperties = Object.defineProperties({}, { // all props non-enumera
         }
     },
 
+    getCellEditorMode:{
+        get: function(){
+            return this.cellEditorMode
+        }
+    },
 
     /** "Visible" means scrolled into view.
      * @type {PropertyDescriptor} TODO should be {PropertyDescriptor<boolean>} however PropertyDescriptor is not generic

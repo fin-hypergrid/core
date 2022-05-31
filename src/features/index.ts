@@ -1,4 +1,5 @@
 
+import { CellEditing } from "./CellEditing";
 import { ColumnMoving } from "./ColumnMoving"
 import { OnHover } from "./OnHover";
 var Registry = require('../lib/Registry');
@@ -13,10 +14,10 @@ var Features = Registry.extend('Features', {
 
     BaseClass: require('./Feature'), // abstract base class
 
-    initialize: function() {
+    initialize: function () {
         // preregister the standard cell renderers
         this.add(Features.CellClick);
-        this.add(Features.CellEditing);
+        this.add(CellEditing);
         this.add(Features.CellSelection);
         this.add(ColumnMoving);
         this.add(Features.ColumnResizing);

@@ -18,6 +18,12 @@ var propClassLayersMap = {
     NO_ROWS: [propClassEnum.COLUMNS, propClassEnum.CELLS]
 };
 
+var CellEditorModeEnum = {
+    Disabled: 'Disabled',
+    CtrlClick: 'CtrlClick',
+    DoubleClick: 'DoubleClick',
+    SingleClick: 'SingleClick',
+}
 
 /**
  * This module lists the properties that can be set on a {@link Hypergrid} along with their default values.
@@ -1122,13 +1128,13 @@ var defaults = {
     editable: true,
 
     /**
-     * Edit cell on double-click rather than single-click.
+     * Mode to activate cell editor, by default disabled
      *
      * @default
-     * @type {boolean}
+     * @type {string}
      * @memberOf module:defaults
      */
-    editOnDoubleClick: true,
+    cellEditorMode: CellEditorModeEnum.Disabled,
 
     /**
      * Grid-level property.
@@ -1144,7 +1150,7 @@ var defaults = {
      * @type {boolean}
      * @memberOf module:defaults
      */
-    editOnKeydown: true,
+    editOnKeydown: false,
 
     /**
      * @summary Open cell editor when cell selected via keyboard navigation.
@@ -1193,7 +1199,7 @@ var defaults = {
      * @type {number}
      * @memberOf module:defaults
      */
-    maxSortColumns : 3,
+    maxSortColumns: 3,
 
     /**
      * **This is a standard property definition for sort plug-in use.
@@ -1536,11 +1542,11 @@ function rowPropertiesDeprecationWarning() {
 
 Object.defineProperties(defaults, {
     rowProperties: {
-        get: function() {
+        get: function () {
             rowPropertiesDeprecationWarning();
             return this.rowStripes;
         },
-        set: function(rowProperties) {
+        set: function (rowProperties) {
             rowPropertiesDeprecationWarning();
             this.rowStripes = rowProperties;
         }
@@ -1551,7 +1557,7 @@ function columnOnlyError() {
     throw new HypergridError('Attempt to set/get column-only property on a non-column properties object.');
 }
 
-['name', 'type', 'header', 'calculator'].forEach(function(key) {
+['name', 'type', 'header', 'calculator'].forEach(function (key) {
     Object.defineProperty(defaults, key, {
         set: columnOnlyError
     });

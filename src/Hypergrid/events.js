@@ -444,7 +444,7 @@ exports.mixin = {
 
     /**
      * @memberOf Hypergrid#
-     * @param {Point} cell - The x,y coordinates.
+     * @param {Object} cellEvent - The cell event of the editing cell
      * @param {Object} oldValue - The old value.
      * @param {Object} newValue - The new value.
      * @returns {boolean} Proceed; event was not [canceled](https://developer.mozilla.org/docs/Web/API/EventTarget/dispatchEvent#Return_Value `EventTarget.dispatchEvent`).
