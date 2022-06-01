@@ -78,8 +78,9 @@ module.exports = function(eventName, cancelable, event, primitiveEvent) {
         if ('isHeaderRow' in primitiveEvent) {
             Object.defineProperty(detail, 'isHeaderRow', { get: function() { return primitiveEvent.isHeaderRow; } });
         }
-        if('mousePointInLeftClickRect' in primitiveEvent && 'mousePointInRightClickRect' in primitiveEvent) {
+        if('mousePointInLeftClickRect' in primitiveEvent && 'mousePointInRightClickRect' in primitiveEvent && 'mousePointInCenterClickRect' in primitiveEvent) {
             Object.defineProperty(detail, 'mousePointInLeftClickRect', { get: function() { return primitiveEvent.mousePointInLeftClickRect; } });
+            Object.defineProperty(detail, 'mousePointInCenterClickRect', { get: function() { return primitiveEvent.mousePointInCenterClickRect; } });
             Object.defineProperty(detail, 'mousePointInRightClickRect', { get: function() { return primitiveEvent.mousePointInRightClickRect; } });
         }
     }
