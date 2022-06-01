@@ -22,7 +22,7 @@ var WHITESPACE = /\s\s+/g;
  */
 // @ts-ignore TODO - use classes
 var SimpleCell = CellRenderer.extend('SimpleCell', {
-    paint: function(gc, config) {
+    paint: function (gc, config) {
         var val = config.value,
             bounds = config.bounds,
             x = bounds.x,
@@ -100,7 +100,7 @@ var SimpleCell = CellRenderer.extend('SimpleCell', {
                 if (!inheritsBackgroundColor) {
                     foundationColor = true;
                     colors.push(config.backgroundColor);
-                    same = same &&  foundationColor === snapshot.foundationColor &&
+                    same = same && foundationColor === snapshot.foundationColor &&
                         config.backgroundColor === snapshot.colors[c++];
                 }
             }
@@ -116,6 +116,11 @@ var SimpleCell = CellRenderer.extend('SimpleCell', {
         }
 
         if (same && c === snapshot.colors.length) {
+            if (config.hotIcon !== undefined) {
+                config.leftClickRect = config.snapshot?.leftClickRect
+                config.centerClickRect = config.snapshot?.centerClickRect
+                config.rightClickRect = config.snapshot?.rightClickRect
+            }
             return;
         }
 
@@ -152,7 +157,8 @@ var SimpleCell = CellRenderer.extend('SimpleCell', {
             gc.drawImage(centerIcon, x + ixoffset, y + iyoffset, centerIcon.width, centerIcon.height); // see [SIZE NOTE]!
             valWidth = iconPadding + centerIcon.width + iconPadding;
             if (config.hotIcon === 'center') {
-                config.clickRect = new Rectangle(ixoffset, iyoffset, centerIcon.width, centerIcon.height);
+                config.centerClickRect = new Rectangle(ixoffset, iyoffset, centerIcon.width, centerIcon.height);
+                config.snapshot.centerClickRect = config.centerClickRect
             }
         }
 
@@ -161,7 +167,8 @@ var SimpleCell = CellRenderer.extend('SimpleCell', {
             iyoffset = Math.round((height - leftIcon.height) / 2);
             gc.drawImage(leftIcon, x + iconPadding, y + iyoffset, leftIcon.width, leftIcon.height); // see [SIZE NOTE]!
             if (config.hotIcon === 'left') {
-                config.clickRect = new Rectangle(iconPadding, iyoffset, leftIcon.width, leftIcon.height);
+                config.leftClickRect = new Rectangle(iconPadding, iyoffset, leftIcon.width, leftIcon.height);
+                config.snapshot.leftClickRect = config.leftClickRect
             }
         }
 
@@ -180,7 +187,8 @@ var SimpleCell = CellRenderer.extend('SimpleCell', {
             iyoffset = Math.round((height - rightIcon.height) / 2);
             gc.drawImage(rightIcon, rightX, y + iyoffset, rightIcon.width, rightIcon.height); // see [SIZE NOTE]!
             if (config.hotIcon === 'right') {
-                config.clickRect =  new Rectangle(ixoffset, iyoffset, rightIcon.width, rightIcon.height);
+                config.rightClickRect = new Rectangle(ixoffset, iyoffset, rightIcon.width, rightIcon.height);
+                config.snapshot.rightClickRect = config.rightClickRect
             }
         }
 
@@ -295,7 +303,7 @@ function renderSingleLineText(gc, config, val, leftPadding, rightPadding, hideRi
         minWidth = 0;
         // not enough space to show the extire text, the text is truncated to fit for the width
         truncated = metrics.string !== undefined;
-        if(truncated) {
+        if (truncated) {
             val = metrics.string;
         }
     }
@@ -369,10 +377,10 @@ function findLines(gc, config, words, width) {
     var stillFits, line = [words.shift()];
     while (
         // so lone as line still fits within current column...
-    (stillFits = gc.getTextWidth(line.join(' ')) < width)
-    // ...AND there are more words available...
-    && words.length
-        ) {
+        (stillFits = gc.getTextWidth(line.join(' ')) < width)
+        // ...AND there are more words available...
+        && words.length
+    ) {
         // ...add another word to end of line and retest
         line.push(words.shift());
     }

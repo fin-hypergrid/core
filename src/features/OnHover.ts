@@ -2,18 +2,21 @@ import { FeatureBase } from './FeatureBase';
 import _ from "lodash";
 
 export class OnHover extends FeatureBase {
-    private throttledButtonHoverEvent: _.DebouncedFunc<()=>void>
+    private throttledButtonHoverEvent: _.DebouncedFunc<() => void>
 
     initializeOn(grid: any) {
-        this.throttledButtonHoverEvent = _.throttle(()=> grid.repaint(), 100)
+        this.throttledButtonHoverEvent = _.throttle(() => grid.repaint(), 100)
         this.next?.initializeOn(grid)
     }
 
     handleMouseMove(grid, event) {
         var hoverCell = grid.hoverCell;
         // VC-5715 this is added for quickly repaint the images incase the button is hovered
-        if (event.mousePointInLeftClickRect || event.mousePointInRightClickRect) {
+        if (event.mousePointInLeftClickRect || event.mousePointInRightClickRect || event.mousePointInCenterClickRect) {
+            this.cursor = 'pointer'
             this.throttledButtonHoverEvent()
+        } else {
+            this.cursor = null
         }
         if (!event.gridCell.equals(hoverCell)) {
             if (hoverCell) {
