@@ -140,6 +140,10 @@ var SimpleCell = CellRenderer.extend('SimpleCell', {
         // Measure left and right icons, needed for rendering and for return value (min width)
         leftPadding = leftIcon ? iconPadding + leftIcon.width + iconPadding : config.cellPadding;
         rightPadding = rightIcon ? iconPadding + rightIcon.width + iconPadding : config.cellPadding;
+        if (config.cellBorderThickness) {
+            leftPadding += config.cellBorderThickness / 2
+            rightPadding += config.cellBorderThickness / 2
+        }
 
         if (renderValue) {
             // draw text
@@ -194,8 +198,13 @@ var SimpleCell = CellRenderer.extend('SimpleCell', {
 
         if (config.cellBorderThickness) {
             gc.beginPath();
-            gc.rect(x, y, width, height);
-            gc.cache.lineWidth = config.cellBorderThickness;
+            const tickness = config.cellBorderThickness
+            gc.rect(
+                x + (tickness / 2),
+                y + (tickness / 2),
+                width - tickness,
+                height - tickness);
+            gc.cache.lineWidth = tickness;
             gc.cache.strokeStyle = config.cellBorderStyle;
             gc.stroke();
             gc.closePath();
