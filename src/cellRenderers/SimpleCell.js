@@ -38,7 +38,7 @@ var SimpleCell = CellRenderer.extend('SimpleCell', {
             textColor, textFont,
             ixoffset, iyoffset,
             leftIcon, rightIcon, centerIcon,
-            leftPadding, rightPadding,
+            leftPadding, rightPadding, thicknessPadding,
             hover, hoverColor, selectColor, foundationColor, inheritsBackgroundColor,
             c, colors;
 
@@ -138,8 +138,9 @@ var SimpleCell = CellRenderer.extend('SimpleCell', {
         layerColors(gc, colors, x, y, width, height, foundationColor);
 
         // Measure left and right icons, needed for rendering and for return value (min width)
-        leftPadding = leftIcon ? iconPadding + leftIcon.width + iconPadding : config.cellPadding;
-        rightPadding = rightIcon ? iconPadding + rightIcon.width + iconPadding : config.cellPadding;
+        thicknessPadding = config.cellBorderThickness ? config.cellBorderThickness / 2 : 0
+        leftPadding = (leftIcon ? iconPadding + leftIcon.width + iconPadding : config.cellPadding) + thicknessPadding
+        rightPadding = (rightIcon ? iconPadding + rightIcon.width + iconPadding : config.cellPadding) + thicknessPadding
 
         if (renderValue) {
             // draw text
@@ -194,8 +195,13 @@ var SimpleCell = CellRenderer.extend('SimpleCell', {
 
         if (config.cellBorderThickness) {
             gc.beginPath();
-            gc.rect(x, y, width, height);
-            gc.cache.lineWidth = config.cellBorderThickness;
+            const tickness = config.cellBorderThickness
+            gc.rect(
+                x + thicknessPadding,
+                y + thicknessPadding,
+                width - tickness,
+                height - tickness);
+            gc.cache.lineWidth = tickness;
             gc.cache.strokeStyle = config.cellBorderStyle;
             gc.stroke();
             gc.closePath();
