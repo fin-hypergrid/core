@@ -105,11 +105,11 @@ var ColumnResizing = Feature.extend('ColumnResizing', {
 
             if (event.mousePoint.x <= 3) {
                 gridColumnIndex -= 1;
-                var vc = grid.renderer.visibleColumns[gridColumnIndex] ||
-                    grid.renderer.visibleColumns[gridColumnIndex - 1]; // get row number column if tree column undefined
-                if (vc) {
-                    this.dragColumn = vc.column;
-                    this.dragStartWidth = vc.width;
+                var ac = grid.behavior.getActiveColumn(gridColumnIndex)
+                    || grid.behavior.getActiveColumn(gridColumnIndex - 1); // get row number column if tree column undefined
+                if (ac) {
+                    this.dragColumn = ac;
+                    this.dragStartWidth = ac.properties.width;
                 } else {
                     return; // can't drag left-most column boundary
                 }
@@ -122,10 +122,10 @@ var ColumnResizing = Feature.extend('ColumnResizing', {
 
             if (this.dragColumn.properties.resizeColumnInPlace) {
                 gridColumnIndex += 1;
-                vc = grid.renderer.visibleColumns[gridColumnIndex] ||
-                    grid.renderer.visibleColumns[gridColumnIndex + 1]; // get first data column if tree column undefined;
-                if (vc) {
-                    this.nextColumn = vc.column;
+                ac = grid.behavior.getActiveColumn(gridColumnIndex)
+                    || grid.behavior.getActiveColumn(gridColumnIndex - 1); // get first data column if tree column undefined;
+                if (ac) {
+                    this.nextColumn = ac;
                     this.nextStartWidth = this.nextColumn.getWidth();
                 } else {
                     this.nextColumn = undefined;
