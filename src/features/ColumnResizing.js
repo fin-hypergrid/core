@@ -123,7 +123,7 @@ var ColumnResizing = Feature.extend('ColumnResizing', {
             if (this.dragColumn.properties.resizeColumnInPlace) {
                 gridColumnIndex += 1;
                 ac = grid.behavior.getActiveColumn(gridColumnIndex)
-                    || grid.behavior.getActiveColumn(gridColumnIndex - 1); // get first data column if tree column undefined;
+                    || grid.behavior.getActiveColumn(gridColumnIndex + 1); // get first data column if tree column undefined;
                 if (ac) {
                     this.nextColumn = ac;
                     this.nextStartWidth = this.nextColumn.getWidth();
