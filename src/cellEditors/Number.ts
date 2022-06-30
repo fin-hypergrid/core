@@ -8,6 +8,6 @@ export class Number extends Textfield {
     constructor(grid: any, options: any) {
         super(grid, options);
 
-        this.localizer = grid.localization.get('number');
+        this.localizer = grid.localization.get('simpleNumber');
     }
 }
