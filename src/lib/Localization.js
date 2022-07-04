@@ -16,7 +16,7 @@ var Base = require('../Base');
  * @constructor
  */
 var Formatter = Base.extend({
-    initialize: function(defaultLocale, locale, options) {
+    initialize: function (defaultLocale, locale, options) {
         if (typeof locale === 'object') {
             options = locale;
             locale = defaultLocale;
@@ -40,9 +40,9 @@ var Formatter = Base.extend({
 // Safari has no Intl implementation
 if (!window.Intl) {
     window.Intl = {
-        NumberFormat: function(locale, options) {
+        NumberFormat: function (locale, options) {
             var digits = '0123456789';
-            this.format = function(n) {
+            this.format = function (n) {
                 var s = n.toString();
                 if (!options || options.useGrouping === undefined || options.useGrouping) {
                     var dp = s.indexOf('.');
@@ -56,8 +56,8 @@ if (!window.Intl) {
                 return s;
             };
         },
-        DateTimeFormat: function(locale, options) {
-            this.format = function(date) {
+        DateTimeFormat: function (locale, options) {
+            this.format = function (date) {
                 if (date != null) {
                     if (typeof date !== 'object') {
                         date = new Date(date);
@@ -71,6 +71,36 @@ if (!window.Intl) {
         }
     };
 }
+
+var SimpleNumberFormatter = Formatter.extend('SimpleNumberFormatter', {
+    initialize: function (_, locale, options) {
+        if (typeof locale === 'object') {
+            options = locale;
+        }
+
+        options = options || {};
+
+        this.format = new Intl.NumberFormat(this.locale, options).format;
+    },
+
+    invalid: function (number) {
+        var numVal = Number(number)
+        return isNaN(numVal)
+    },
+
+    expectation:
+        'Expected a simple number that can be parsed by javascript number type.\n',
+
+    parse: function (formattedLocalizedNumber) {
+        var numVal = Number(formattedLocalizedNumber)
+
+        if (isNaN(numVal)) {
+            throw 'Invalid Number';
+        }
+
+        return numVal;
+    }
+});
 
 
 /**
@@ -86,7 +116,7 @@ if (!window.Intl) {
  * @tutorial localization
  */
 var NumberFormatter = Formatter.extend('NumberFormatter', {
-    initialize: function(defaultLocale, locale, options) {
+    initialize: function (defaultLocale, locale, options) {
         if (typeof locale === 'object') {
             options = locale;
         }
@@ -160,7 +190,7 @@ var NumberFormatter = Formatter.extend('NumberFormatter', {
      * @returns {boolean|string} Falsy means valid which in this case means contains only valid characters.
      * @memberOf NumberFormatter.prototype
      */
-    invalid: function(number) {
+    invalid: function (number) {
         return this.invalids.test(number);
     },
 
@@ -179,7 +209,7 @@ var NumberFormatter = Formatter.extend('NumberFormatter', {
      * @throws {string} Invalid number.
      * @memberOf NumberFormatter.prototype
      */
-    parse: function(formattedLocalizedNumber) {
+    parse: function (formattedLocalizedNumber) {
         var number = Number(
             formattedLocalizedNumber.split('').map(this.demapper).join('')
         );
@@ -206,7 +236,7 @@ function demap(c) {
  * @extends Formatter
  */
 var DateFormatter = Formatter.extend('DateFormatter', {
-    initialize: function(defaultLocale, locale, options) {
+    initialize: function (defaultLocale, locale, options) {
         if (typeof locale === 'object') {
             options = locale;
         }
@@ -293,7 +323,7 @@ var DateFormatter = Formatter.extend('DateFormatter', {
      * @returns {boolean} Contains only valid characters.
      * @memberOf DateFormatter.prototype
      */
-    invalid: function(number) {
+    invalid: function (number) {
         return this.invalids.test(number);
     },
 
@@ -307,7 +337,7 @@ var DateFormatter = Formatter.extend('DateFormatter', {
      * @throws {string} Invalid date.
      * @memberOf DateFormatter.prototype
      */
-    parse: function(localizedDate) {
+    parse: function (localizedDate) {
         var date,
             parts = localizedDate.match(this.localizedNumberPattern);
 
@@ -332,7 +362,7 @@ var DateFormatter = Formatter.extend('DateFormatter', {
      * @private
      * @memberOf DateFormatter.prototype
      */
-    transformNumber: function(digitTransformer, number) {
+    transformNumber: function (digitTransformer, number) {
         return number.toString().split('').map(digitTransformer).join('');
     }
 });
@@ -371,6 +401,7 @@ function Localization(locale, numberOptions, dateOptions) {
      * @memberOf Localization.prototype
      */
     this.construct('date', DateFormatter, dateOptions);
+    this.construct('simpleNumber', SimpleNumberFormatter, numberOptions)
 }
 
 Localization.prototype = {
@@ -390,7 +421,7 @@ Localization.prototype = {
      * @param {object} {factoryOptions}
      * @returns {localizerInterface} The new localizer.
      */
-    construct: function(localizerName, Constructor, factoryOptions) {
+    construct: function (localizerName, Constructor, factoryOptions) {
         var constructorName = localizerName[0].toUpperCase() + localizerName.substr(1).toLowerCase() + 'Formatter',
             BoundConstructor = Constructor.bind(null, this.locale),
             localizer = new BoundConstructor(factoryOptions);
@@ -409,7 +440,7 @@ Localization.prototype = {
      * @memberOf Localization.prototype
      * @returns {localizerInterface} The provided localizer.
      */
-    add: function(name, localizer) {
+    add: function (name, localizer) {
         if (typeof name === 'object') {
             localizer = name;
             name = undefined;
@@ -438,7 +469,7 @@ Localization.prototype = {
      * @returns {localizerInterface}
      * @memberOf Localization.prototype
      */
-    get: function(name) {
+    get: function (name) {
         return this[name && name.toLowerCase()] || this.string;
     },
 
@@ -446,7 +477,7 @@ Localization.prototype = {
 
     // Special localizer for use by Chrome's date input control.
     chromeDate: {
-        format: function(date) {
+        format: function (date) {
             if (date != null) {
                 if (typeof date !== 'object') {
                     date = new Date(date);
@@ -462,7 +493,7 @@ Localization.prototype = {
             }
             return date;
         },
-        parse: function(str) {
+        parse: function (str) {
             var date,
                 parts = str.split('-');
             if (parts && parts.length === 3) {
@@ -475,19 +506,19 @@ Localization.prototype = {
     },
 
     null: {
-        format: function(value) {
+        format: function (value) {
             return value;
         },
-        parse: function(str) {
+        parse: function (str) {
             return str;
         }
     },
 
     string: {
-        format: function(value) {
+        format: function (value) {
             return value + '';
         },
-        parse: function(str) {
+        parse: function (str) {
             return str + '';
         }
     }
