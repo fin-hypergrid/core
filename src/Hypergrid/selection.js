@@ -81,7 +81,7 @@ exports.mixin = {
                 whiteSpaceDelimiterForRow = (height > 1 ? '\n' : '');
 
             //disallow if selection is too big
-            if (area > 20000) {
+            if (area > 1000000) {
                 alert('selection size is too big to copy to the paste buffer'); // eslint-disable-line no-alert
                 return '';
             }
