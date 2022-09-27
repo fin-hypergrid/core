@@ -388,42 +388,58 @@ exports.mixin = {
     /**
      * @memberOf Hypergrid#
      * @this {Hypergrid}
-     * @desc Scroll up one full page.
+     * @desc Scroll up one full page. Select top-most cell
      * @returns {number}
      */
     pageUp: function() {
-        var rowNum = this.renderer.getPageUpRow();
-        this.setVScrollValue(rowNum);
-        return rowNum;
+        var currentCell = this.lastSelection[0];
+        var rowUpIndex = this.renderer.getPageUpRow();
+        this.setVScrollValue(rowUpIndex);
+        this.selectCell(currentCell.x, rowUpIndex, false);
+        this.setMouseDown(this.newPoint(currentCell.x, rowUpIndex));
     },
 
     /**
      * @memberOf Hypergrid#
      * @this {Hypergrid}
-     * @desc Scroll down one full page.
+     * @desc Scroll down one full page. Select bottom-most cell
      * @returns {number}
      */
     pageDown: function() {
-        var rowNum = this.renderer.getPageDownRow();
-        this.setVScrollValue(rowNum);
-        return rowNum;
+        var maxRow = this.numRows - 1;
+        var currentCell = this.lastSelection[0];
+        var rowDownIndex = this.renderer.getPageDownRow();
+        if (currentCell.y - rowDownIndex >= 0) {
+            this.setVScrollValue(rowDownIndex);
+            rowDownIndex += this.getVisibleRowsCount()-1;
+        }
+        rowDownIndex >= maxRow ? rowDownIndex = maxRow : undefined;
+        this.selectCell(currentCell.x, rowDownIndex, false);
+        this.setMouseDown(this.newPoint(currentCell.x, rowDownIndex));
     },
 
     /**
      * @memberOf Hypergrid#
      * @this {Hypergrid}
-     * @desc Not yet implemented.
+     * @desc Scroll entire page to most left. Select most-left cell
      */
     pageLeft: function() {
-        throw 'page left not yet implemented';
+        var currentCell = this.lastSelection[0];
+        this.setHScrollValue(this.sbHScroller.range.min)
+        this.selectCell(0, currentCell.y, false);
+        this.setMouseDown(this.newPoint(0, currentCell.y));
     },
 
     /**
      * @memberOf Hypergrid#
      * @this {Hypergrid}
-     * @desc Not yet implemented.
+     * @desc Scroll entire page to most right. Select most-right cell
      */
     pageRight: function() {
-        throw 'page right not yet implemented';
-    }
+        var maxCol = this.numColumns - 1;
+        var currentCell = this.lastSelection[0];
+        this.setHScrollValue(this.sbHScroller.range.max)
+        this.selectCell(maxCol, currentCell.y, false);
+        this.setMouseDown(this.newPoint(maxCol, currentCell.y));
+    },
 };
