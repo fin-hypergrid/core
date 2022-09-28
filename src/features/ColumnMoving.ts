@@ -49,10 +49,12 @@ export class ColumnMoving extends FeatureBase {
 
     initializeOn(grid: any) {
         this.dragOverlay = document.createElement('canvas')
+        this.dragOverlay.id = "drag-overlay-highlight"
         this.dragOverlay.style.position = 'relative'
         this.dragOverlay.style.pointerEvents = 'none'
         this.dragOverlay.style.top = '0px'
         this.dragOverlay.style.left = '0px'
+        this.dragOverlay.style.display = "none"
 
         grid.div.appendChild(this.dragOverlay)
 
@@ -68,6 +70,7 @@ export class ColumnMoving extends FeatureBase {
             event.isHeaderCell &&
             event.mousePoint.y < grid.properties.columnGrabMargin
         ) {
+            this.dragOverlay.style.display = "block"
             this.dragArmed = true;
             this.cursor = ColumnMoving.GRABBING;
             // if user holding the key control, we dont want to clear the selection
@@ -94,6 +97,7 @@ export class ColumnMoving extends FeatureBase {
                 this.next.handleMouseMove(grid, event);
             }, 50);
         }
+        this.dragOverlay.style.display = "none"
         this.dragging = false
         this.dragArmed = false
         requestAnimationFrame(() => this.render(grid, null))
