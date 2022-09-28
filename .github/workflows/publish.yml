@@ -20,6 +20,7 @@ jobs:
         with:
           registry-url: 'https://registry.npmjs.org'
           scope: '@eclipsetrading'
+      - run: npm version ${{ github.event.release.name }}
       - run: npm publish
         env:
           NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
