@@ -252,8 +252,8 @@ exports.mixin = {
             onchange: self.setVScrollValue.bind(self),
             cssStylesheetReferenceElement: this.div,
             paging: {
-                up: self.pageUp.bind(self),
-                down: self.pageDown.bind(self)
+                up: self.pageUpScrollBar.bind(self),
+                down: self.pageDownScrollBar.bind(self)
             }
         });
 
@@ -388,6 +388,30 @@ exports.mixin = {
     /**
      * @memberOf Hypergrid#
      * @this {Hypergrid}
+     * @desc Scroll up one full page when clicking outside scroll bar.
+     * @returns {number}
+     */
+    pageUpScrollBar: function() {
+        var rowNum = this.renderer.getPageUpRow();
+        this.setVScrollValue(rowNum);
+        return rowNum;
+    },
+
+    /**
+     * @memberOf Hypergrid#
+     * @this {Hypergrid}
+     * @desc Scroll down one full page when clicking outside scroll bar.
+     * @returns {number}
+     */
+    pageDownScrollBar: function() {
+        var rowNum = this.renderer.getPageDownRow();
+        this.setVScrollValue(rowNum);
+        return rowNum;
+    },
+
+    /**
+     * @memberOf Hypergrid#
+     * @this {Hypergrid}
      * @desc Scroll up one full page. Select top-most cell
      * @returns {number}
      */
@@ -397,6 +421,8 @@ exports.mixin = {
         this.setVScrollValue(rowUpIndex);
         this.selectCell(currentCell.x, rowUpIndex, false);
         this.setMouseDown(this.newPoint(currentCell.x, rowUpIndex));
+        this.repaint();
+        return rowUpIndex;
     },
 
     /**
@@ -416,6 +442,8 @@ exports.mixin = {
         rowDownIndex >= maxRow ? rowDownIndex = maxRow : undefined;
         this.selectCell(currentCell.x, rowDownIndex, false);
         this.setMouseDown(this.newPoint(currentCell.x, rowDownIndex));
+        this.repaint();
+        return rowDownIndex;
     },
 
     /**
