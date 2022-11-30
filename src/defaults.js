@@ -23,7 +23,7 @@ var CellEditorModeEnum = {
     CtrlClick: 'CtrlClick',
     DoubleClick: 'DoubleClick',
     SingleClick: 'SingleClick',
-}
+};
 
 /**
  * This module lists the properties that can be set on a {@link Hypergrid} along with their default values.
@@ -1542,11 +1542,11 @@ function rowPropertiesDeprecationWarning() {
 
 Object.defineProperties(defaults, {
     rowProperties: {
-        get: function () {
+        get: function() {
             rowPropertiesDeprecationWarning();
             return this.rowStripes;
         },
-        set: function (rowProperties) {
+        set: function(rowProperties) {
             rowPropertiesDeprecationWarning();
             this.rowStripes = rowProperties;
         }
@@ -1557,7 +1557,7 @@ function columnOnlyError() {
     throw new HypergridError('Attempt to set/get column-only property on a non-column properties object.');
 }
 
-['name', 'type', 'header', 'calculator'].forEach(function (key) {
+['name', 'type', 'header', 'calculator'].forEach(function(key) {
     Object.defineProperty(defaults, key, {
         set: columnOnlyError
     });

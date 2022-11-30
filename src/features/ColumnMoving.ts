@@ -219,12 +219,23 @@ export class ColumnMoving extends FeatureBase {
         switch (dragAction.type) {
             case DragActionType.Delete:
                 grid.behavior.removeColumn(dragAction.source.columnIndex)
+                grid.fireSyntheticColumnRemovedEvent(dragAction.source.columnIndex, dragAction.source.column)
                 break;
             case DragActionType.Move:
                 if (dragAction.location === MoveLocation.Before) {
                     grid.behavior.moveColumnBefore(dragAction.source.columnIndex, dragAction.target.columnIndex)
+                    grid.fireSyntheticColumnMovedBeforeEvent(
+                        dragAction.source.columnIndex,
+                        dragAction.source.column,
+                        dragAction.target.columnIndex,
+                        dragAction.target.columnIndex)
                 } else {
                     grid.behavior.moveColumnAfter(dragAction.source.columnIndex, dragAction.target.columnIndex)
+                    grid.fireSyntheticColumnMovedAfterEvent(
+                        dragAction.source.columnIndex,
+                        dragAction.source.column,
+                        dragAction.target.columnIndex,
+                        dragAction.target.columnIndex)
                 }
                 break;
         }

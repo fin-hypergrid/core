@@ -1,6 +1,7 @@
 
 import { CellEditing } from "./CellEditing";
 import { ColumnMoving } from "./ColumnMoving"
+import { ColumnResizing } from "./ColumnResizing";
 import { OnHover } from "./OnHover";
 var Registry = require('../lib/Registry');
 
@@ -20,7 +21,7 @@ var Features = Registry.extend('Features', {
         this.add(CellEditing);
         this.add(Features.CellSelection);
         this.add(ColumnMoving);
-        this.add(Features.ColumnResizing);
+        this.add(ColumnResizing);
         this.add(Features.ColumnSelection);
         this.add(Features.ColumnSorting);
         this.add(Features.Filters);
@@ -41,7 +42,6 @@ Features.BaseClass = require('./Feature'); // abstract base class
 Features.CellClick = require('./CellClick');
 Features.CellEditing = require('./CellEditing');
 Features.CellSelection = require('./CellSelection');
-Features.ColumnResizing = require('./ColumnResizing');
 Features.ColumnSelection = require('./ColumnSelection');
 Features.ColumnSorting = require('./ColumnSorting');
 Features.Filters = require('./Filters');
