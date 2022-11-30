@@ -112,6 +112,36 @@ exports.mixin = {
 
         this.behavior.changed();
     },
+    fireSyntheticColumnRemovedEvent: function(columnIndex, column) {
+        return dispatchGridEvent.call(this, 'fin-column-removed', {
+            columnIndex: columnIndex,
+            column: column
+        });
+    },
+    fireSyntheticColumnMovedBeforeEvent: function(sourceColumnIndex, sourceColumn, targetColumnIndex, targetColumn) {
+        return dispatchGridEvent.call(this, 'fin-column-moved-before', {
+            sourceColumnIndex: sourceColumnIndex,
+            sourceColumn: sourceColumn,
+            targetColumnIndex: targetColumnIndex,
+            targetColumn: targetColumn
+        });
+    },
+
+    fireSyntheticColumnMovedAfterEvent: function(sourceColumnIndex, sourceColumn, targetColumnIndex, targetColumn) {
+        return dispatchGridEvent.call(this, 'fin-column-moved-after', {
+            sourceColumnIndex: sourceColumnIndex,
+            sourceColumn: sourceColumn,
+            targetColumnIndex: targetColumnIndex,
+            targetColumn: targetColumn
+        });
+    },
+
+    fireSyntheticColumnResizedEvent: function(column, startWidth) {
+        return dispatchGridEvent.call(this, 'fin-column-resized', {
+            column: column,
+            startWidth: startWidth
+        });
+    },
 
     /**
      * @memberOf Hypergrid#

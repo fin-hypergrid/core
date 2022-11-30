@@ -1,17 +1,11 @@
+import Column from "../behaviors/Column";
+import { FeatureBase } from "./FeatureBase";
 
-var Feature = require('./Feature');
+export class ColumnResizing extends FeatureBase {
 
-/**
- * @typedef {import("../Hypergrid")} Hypergrid
- * @typedef {any} ColumnResizingType TODO
- */
-
-/**
- * @constructor
- * @extends Feature
- */
-// @ts-ignore TODO use classes
-var ColumnResizing = Feature.extend('ColumnResizing', {
+    private dragColumn?: Column
+    private nextColumn?: Column
+    private nextStartWidth: number
 
     /**
      * the pixel location of the where the drag was initiated
@@ -19,7 +13,7 @@ var ColumnResizing = Feature.extend('ColumnResizing', {
      * @default
      * @memberOf ColumnResizing.prototype
      */
-    dragStart: -1,
+    private dragStart: -1
 
     /**
      * the starting width/height of the row/column we are dragging
@@ -27,7 +21,7 @@ var ColumnResizing = Feature.extend('ColumnResizing', {
      * @default -1
      * @memberOf ColumnResizing.prototype
      */
-    dragStartWidth: -1,
+    private dragStartWidth: -1
 
     /**
      * @memberOf ColumnResizing.prototype
@@ -36,10 +30,10 @@ var ColumnResizing = Feature.extend('ColumnResizing', {
      * @returns {number}
      * @param {MouseEvent} event - the mouse event to query
      */
-    getMouseValue: function(event) {
+    getMouseValue(event) {
         // @ts-ignore
         return event.primitiveEvent.detail.mouse.x;
-    },
+    }
 
     /**
      * @memberOf ColumnResizing.prototype
@@ -48,27 +42,27 @@ var ColumnResizing = Feature.extend('ColumnResizing', {
      * @param {Hypergrid} grid
      * @param {Object} event - the event details
      */
-    overAreaDivider: function(grid, event) {
+    overAreaDivider(grid, event) {
         var leftMostColumnIndex = grid.behavior.leftMostColIndex;
         return event.gridCell.x !== leftMostColumnIndex && event.mousePoint.x <= 3 ||
             event.mousePoint.x >= event.bounds.width - 3;
-    },
+    }
 
     /**
      * @memberOf ColumnResizing.prototype
      * @desc return the cursor name
      * @returns {string}
      */
-    getCursorName: function() {
+    getCursorName() {
         return 'col-resize';
-    },
+    }
 
     /**
      * @memberOf ColumnResizing.prototype
      * @param {Hypergrid} grid
      * @param {Object} event - the event details
      */
-    handleMouseDrag: function(grid, event) {
+    handleMouseDrag(grid, event) {
         if (this.dragColumn) {
             var delta = this.getMouseValue(event) - this.dragStart,
                 dragWidth = this.dragStartWidth + delta,
@@ -91,7 +85,7 @@ var ColumnResizing = Feature.extend('ColumnResizing', {
         } else if (this.next) {
             this.next.handleMouseDrag(grid, event);
         }
-    },
+    }
 
     /**
      * @memberOf ColumnResizing.prototype
@@ -99,7 +93,7 @@ var ColumnResizing = Feature.extend('ColumnResizing', {
      * @param {Hypergrid} grid
      * @param {Object} event - the event details
      */
-    handleMouseDown: function(grid, event) {
+    handleMouseDown(grid, event) {
         if (event.isHeaderRow && this.overAreaDivider(grid, event)) {
             var gridColumnIndex = event.gridCell.x;
 
@@ -136,7 +130,7 @@ var ColumnResizing = Feature.extend('ColumnResizing', {
         } else if (this.next) {
             this.next.handleMouseDown(grid, event);
         }
-    },
+    }
 
     /**
      * @memberOf ColumnResizing.prototype
@@ -144,10 +138,18 @@ var ColumnResizing = Feature.extend('ColumnResizing', {
      * @param {Hypergrid} grid
      * @param {Object} event - the event details
      */
-    handleMouseUp: function(grid, event) {
+    handleMouseUp(grid, event) {
         if (this.dragColumn) {
+
+            if(this.dragStartWidth !== this.dragColumn.getWidth()) {
+                grid.fireSyntheticColumnResizedEvent(this.dragColumn, this.dragStartWidth)
+            }
+            if(this.nextColumn && this.nextStartWidth !== this.nextColumn.getWidth()) {
+                grid.fireSyntheticColumnResizedEvent(this.nextColumn, this.nextStartWidth)
+            }
+
             this.cursor = null;
-            this.dragColumn = false;
+            this.dragColumn = undefined;
 
             event.primitiveEvent.stopPropagation();
             //delay here to give other events a chance to be dropped
@@ -155,7 +157,7 @@ var ColumnResizing = Feature.extend('ColumnResizing', {
         } else if (this.next) {
             this.next.handleMouseUp(grid, event);
         }
-    },
+    }
 
     /**
      * @memberOf ColumnResizing.prototype
@@ -163,7 +165,7 @@ var ColumnResizing = Feature.extend('ColumnResizing', {
      * @param {Hypergrid} grid
      * @param {Object} event - the event details
      */
-    handleMouseMove: function(grid, event) {
+    handleMouseMove(grid, event) {
         if (!this.dragColumn) {
             this.cursor = null;
 
@@ -173,14 +175,14 @@ var ColumnResizing = Feature.extend('ColumnResizing', {
 
             this.cursor = event.isHeaderRow && this.overAreaDivider(grid, event) ? this.getCursorName() : null;
         }
-    },
+    }
 
     /**
      * @param {Hypergrid} grid
      * @param {CellEvent} cellEvent
      * @memberOf ColumnResizing.prototype
      */
-    handleDoubleClick: function(grid, event) {
+    handleDoubleClick(grid, event) {
         if (event.isHeaderRow && this.overAreaDivider(grid, event)) {
             var column = event.mousePoint.x <= 3
                 ? grid.behavior.getActiveColumn(event.gridCell.x - 1)
@@ -197,6 +199,4 @@ var ColumnResizing = Feature.extend('ColumnResizing', {
         }
     }
 
-});
-
-module.exports = ColumnResizing;
+}
