@@ -432,7 +432,7 @@ exports.mixin = {
      * @returns {number}
      */
     pageDown: function() {
-        var maxRow = this.numRows - 1;
+        var maxRow = this.getRowCount() - 1;
         var currentCell = this.lastSelection[0];
         var rowDownIndex = this.renderer.getPageDownRow();
         if (currentCell.y - rowDownIndex >= 0) {
