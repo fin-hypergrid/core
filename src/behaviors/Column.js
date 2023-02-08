@@ -228,6 +228,10 @@ Column.prototype = {
             }
         }
 
+        if (autoSized) {
+            this.behavior.grid.paintNow();
+            this.behavior.grid.fireSyntheticColumnResizedEvent(this, width);
+        }
         return autoSized;
     },
 
