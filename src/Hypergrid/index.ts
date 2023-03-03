@@ -1595,9 +1595,9 @@ var Hypergrid = Base.extend('Hypergrid', {
      * @param {Column|number} columnOrIndex - The column or active column index.
      * @memberOf Hypergrid#
      */
-    autosizeColumn: function(columnOrIndex) {
+    autosizeColumn: function(columnOrIndex, fireResizeEvent) {
         var column = columnOrIndex >= -2 ? this.behavior.getActiveColumn(columnOrIndex) : columnOrIndex;
-        column.checkColumnAutosizing(true);
+        column.checkColumnAutosizing(true, fireResizeEvent);
         this.computeCellsBounds();
     },
 

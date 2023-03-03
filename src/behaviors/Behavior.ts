@@ -1202,7 +1202,7 @@ var Behavior = Base.extend('Behavior', {
         var autoSized = this.autoSizeRowNumberColumn(force) || this.autoSizeTreeColumn(force);
 
         this.allColumns.findWithNeg(function (column) {
-            autoSized = column.checkColumnAutosizing(force) || autoSized;
+            autoSized = column.checkColumnAutosizing(force, false) || autoSized;
         });
 
         return autoSized;
@@ -1210,13 +1210,13 @@ var Behavior = Base.extend('Behavior', {
 
     autoSizeRowNumberColumn: function (force) {
         if (this.grid.properties.showRowNumbers && this.grid.properties.rowNumberAutosizing) {
-            return this.getRowHeaderColumn().checkColumnAutosizing(force);
+            return this.getRowHeaderColumn().checkColumnAutosizing(force, false);
         }
     },
 
     autoSizeTreeColumn: function (force) {
         if (this.grid.properties.showTreeColumn && this.grid.properties.treeColumnAutosizing) {
-            return this.getTreeColumn().checkColumnAutosizing(force);
+            return this.getTreeColumn().checkColumnAutosizing(force, false);
         }
     },
 

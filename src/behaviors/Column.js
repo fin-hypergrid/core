@@ -210,7 +210,7 @@ Column.prototype = {
         }
     },
 
-    checkColumnAutosizing: function(force) {
+    checkColumnAutosizing: function(force, fireResizeEvent) {
         var properties = this.properties,
             width, preferredWidth, autoSized;
 
@@ -228,7 +228,7 @@ Column.prototype = {
             }
         }
 
-        if (autoSized) {
+        if (fireResizeEvent && autoSized) {
             this.behavior.grid.paintNow();
             this.behavior.grid.fireSyntheticColumnResizedEvent(this, width);
         }
