@@ -192,7 +192,7 @@ export class ColumnResizing extends FeatureBase {
                 columnAutosized: false // todo: columnAutosizing should be a setter that automatically resets columnAutosized on state change to true
             });
             setTimeout(function() { // do after next render, which measures text now that auto-sizing is on
-                grid.autosizeColumn(column);
+                grid.autosizeColumn(column, true);
             });
         } else if (this.next) {
             this.next.handleDoubleClick(grid, event);
