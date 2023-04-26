@@ -9,6 +9,7 @@ var featureRegistry = require('../features');
 var ArrayDecorator = require('synonomous');
 var assignOrDelete = require('../lib/assignOrDelete');
 var dispatchGridEvent = require('../lib/dispatchGridEvent');
+var dispatchDataModelEvent = require('./Local/dispatchDataModelEvent');
 
 /**
  * @typedef {any} Hypergrid TODO
@@ -892,6 +893,12 @@ var Behavior = Base.extend('Behavior', {
      * @desc The dimensions of the grid data have changed. You've been notified.
      */
     shapeChanged: function () { this.grid.behaviorShapeChanged(); },
+
+    /**
+     * @memberOf Behavior#
+     * @desc The subgrid of the grid have changed. You've been notified.
+     */
+    subgridChanged: function () { this.boundDispatchEvent('fin-hypergrid-schema-subgrid-changed') },
 
     /**
      * @memberOf Behavior#
