@@ -9,7 +9,6 @@ var featureRegistry = require('../features');
 var ArrayDecorator = require('synonomous');
 var assignOrDelete = require('../lib/assignOrDelete');
 var dispatchGridEvent = require('../lib/dispatchGridEvent');
-var dispatchDataModelEvent = require('./Local/dispatchDataModelEvent');
 
 /**
  * @typedef {any} Hypergrid TODO
