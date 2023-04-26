@@ -94,5 +94,17 @@ module.exports = {
         this.unstashRowSelections();
         this.unstashColumnSelections();
         this.behaviorShapeChanged();
-    }
+    },
+
+    /**
+     * _See the data model API page for event semantics (link below)._
+     * @param {NormalizedDataModelEvent} event
+     * @returns {void|boolean} Result of re-emitted event or `undefined` if event not re-emitted.
+     * {@link DataModel#event:fin-hypergrid-schema-subgrid-changed}
+     * @memberOf dataModelEventHandlers
+     */
+    'fin-hypergrid-schema-subgrid-changed': function(event) {
+        // This is used for internal hypergrid house keeping
+        // Added here just for consistency
+    },
 };

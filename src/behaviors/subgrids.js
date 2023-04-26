@@ -64,6 +64,7 @@ exports.mixin = {
         }, this);
 
         this.shapeChanged();
+        this.subgridChanged();
     },
     get subgrids() {
         return this._subgrids;

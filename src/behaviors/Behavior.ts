@@ -895,6 +895,12 @@ var Behavior = Base.extend('Behavior', {
 
     /**
      * @memberOf Behavior#
+     * @desc The subgrid of the grid have changed. You've been notified.
+     */
+    subgridChanged: function () { this.boundDispatchEvent('fin-hypergrid-schema-subgrid-changed') },
+
+    /**
+     * @memberOf Behavior#
      * @desc The dimensions of the grid data have changed. You've been notified.
      */
     stateChanged: function () { this.grid.behaviorStateChanged(); },
