@@ -37,5 +37,6 @@ exports.grid = `
 
 .hypergrid {
     touch-action: none;
+    image-rendering: pixelated;
 }
 `;
